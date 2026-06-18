@@ -1,0 +1,149 @@
+import { useEffect, useState } from 'react';
+
+import { IconCheck } from '@tabler/icons-react';
+
+import {
+  ImageUrlList,
+  PaginationControls,
+  RowActions,
+  TableHeader,
+} from '@pages/admin/ui/shared/AdminControls';
+
+import { cn } from '@shared/lib/utils/style';
+
+import { getAdminHeroTypeLabel } from '../model/types';
+
+import type { AdminHero } from '../model/types';
+
+const ADMIN_HERO_LIST_PAGE_SIZE = 10;
+
+type AdminHeroListSectionProps = {
+  heroes: AdminHero[];
+  selectedHeroId: number | null;
+  isSaving: boolean;
+  onEdit: (hero: AdminHero) => void;
+  onDelete: (hero: AdminHero) => void;
+};
+
+export default function AdminHeroListSection({
+  heroes,
+  selectedHeroId,
+  isSaving,
+  onEdit,
+  onDelete,
+}: AdminHeroListSectionProps) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(heroes.length / ADMIN_HERO_LIST_PAGE_SIZE),
+  );
+  const paginatedHeroes = heroes.slice(
+    (page - 1) * ADMIN_HERO_LIST_PAGE_SIZE,
+    page * ADMIN_HERO_LIST_PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setPage((prev) => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  useEffect(() => {
+    const selectedIndex = heroes.findIndex(
+      (hero) => hero.id === selectedHeroId,
+    );
+
+    if (selectedIndex >= 0) {
+      setPage(Math.floor(selectedIndex / ADMIN_HERO_LIST_PAGE_SIZE) + 1);
+    }
+  }, [heroes, selectedHeroId]);
+
+  return (
+    <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
+      <TableHeader title="Hero 목록" count={heroes.length} />
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <colgroup>
+            <col className="w-18" />
+            <col className="w-24" />
+            <col className="w-24" />
+            <col />
+            <col className="w-65" />
+            <col className="w-24" />
+          </colgroup>
+          <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
+            <tr>
+              <th className="px-4 py-3">ID</th>
+              <th className="px-4 py-3">타입</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">
+                대표 이미지
+              </th>
+              <th className="px-4 py-3">이름</th>
+              <th className="px-4 py-3">이미지</th>
+              <th className="px-4 py-3">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedHeroes.map((hero) => (
+              <tr
+                key={hero.id}
+                className={cn(
+                  'border-t border-line dark:border-dark-border',
+                  selectedHeroId === hero.id &&
+                    'bg-primary-soft/80 dark:bg-primary/15',
+                )}
+              >
+                <td className="px-4 py-3 align-middle font-semibold">
+                  {hero.id}
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  {getAdminHeroTypeLabel(hero.heroType.name)}
+                </td>
+                <td className="px-4 py-3 text-center align-middle">
+                  {hero.isDefault ? (
+                    <IconCheck
+                      size={18}
+                      stroke={2.4}
+                      className="inline-block text-primary dark:text-blue-300"
+                      aria-label="대표 이미지"
+                    />
+                  ) : (
+                    '-'
+                  )}
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  <div className="flex min-h-12 flex-col justify-center">
+                    <p className="font-semibold leading-snug">{hero.name_ko}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-muted dark:text-dark-muted">
+                      {hero.targetCategory
+                        ? `${hero.targetCategory.name_ko} (${hero.targetCategory.name_en})`
+                        : hero.name_en}
+                    </p>
+                  </div>
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  <ImageUrlList
+                    items={[{ id: hero.id, url: hero.image_url }]}
+                  />
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  <RowActions
+                    disabled={isSaving}
+                    className="flex-col items-start whitespace-nowrap"
+                    onEdit={() => onEdit(hero)}
+                    onDelete={() => onDelete(hero)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {totalPages > 1 ? (
+        <PaginationControls
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      ) : null}
+    </div>
+  );
+}

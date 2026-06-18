@@ -1,0 +1,16 @@
+# local logs
+.next-dev.log
+.next-dev.err.log
+
+# editor
+.vscode/
+
+# local/generated assets
+test-results/
+transparent/
+.tmp/
+.seed-images/
+.seed-images-transparent/
+
+# prisma local workflow
+/prisma/migrations/

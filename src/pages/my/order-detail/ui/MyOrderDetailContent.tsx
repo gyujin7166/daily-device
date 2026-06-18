@@ -1,0 +1,106 @@
+import { ORDER_STATUS } from '@entities/order/model/orderStatus';
+import type { OrderResponse } from '@entities/order/model/types';
+
+import { formatDate } from '@shared/lib/utils/formatDate';
+import { cn } from '@shared/lib/utils/style';
+
+import MyOrderDetailHeaderSection from './MyOrderDetailHeaderSection';
+import MyOrderDetailOrderItemsSection from './MyOrderDetailOrderItemsSection';
+import MyOrderDetailShippingSection from './MyOrderDetailShippingSection';
+import MyOrderDetailSummaryFooter from './MyOrderDetailSummaryFooter';
+
+import type { OrderStatus } from '@prisma/client';
+
+type MyOrderDetailContentProps = {
+  order: OrderResponse;
+  totalPrice: number;
+  canDeleteOrder: boolean;
+  canCancelOrder: boolean;
+  isDeletePending: boolean;
+  isCancelPending: boolean;
+  onDeleteOrder: () => void;
+  onCancelOrder: () => void;
+};
+
+const getStatusBadgeClass = (status: OrderStatus) => {
+  if (status === 'CONFIRMED') {
+    return 'border border-success/35 bg-success-soft text-success';
+  }
+  if (status === 'SHIPPED') {
+    return 'border border-warning/35 bg-warning-soft text-warning';
+  }
+  if (status === 'DELIVERED') {
+    return 'border border-primary/25 bg-primary-soft text-primary';
+  }
+  if (status === 'CANCELLED') {
+    return 'border border-danger/25 bg-danger/5 text-danger dark:border-danger/50 dark:bg-danger/20 dark:text-danger dark:translate-y-[1.5px]';
+  }
+  return 'border border-line bg-surface text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted';
+};
+
+const getStatusText = (status: OrderStatus) => {
+  return ORDER_STATUS[status] ?? status;
+};
+
+export default function MyOrderDetailContent({
+  order,
+  totalPrice,
+  canDeleteOrder,
+  canCancelOrder,
+  isDeletePending,
+  isCancelPending,
+  onDeleteOrder,
+  onCancelOrder,
+}: MyOrderDetailContentProps) {
+  const statusBadgeClassName = getStatusBadgeClass(order.status);
+  const statusText = getStatusText(order.status);
+
+  return (
+    <section className="w-full lg:pl-4">
+      <MyOrderDetailHeaderSection
+        canDeleteOrder={canDeleteOrder}
+        canCancelOrder={canCancelOrder}
+        isDeletePending={isDeletePending}
+        isCancelPending={isCancelPending}
+        onDeleteOrder={onDeleteOrder}
+        onCancelOrder={onCancelOrder}
+      />
+
+      <article className="overflow-hidden rounded-3xl border-4 border-line bg-surface shadow-xs dark:border-dark-border dark:bg-dark-bg">
+        <header className="border-b border-line bg-canvas/40 px-5 py-5 sm:px-7 dark:border-dark-border dark:bg-dark-bg-hover">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex items-center gap-2 text-sm text-muted dark:text-dark-muted">
+              <span className="font-semibold text-ink dark:text-surface">
+                주문번호
+              </span>
+              <span className="truncate font-semibold text-primary dark:text-blue-300">
+                #{order.orderNumber}
+              </span>
+            </div>
+            <span
+              className={cn(
+                'inline-flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-semibold leading-none',
+                statusBadgeClassName,
+              )}
+            >
+              {statusText}
+            </span>
+          </div>
+          <p className="mt-2 text-sm text-muted dark:text-dark-muted">
+            {formatDate(order.createdAt)}
+          </p>
+        </header>
+
+        <div className="space-y-6 p-5 sm:p-6">
+          <MyOrderDetailShippingSection shipping={order.orderShipping} />
+          <MyOrderDetailOrderItemsSection orderItems={order.orderItems} />
+        </div>
+
+        <MyOrderDetailSummaryFooter
+          totalPrice={totalPrice}
+          deliveryDate={order.deliveryDate}
+        />
+      </article>
+    </section>
+  );
+}

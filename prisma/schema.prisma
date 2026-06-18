@@ -1,0 +1,574 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts              Account[]
+  sessions              Session[]
+  cart                  Cart[]
+  ProductReview         ProductReview[]
+  Order                 Order[]
+  userAddresses         UserAddress[]
+  wishlist              Wishlist[]
+  productReviewFeedback ProductReviewFeedback[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// model User {
+//   id            Int       @id @default(autoincrement())
+//   name          String?
+//   email         String    @unique
+//   emailVerified DateTime? @map("email_verified")
+//   image         String?
+//   // accounts      Account[]
+//   // sessions      Session[]
+//   cart          Cart[]
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime  @updatedAt
+// }
+
+model ProductCategory {
+  id           Int     @id @default(autoincrement())
+  name_en      String
+  name_ko      String
+  slug         String  @unique // URL routing key: mice, keyboards, ...
+  parentId     Int?
+  displayOrder Int     @default(0)
+  image_url    String? @db.VarChar(500)
+  isVisible    Boolean @default(true)
+
+  parent           ProductCategory?  @relation("ProductCategoryTree", fields: [parentId], references: [id])
+  children         ProductCategory[] @relation("ProductCategoryTree")
+  product          Product[]
+  hero             Hero[]
+  homeSectionItems HomeSectionItem[]
+
+  @@unique([parentId, name_en])
+  @@unique([parentId, name_ko])
+  @@index([parentId])
+}
+
+model Product {
+  id                   Int          @id @default(autoincrement())
+  // heroId               Int?
+  // hero                 Hero?    @relation(fields: [heroId], references: [id])
+  name_en              String       @unique
+  slug                 String       @unique
+  name_ko              String?      @unique
+  search_keyword       String
+  description          String
+  detailed_description String?
+  note                 String?
+  price                Decimal      @db.Decimal(10, 2)
+  discountRate         Int          @default(0)
+  // image_url            String?  @db.VarChar(500)
+  createdAt            DateTime     @default(now())
+  productLine          ProductLine?
+
+  categoryId Int
+  category   ProductCategory @relation(fields: [categoryId], references: [id])
+
+  productColor        ProductColor[]
+  productDetail       ProductDetail[]
+  productFilterOption ProductFilterOption[]
+  cartItem            CartItem[]
+  ProductReview       ProductReview[]
+  OrderItem           OrderItem[]
+  ProductImage        ProductImage[]
+  wishlistItem        WishlistItem[]
+  homeSectionItems    HomeSectionItem[]
+
+  // @@index([heroId])
+  @@index([categoryId])
+  @@index([discountRate])
+}
+
+enum ProductLine {
+  EVERYDAY_LINE
+  BUSINESS_SERIES
+  PERFORMANCE_SERIES
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wishlistItem WishlistItem[]
+
+  @@index([userId])
+}
+
+model WishlistItem {
+  id         Int      @id @default(autoincrement())
+  wishlistId Int
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([wishlistId, productId])
+  @@index([wishlistId])
+  @@index([productId])
+}
+
+model ProductImage {
+  id             Int           @id @default(autoincrement())
+  productId      Int
+  product        Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productColor   ProductColor? @relation(fields: [productColorId], references: [id], onDelete: SetNull)
+  productColorId Int?
+  image_url      String
+  order          Int           @default(0)
+  isMain         Boolean       @default(false) // 대표 이미지 표시
+
+  @@index([productId])
+  @@index([productId, isMain])
+  @@index([productColorId])
+  @@index([productId, productColorId])
+}
+
+model ProductFilterOption {
+  id             Int          @id @default(autoincrement())
+  productId      Int
+  product        Product      @relation(fields: [productId], references: [id])
+  filterOptionId Int
+  filterOption   FilterOption @relation(fields: [filterOptionId], references: [id])
+
+  @@index([productId])
+  @@index([filterOptionId])
+}
+
+model ProductDetail {
+  id            Int      @id @default(autoincrement())
+  productId     Int
+  product       Product  @relation(fields: [productId], references: [id])
+  titleId       Int
+  title_middle  String?
+  title_sub     String?
+  specification String?
+  note          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // ProductDetailContent ProductDetailContent[]
+
+  @@index([productId])
+}
+
+model Color {
+  id      Int            @id @default(autoincrement())
+  name    String         @unique
+  hex     String
+  product ProductColor[]
+}
+
+model ProductColor {
+  id        Int            @id @default(autoincrement())
+  product   Product        @relation(fields: [productId], references: [id])
+  productId Int
+  color     Color          @relation(fields: [colorId], references: [id])
+  colorId   Int
+  isDefault Boolean        @default(false)
+  OrderItem OrderItem[]
+  image     ProductImage[]
+
+  @@unique([productId, colorId])
+  @@index([productId])
+  @@index([colorId])
+  @@index([productId, isDefault])
+}
+
+enum OrderStatus {
+  PENDING // 주문 요청 시
+  CONFIRMED // 결제 완료 시
+  SHIPPED // 배송 중
+  DELIVERED // 배송 완료
+  CANCELLED // 사용자의 주문 취소
+  EXPIRED // 주문 요청 후(PENDING 상태로만 유지되어 있는 경우) 결제 완료(CONFIRMED)가 되지 않으면 일정 시간 후에 EXPIRED
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  orderNumber  String      @unique
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  createdAt    DateTime    @default(now())
+  deliveryDate DateTime?
+  status       OrderStatus @default(PENDING)
+  isBuyNow     Boolean     @default(false)
+  userHiddenAt DateTime?
+
+  orderItems    OrderItem[]
+  orderShipping OrderShipping[]
+  payment       OrderPayment?
+
+  @@index([userId])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id             Int             @id @default(autoincrement())
+  order          Order           @relation(fields: [orderId], references: [id])
+  orderId        Int
+  product        Product         @relation(fields: [productId], references: [id])
+  productId      Int
+  productColor   ProductColor?   @relation(fields: [productColorId], references: [id])
+  productColorId Int?
+  quantity       Int
+  price          Decimal         @db.Decimal(10, 2) // 주문 당시 가격
+  productName    String // 주문 당시 상품명
+  colorName      String? // 주문 당시 색상명
+  reviewStatus   ReviewStatus    @default(PENDING)
+  ProductReview  ProductReview[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([productColorId])
+}
+
+model OrderPayment {
+  id          Int       @id @default(autoincrement())
+  orderId     Int       @unique
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider    String
+  paymentKey  String    @unique
+  orderName   String?
+  method      String?
+  status      String?
+  totalAmount Decimal?  @db.Decimal(10, 2)
+  requestedAt DateTime?
+  approvedAt  DateTime?
+  rawPayload  Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([paymentKey])
+}
+
+model OrderShipping {
+  id             Int      @id @default(autoincrement())
+  orderId        Int      @unique
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  recipientName  String
+  recipientPhone String
+  address1       String
+  address2       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([recipientPhone])
+}
+
+model UserAddress {
+  id             Int      @id @default(autoincrement())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipientName  String
+  recipientPhone String
+  address1       String
+  address2       String?
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, isDefault])
+}
+
+enum ReviewStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+}
+
+model ProductReview {
+  id            Int       @id @default(autoincrement())
+  productId     Int
+  product       Product   @relation(fields: [productId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  orderItemId   Int
+  orderItem     OrderItem @relation(fields: [orderItemId], references: [id])
+  rating        Int
+  title         String    @db.VarChar(100) // 후기 대제목
+  content       String    @db.Text // 후기 내용
+  // image_url   String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  adminHiddenAt DateTime?
+
+  ProductReviewImage    ProductReviewImage[]
+  ProductReviewFeedback ProductReviewFeedback[]
+
+  @@unique([userId, orderItemId])
+  @@index([productId])
+  @@index([userId])
+  @@index([adminHiddenAt])
+}
+
+model ProductReviewFeedback {
+  id              Int           @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isHelpful       Boolean
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([productReviewId, userId])
+  @@index([productReviewId])
+  @@index([userId])
+  @@index([productReviewId, isHelpful])
+}
+
+model ProductReviewImage {
+  id              Int           @id @default(autoincrement())
+  productReviewId Int
+  productReview   ProductReview @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+  image_url       String        @db.VarChar(500)
+  blur_data_url   String?       @db.Text
+  order           Int           @default(0) // 이미지 순서
+
+  @@index([productReviewId])
+}
+
+// model ProductDetailContent {
+//   id          Int      @id @default(autoincrement())
+//   name        String?
+//   description String?
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   productDetailId Int
+//   productDetail   ProductDetail @relation(fields: [productDetailId], references: [id])
+
+//   @@index([productDetailId])
+// }
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cartItem CartItem[]
+
+  @@index([userId])
+}
+
+model CartItem {
+  id             Int     @id @default(autoincrement())
+  cartId         Int
+  cart           Cart    @relation(fields: [cartId], references: [id])
+  productId      Int
+  product        Product @relation(fields: [productId], references: [id])
+  productColorId Int?
+  colorName      String?
+  quantity       Int
+
+  @@index([cartId])
+  @@index([productId])
+  @@index([cartId, productId])
+  @@index([cartId, productId, productColorId])
+  @@index([productColorId])
+}
+
+model Recommend {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Filter {
+  id           Int    @id @default(autoincrement())
+  name         String
+  categoryName String
+
+  filterOption FilterOption[]
+}
+
+model FilterOption {
+  id           Int    @id @default(autoincrement())
+  filterId     Int
+  filter       Filter @relation(fields: [filterId], references: [id])
+  name_ko      String
+  name_en      String
+  categoryName String
+
+  ProductFilterOption ProductFilterOption[]
+
+  @@index([filterId])
+}
+
+// model ProductHero {
+//   id          Int     @id @default(autoincrement())
+//   name_en     String
+//   name_ko     String
+//   image_url   String?
+//   description String
+//   position    String?
+
+//   product Product[]3
+// }
+
+model HeroType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  Hero Hero[]
+}
+
+model Hero {
+  id                   Int     @id @default(autoincrement())
+  name_en              String
+  name_ko              String
+  image_url            String?
+  image_width          Int?
+  image_height         Int?
+  description          String?
+  detailed_description String?
+  position             String?
+  isDefault            Boolean @default(false)
+  textTone             String  @default("dark")
+  navTone              String  @default("light")
+  overlayTone          String  @default("none")
+
+  heroTypeId Int
+  heroType   HeroType @relation(fields: [heroTypeId], references: [id])
+
+  targetCategoryId Int?
+  targetCategory   ProductCategory? @relation(fields: [targetCategoryId], references: [id], onDelete: SetNull)
+
+  // product         Product[]
+  @@index([heroTypeId])
+  @@index([targetCategoryId])
+  @@index([heroTypeId, targetCategoryId, isDefault])
+}
+
+model HomeSection {
+  id           Int      @id @default(autoincrement())
+  key          String   @unique
+  eyebrow      String?
+  title        String
+  subtitle     String?  @db.Text
+  displayOrder Int      @default(0)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  items HomeSectionItem[]
+
+  @@index([displayOrder])
+  @@index([isVisible])
+}
+
+model HomeSectionItem {
+  id                   Int              @id @default(autoincrement())
+  sectionId            Int
+  section              HomeSection      @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  label                String?
+  title                String
+  description          String?          @db.Text
+  cta                  String?
+  href                 String?
+  targetCategoryId     Int?
+  targetCategory       ProductCategory? @relation(fields: [targetCategoryId], references: [id], onDelete: SetNull)
+  targetProductId      Int?
+  targetProduct        Product?         @relation(fields: [targetProductId], references: [id], onDelete: SetNull)
+  image_url            String           @db.VarChar(500)
+  imageAlt             String?
+  displayOrder         Int              @default(0)
+  isVisible            Boolean          @default(true)
+  layoutGroup          Int              @default(0)
+  layoutGroupClassName String?
+  layoutAreaClassName  String?
+  labelPosition        String?
+  imageClassName       String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([sectionId])
+  @@index([sectionId, displayOrder])
+  @@index([sectionId, layoutGroup])
+  @@index([targetCategoryId])
+  @@index([targetProductId])
+  @@index([isVisible])
+}
+
+// model ProductAttribute {
+//   id         Int      @id @default(autoincrement())
+//   productId  Int
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+
+//   product    Product @relation(fields: [productId], references: [id])
+
+//   @@index([productId])
+// }
+
+// model ProductFilter {
+//   id        Int          @id @default(autoincrement())
+//   productId Int
+//   filterId  Int
+//   optionId  Int
+//   product   Product?     @relation(fields: [productId], references: [id])
+//   filter    Filter       @relation(fields: [filterId], references: [id])
+//   option    FilterOption @relation(fields: [optionId], references: [id])
+// }

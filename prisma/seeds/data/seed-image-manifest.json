@@ -1,0 +1,480 @@
+{
+  "generatedAt": "2026-06-18T06:04:21.081Z",
+  "sourceRoot": "C:\\Users\\Yun\\Desktop\\FE\\logitech-clone\\.seed-images",
+  "cloudName": "dmcv5suez",
+  "folderPrefix": "ecommerce",
+  "products": [],
+  "categories": [
+    {
+      "categorySlug": "mice-keyboards",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/categories/mice-keyboards/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781349160/ecommerce/categories/mice-keyboards/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "categorySlug": "audio-microphones",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/categories/audio-microphones/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781349162/ecommerce/categories/audio-microphones/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "categorySlug": "cameras-streaming",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/categories/cameras-streaming/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781349163/ecommerce/categories/cameras-streaming/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "categorySlug": "accessories",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/categories/accessories/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781349164/ecommerce/categories/accessories/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "categorySlug": "speakers-smart-home",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/categories/speakers-smart-home/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781349165/ecommerce/categories/speakers-smart-home/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    }
+  ],
+  "heroes": [
+    {
+      "heroType": "main",
+      "heroKey": "pixel-keys-flow",
+      "categorySlug": null,
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/main/pixel-keys-flow/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147164/ecommerce/heroes/main/pixel-keys-flow/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "mice",
+      "categorySlug": "mice",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/mice/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147165/ecommerce/heroes/product/mice/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "keyboards",
+      "categorySlug": "keyboards",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/keyboards/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147166/ecommerce/heroes/product/keyboards/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "tablet-keyboards",
+      "categorySlug": "tablet-keyboards",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/tablet-keyboards/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147167/ecommerce/heroes/product/tablet-keyboards/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "headsets",
+      "categorySlug": "headsets",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/headsets/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147169/ecommerce/heroes/product/headsets/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "earphones",
+      "categorySlug": "earphones",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/earphones/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147170/ecommerce/heroes/product/earphones/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "microphones",
+      "categorySlug": "microphones",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/microphones/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147171/ecommerce/heroes/product/microphones/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "webcams",
+      "categorySlug": "webcams",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/webcams/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147171/ecommerce/heroes/product/webcams/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "cameras",
+      "categorySlug": "cameras",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/cameras/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147172/ecommerce/heroes/product/cameras/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "lighting",
+      "categorySlug": "lighting",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/lighting/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781614092/ecommerce/heroes/product/lighting/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "streaming-gear",
+      "categorySlug": "streaming-gear",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/streaming-gear/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147174/ecommerce/heroes/product/streaming-gear/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "tablet-accessories",
+      "categorySlug": "tablet-accessories",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/tablet-accessories/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147175/ecommerce/heroes/product/tablet-accessories/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "phone-accessories",
+      "categorySlug": "phone-accessories",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/phone-accessories/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147176/ecommerce/heroes/product/phone-accessories/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "stands",
+      "categorySlug": "stands",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/stands/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147177/ecommerce/heroes/product/stands/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "cables",
+      "categorySlug": "cables",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/cables/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147178/ecommerce/heroes/product/cables/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "bluetooth-speakers",
+      "categorySlug": "bluetooth-speakers",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/bluetooth-speakers/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147180/ecommerce/heroes/product/bluetooth-speakers/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "computer-speakers",
+      "categorySlug": "computer-speakers",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/computer-speakers/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147181/ecommerce/heroes/product/computer-speakers/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "security-cameras",
+      "categorySlug": "security-cameras",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/security-cameras/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147182/ecommerce/heroes/product/security-cameras/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product",
+      "heroKey": "smart-home",
+      "categorySlug": "smart-home",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product/smart-home/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781147183/ecommerce/heroes/product/smart-home/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product-all",
+      "heroKey": "products",
+      "categorySlug": null,
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product-all/products/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781601899/ecommerce/heroes/product-all/products/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "heroType": "product-discounts",
+      "heroKey": "discounts",
+      "categorySlug": null,
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/heroes/product-discounts/discounts/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781601900/ecommerce/heroes/product-discounts/discounts/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    }
+  ],
+  "homeItems": [
+    {
+      "sectionKey": "featured-products",
+      "itemKey": "aster-webcam-mini",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/featured-products/aster-webcam-mini/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348245/ecommerce/home/featured-products/aster-webcam-mini/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "featured-products",
+      "itemKey": "nook-keys-core",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/featured-products/nook-keys-core/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348246/ecommerce/home/featured-products/nook-keys-core/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "featured-products",
+      "itemKey": "breeze-mouse-desk",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/featured-products/breeze-mouse-desk/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348247/ecommerce/home/featured-products/breeze-mouse-desk/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "mice",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/mice/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348248/ecommerce/home/category-carousel/mice/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "cameras",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/cameras/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348249/ecommerce/home/category-carousel/cameras/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "tablet-keyboards",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/tablet-keyboards/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348250/ecommerce/home/category-carousel/tablet-keyboards/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "headsets",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/headsets/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781681191/ecommerce/home/category-carousel/headsets/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "security-cameras",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/security-cameras/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348251/ecommerce/home/category-carousel/security-cameras/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "streaming-gear",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/streaming-gear/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348252/ecommerce/home/category-carousel/streaming-gear/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "computer-speakers",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/computer-speakers/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348253/ecommerce/home/category-carousel/computer-speakers/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "webcams",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/webcams/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348254/ecommerce/home/category-carousel/webcams/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "smart-home",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/smart-home/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348255/ecommerce/home/category-carousel/smart-home/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "phone-accessories",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/phone-accessories/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348255/ecommerce/home/category-carousel/phone-accessories/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "bluetooth-speakers",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/bluetooth-speakers/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348256/ecommerce/home/category-carousel/bluetooth-speakers/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    },
+    {
+      "sectionKey": "category-carousel",
+      "itemKey": "keyboards",
+      "image": {
+        "fileName": "01-main.webp",
+        "publicId": "ecommerce/home/category-carousel/keyboards/01-main",
+        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781762660/ecommerce/home/category-carousel/keyboards/01-main.webp",
+        "order": 0,
+        "isMain": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+import {
+  ImageUrlList,
+  PaginationControls,
+  RowActions,
+  TableHeader,
+  inputClass,
+} from '@pages/admin/ui/shared/AdminControls';
+
+import { getProductLineLabel } from '@shared/constants/productLine';
+import { getProductPriceInfo } from '@shared/lib/price/discount';
+import { cn } from '@shared/lib/utils/style';
+
+import type {
+  AdminProduct,
+  AdminProductListParams,
+  AdminProductPayload,
+  ProductCategory,
+} from '../model/types';
+
+type AdminProductListSectionProps = {
+  params: AdminProductListParams;
+  productPage?: AdminProductPayload['products'];
+  products: AdminProduct[];
+  categories: ProductCategory[];
+  selectedProductId: number | null;
+  isFetching: boolean;
+  isSaving: boolean;
+  onKeywordChange: (keyword: string) => void;
+  onCategoryChange: (categoryId: string) => void;
+  onPageChange: (page: number) => void;
+  onEdit: (product: AdminProduct) => void;
+  onDelete: (product: AdminProduct) => void;
+};
+
+export default function AdminProductListSection({
+  params,
+  productPage,
+  products,
+  categories,
+  selectedProductId,
+  isFetching,
+  isSaving,
+  onKeywordChange,
+  onCategoryChange,
+  onPageChange,
+  onEdit,
+  onDelete,
+}: AdminProductListSectionProps) {
+  return (
+    <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
+      <TableHeader title="상품 목록" count={productPage?.total ?? 0} />
+      <div className="grid gap-3 border-b border-line p-4 dark:border-dark-border md:grid-cols-[1fr_180px]">
+        <input
+          className={inputClass}
+          value={params.keyword}
+          onChange={(event) => onKeywordChange(event.target.value)}
+          placeholder="상품명, slug, 검색 키워드"
+        />
+        <select
+          className={inputClass}
+          value={params.categoryId}
+          onChange={(event) => onCategoryChange(event.target.value)}
+        >
+          <option value="">전체 카테고리</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name_ko}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-270 table-fixed text-left text-sm xl:min-w-full">
+          <colgroup>
+            <col className="w-18" />
+            <col className="w-36 xl:w-[12%]" />
+            <col className="w-72 xl:w-[30%]" />
+            <col className="w-28 xl:w-[10%]" />
+            <col className="w-60 xl:w-[29%]" />
+            <col className="w-30 xl:w-[11%]" />
+            <col className="w-24 xl:w-[8%]" />
+          </colgroup>
+          <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
+            <tr>
+              <th className="px-4 py-3">ID</th>
+              <th className="px-4 py-3">상품</th>
+              <th className="px-4 py-3">이미지 URL</th>
+              <th className="whitespace-nowrap px-4 py-3">카테고리</th>
+              <th className="px-4 py-3">색상</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right">가격</th>
+              <th className="whitespace-nowrap px-4 py-3 text-center">관리</th>
+            </tr>
+          </thead>
+          <tbody className={isFetching ? 'opacity-60' : undefined}>
+            {products.map((product) => {
+              const priceInfo = getProductPriceInfo(
+                product.price,
+                product.discountRate,
+              );
+
+              return (
+                <tr
+                  key={product.id}
+                  className={cn(
+                    'border-t border-line dark:border-dark-border',
+                    selectedProductId === product.id &&
+                      'bg-primary-soft/80 dark:bg-primary/15',
+                  )}
+                >
+                  <td className="whitespace-nowrap px-4 py-3 font-semibold">
+                    {product.id}
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="truncate font-semibold">
+                      {product.name_ko || product.name_en}
+                    </p>
+                    <p className="truncate text-xs text-muted dark:text-dark-muted">
+                      {product.productLine
+                        ? getProductLineLabel(product.productLine)
+                        : product.slug}
+                    </p>
+                    <p className="mt-1 text-xs text-muted dark:text-dark-muted">
+                      이미지 {product.images.length.toLocaleString()}개
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <ImageUrlList
+                      items={product.images.map((image) => ({
+                        id: image.id,
+                        url: image.image_url,
+                        label: image.isMain ? '대표' : undefined,
+                      }))}
+                    />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    {product.category.name_ko}
+                  </td>
+                  <td className="px-4 py-3">
+                    {product.productColor.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {product.productColor.map((item) => (
+                          <span
+                            key={item.id}
+                            className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-1 text-xs font-semibold dark:border-dark-border"
+                          >
+                            <span
+                              className="h-3 w-3 rounded-full border border-line dark:border-dark-border"
+                              style={{ backgroundColor: item.color.hex }}
+                            />
+                            {item.color.name}
+                            {item.isDefault ? ' · 기본' : ''}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted dark:text-dark-muted">-</span>
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right">
+                    {priceInfo.isDiscounted ? (
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted line-through dark:text-dark-muted">
+                          {priceInfo.originalPriceLabel}
+                        </p>
+                        <p className="font-semibold">
+                          {priceInfo.discountedPriceLabel}
+                        </p>
+                        <p className="text-xs font-semibold text-danger">
+                          {priceInfo.discountRate}% 할인
+                        </p>
+                      </div>
+                    ) : (
+                      <span>{priceInfo.priceLabel}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 align-middle">
+                    <div className="flex justify-center">
+                      <RowActions
+                        disabled={isSaving}
+                        className="flex-col items-center whitespace-nowrap"
+                        onEdit={() => onEdit(product)}
+                        onDelete={() => onDelete(product)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <PaginationControls
+        page={productPage?.page ?? 1}
+        totalPages={productPage?.totalPages ?? 1}
+        onPageChange={onPageChange}
+      />
+    </div>
+  );
+}
