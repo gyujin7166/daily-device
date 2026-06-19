@@ -65,17 +65,27 @@ export default function AdminReviewListSection({
         </select>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col style={{ width: '6%' }} />
+            <col style={{ width: '7%' }} />
+            <col style={{ width: '14%' }} />
+            <col style={{ width: '5%' }} />
+            <col style={{ width: '34%' }} />
+            <col style={{ width: '13%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '9%' }} />
+          </colgroup>
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">상태</th>
-              <th className="px-4 py-3">상품</th>
-              <th className="px-4 py-3">평점</th>
-              <th className="px-4 py-3">내용</th>
-              <th className="px-4 py-3">이미지 URL</th>
-              <th className="px-4 py-3">작성자</th>
-              <th className="px-4 py-3">관리</th>
+              <th className="px-3 py-3">ID</th>
+              <th className="px-3 py-3">상태</th>
+              <th className="px-3 py-3">상품</th>
+              <th className="px-2 py-3">평점</th>
+              <th className="px-3 py-3">내용</th>
+              <th className="px-3 py-3">이미지 URL</th>
+              <th className="px-3 py-3">작성자</th>
+              <th className="px-3 py-3">관리</th>
             </tr>
           </thead>
           <tbody className={isFetching ? 'opacity-60' : undefined}>
@@ -85,7 +95,9 @@ export default function AdminReviewListSection({
               const authorName = review.user.name?.trim();
               const authorEmail = review.user.email?.trim();
               const displayAuthorName =
-                authorName && !canWriteAdmin ? maskName(authorName) : authorName;
+                authorName && !canWriteAdmin
+                  ? maskName(authorName)
+                  : authorName;
               const displayAuthorEmail =
                 authorEmail && !canWriteAdmin
                   ? maskEmail(authorEmail)
@@ -99,11 +111,11 @@ export default function AdminReviewListSection({
                     review.adminHiddenAt ? 'opacity-55' : '',
                   )}
                 >
-                  <td className="px-4 py-3 font-semibold">{review.id}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 font-semibold">{review.id}</td>
+                  <td className="px-3 py-3">
                     <span
                       className={cn(
-                        'rounded-full px-2.5 py-1 text-xs font-bold',
+                        'inline-flex min-w-10 justify-center rounded-full px-2 py-1 text-xs font-bold',
                         review.adminHiddenAt
                           ? 'bg-disabled-bg text-muted'
                           : 'bg-success-soft text-success',
@@ -112,11 +124,11 @@ export default function AdminReviewListSection({
                       {review.adminHiddenAt ? '숨김' : '공개'}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3">
                     <p className="font-semibold">
                       {review.product.name_ko || review.product.name_en}
                     </p>
-                    <p className="text-xs text-muted dark:text-dark-muted">
+                    <p className="text-xs text-muted dark:text-dark-mute">
                       {review.product.slug}
                     </p>
                     {reviewColorName ? (
@@ -131,14 +143,16 @@ export default function AdminReviewListSection({
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3">{review.rating}</td>
-                  <td className="max-w-md px-4 py-3">
-                    <p className="font-semibold">{review.title || '-'}</p>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted dark:text-dark-muted">
+                  <td className="px-2 py-3 text-center">{review.rating}</td>
+                  <td className="px-3 py-3 align-top">
+                    <p className="break-words font-semibold">
+                      {review.title || '-'}
+                    </p>
+                    <p className="mt-1 whitespace-pre-line break-words text-xs leading-5 text-muted dark:text-dark-muted">
                       {review.content}
                     </p>
                   </td>
-                  <td className="max-w-72 px-4 py-3">
+                  <td className="px-3 py-3">
                     <ImageUrlList
                       items={review.images.map((image) => ({
                         id: image.id,
@@ -146,18 +160,18 @@ export default function AdminReviewListSection({
                       }))}
                     />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3">
                     <p>{displayAuthorName || '-'}</p>
                     <p className="text-xs text-muted dark:text-dark-muted">
                       {displayAuthorEmail || '-'}
                     </p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3">
                     <button
                       type="button"
                       disabled={isSaving}
                       onClick={() => onToggleHidden(review)}
-                      className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:opacity-60 dark:border-dark-border"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-line px-2.5 text-xs font-semibold transition hover:border-primary hover:text-primary disabled:opacity-60 dark:border-dark-border"
                     >
                       {review.adminHiddenAt ? (
                         <IconEye size={16} />

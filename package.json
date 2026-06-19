@@ -1,16 +1,15 @@
 {
-  "name": "ecommerce",
+  "name": "daily-device",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "db:seed": "ts-node prisma/seeds/seeds.ts",
     "db:seed:category": "ts-node prisma/seeds/seed-product-category.ts",
     "db:seed:hero": "ts-node prisma/seeds/seed-hero.ts",
     "db:seed:home": "ts-node prisma/seeds/seed-home-section.ts",
-    "remove-bg:seed-images": "ts-node prisma/seeds/remove-background-seed-images.ts",
     "upload:seed-images": "ts-node prisma/seeds/upload-seed-images.ts",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier . --write",

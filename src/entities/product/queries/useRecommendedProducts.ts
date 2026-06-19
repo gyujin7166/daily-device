@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 
 import { getRecommendedProducts } from '@entities/product/api/product';
 import { productQueryKeys } from '@entities/product/queries/queryKeys';
@@ -33,6 +33,28 @@ export const useSuspenseRecommendedProducts = ({
 
       return getRecommendedProducts(normalizedCategory, excludeId, limit);
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: shouldRetryQuery,
+  });
+};
+
+export const useRecommendedProducts = ({
+  category,
+  excludeId,
+  limit = 10,
+  enabled = true,
+}: UseRecommendedProductsParams) => {
+  const normalizedCategory = category?.trim();
+
+  return useQuery({
+    queryKey: productQueryKeys.recommended(
+      normalizedCategory,
+      excludeId,
+      limit,
+    ),
+    queryFn: () => getRecommendedProducts(normalizedCategory, excludeId, limit),
+    enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: shouldRetryQuery,

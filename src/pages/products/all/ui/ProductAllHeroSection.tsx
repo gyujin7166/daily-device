@@ -37,7 +37,7 @@ export default function ProductAllHeroSection({
       position="center"
     >
       <div className="flex flex-col">
-        <p className="text-md font-bold uppercase tracking-[0.35em] text-primary">
+        <p className="hidden text-md font-bold uppercase tracking-[0.35em] text-primary sm:block">
           {resolvedContent.eyebrow}
         </p>
         <h1 className="mb-5 text-3xl font-bold leading-tight sm:text-4xl lg:mb-6.75 lg:text-5xl">

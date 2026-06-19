@@ -1,4 +1,4 @@
-# Ecommerce
+# Daily Device
 
 Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
@@ -88,6 +88,10 @@ TanStack Query의 `useSuspenseQuery`와 `useQuery`를 어떤 기준으로 나눌
 
 이 경험을 바탕으로 마운트 시 반드시 필요한 초기 데이터나 독립 섹션에는 `useSuspenseQuery`를 사용하고, 페이지네이션/정렬/필터처럼 사용자 조작으로 서버 요청 파라미터가 바뀌는 화면에는 `useQuery`와 `placeholderData`를 사용해 기존 화면을 유지하며 부분 로딩을 처리하는 기준을 세웠습니다.
 
+공개 상품 페이지는 정적 렌더링/ISR로 제공하고, 사용자별 데이터는 클라이언트 Query와 보호 페이지의 서버 인증으로 분리했습니다. `/products/[category]`, `/products/[category]/[slug]`는 `generateStaticParams()`로 빌드 시점에 경로를 생성하고 `revalidate`를 적용했습니다. 반면 `/my`, `/checkout`, `/admin`처럼 세션 검증이 필요한 페이지는 서버 컴포넌트에서 `auth()`를 호출해 동적 렌더링으로 처리했습니다.
+
+초기에는 공통 쇼핑 레이아웃에서 장바구니/위시리스트 prefetch를 위해 `auth()`를 호출했기 때문에 공개 페이지까지 동적 렌더링되는 문제가 있었습니다. 이를 제거하고 장바구니 개수, 위시리스트 여부 등 사용자별 UI는 `useSession()`과 TanStack Query로 클라이언트에서 처리하도록 분리했습니다.
+
 ## 폴더 구조
 
 ```txt
@@ -129,12 +133,11 @@ npm run db:seed
 상품 seed 이미지까지 Cloudinary에 올려 DB에 반영할 때는 아래 흐름을 사용합니다.
 
 ```bash
-npm run remove-bg:seed-images
 npm run upload:seed-images
 npm run db:seed
 ```
 
-- `.seed-images/`: 알파 채널 투명도 처리된 WebP 출력 루트
+- `.seed-images/`: Cloudinary에 업로드할 seed 이미지 루트
 - `upload:seed-images`: Cloudinary 업로드 후 seed image manifest 갱신
 - `db:seed`: manifest 기준으로 상품 이미지와 색상별 이미지 반영
 

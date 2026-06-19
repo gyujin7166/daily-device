@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SearchSortOption } from '@features/search/model/types';
 import { useSearchResult } from '@features/search/queries/useSearchResult';
@@ -22,10 +22,14 @@ type SearchPageContainerProps = {
 };
 
 const SEARCH_PRODUCT_SKELETON_COUNT = 12;
+const SEARCH_AUTO_LOAD_ROOT_MARGIN = '1000px 0px';
 
 export default function SearchPageContainer({
   query,
 }: SearchPageContainerProps) {
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const isRequestingNextPageRef = useRef(false);
+  const hasUserScrolledSinceResetRef = useRef(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<SearchSortOption>('relevance');
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
@@ -77,6 +81,8 @@ export default function SearchPageContainer({
     setSelectedCategories([]);
     setSortOption('relevance');
     setHasLoadedOnce(false);
+    isRequestingNextPageRef.current = false;
+    hasUserScrolledSinceResetRef.current = false;
     setStableMeta({
       total: 0,
       baseTotal: 0,
@@ -84,6 +90,11 @@ export default function SearchPageContainer({
       categories: [],
     });
   }, [query]);
+
+  useEffect(() => {
+    isRequestingNextPageRef.current = false;
+    hasUserScrolledSinceResetRef.current = false;
+  }, [selectedCategories, sortOption]);
 
   useEffect(() => {
     if (!isPending) {
@@ -96,6 +107,82 @@ export default function SearchPageContainer({
       });
     }
   }, [availableCategories, baseTotal, isPending, items.length, total]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (
+      !target ||
+      showProductsSkeleton ||
+      isPending ||
+      isFetchingNextPage ||
+      !hasNextPage
+    ) {
+      return;
+    }
+
+    const fetchNextSearchPage = () => {
+      if (
+        !hasUserScrolledSinceResetRef.current ||
+        isRequestingNextPageRef.current
+      ) {
+        return;
+      }
+
+      isRequestingNextPageRef.current = true;
+      void fetchNextPage().finally(() => {
+        isRequestingNextPageRef.current = false;
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          fetchNextSearchPage();
+        }
+      },
+      {
+        rootMargin: SEARCH_AUTO_LOAD_ROOT_MARGIN,
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(target);
+
+    let scrollFrame = 0;
+    const handleScroll = () => {
+      hasUserScrolledSinceResetRef.current = true;
+
+      if (scrollFrame) {
+        return;
+      }
+
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        const rect = target.getBoundingClientRect();
+
+        if (rect.top <= window.innerHeight + 1000 && rect.bottom >= -1000) {
+          fetchNextSearchPage();
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame);
+      }
+    };
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+    showProductsSkeleton,
+  ]);
 
   if (showInitialSkeleton) {
     return (
@@ -148,18 +235,21 @@ export default function SearchPageContainer({
         <SearchResults items={items} searchTerm={decodedQuery} />
       )}
 
-      {hasNextPage && !showProductsSkeleton && (
-        <div className="mt-8 mb-10 flex justify-center">
-          <button
-            type="button"
-            className="inline-flex h-11 items-center justify-center rounded-full border border-line bg-surface px-8 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-bg dark:text-primary dark:hover:bg-blue-900/30"
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? '불러오는 중...' : '더보기'}
-          </button>
+      {isFetchingNextPage ? (
+        <div className="mt-5">
+          <ProductSkeleton
+            variant="product"
+            columns="four"
+            length={SEARCH_PRODUCT_SKELETON_COUNT}
+          />
         </div>
-      )}
+      ) : null}
+
+      <div
+        ref={loadMoreRef}
+        aria-hidden
+        className={hasNextPage && !showProductsSkeleton ? 'h-40 w-full' : 'h-0'}
+      />
     </PageWrapper>
   );
 }

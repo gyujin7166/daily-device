@@ -90,7 +90,7 @@ export default function MainProductItem({ section }: MainProductItemProps) {
         title={section?.title ?? '매일의 작업을 바꾸는 제품'}
         subtitle={
           section?.subtitle ??
-          '작업, 통화, 이동까지 이어지는 사용 흐름에 맞춰 Ecommerce의 대표 제품을 골라보세요.'
+          '작업, 통화, 이동까지 이어지는 사용 흐름에 맞춰 Daily Device의 대표 제품을 골라보세요.'
         }
       />
 
@@ -140,7 +140,7 @@ function MainProductCard({
         <div className="relative aspect-4/3 overflow-hidden rounded-[22px] bg-line dark:bg-dark-bg-hover">
           <Image
             src={imageSrc}
-            alt={hasImage ? item.imageAlt : '상품 이미지 준비 중'}
+            alt={item.imageAlt}
             fill
             priority={priorityImage}
             sizes="(max-width: 768px) 100vw, 33vw"

@@ -133,13 +133,6 @@ export default function useNavBarState({
   }, [routerPath]);
 
   useEffect(() => {
-    if (!headerVisible) {
-      setIsMobileMenuOpen(false);
-      setIsMobileShopOpen(false);
-    }
-  }, [headerVisible]);
-
-  useEffect(() => {
     const handleScroll = () => {
       const now = performance.now();
       lastScrollAtRef.current = now;

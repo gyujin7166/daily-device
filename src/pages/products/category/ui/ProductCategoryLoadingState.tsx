@@ -1,27 +1,18 @@
-'use client';
-import { useSearchParams } from 'next/navigation';
+import ProductFilterSkeleton from '@features/product-filter/ui/ProductFilterSkeleton';
 
-import { ProductFilterSkeleton } from '@features/product-filter/ui';
-
-import { ProductSkeleton } from '@entities/product/ui';
+import ProductSkeleton from '@entities/product/ui/ProductSkeleton';
 
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 type ProductCategoryLoadingStateProps = {
+  hasActiveFilterBar?: boolean;
   colorRows?: number;
 };
 
 export default function ProductCategoryLoadingState({
+  hasActiveFilterBar = false,
   colorRows,
 }: ProductCategoryLoadingStateProps) {
-  const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams?.toString());
-  const hasActiveFilterBar =
-    !!params.get('filters')?.trim() ||
-    !!params.get('minPrice')?.trim() ||
-    !!params.get('maxPrice')?.trim() ||
-    !!params.get('colors')?.trim();
-
   return (
     <div className="bg-canvas dark:bg-dark-bg">
       <section className="relative min-h-[28vh] animate-pulse bg-line supports-[height:100svh]:min-h-[28svh] sm:min-h-[32vh] sm:supports-[height:100svh]:min-h-[32svh] md:min-h-[42vh] md:supports-[height:100svh]:min-h-[42svh] lg:min-h-[50vh] dark:bg-dark-bg-hover">

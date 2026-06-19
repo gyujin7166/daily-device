@@ -40,7 +40,7 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
   const provider = session.user?.provider;
   const normalizedEmail = session.user?.email?.trim() || '';
   const isDemoAccount =
-    provider === 'demo-login' || normalizedEmail === 'demo@ecommerce.local';
+    provider === 'demo-login' || normalizedEmail === 'demo@daily-device.local';
   // 로그인 제공자별로 누락될 수 있는 프로필 정보를 사용자에게 보여줄 문구로 정규화한다.
   const profileEmail = isDemoAccount
     ? '데모 계정'

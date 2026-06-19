@@ -28,7 +28,6 @@ import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
 import ProductCategoryContentSection from './ProductCategoryContentSection';
 import ProductCategoryHeroSection from './ProductCategoryHeroSection';
-import ProductCategoryLoadingState from './ProductCategoryLoadingState';
 import ProductCategoryMobileFilterDrawerSection from './ProductCategoryMobileFilterDrawerSection';
 
 type ProductCategoryPageContainerProps = {
@@ -55,7 +54,6 @@ export default function ProductCategoryPageContainer({
     setCheckboxStates,
   } = useProductFilterContext();
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance');
-  const [hasResolvedInitialLoad, setHasResolvedInitialLoad] = useState(false);
   const [retainedProductLimit, setRetainedProductLimit] =
     useState(PRODUCT_PAGE_SIZE);
   const [mobileDraftPriceValue, setMobileDraftPriceValue] =
@@ -174,7 +172,7 @@ export default function ProductCategoryPageContainer({
     });
   };
 
-  const { data: hero, isPending: isHeroPending } = useHero({
+  const { data: hero } = useHero({
     type: 'product',
     category,
   });
@@ -228,20 +226,6 @@ export default function ProductCategoryPageContainer({
   const resultCount = shouldWaitFilteredResult
     ? 0
     : (totalProducts ?? products?.length ?? 0);
-  const shouldShowInitialLoadingState =
-    !hasResolvedInitialLoad &&
-    (isHeroPending || isPending) &&
-    (products?.length ?? 0) === 0;
-
-  useEffect(() => {
-    if (hasResolvedInitialLoad) {
-      return;
-    }
-
-    if (!isHeroPending && !isPending) {
-      setHasResolvedInitialLoad(true);
-    }
-  }, [hasResolvedInitialLoad, isHeroPending, isPending]);
 
   useEffect(() => {
     setRetainedProductLimit(PRODUCT_PAGE_SIZE);
@@ -288,10 +272,6 @@ export default function ProductCategoryPageContainer({
     },
     [setRetainedProductLimit, setSortOption],
   );
-
-  if (shouldShowInitialLoadingState) {
-    return <ProductCategoryLoadingState colorRows={colorOptions.length} />;
-  }
 
   const mobilePriceValue = mobileDraftPriceValue ?? currentPriceValue;
   const mobileColorIds = mobileDraftColorIds ?? currentColorIds;

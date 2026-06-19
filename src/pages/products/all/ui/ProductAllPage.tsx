@@ -27,42 +27,40 @@ async function ProductAllRoutePage({
     : 'product-all';
   const queryClient = new QueryClient();
 
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: productQueryKeys.hero(heroType, undefined),
-      queryFn: () => getHeroList(heroType),
-      staleTime: 60 * 60 * 1000,
-      gcTime: 60 * 60 * 1000,
+  await queryClient.prefetchQuery({
+    queryKey: productQueryKeys.hero(heroType, undefined),
+    queryFn: () => getHeroList(heroType),
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
+  void queryClient.prefetchInfiniteQuery({
+    queryKey: productQueryKeys.list({
+      category: undefined,
+      sort: 'relevance',
+      pageSize: PRODUCT_GRID_PAGE_SIZE,
+      filtersKey: '',
+      colorsKey: '',
+      discountedOnly,
     }),
-    queryClient.prefetchInfiniteQuery({
-      queryKey: productQueryKeys.list({
-        category: undefined,
-        sort: 'relevance',
-        pageSize: PRODUCT_GRID_PAGE_SIZE,
-        filtersKey: '',
-        colorsKey: '',
-        discountedOnly,
-      }),
-      initialPageParam: { page: 1, limit: PRODUCT_GRID_PAGE_SIZE },
-      queryFn: ({ pageParam }) =>
-        getProductsPage(
-          undefined,
-          typeof pageParam === 'number' ? pageParam : pageParam.page,
-          typeof pageParam === 'number'
-            ? PRODUCT_GRID_PAGE_SIZE
-            : pageParam.limit,
-          'relevance',
-          [],
-          {},
-          {},
-          {
-            discountedOnly,
-          },
-        ),
-      staleTime: 10 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
-    }),
-  ]);
+    initialPageParam: { page: 1, limit: PRODUCT_GRID_PAGE_SIZE },
+    queryFn: ({ pageParam }) =>
+      getProductsPage(
+        undefined,
+        typeof pageParam === 'number' ? pageParam : pageParam.page,
+        typeof pageParam === 'number'
+          ? PRODUCT_GRID_PAGE_SIZE
+          : pageParam.limit,
+        'relevance',
+        [],
+        {},
+        {},
+        {
+          discountedOnly,
+        },
+      ),
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>

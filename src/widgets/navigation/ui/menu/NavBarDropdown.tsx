@@ -1,4 +1,7 @@
+import { useEffect, useMemo } from 'react';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import type { CategoryItems } from '@entities/category/model/types';
 import { useCategory } from '@entities/product/queries/useCategory';
@@ -20,11 +23,33 @@ export default function NavBarDropdown({
   variant = 'desktop',
   onNavigate,
 }: NavBarDropdownProps) {
+  const router = useRouter();
   const { data: categories, isLoading: categoryIsLoading } = useCategory();
+  const categoryHrefs = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          categories?.flatMap((category) =>
+            category.children.map((item) => getCategoryHref(item.slug)),
+          ) ?? [],
+        ),
+      ),
+    [categories],
+  );
+
+  useEffect(() => {
+    if (categoryIsLoading) {
+      return;
+    }
+
+    categoryHrefs.forEach((href) => {
+      router.prefetch(href);
+    });
+  }, [categoryHrefs, categoryIsLoading, router]);
 
   if (variant === 'mobile') {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-4 shadow-xs dark:border-dark-border dark:bg-dark-bg">
+      <div className="bg-surface dark:border-dark-border dark:bg-dark-bg">
         {categoryIsLoading ? (
           <MobileDropdownSkeleton />
         ) : (
@@ -32,7 +57,7 @@ export default function NavBarDropdown({
             {categories?.map((category: CategoryItems) => (
               <div
                 key={category.id}
-                className="rounded-xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
+                className="rounded-2xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
               >
                 <p className="mb-2 text-base font-bold text-ink dark:text-surface">
                   {category.name_ko}
@@ -74,7 +99,11 @@ export default function NavBarDropdown({
                 ) : (
                   <div className="flex w-full flex-wrap gap-y-8 leading-6">
                     {categories?.map((category: CategoryItems) => (
-                      <CategoryItem key={category.id} category={category} />
+                      <CategoryItem
+                        key={category.id}
+                        category={category}
+                        onNavigate={onNavigate}
+                      />
                     ))}
                   </div>
                 )}

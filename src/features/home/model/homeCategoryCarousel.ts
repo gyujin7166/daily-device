@@ -115,8 +115,8 @@ export const HOME_CATEGORY_CAROUSEL_SLIDES: HomeCategoryCarouselSlide[] = [
     items: [
       {
         label: '홈 시큐리티',
-        imageSrc: '/images/carousel/desktop-ecommerce-bkg.jpg',
-        imageAlt: 'desktop-ecommerce-bkg',
+        imageSrc: '/images/carousel/desktop-daily-device-bkg.jpg',
+        imageAlt: 'desktop-daily-device-bkg',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[2].areaClassNames[0],
       },
       {

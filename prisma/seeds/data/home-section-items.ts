@@ -28,7 +28,7 @@ export const homeSectionItemsBySectionKey = {
       cta: 'Aster Webcam Mini 보기',
       targetCategorySlug: 'webcams',
       targetProductSlug: 'aster-webcam-mini',
-      imageAlt: 'aster-webcam-mini',
+      imageAlt: 'Aster Webcam Mini',
       displayOrder: 1,
     },
     {
@@ -40,7 +40,7 @@ export const homeSectionItemsBySectionKey = {
       cta: 'Nook Keys Core 보기',
       targetCategorySlug: 'keyboards',
       targetProductSlug: 'nook-keys-core',
-      imageAlt: 'nook-keys-core',
+      imageAlt: 'Nook Keys Core',
       displayOrder: 2,
     },
     {
@@ -52,7 +52,7 @@ export const homeSectionItemsBySectionKey = {
       cta: 'Breeze Mouse Desk 보기',
       targetCategorySlug: 'mice',
       targetProductSlug: 'breeze-mouse-desk',
-      imageAlt: 'breeze-mouse-desk',
+      imageAlt: 'Breeze Mouse Desk',
       displayOrder: 3,
     },
   ],

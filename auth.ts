@@ -8,7 +8,8 @@ import prisma from 'prisma/prismaClientSingleton';
 
 import type { NextAuthConfig } from 'next-auth';
 
-const DEMO_USER_EMAIL = process.env.DEMO_USER_EMAIL ?? 'demo@ecommerce.local';
+const DEMO_USER_EMAIL =
+  process.env.DEMO_USER_EMAIL ?? 'demo@daily-device.local';
 const AUTH_SESSION_PROVIDER_CACHE_TTL_MS = 60 * 1000;
 const isAuthDebugEnabled = process.env.AUTH_DEBUG === 'true';
 const sessionProviderCache = new Map<

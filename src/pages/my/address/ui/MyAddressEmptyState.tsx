@@ -1,18 +1,29 @@
-import { IconMapPin } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 
-export default function MyAddressEmptyState() {
+import MyPageEmptyStatePanel from '@widgets/my-page-empty/ui/MyPageEmptyStatePanel';
+
+type MyAddressEmptyStateProps = {
+  onCreate: () => void;
+};
+
+export default function MyAddressEmptyState({
+  onCreate,
+}: MyAddressEmptyStateProps) {
   return (
-    <div className="flex min-h-120 flex-col items-center justify-center rounded-2xl border border-line bg-surface px-6 py-10 text-center shadow-xs dark:border-dark-border dark:bg-dark-panel">
-      <IconMapPin
-        size={42}
-        className="text-disabled-text dark:text-dark-muted"
-      />
-      <h2 className="mt-5 text-xl font-semibold text-ink dark:text-surface">
-        저장된 배송지가 없습니다
-      </h2>
-      <p className="mt-2 text-sm text-muted dark:text-dark-muted">
-        상단의 배송지 추가 버튼으로 새로운 배송지를 등록하세요.
-      </p>
-    </div>
+    <MyPageEmptyStatePanel
+      title="저장된 배송지가 없어요"
+      description="자주 사용하는 배송지를 등록해두면 주문할 때 더 빠르게 선택할 수 있습니다."
+      iconVariant="address"
+      action={
+        <button
+          type="button"
+          onClick={onCreate}
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover"
+        >
+          <IconPlus size={16} />
+          배송지 추가
+        </button>
+      }
+    />
   );
 }

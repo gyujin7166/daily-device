@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from 'next/navigation';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
 import { getProductPage } from '@entities/product/api/product';
 import { PRODUCT_PAGE_SIZE } from '@entities/product/constants/pagination';
@@ -173,6 +173,7 @@ export const useProduct = ({
     },
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    placeholderData: keepPreviousData,
     enabled: enabled && (shouldFetchAllProducts || !!category),
     retry: shouldRetryQuery,
   });

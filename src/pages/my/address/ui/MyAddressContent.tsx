@@ -58,7 +58,7 @@ export default function MyAddressContent() {
 
       <MyPageScrollArea ref={listTopRef} className="scroll-mt-28">
         {addresses.length === 0 ? (
-          <MyAddressEmptyState />
+          <MyAddressEmptyState onCreate={openCreateModal} />
         ) : (
           <MyAddressListSection
             addresses={displayAddresses}

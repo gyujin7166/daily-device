@@ -20,10 +20,17 @@ type ProductDetailCarouselItem = {
   href?: string;
   productColor?: {
     id: number;
+    isDefault?: boolean;
     color: {
       name: string;
       hex: string;
     };
+  }[];
+  ProductImage?: {
+    image_url: string | null;
+    isMain?: boolean | null;
+    productColorId?: number | null;
+    order?: number | null;
   }[];
   category?: {
     name_en: string;
@@ -34,12 +41,16 @@ type ProductDetailCarouselProps = {
   items: ProductDetailCarouselItem[];
   eyebrow?: string;
   title?: string;
+  density?: 'default' | 'compact';
+  productBackgroundClassName?: string;
 };
 
 export default function ProductDetailCarousel({
   items,
   eyebrow,
   title,
+  density = 'default',
+  productBackgroundClassName,
 }: ProductDetailCarouselProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -56,6 +67,7 @@ export default function ProductDetailCarousel({
   const hasControls = scrollSnaps.length > 1;
   const sectionEyebrow = eyebrow ?? 'RECOMMENDED';
   const sectionTitle = title ?? '추천 상품';
+  const isCompact = density === 'compact';
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
@@ -79,13 +91,27 @@ export default function ProductDetailCarousel({
   }, [emblaApi]);
 
   return (
-    <PageWrapper as="section" padding="wide" className="pb-16">
-      <header className="mb-6 flex items-end justify-between gap-4">
+    <PageWrapper
+      as="section"
+      padding="wide"
+      className={cn(isCompact ? 'max-w-4xl px-5 pb-8 sm:px-7 lg:px-8' : 'pb-16')}
+    >
+      <header
+        className={cn(
+          'flex items-end justify-between gap-4',
+          isCompact ? 'mb-4' : 'mb-6',
+        )}
+      >
         <div className="space-y-1.5">
           <p className="text-xs font-semibold tracking-[0.24em] text-primary dark:text-blue-300">
             {sectionEyebrow}
           </p>
-          <h2 className="text-4xl font-semibold leading-[1.2] tracking-[-0.01em] text-ink dark:text-surface">
+          <h2
+            className={cn(
+              'font-semibold leading-[1.2] tracking-[-0.01em] text-ink dark:text-surface',
+              isCompact ? 'text-xl sm:text-2xl' : 'text-4xl',
+            )}
+          >
             {sectionTitle}
           </h2>
         </div>
@@ -114,12 +140,23 @@ export default function ProductDetailCarousel({
         ) : null}
       </header>
 
-      <div className="-m-3 overflow-hidden p-3" ref={emblaRef}>
-        <div className="flex gap-3.5 sm:gap-4">
+      <div
+        className={cn(
+          'overflow-hidden',
+          isCompact ? '-m-2 p-2' : '-m-3 p-3',
+        )}
+        ref={emblaRef}
+      >
+        <div className={cn('flex', isCompact ? 'gap-3' : 'gap-3.5 sm:gap-4')}>
           {items.map((item, index) => (
             <div
               key={item.id}
-              className="flex-[0_0_calc((100%-14px)/2)] sm:flex-[0_0_calc((100%-32px)/3)] lg:flex-[0_0_calc((100%-48px)/4)] xl:flex-[0_0_calc((100%-64px)/5)]"
+              className={cn(
+                'flex-[0_0_calc((100%-14px)/2)] sm:flex-[0_0_calc((100%-32px)/3)]',
+                isCompact
+                  ? 'lg:flex-[0_0_30%] xl:flex-[0_0_30%]'
+                  : 'lg:flex-[0_0_calc((100%-48px)/4)] xl:flex-[0_0_calc((100%-64px)/5)]',
+              )}
             >
               <ProductItem
                 product={{
@@ -132,9 +169,12 @@ export default function ProductDetailCarousel({
                   href: item.href,
                   category: item.category,
                   productColor: item.productColor ?? [],
-                  ProductImage: [{ image_url: item.image_url }],
+                  ProductImage: item.ProductImage ?? [
+                    { image_url: item.image_url },
+                  ],
                 }}
                 variant="catalog"
+                backgroundClassName={productBackgroundClassName}
                 priorityImage={index < 5}
               />
             </div>

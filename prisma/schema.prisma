@@ -68,19 +68,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// model User {
-//   id            Int       @id @default(autoincrement())
-//   name          String?
-//   email         String    @unique
-//   emailVerified DateTime? @map("email_verified")
-//   image         String?
-//   // accounts      Account[]
-//   // sessions      Session[]
-//   cart          Cart[]
-//   createdAt     DateTime  @default(now())
-//   updatedAt     DateTime  @updatedAt
-// }
-
 model ProductCategory {
   id           Int     @id @default(autoincrement())
   name_en      String
@@ -103,24 +90,20 @@ model ProductCategory {
 }
 
 model Product {
-  id                   Int          @id @default(autoincrement())
-  // heroId               Int?
-  // hero                 Hero?    @relation(fields: [heroId], references: [id])
-  name_en              String       @unique
-  slug                 String       @unique
-  name_ko              String?      @unique
+  id                   Int             @id @default(autoincrement())
+  name_en              String          @unique
+  slug                 String          @unique
+  name_ko              String?         @unique
   search_keyword       String
   description          String
   detailed_description String?
   note                 String?
-  price                Decimal      @db.Decimal(10, 2)
-  discountRate         Int          @default(0)
-  // image_url            String?  @db.VarChar(500)
-  createdAt            DateTime     @default(now())
+  price                Decimal         @db.Decimal(10, 2)
+  discountRate         Int             @default(0)
+  createdAt            DateTime        @default(now())
   productLine          ProductLine?
-
-  categoryId Int
-  category   ProductCategory @relation(fields: [categoryId], references: [id])
+  categoryId           Int
+  category             ProductCategory @relation(fields: [categoryId], references: [id])
 
   productColor        ProductColor[]
   productDetail       ProductDetail[]
@@ -206,8 +189,6 @@ model ProductDetail {
   note          String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  // ProductDetailContent ProductDetailContent[]
 
   @@index([productId])
 }
@@ -349,7 +330,6 @@ model ProductReview {
   rating        Int
   title         String    @db.VarChar(100) // 후기 대제목
   content       String    @db.Text // 후기 내용
-  // image_url   String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   adminHiddenAt DateTime?
@@ -389,19 +369,6 @@ model ProductReviewImage {
 
   @@index([productReviewId])
 }
-
-// model ProductDetailContent {
-//   id          Int      @id @default(autoincrement())
-//   name        String?
-//   description String?
-//   createdAt   DateTime @default(now())
-//   updatedAt   DateTime @updatedAt
-
-//   productDetailId Int
-//   productDetail   ProductDetail @relation(fields: [productDetailId], references: [id])
-
-//   @@index([productDetailId])
-// }
 
 model Cart {
   id        Int      @id @default(autoincrement())
@@ -458,17 +425,6 @@ model FilterOption {
   @@index([filterId])
 }
 
-// model ProductHero {
-//   id          Int     @id @default(autoincrement())
-//   name_en     String
-//   name_ko     String
-//   image_url   String?
-//   description String
-//   position    String?
-
-//   product Product[]3
-// }
-
 model HeroType {
   id   Int    @id @default(autoincrement())
   name String @unique
@@ -496,7 +452,6 @@ model Hero {
   targetCategoryId Int?
   targetCategory   ProductCategory? @relation(fields: [targetCategoryId], references: [id], onDelete: SetNull)
 
-  // product         Product[]
   @@index([heroTypeId])
   @@index([targetCategoryId])
   @@index([heroTypeId, targetCategoryId, isDefault])
@@ -551,24 +506,3 @@ model HomeSectionItem {
   @@index([targetProductId])
   @@index([isVisible])
 }
-
-// model ProductAttribute {
-//   id         Int      @id @default(autoincrement())
-//   productId  Int
-//   createdAt  DateTime @default(now())
-//   updatedAt  DateTime @updatedAt
-
-//   product    Product @relation(fields: [productId], references: [id])
-
-//   @@index([productId])
-// }
-
-// model ProductFilter {
-//   id        Int          @id @default(autoincrement())
-//   productId Int
-//   filterId  Int
-//   optionId  Int
-//   product   Product?     @relation(fields: [productId], references: [id])
-//   filter    Filter       @relation(fields: [filterId], references: [id])
-//   option    FilterOption @relation(fields: [optionId], references: [id])
-// }

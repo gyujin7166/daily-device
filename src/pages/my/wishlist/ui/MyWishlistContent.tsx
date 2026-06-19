@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { IconHeart, IconTrash } from '@tabler/icons-react';
+import Link from 'next/link';
+
+import { IconTrash } from '@tabler/icons-react';
 
 import { MyPageScrollArea, MyPageSectionHeader } from '@features/my/ui';
 import { ProductItem } from '@features/product/ui';
@@ -10,6 +12,9 @@ import { ProductCard } from '@entities/product/ui';
 import type { WishlistItem } from '@entities/wishlist/model/types';
 import { useClearWishlist } from '@entities/wishlist/queries/useClearWishlist';
 import { useSuspenseWishlist } from '@entities/wishlist/queries/useWishlist';
+
+import MyPageEmptyRecommendedProducts from '@widgets/my-page-empty/ui/MyPageEmptyRecommendedProducts';
+import MyPageEmptyStatePanel from '@widgets/my-page-empty/ui/MyPageEmptyStatePanel';
 
 import MyWishlistPagination from './MyWishlistPagination';
 
@@ -123,18 +128,21 @@ export default function MyWishlistContent() {
 
       <MyPageScrollArea ref={listTopRef} className="scroll-mt-28">
         {wishlistItems.length === 0 ? (
-          <div className="flex min-h-140 flex-col items-center justify-center rounded-2xl border border-line bg-surface px-6 py-10 text-center shadow-xs dark:border-dark-border dark:bg-dark-panel">
-            <IconHeart
-              size={46}
-              className="text-disabled-text dark:text-dark-muted"
-            />
-            <h2 className="mt-5 text-xl font-semibold text-ink dark:text-surface">
-              찜한 상품이 없습니다
-            </h2>
-            <p className="mt-2 text-sm text-muted dark:text-dark-muted">
-              상품 카드의 하트 아이콘을 눌러 찜 목록을 채워보세요.
-            </p>
-          </div>
+          <MyPageEmptyStatePanel
+            title="찜한 상품이 없어요"
+            description="관심 있는 상품을 찜해두고 나중에 다시 확인해보세요."
+            iconVariant="wishlist"
+            action={
+              <Link
+                href="/products"
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover"
+              >
+                상품 둘러보기
+              </Link>
+            }
+          >
+            <MyPageEmptyRecommendedProducts />
+          </MyPageEmptyStatePanel>
         ) : (
           <>
             <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 xl:grid-cols-3">

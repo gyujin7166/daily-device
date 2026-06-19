@@ -500,14 +500,21 @@ function HomeSectionItemList({
         </button>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '27%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '28%' }} />
+            <col style={{ width: '12%' }} />
+          </colgroup>
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
-              <th className="px-4 py-3">순서</th>
-              <th className="px-4 py-3">제목</th>
-              <th className="px-4 py-3">연결</th>
-              <th className="px-4 py-3">이미지</th>
-              <th className="px-4 py-3">관리</th>
+              <th className="px-3 py-3">순서</th>
+              <th className="px-3 py-3">제목</th>
+              <th className="px-3 py-3">연결</th>
+              <th className="px-3 py-3">이미지</th>
+              <th className="px-3 py-3">관리</th>
             </tr>
           </thead>
           <tbody>
@@ -520,22 +527,22 @@ function HomeSectionItemList({
                     'bg-primary-soft/80 dark:bg-primary/15',
                 )}
               >
-                <td className="px-4 py-3 font-semibold">{item.displayOrder}</td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3 font-semibold">{item.displayOrder}</td>
+                <td className="px-3 py-3">
                   <p className="font-semibold">{item.title}</p>
                   <p className="text-xs text-muted dark:text-dark-muted">
                     {item.isVisible ? '노출' : '숨김'} / {item.label ?? '-'}
                   </p>
                 </td>
-                <td className="px-4 py-3 text-xs text-muted dark:text-dark-muted">
+                <td className="px-3 py-3 text-xs text-muted dark:text-dark-muted">
                   {getItemHrefPreview(item)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3">
                   <ImageUrlList
                     items={[{ id: item.id, url: item.image_url }]}
                   />
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-3">
                   <button
                     type="button"
                     disabled={isSaving}

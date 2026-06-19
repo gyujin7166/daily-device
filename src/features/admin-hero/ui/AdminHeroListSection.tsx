@@ -60,25 +60,23 @@ export default function AdminHeroListSection({
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
       <TableHeader title="Hero 목록" count={heroes.length} />
       <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
+        <table className="w-full table-fixed text-left text-sm">
           <colgroup>
-            <col className="w-18" />
-            <col className="w-24" />
-            <col className="w-24" />
-            <col />
-            <col className="w-65" />
-            <col className="w-24" />
+            <col style={{ width: '8%' }} />
+            <col style={{ width: '16%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '22%' }} />
+            <col style={{ width: '28%' }} />
+            <col style={{ width: '14%' }} />
           </colgroup>
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">타입</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">
-                대표 이미지
-              </th>
-              <th className="px-4 py-3">이름</th>
-              <th className="px-4 py-3">이미지</th>
-              <th className="px-4 py-3">관리</th>
+              <th className="px-3 py-3">ID</th>
+              <th className="px-3 py-3">타입</th>
+              <th className="px-3 py-3 text-center">대표 이미지</th>
+              <th className="px-3 py-3">이름</th>
+              <th className="px-3 py-3">이미지</th>
+              <th className="px-3 py-3">관리</th>
             </tr>
           </thead>
           <tbody>
@@ -91,13 +89,13 @@ export default function AdminHeroListSection({
                     'bg-primary-soft/80 dark:bg-primary/15',
                 )}
               >
-                <td className="px-4 py-3 align-middle font-semibold">
+                <td className="px-3 py-3 align-middle font-semibold">
                   {hero.id}
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="px-3 py-3 align-middle">
                   {getAdminHeroTypeLabel(hero.heroType.name)}
                 </td>
-                <td className="px-4 py-3 text-center align-middle">
+                <td className="px-3 py-3 text-center align-middle">
                   {hero.isDefault ? (
                     <IconCheck
                       size={18}
@@ -109,7 +107,7 @@ export default function AdminHeroListSection({
                     '-'
                   )}
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="px-3 py-3 align-middle">
                   <div className="flex min-h-12 flex-col justify-center">
                     <p className="font-semibold leading-snug">{hero.name_ko}</p>
                     <p className="mt-0.5 text-xs leading-snug text-muted dark:text-dark-muted">
@@ -119,15 +117,15 @@ export default function AdminHeroListSection({
                     </p>
                   </div>
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="px-3 py-3 align-middle">
                   <ImageUrlList
                     items={[{ id: hero.id, url: hero.image_url }]}
                   />
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="px-3 py-3 align-middle">
                   <RowActions
                     disabled={isSaving}
-                    className="flex-col items-start whitespace-nowrap"
+                    className="flex-col items-start"
                     onEdit={() => onEdit(hero)}
                     onDelete={() => onDelete(hero)}
                   />

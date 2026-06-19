@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import ProductDetailCarousel from './ProductDetailCarousel';
+import ProductDetailCarousel from '@widgets/product-recommendation/ui/ProductDetailCarousel';
 
 type ProductDetailCarouselItems = React.ComponentProps<
   typeof ProductDetailCarousel

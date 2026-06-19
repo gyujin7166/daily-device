@@ -27,7 +27,7 @@ export default function ReviewGalleryDetailImagePanel({
   onSelectDetailImage,
 }: ReviewGalleryDetailImagePanelProps) {
   return (
-    <section className="relative flex min-h-0 flex-1 flex-col bg-[#ECEFF3] px-3 pb-3 pt-3 sm:px-5 sm:py-5 dark:bg-dark-bg lg:w-[58%]">
+    <section className="relative flex flex-none flex-col bg-[#ECEFF3] px-3 pb-3 pt-3 sm:px-5 sm:py-5 dark:bg-dark-bg lg:min-h-0 lg:w-[58%] lg:flex-1">
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
         <div className="flex w-full flex-1 items-center justify-center lg:pt-8">
           <div className="relative h-[50vh] min-h-70 max-h-130 w-full max-w-140 select-none lg:h-[54vh] lg:max-h-135">

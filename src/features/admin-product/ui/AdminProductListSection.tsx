@@ -70,25 +70,25 @@ export default function AdminProductListSection({
         </select>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-270 table-fixed text-left text-sm xl:min-w-full">
+        <table className="w-full table-fixed text-left text-sm">
           <colgroup>
-            <col className="w-18" />
-            <col className="w-36 xl:w-[12%]" />
-            <col className="w-72 xl:w-[30%]" />
-            <col className="w-28 xl:w-[10%]" />
-            <col className="w-60 xl:w-[29%]" />
-            <col className="w-30 xl:w-[11%]" />
-            <col className="w-24 xl:w-[8%]" />
+            <col style={{ width: '6%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '12%' }} />
           </colgroup>
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">상품</th>
-              <th className="px-4 py-3">이미지 URL</th>
-              <th className="whitespace-nowrap px-4 py-3">카테고리</th>
-              <th className="px-4 py-3">색상</th>
-              <th className="whitespace-nowrap px-4 py-3 text-right">가격</th>
-              <th className="whitespace-nowrap px-4 py-3 text-center">관리</th>
+              <th className="px-3 py-3">ID</th>
+              <th className="px-3 py-3">상품</th>
+              <th className="px-3 py-3">이미지 URL</th>
+              <th className="px-3 py-3">카테고리</th>
+              <th className="px-3 py-3">색상</th>
+              <th className="px-3 py-3 text-right">가격</th>
+              <th className="px-3 py-3 text-center">관리</th>
             </tr>
           </thead>
           <tbody className={isFetching ? 'opacity-60' : undefined}>
@@ -107,10 +107,8 @@ export default function AdminProductListSection({
                       'bg-primary-soft/80 dark:bg-primary/15',
                   )}
                 >
-                  <td className="whitespace-nowrap px-4 py-3 font-semibold">
-                    {product.id}
-                  </td>
-                  <td className="px-4 py-3">
+                  <td className=" px-3 py-3 font-semibold">{product.id}</td>
+                  <td className="px-3 py-3">
                     <p className="truncate font-semibold">
                       {product.name_ko || product.name_en}
                     </p>
@@ -123,7 +121,7 @@ export default function AdminProductListSection({
                       이미지 {product.images.length.toLocaleString()}개
                     </p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3">
                     <ImageUrlList
                       items={product.images.map((image) => ({
                         id: image.id,
@@ -132,10 +130,8 @@ export default function AdminProductListSection({
                       }))}
                     />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3">
-                    {product.category.name_ko}
-                  </td>
-                  <td className="px-4 py-3">
+                  <td className=" px-3 py-3">{product.category.name_ko}</td>
+                  <td className="px-3 py-3">
                     {product.productColor.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
                         {product.productColor.map((item) => (
@@ -156,7 +152,7 @@ export default function AdminProductListSection({
                       <span className="text-muted dark:text-dark-muted">-</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right">
+                  <td className=" px-3 py-3 text-right">
                     {priceInfo.isDiscounted ? (
                       <div className="space-y-1">
                         <p className="text-xs text-muted line-through dark:text-dark-muted">
@@ -173,11 +169,11 @@ export default function AdminProductListSection({
                       <span>{priceInfo.priceLabel}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="px-3 py-3 align-middle">
                     <div className="flex justify-center">
                       <RowActions
                         disabled={isSaving}
-                        className="flex-col items-center whitespace-nowrap"
+                        className="flex-col items-center "
                         onEdit={() => onEdit(product)}
                         onDelete={() => onDelete(product)}
                       />

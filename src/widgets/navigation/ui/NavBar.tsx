@@ -82,6 +82,8 @@ export default function NavBar() {
     useTopTransparentHeader || useSearchOverlayHeader;
   const useLightOverlayContent = useTopOverlayHeader && heroNavTone !== 'dark';
   const useDarkOverlayContent = useTopOverlayHeader && heroNavTone === 'dark';
+  const shouldKeepHeaderVisible =
+    headerVisible || isSearchHeaderOpen || isMobileMenuOpen;
   const navContentVisibilityClassName = cn(
     'transition-all duration-150 ease-out',
     isSearchHeaderOpen
@@ -105,6 +107,8 @@ export default function NavBar() {
   ]);
 
   const handleLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    handleCloseMobileMenu();
+
     if (pathname !== '/') {
       return;
     }
@@ -131,7 +135,7 @@ export default function NavBar() {
           !useTransparentHeader && isAtTop
             ? 'border-transparent shadow-none'
             : '',
-          headerVisible || isSearchHeaderOpen ? 'top-0' : '-top-22.5',
+          shouldKeepHeaderVisible ? 'top-0' : '-top-22.5',
         )}
       >
         <PageWrapper className="relative flex h-full items-center md:px-8">
@@ -195,6 +199,7 @@ export default function NavBar() {
               isOverlayStyle={useLightOverlayContent}
               isSearchOpen={showSearchBar}
               hideThemeOnMobile
+              onActionClick={handleCloseMobileMenu}
             />
           </div>
           <>

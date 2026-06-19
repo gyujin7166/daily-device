@@ -1,5 +1,4 @@
 const nextConfig = {
-  // transpilePackages: ['next-auth'],
   transpilePackages: ['next-auth'],
   reactStrictMode: true,
   turbopack: {
@@ -22,27 +21,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'i.ibb.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn-yotpo-images-production.yotpo.com',
-      },
-      {
-        protocol: 'https',
         hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'http.cat',
       },
       {
         protocol: 'https',
@@ -61,7 +40,6 @@ const nextConfig = {
         hostname: 'ssl.pstatic.net',
       },
     ],
-    // dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; img-src 'self' data: https:;",
   },
 };

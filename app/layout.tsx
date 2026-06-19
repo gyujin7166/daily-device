@@ -21,8 +21,25 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'ecommerce',
-  description: 'ecommerce',
+  title: 'Daily Device',
+  description: 'Daily Device',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicons/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicons/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicons/favicon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicons/favicon-64.png', sizes: '64x64', type: 'image/png' },
+    ],
+    apple: [
+      {
+        url: '/favicons/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
+  },
+  manifest: '/site.webmanifest',
 };
 
 type RootLayoutProps = PropsWithChildren;

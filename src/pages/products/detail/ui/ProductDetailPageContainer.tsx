@@ -45,6 +45,7 @@ export default function ProductDetailPageContainer({
   } = useProductDetailPageState({
     product: productDetailData?.product ?? null,
     mainImageUrl: productImages?.[0]?.image_url,
+    productImages,
     currentPath,
   });
 

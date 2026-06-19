@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 import type { ProductDetailResponse } from '@entities/product/model/types';
+import type { ProductImageItem } from '@entities/product/model/types';
 import type { ProductReviewFilter } from '@entities/review/model/filter';
 import type { ProductReviewSortOption } from '@entities/review/model/sort';
 
@@ -19,12 +21,14 @@ import type { CarouselProductItem } from '../recentlyViewedProducts';
 type UseProductDetailPageStateParams = {
   product: ProductDetailResponse['product'];
   mainImageUrl?: string;
+  productImages?: ProductImageItem[];
   currentPath: string;
 };
 
 export default function useProductDetailPageState({
   product,
   mainImageUrl,
+  productImages,
   currentPath,
 }: UseProductDetailPageStateParams) {
   const carouselColumnRef = useRef<HTMLDivElement | null>(null);
@@ -41,7 +45,13 @@ export default function useProductDetailPageState({
   const visibleRecentlyViewed = recentlyViewed
     .filter((item) => item.id !== product?.id)
     .slice(0, RECENTLY_VIEWED_VISIBLE_LIMIT);
-  const recentlyViewedImageUrl = mainImageUrl ?? IMAGE_FALLBACK_URL;
+  const defaultColorId =
+    product?.productColor.find((item) => item.isDefault)?.id ??
+    product?.productColor[0]?.id;
+  const recentlyViewedImageUrl =
+    getProductThumbnailUrlBySelectedColor(productImages, defaultColorId) ??
+    mainImageUrl ??
+    IMAGE_FALLBACK_URL;
 
   const handleReviewSortChange = (nextSort: ProductReviewSortOption) => {
     setCurrentPage(1);
@@ -75,6 +85,7 @@ export default function useProductDetailPageState({
       product,
       recentlyViewedImageUrl,
       currentPath,
+      productImages,
     );
     const stored = window.localStorage.getItem(RECENTLY_VIEWED_STORAGE_KEY);
     const normalizedItems = parseRecentlyViewedItems(stored);
@@ -85,7 +96,7 @@ export default function useProductDetailPageState({
       JSON.stringify(nextItems),
     );
     setRecentlyViewed(nextItems);
-  }, [currentPath, product, recentlyViewedImageUrl]);
+  }, [currentPath, product, productImages, recentlyViewedImageUrl]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {

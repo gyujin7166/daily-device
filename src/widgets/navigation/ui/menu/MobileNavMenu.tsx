@@ -38,43 +38,43 @@ export default function MobileNavMenu({
       )}
     >
       <ul className="space-y-2">
+        <li>
+          <Link
+            href="/products"
+            onClick={onCloseMenu}
+            className="block w-full rounded-xl px-3 py-2.5 text-left text-base font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
+          >
+            전체 상품
+          </Link>
+        </li>
         {NAVBAR_CATEGORIES.map((category, idx) => (
           <li key={idx}>
             {idx === 0 ? (
               <>
-                <div
+                <button
+                  type="button"
+                  onClick={onToggleShop}
                   className={cn(
-                    'flex w-full items-center overflow-hidden rounded-xl text-base font-semibold transition-colors',
+                    'flex min-h-11 w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-base font-semibold transition-colors',
                     isShopOpen
-                      ? 'bg-primary-soft dark:bg-blue-900/30 text-primary'
-                      : 'text-ink dark:text-surface hover:bg-primary-soft dark:bg-blue-900/30 dark:hover:bg-blue-900/40 hover:text-primary',
+                      ? 'bg-primary-soft text-primary dark:bg-blue-900/30 dark:text-blue-300'
+                      : 'text-ink hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300',
                   )}
+                  aria-label="상품 카테고리 펼치기"
+                  aria-expanded={isShopOpen}
+                  aria-controls="mobile-product-category-menu"
                 >
-                  <Link
-                    href="/products"
-                    onClick={onCloseMenu}
-                    className="flex-1 px-3 py-2.5 text-left"
-                  >
-                    {category}
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={onToggleShop}
-                    className="flex h-full min-h-11 w-12 items-center justify-center transition-colors hover:bg-primary-soft dark:hover:bg-blue-900/40"
-                    aria-label="상품 카테고리 펼치기"
-                    aria-expanded={isShopOpen}
-                  >
-                    <IconChevronDown
-                      size={16}
-                      className={cn(
-                        'transition-transform',
-                        isShopOpen ? 'rotate-180' : '',
-                      )}
-                    />
-                  </button>
-                </div>
+                  <span>{category}</span>
+                  <IconChevronDown
+                    size={16}
+                    className={cn(
+                      'transition-transform',
+                      isShopOpen ? 'rotate-180' : '',
+                    )}
+                  />
+                </button>
                 {isShopOpen && (
-                  <div className="mt-2">
+                  <div id="mobile-product-category-menu" className="mt-2">
                     <NavBarDropdown
                       variant="mobile"
                       onNavigate={onCloseMenu}

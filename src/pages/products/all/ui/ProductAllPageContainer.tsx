@@ -17,7 +17,6 @@ import {
   PRODUCT_DISCOUNTS_HERO_CONTENT,
 } from './productAllHeroConfig';
 import ProductAllHeroSection from './ProductAllHeroSection';
-import ProductAllLoadingState from './ProductAllLoadingState';
 
 type ProductAllPageContainerProps = {
   discountedOnly?: boolean;
@@ -27,14 +26,13 @@ export default function ProductAllPageContainer({
   discountedOnly = false,
 }: ProductAllPageContainerProps) {
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance');
-  const [hasResolvedInitialLoad, setHasResolvedInitialLoad] = useState(false);
   const [retainedProductLimit, setRetainedProductLimit] = useState(
     PRODUCT_GRID_PAGE_SIZE,
   );
   const heroType: HeroTypeValue = discountedOnly
     ? 'product-discounts'
     : 'product-all';
-  const { data: hero, isPending: isHeroPending } = useHero({
+  const { data: hero } = useHero({
     type: heroType,
   });
   const {
@@ -57,21 +55,6 @@ export default function ProductAllPageContainer({
       item.image_url ? [{ ...item, image_url: item.image_url }] : [],
     ),
   );
-  const shouldShowInitialLoadingState =
-    !hasResolvedInitialLoad &&
-    (isHeroPending || isPending) &&
-    (products?.length ?? 0) === 0;
-
-  useEffect(() => {
-    if (hasResolvedInitialLoad) {
-      return;
-    }
-
-    if (!isHeroPending && !isPending) {
-      setHasResolvedInitialLoad(true);
-    }
-  }, [hasResolvedInitialLoad, isHeroPending, isPending]);
-
   useEffect(() => {
     if (
       isPending ||
@@ -115,10 +98,6 @@ export default function ProductAllPageContainer({
     },
     [setRetainedProductLimit, setSortOption],
   );
-
-  if (shouldShowInitialLoadingState) {
-    return <ProductAllLoadingState />;
-  }
 
   return (
     <div className="bg-canvas text-ink dark:bg-dark-bg dark:text-surface">

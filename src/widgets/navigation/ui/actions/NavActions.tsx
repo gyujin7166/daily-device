@@ -14,6 +14,7 @@ type NavActionsProps = {
   hideThemeOnMobile?: boolean;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
+  onActionClick?: () => void;
 };
 
 export default function NavActions({
@@ -23,6 +24,7 @@ export default function NavActions({
   hideThemeOnMobile = false,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
+  onActionClick,
 }: NavActionsProps) {
   const {
     avatarSrc,
@@ -41,6 +43,25 @@ export default function NavActions({
     toggleCart,
     toggleTheme,
   } = useNavActionsState();
+  const handleToggleSearchWithClose = () => {
+    onActionClick?.();
+    closeAccountDropdown();
+    handleToggleSearch();
+  };
+  const handleToggleCart = () => {
+    onActionClick?.();
+    closeAccountDropdown();
+    toggleCart();
+  };
+  const handleToggleTheme = () => {
+    onActionClick?.();
+    closeAccountDropdown();
+    toggleTheme();
+  };
+  const handleToggleAccountDropdown = () => {
+    onActionClick?.();
+    toggleAccountDropdown();
+  };
 
   return (
     <div
@@ -53,19 +74,19 @@ export default function NavActions({
         isDarkOverlayStyle={isDarkOverlayStyle}
         isOverlayStyle={isOverlayStyle}
         isSearchOpen={isSearchOpen}
-        onToggleSearch={handleToggleSearch}
+        onToggleSearch={handleToggleSearchWithClose}
       />
       <NavCartButton
         cartItemCount={cartItemCount}
         isDarkOverlayStyle={isDarkOverlayStyle}
         isOverlayStyle={isOverlayStyle}
-        onToggleCart={toggleCart}
+        onToggleCart={handleToggleCart}
       />
       <NavThemeButton
         hideOnMobile={hideThemeOnMobile}
         isDarkOverlayStyle={isDarkOverlayStyle}
         isOverlayStyle={isOverlayStyle}
-        onToggleTheme={toggleTheme}
+        onToggleTheme={handleToggleTheme}
       />
       <NavAccountMenu
         avatarSrc={avatarSrc}
@@ -81,7 +102,7 @@ export default function NavActions({
         onClose={closeAccountDropdown}
         onLogin={handleLogin}
         onSignOut={handleSignOut}
-        onToggleDropdown={toggleAccountDropdown}
+        onToggleDropdown={handleToggleAccountDropdown}
         onToggleTheme={toggleTheme}
       />
     </div>

@@ -99,6 +99,7 @@ export default function ProductList({
   const lastAutoFetchAtRef = useRef(0);
   const nextAutoLoadMinScrollYRef = useRef(0);
   const appendRequestedShownCountRef = useRef(0);
+  const hasUserScrolledSinceResetRef = useRef(false);
   const shouldShowAppendSkeleton =
     (isFetchingNextPage || showAppendSkeleton) && nextSkeletonCount > 0;
 
@@ -155,9 +156,11 @@ export default function ProductList({
   useEffect(() => {
     setAutoLoadLimit(autoLoadBatchSize);
     lastAutoFetchAtRef.current = 0;
-    nextAutoLoadMinScrollYRef.current = 0;
+    nextAutoLoadMinScrollYRef.current =
+      window.scrollY + AUTO_LOAD_SCROLL_ADVANCE_PX;
     isRequestingNextPageRef.current = false;
     appendRequestedShownCountRef.current = 0;
+    hasUserScrolledSinceResetRef.current = false;
     setShowAppendSkeleton(false);
   }, [autoLoadBatchSize, resetKey]);
 
@@ -258,6 +261,10 @@ export default function ProductList({
     }
 
     const tryFetchNextPage = () => {
+      if (!hasUserScrolledSinceResetRef.current) {
+        return;
+      }
+
       const rect = target.getBoundingClientRect();
       const distanceFromDocumentBottom =
         document.documentElement.scrollHeight -
@@ -305,6 +312,8 @@ export default function ProductList({
 
     let scrollFrame = 0;
     const handleScroll = () => {
+      hasUserScrolledSinceResetRef.current = true;
+
       if (scrollFrame) {
         return;
       }

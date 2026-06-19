@@ -9,6 +9,12 @@ import {
 } from '@tabler/icons-react';
 
 import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
+import {
+  DAILY_DEVICE_LOGO_SIZE,
+  DAILY_DEVICE_LOGO_SRC,
+  DAILY_DEVICE_SYMBOL_SIZE,
+  DAILY_DEVICE_SYMBOL_SRC,
+} from '@shared/constants/images';
 import { toast } from '@shared/lib/toast';
 
 const NAV_LINKS = ['서비스 소개', '주요 기능', '채용 정보', '고객 지원'];
@@ -30,7 +36,8 @@ const FOOTER_NAV_LINK_CLASS = `text-base font-medium ${FOOTER_LINK_BASE_CLASS}`;
 const FOOTER_POLICY_LINK_CLASS = `text-sm ${FOOTER_LINK_BASE_CLASS}`;
 const FOOTER_SOCIAL_BUTTON_CLASS =
   'inline-flex h-11 w-11 items-center justify-center rounded-full bg-dark-bg-hover text-surface transition-colors duration-200 hover:bg-primary';
-const FOOTER_LOGO_CLASS = 'h-7 w-auto select-none invert sm:h-8 lg:h-9';
+const FOOTER_LOGO_CLASS = 'hidden h-8 w-auto select-none invert sm:block lg:h-9';
+const FOOTER_SYMBOL_CLASS = 'h-8 w-auto select-none invert sm:hidden';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -51,10 +58,20 @@ export default function Footer() {
                 className="inline-block select-none leading-0"
               >
                 <Image
-                  src="/logo/daily-device-logo-black.webp"
+                  src={DAILY_DEVICE_SYMBOL_SRC}
                   alt="Daily Device"
-                  width={1550}
-                  height={296}
+                  width={DAILY_DEVICE_SYMBOL_SIZE.width}
+                  height={DAILY_DEVICE_SYMBOL_SIZE.height}
+                  sizes="52px"
+                  className={FOOTER_SYMBOL_CLASS}
+                  draggable={false}
+                  loading="eager"
+                />
+                <Image
+                  src={DAILY_DEVICE_LOGO_SRC}
+                  alt="Daily Device"
+                  width={DAILY_DEVICE_LOGO_SIZE.width}
+                  height={DAILY_DEVICE_LOGO_SIZE.height}
                   sizes="100vw"
                   className={FOOTER_LOGO_CLASS}
                   draggable={false}
@@ -99,7 +116,7 @@ export default function Footer() {
           <div className="mt-6 border-t border-surface/20 pt-5 sm:pt-6 lg:mt-12 lg:pt-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <p className="text-sm text-surface/90">
-                © {currentYear} Ecommerce UI. All rights reserved.
+                © {currentYear} Daily Device. All rights reserved.
               </p>
               <ul className="flex flex-wrap items-center gap-5">
                 {POLICY_LINKS.map(({ label, href }) => (

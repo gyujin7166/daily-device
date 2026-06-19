@@ -27,7 +27,7 @@ export default function ProductCategoryHeroSection({
     >
       <div className="flex flex-col">
         {eyebrow ? (
-          <p className="text-md font-bold uppercase tracking-[0.35em] text-primary">
+          <p className="hidden text-md font-bold uppercase tracking-[0.35em] text-primary sm:block">
             {eyebrow}
           </p>
         ) : null}

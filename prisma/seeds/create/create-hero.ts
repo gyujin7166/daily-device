@@ -152,7 +152,7 @@ export async function createHero() {
         image_width: HERO_IMAGE_WIDTH,
         image_height: HERO_IMAGE_HEIGHT,
         description:
-          '마우스, 키보드, 헤드셋부터 액세서리까지 Ecommerce의 대표 상품을 한곳에서 확인해보세요.',
+          '마우스, 키보드, 헤드셋부터 액세서리까지 Daily Device의 대표 상품을 한곳에서 확인해보세요.',
         detailed_description: null,
         position: 'center',
         isDefault: true,
@@ -182,7 +182,7 @@ export async function createHero() {
         image_width: HERO_IMAGE_WIDTH,
         image_height: HERO_IMAGE_HEIGHT,
         description:
-          '지금 할인 중인 Ecommerce 제품을 한곳에서 확인하고 필요한 기기를 더 합리적으로 만나보세요.',
+          '지금 할인 중인 Daily Device 제품을 한곳에서 확인하고 필요한 기기를 더 합리적으로 만나보세요.',
         detailed_description: null,
         position: 'center',
         isDefault: true,

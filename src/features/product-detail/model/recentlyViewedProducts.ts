@@ -30,6 +30,12 @@ export type CarouselProductItem = {
       hex: string;
     };
   }[];
+  ProductImage?: {
+    image_url: string | null;
+    isMain?: boolean | null;
+    productColorId?: number | null;
+    order?: number | null;
+  }[];
   category?: {
     name_en: string;
     slug?: string;
@@ -69,6 +75,7 @@ export const createRecentlyViewedItem = (
   product: ProductDetail,
   imageUrl: string,
   href: string,
+  productImages?: CarouselProductItem['ProductImage'],
 ): CarouselProductItem => ({
   id: product.id,
   image_url: imageUrl,
@@ -86,6 +93,7 @@ export const createRecentlyViewedItem = (
   isDiscounted: product.isDiscounted,
   href,
   productColor: product.productColor,
+  ProductImage: productImages,
   category: product.category
     ? { name_en: product.category.name_en, slug: product.category.slug }
     : undefined,

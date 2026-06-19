@@ -97,7 +97,7 @@ export default function MyPageTabNavigation({
               <p className="truncate text-base font-bold text-ink dark:text-surface">
                 {userName}
               </p>
-              <p className="truncate text-sm text-muted dark:text-dark-muted">
+              <p className="text-sm text-muted dark:text-dark-muted">
                 {userEmail}
               </p>
             </div>

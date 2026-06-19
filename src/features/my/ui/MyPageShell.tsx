@@ -67,12 +67,10 @@ export default function MyPageShell({ activeTab, children }: MyPageShellProps) {
                   </div>
 
                   {isContentPending ? (
-                    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/95 px-4 py-2 shadow-xs dark:border-dark-border dark:bg-dark-panel/95">
+                    <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface/95 shadow-xs dark:border-dark-border dark:bg-dark-panel/95">
                         <Spinner size="sm" />
-                        <span className="text-sm font-medium text-muted dark:text-dark-muted">
-                          로딩 중...
-                        </span>
+                        <span className="sr-only">마이페이지 탭 불러오는 중</span>
                       </div>
                     </div>
                   ) : null}

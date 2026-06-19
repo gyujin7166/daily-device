@@ -100,10 +100,12 @@ export function ImageUrlList({
             target="_blank"
             rel="noreferrer"
             title={url}
-            className="line-clamp-1 max-w-full text-xs font-semibold text-primary underline-offset-2 hover:underline dark:text-blue-300"
+            className="flex min-w-0 max-w-full items-center text-xs font-semibold text-primary underline-offset-2 hover:underline dark:text-blue-300"
           >
-            {item.label ? `${item.label}: ` : ''}
-            {url}
+            {item.label ? (
+              <span className="shrink-0">{item.label}:&nbsp;</span>
+            ) : null}
+            <span className="min-w-0 truncate">{url}</span>
           </a>
         );
       })}

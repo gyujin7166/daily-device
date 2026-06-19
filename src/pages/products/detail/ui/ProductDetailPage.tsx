@@ -7,6 +7,7 @@ import { getProductReviewsBySlug } from '@app/api-routes/product-reviews/service
 import { getProductImageListBySlug } from '@app/api-routes/products/[slug]/images/service';
 import { getProductDetailBySlug } from '@app/api-routes/products/[slug]/service';
 import { getRecommendedProductsList } from '@app/api-routes/products/recommended/service';
+import { getStaticProductDetailParams } from '@app/api-routes/products/static-params/service';
 
 import { productQueryKeys } from '@entities/product/queries/queryKeys';
 import { PRODUCT_REVIEW_GALLERY_PAGE_SIZE } from '@entities/review/api/review';
@@ -25,6 +26,10 @@ type ProductDetailPageProps = {
     slug: string;
   }>;
 };
+
+export async function generateStaticParams() {
+  return getStaticProductDetailParams();
+}
 
 export default async function ProductDetailPage({
   params,

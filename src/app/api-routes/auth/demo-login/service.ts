@@ -4,7 +4,8 @@ import { randomUUID } from 'crypto';
 
 import prisma from 'prisma/prismaClientSingleton';
 
-const DEMO_USER_EMAIL = process.env.DEMO_USER_EMAIL ?? 'demo@ecommerce.local';
+const DEMO_USER_EMAIL =
+  process.env.DEMO_USER_EMAIL ?? 'demo@daily-device.local';
 const DEMO_USER_NAME = process.env.DEMO_USER_NAME ?? 'Demo User';
 
 export const SESSION_MAX_AGE_SECONDS = 1 * 24 * 60 * 60;
