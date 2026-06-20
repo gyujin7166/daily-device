@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type React from 'react';
 
 import { usePathname } from 'next/navigation';
@@ -24,6 +24,7 @@ import NavMenu from './menu/NavMenu';
 
 export default function NavBar() {
   const pathname = usePathname();
+  const searchLayerRef = useRef<HTMLDivElement | null>(null);
   const { heroNavTone } = useHeroNavToneContext();
   const {
     inputText,
@@ -106,6 +107,31 @@ export default function NavBar() {
     updateHighlightedText,
   ]);
 
+  useEffect(() => {
+    if (!showSearchBar) {
+      return;
+    }
+
+    const handleClickOutsideSearch = (event: MouseEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        searchLayerRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      setShowSearchBar(false);
+      setShowSearchSuggestion(false);
+    };
+
+    document.addEventListener('click', handleClickOutsideSearch);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutsideSearch);
+    };
+  }, [setShowSearchBar, setShowSearchSuggestion, showSearchBar]);
+
   const handleLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     handleCloseMobileMenu();
 
@@ -121,7 +147,7 @@ export default function NavBar() {
     <header className="relative">
       <nav
         className={cn(
-          'fixed z-40 h-22.5 w-full transition-[top,border-color,box-shadow,background-color,backdrop-filter] duration-200',
+          'fixed z-40 h-22.5 w-full transition-[top] duration-200 lg:transition-[top,border-color,box-shadow,background-color,backdrop-filter]',
           useTransparentHeader
             ? cn(
                 'border-b border-transparent bg-transparent shadow-none',
@@ -194,15 +220,15 @@ export default function NavBar() {
             )}
           >
             <NavActions
+              closeAccountDropdownSignal={isMobileMenuOpen}
               handleToggleSearch={handleToggleSearchWithClose}
               isDarkOverlayStyle={useDarkOverlayContent}
               isOverlayStyle={useLightOverlayContent}
               isSearchOpen={showSearchBar}
-              hideThemeOnMobile
               onActionClick={handleCloseMobileMenu}
             />
           </div>
-          <>
+          <div ref={searchLayerRef}>
             <SearchBar
               showSearchBar={showSearchBar}
               setShowSearchBar={setShowSearchBar}
@@ -216,7 +242,7 @@ export default function NavBar() {
                 isLoading={isLoading}
               />
             )}
-          </>
+          </div>
         </PageWrapper>
         <MobileNavMenu
           isOpen={isMobileMenuOpen}

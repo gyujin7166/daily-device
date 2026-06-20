@@ -31,6 +31,7 @@ type ProductCategoryContentSectionProps = {
   hasNextPage?: FilteredProductsProps['hasNextPage'];
   fetchNextPage?: FilteredProductsProps['fetchNextPage'];
   isFetchingNextPage?: FilteredProductsProps['isFetchingNextPage'];
+  isRefreshing?: FilteredProductsProps['isRefreshing'];
   resetKey?: FilteredProductsProps['resetKey'];
 };
 
@@ -56,6 +57,7 @@ export default function ProductCategoryContentSection({
   hasNextPage,
   fetchNextPage,
   isFetchingNextPage,
+  isRefreshing,
   resetKey,
 }: ProductCategoryContentSectionProps) {
   const isSidebarVisible = !isMobileViewport && visibleFilter;
@@ -102,6 +104,7 @@ export default function ProductCategoryContentSection({
               hasNextPage={hasNextPage}
               fetchNextPage={fetchNextPage}
               isFetchingNextPage={isFetchingNextPage}
+              isRefreshing={isRefreshing}
               resetKey={resetKey}
             />
           </div>

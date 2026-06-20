@@ -1,14 +1,11 @@
 import Link from 'next/link';
 
-import { IconMoon, IconSun, IconUser } from '@tabler/icons-react';
+import { IconUser } from '@tabler/icons-react';
 
 import { getUserDisplayName } from '@shared/lib/auth/userDisplay';
 import { cn } from '@shared/lib/utils/style';
 
-import {
-  NAV_DROPDOWN_ACTION_ITEM_CLASS,
-  NAV_MOBILE_THEME_ACTION_ITEM_CLASS,
-} from '../../model/navActions';
+import { NAV_DROPDOWN_ACTION_ITEM_CLASS } from '../../model/navActions';
 
 import NavAccountAvatar from './NavAccountAvatar';
 
@@ -16,30 +13,24 @@ import type { Session } from 'next-auth';
 
 type NavAccountDropdownProps = {
   avatarSrc: string;
-  isDarkMode: boolean;
   isDropdownOpen: boolean;
-  mounted: boolean;
   session: Session | null;
   shouldShowAvatarImage: boolean;
   onAvatarError: () => void;
   onClose: () => void;
   onLogin: () => void;
   onSignOut: () => void;
-  onToggleTheme: () => void;
 };
 
 export default function NavAccountDropdown({
   avatarSrc,
-  isDarkMode,
   isDropdownOpen,
-  mounted,
   session,
   shouldShowAvatarImage,
   onAvatarError,
   onClose,
   onLogin,
   onSignOut,
-  onToggleTheme,
 }: NavAccountDropdownProps) {
   const userDisplayName = getUserDisplayName(session?.user);
 
@@ -88,11 +79,6 @@ export default function NavAccountDropdown({
               <span>로그아웃</span>
               <span className="text-muted dark:text-dark-muted">→</span>
             </button>
-            <MobileThemeAction
-              isDarkMode={isDarkMode}
-              mounted={mounted}
-              onToggleTheme={onToggleTheme}
-            />
           </div>
         </>
       ) : (
@@ -111,12 +97,6 @@ export default function NavAccountDropdown({
             </div>
           </div>
           <div className="mt-4">
-            <MobileThemeAction
-              className="mb-2 w-full text-left"
-              isDarkMode={isDarkMode}
-              mounted={mounted}
-              onToggleTheme={onToggleTheme}
-            />
             <button
               onClick={onLogin}
               className="flex w-full items-center justify-between rounded-xl border border-primary bg-primary-soft px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary hover:text-surface dark:bg-blue-900/30 dark:text-blue-300"
@@ -128,36 +108,5 @@ export default function NavAccountDropdown({
         </>
       )}
     </div>
-  );
-}
-
-type MobileThemeActionProps = {
-  className?: string;
-  isDarkMode: boolean;
-  mounted: boolean;
-  onToggleTheme: () => void;
-};
-
-function MobileThemeAction({
-  className = '',
-  isDarkMode,
-  mounted,
-  onToggleTheme,
-}: MobileThemeActionProps) {
-  return (
-    <button
-      type="button"
-      onClick={onToggleTheme}
-      aria-pressed={isDarkMode}
-      disabled={!mounted}
-      className={cn(className, NAV_MOBILE_THEME_ACTION_ITEM_CLASS)}
-    >
-      <span>{isDarkMode ? '라이트 모드' : '다크 모드'}</span>
-      {isDarkMode ? (
-        <IconSun size={17} className="text-primary" />
-      ) : (
-        <IconMoon size={17} className="text-muted dark:text-dark-muted" />
-      )}
-    </button>
   );
 }

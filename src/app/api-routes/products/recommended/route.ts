@@ -19,6 +19,12 @@ type Data = ApiResponse<Awaited<ReturnType<typeof getRecommendedProductsList>>>;
 
 const getRecommendedProductsQuerySchema = z.object({
   category: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  context: z.preprocess(
+    emptyToUndefined,
+    z
+      .enum(['default', 'orders-empty', 'wishlist-empty'])
+      .optional(),
+  ),
   excludeId: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
@@ -36,6 +42,7 @@ export async function GET(request: Request) {
       getRecommendedProductsQuerySchema,
       {
         category: url.searchParams.get('category'),
+        context: url.searchParams.get('context'),
         excludeId: url.searchParams.get('excludeId'),
         limit: url.searchParams.get('limit'),
       },
@@ -47,6 +54,7 @@ export async function GET(request: Request) {
     );
     const items = await getRecommendedProductsList({
       category: query.category,
+      context: query.context,
       excludeId: query.excludeId,
       limit,
     });

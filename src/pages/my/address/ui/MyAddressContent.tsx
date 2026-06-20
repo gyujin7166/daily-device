@@ -45,14 +45,16 @@ export default function MyAddressContent() {
         title="배송지 관리"
         description={`저장된 배송지 ${addresses.length}개`}
         action={
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
-          >
-            <IconPlus size={16} />
-            배송지 추가
-          </button>
+          addresses.length > 0 ? (
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
+            >
+              <IconPlus size={16} />
+              배송지 추가
+            </button>
+          ) : null
         }
       />
 

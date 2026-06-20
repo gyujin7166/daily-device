@@ -9,12 +9,12 @@ export default function MyPageMobileMenuButton() {
     <button
       type="button"
       onClick={openMobileMenu}
-      className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold text-muted shadow-xs transition-colors hover:bg-canvas dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover md:hidden"
+      className="inline-flex h-12 items-center gap-2.5 rounded-full border border-line bg-surface px-4 text-sm font-semibold text-muted shadow-xs transition-colors hover:bg-canvas dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover md:hidden"
       aria-haspopup="dialog"
       aria-controls="my-page-mobile-menu"
       aria-label={`${activeLabel} 메뉴 열기`}
     >
-      <IconMenu2 size={15} />
+      <IconMenu2 size={16} />
       <span>메뉴</span>
     </button>
   );

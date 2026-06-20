@@ -42,6 +42,7 @@ type UploadTarget = 'all' | 'products' | 'categories' | 'heroes' | 'home';
 type UploadOptions = {
   sourceRoot: string;
   target: UploadTarget;
+  productSlugs: string[];
   homeSectionKey?: string;
   homeItemKey?: string;
 };
@@ -62,7 +63,6 @@ const IMAGE_MIME_TYPES: Record<string, string> = {
   '.heic': 'image/heic',
   '.heif': 'image/heif',
 };
-const MAX_DIRECTORY_DEPTH = 10;
 const UPLOAD_TARGETS = new Set<UploadTarget>([
   'all',
   'products',
@@ -118,6 +118,7 @@ const parseUploadTarget = (value: string): UploadTarget => {
 const parseUploadArgs = (argv: string[]): UploadOptions => {
   let sourceRootArg: string | undefined;
   let target: UploadTarget = 'all';
+  const productSlugs: string[] = [];
   let homeSectionKey: string | undefined;
   let homeItemKey: string | undefined;
 
@@ -137,6 +138,28 @@ const parseUploadArgs = (argv: string[]): UploadOptions => {
       }
 
       target = parseUploadTarget(nextArg);
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith('--productSlug=')) {
+      productSlugs.push(...arg.slice('--productSlug='.length).split(','));
+      continue;
+    }
+
+    if (arg.startsWith('--product-slug=')) {
+      productSlugs.push(...arg.slice('--product-slug='.length).split(','));
+      continue;
+    }
+
+    if (arg === '--productSlug' || arg === '--product-slug') {
+      const nextArg = argv[index + 1];
+
+      if (!nextArg) {
+        throw new Error(`Missing value for ${arg}.`);
+      }
+
+      productSlugs.push(...nextArg.split(','));
       index += 1;
       continue;
     }
@@ -225,12 +248,21 @@ const parseUploadArgs = (argv: string[]): UploadOptions => {
     );
   }
 
+  if (productSlugs.length > 0 && target !== 'products') {
+    throw new Error(
+      'Product filters require --target products to avoid unintended uploads.',
+    );
+  }
+
   return {
     sourceRoot: path.resolve(
       process.cwd(),
       sourceRootArg ?? process.env.SEED_IMAGE_ROOT ?? '.seed-images',
     ),
     target,
+    productSlugs: Array.from(
+      new Set(productSlugs.map((slug) => slug.trim()).filter(Boolean)),
+    ),
     homeSectionKey,
     homeItemKey,
   };
@@ -370,39 +402,25 @@ const readDirectoryEntries = async (directoryPath: string) => {
   }
 };
 
-const walkDirectories = async (root: string, depth = 0): Promise<string[]> => {
-  if (depth > MAX_DIRECTORY_DEPTH) {
-    return [];
-  }
-
-  const entries = await readDirectoryEntries(root);
-  const directories = entries
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => path.join(root, entry.name));
-  const childDirectories = await Promise.all(
-    directories.map((directory) => walkDirectories(directory, depth + 1)),
-  );
-
-  return [root, ...directories, ...childDirectories.flat()];
-};
-
 const findProductDirectories = async (sourceRoot: string) => {
-  const productSlugSet = new Set(
-    portfolioProducts.map((product) => product.slug),
-  );
-  const directories = await walkDirectories(sourceRoot);
   const productDirectoryMap = new Map<string, string[]>();
 
-  directories.forEach((directory) => {
-    const directoryName = path.basename(directory);
+  await Promise.all(
+    portfolioProducts.map(async (product) => {
+      const productDirectory = path.join(
+        sourceRoot,
+        product.categoryName,
+        product.slug,
+      );
+      const entries = await readDirectoryEntries(productDirectory);
 
-    if (!productSlugSet.has(directoryName)) {
-      return;
-    }
+      if (entries.length === 0) {
+        return;
+      }
 
-    const current = productDirectoryMap.get(directoryName) ?? [];
-    productDirectoryMap.set(directoryName, [...current, directory]);
-  });
+      productDirectoryMap.set(product.slug, [productDirectory]);
+    }),
+  );
 
   return productDirectoryMap;
 };
@@ -822,9 +840,8 @@ const uploadHomeItemImage = async ({
 };
 
 const uploadSeedImages = async () => {
-  const { sourceRoot, target, homeSectionKey, homeItemKey } = parseUploadArgs(
-    process.argv.slice(2),
-  );
+  const { sourceRoot, target, productSlugs, homeSectionKey, homeItemKey } =
+    parseUploadArgs(process.argv.slice(2));
   const existingManifest = readSeedImageManifest();
   const cloudName = getCloudinaryCloudName();
   const apiKey = getCloudinaryApiKey();
@@ -846,9 +863,14 @@ const uploadSeedImages = async () => {
   const uploadCategories = shouldUploadCategories(target);
   const uploadHeroes = shouldUploadHeroes(target);
   const uploadHomeItems = shouldUploadHomeItems(target);
+  const isFilteredProductUpload = productSlugs.length > 0;
   const isFilteredHomeUpload = Boolean(homeSectionKey || homeItemKey);
   const manifestProducts: SeedImageManifestProduct[] = uploadProducts
-    ? []
+    ? isFilteredProductUpload
+      ? (existingManifest?.products ?? []).filter(
+          (product) => !productSlugs.includes(product.productSlug),
+        )
+      : []
     : (existingManifest?.products ?? []);
   const manifestCategories: SeedImageManifestCategory[] = uploadCategories
     ? []
@@ -866,6 +888,9 @@ const uploadSeedImages = async () => {
 
   console.log(`Seed image upload target: ${target}`);
   console.log(`Seed image source root: ${sourceRoot}`);
+  if (isFilteredProductUpload) {
+    console.log(`Seed image product filter: ${productSlugs.join(', ')}`);
+  }
   if (isFilteredHomeUpload) {
     console.log(
       `Seed image home filter: section=${homeSectionKey ?? '*'}, item=${homeItemKey ?? '*'}`,
@@ -876,6 +901,13 @@ const uploadSeedImages = async () => {
     const productDirectories = await findProductDirectories(sourceRoot);
 
     for (const product of portfolioProducts) {
+      if (
+        isFilteredProductUpload &&
+        !productSlugs.includes(product.slug)
+      ) {
+        continue;
+      }
+
       const directories = productDirectories.get(product.slug) ?? [];
       const [productDirectory] = directories.sort((left, right) =>
         left.localeCompare(right),

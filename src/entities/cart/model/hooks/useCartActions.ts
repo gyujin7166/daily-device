@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react';
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import {
   bumpCartVariantMutationRevision,
-  getCartVariantMutationRevision,
 } from '@entities/cart/lib/cartMutationRevision';
 
 import { useAddToCart } from '../../queries/useAddToCart';
@@ -122,7 +121,7 @@ export default function useCartActions() {
     }
 
     if (status === 'authenticated') {
-      const clientRevision = getCartVariantMutationRevision(variantKey);
+      const clientRevision = bumpCartVariantMutationRevision(variantKey);
       const nextRevision = (cartSyncRevisionRef.current[variantKey] ?? 0) + 1;
       cartSyncRevisionRef.current[variantKey] = nextRevision;
       startCartSync(variantKey);

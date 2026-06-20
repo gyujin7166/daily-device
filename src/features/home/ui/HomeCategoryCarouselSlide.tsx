@@ -99,7 +99,7 @@ function HomeCategoryCarouselItemCard({
             <h3 className="max-w-full text-xl font-bold leading-tight tracking-normal break-keep drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] sm:text-2xl lg:text-3xl">
               {item.label}
             </h3>
-            <span className="mt-3 inline-flex h-11 max-w-full items-center justify-center rounded-lg bg-surface px-6 text-sm font-bold whitespace-nowrap text-ink shadow-xs transition group-hover:bg-surface/90">
+            <span className="mt-3 inline-flex h-11 max-w-full items-center justify-center rounded-xl bg-surface px-6 text-sm font-bold whitespace-nowrap text-ink shadow-xs transition group-hover:bg-surface/90">
               {ctaLabel}
             </span>
           </div>

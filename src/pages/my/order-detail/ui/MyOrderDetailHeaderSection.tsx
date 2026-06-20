@@ -24,17 +24,19 @@ export default function MyOrderDetailHeaderSection({
   onCancelOrder,
 }: MyOrderDetailHeaderSectionProps) {
   return (
-    <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-      <div className="border-l-4 border-primary pl-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-          ORDER
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.08] tracking-[-0.02em] text-ink dark:text-surface">
-          주문 상세
-        </h1>
-      </div>
-      <div className="flex items-center gap-2 sm:gap-3">
+    <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="flex min-w-0 items-start justify-between gap-3 md:block">
+        <div className="border-l-4 border-primary pl-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+            ORDER
+          </p>
+          <h1 className="mt-2 text-4xl font-extrabold leading-[1.08] tracking-[-0.02em] text-ink dark:text-surface">
+            주문 상세
+          </h1>
+        </div>
         <MyPageMobileMenuButton />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         {canCancelOrder ? (
           <button
             type="button"

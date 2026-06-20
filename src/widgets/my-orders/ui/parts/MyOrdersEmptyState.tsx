@@ -20,12 +20,12 @@ export default function MyOrdersEmptyState({
   if (isReviewWriteMode) {
     return (
       <MyPageEmptyStatePanel
-        title="상품평을 작성할 상품이 없어요"
-        description="배송 완료된 주문 중 아직 상품평을 작성할 항목이 없습니다."
+        title="아직 남길 후기가 없어요"
+        description="구매한 상품이 배송 완료되면 이곳에서 후기를 작성할 수 있습니다."
         iconVariant="write-review"
         action={
           <Link href="/my/orders" className={emptyActionClassName}>
-            주문 목록 보기
+            구매 내역 보기
           </Link>
         }
       />
@@ -36,11 +36,11 @@ export default function MyOrdersEmptyState({
     return (
       <MyPageEmptyStatePanel
         title="작성한 상품평이 없어요"
-        description="상품을 구매하고 사용 경험을 상품평으로 남겨보세요."
+        description="구매한 상품의 사용 경험을 남기면 이곳에서 다시 확인할 수 있습니다."
         iconVariant="reviews"
         action={
           <Link href="/products" className={emptyActionClassName}>
-            상품 둘러보기
+            추천 상품 보기
           </Link>
         }
       />
@@ -48,17 +48,21 @@ export default function MyOrdersEmptyState({
   }
 
   return (
-    <MyPageEmptyStatePanel
-      title="아직 주문한 내역이 없어요"
-      description="마음에 드는 상품을 둘러보고 첫 주문을 시작해보세요."
-      iconVariant="orders"
-      action={
-        <Link href="/products" className={emptyActionClassName}>
-          쇼핑하러 가기
-        </Link>
-      }
-    >
-      <MyPageEmptyRecommendedProducts />
-    </MyPageEmptyStatePanel>
+    <>
+      <MyPageEmptyStatePanel
+        title="아직 주문이 없어요"
+        description="마음에 드는 상품을 찾고 첫 주문을 시작해보세요."
+        iconVariant="orders"
+        layout="horizontal"
+        action={
+          <Link href="/products/discounts" className={emptyActionClassName}>
+            오늘의 특가 보기
+          </Link>
+        }
+      />
+      <div className="mt-4">
+        <MyPageEmptyRecommendedProducts />
+      </div>
+    </>
   );
 }

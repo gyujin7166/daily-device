@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 
 import {
-  IconLoader2,
   IconPhotoPlus,
   IconTrash,
   IconUpload,
@@ -15,6 +14,7 @@ import {
 } from '@pages/admin/ui/shared/AdminControls';
 
 import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import type { AdminColor, ProductFormState } from '../model/types';
 
@@ -150,7 +150,7 @@ export default function AdminProductImageFields({
                   className="sr-only"
                 />
                 {uploadingIndex === index ? (
-                  <IconLoader2 size={16} className="animate-spin" />
+                  <Spinner size="sm" variant="current" />
                 ) : (
                   <IconUpload size={16} />
                 )}

@@ -9,54 +9,12 @@ import type { HomeSection } from '@entities/home/model/types';
 
 import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
-import {
-  getCategoryHref,
-  getProductHref,
-} from '@shared/lib/routes/productRoutes';
 import { toast } from '@shared/lib/toast';
 import { cn } from '@shared/lib/utils/style';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 import HomeSectionHeader from './HomeSectionHeader';
 
-const MAIN_PRODUCT_ITEMS = [
-  {
-    imageSrc: '/images/main/brio-100-hpb-feature.jpg',
-    image_url: '/images/main/brio-100-hpb-feature.jpg',
-    imageAlt: 'BRIO 100 웹캠',
-    label: 'Webcam',
-    eyebrow: 'Webcam',
-    title: '더 깨끗하게 더 밝게 더 좋게',
-    description:
-      'Brio 100으로 더 나은 사진, 오디오 및 통화를 경험하십시오. 화상 통화에서 최고의 모습을 보여줄 수 있는 간단하고 저렴한 웹캠입니다.',
-    href: getCategoryHref('mice'),
-    cta: 'BRIO 100 더 알아보기',
-  },
-  {
-    imageSrc: '/images/main/pebble-2-collection-hpb-secondary-2.jpg',
-    image_url: '/images/main/pebble-2-collection-hpb-secondary-2.jpg',
-    imageAlt: 'Pebble 2 컬렉션',
-    label: 'Color Collection',
-    eyebrow: 'Color Collection',
-    title: '나만의 컬러. 나만의 감성.',
-    description:
-      '새로운 5가지 컬러를 만나보세요. 휴대하기 좋은 슬림하고 컴팩트한 디자인으로 어디서든 나만의 감성을 표현할 수 있습니다.',
-    href: getCategoryHref('keyboards'),
-    cta: 'K380S 보기',
-  },
-  {
-    imageSrc: '/images/main/lift-hpb-secondary.png',
-    image_url: '/images/main/lift-hpb-secondary.png',
-    imageAlt: 'Lift 인체공학 마우스',
-    label: 'Ergonomic',
-    eyebrow: 'Ergonomic',
-    title: '이제 리프트로 업해보세요',
-    description:
-      '손목에 부담을 줄이는 각도와 부드러운 조작감으로 더 편안한 작업 환경을 만들어보세요.',
-    href: getProductHref({ categorySlug: 'mice', productSlug: 'lift' }),
-    cta: '리프트 알아보기',
-  },
-] as const;
 type MainProductItemProps = {
   section?: HomeSection;
 };
@@ -73,15 +31,22 @@ type MainProductCardItem = {
 
 export default function MainProductItem({ section }: MainProductItemProps) {
   const items: readonly MainProductCardItem[] =
-    section?.items.map((item) => ({
-      imageSrc: item.image_url,
-      imageAlt: item.imageAlt ?? item.title,
-      eyebrow: item.label ?? '',
-      title: item.title,
-      description: item.description ?? '',
-      href: item.href ?? '#',
-      cta: item.cta ?? '자세히 보기',
-    })) ?? MAIN_PRODUCT_ITEMS;
+    section?.items
+      .slice()
+      .sort((left, right) => left.displayOrder - right.displayOrder)
+      .map((item) => ({
+        imageSrc: item.image_url,
+        imageAlt: item.imageAlt ?? item.title,
+        eyebrow: item.label ?? '',
+        title: item.title,
+        description: item.description ?? '',
+        href: item.href ?? '#',
+        cta: item.cta ?? '자세히 보기',
+      })) ?? [];
+
+  if (!section || items.length === 0) {
+    return null;
+  }
 
   return (
     <PageWrapper as="section" className="pt-10 sm:pt-14 lg:pt-16">

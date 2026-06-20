@@ -31,7 +31,7 @@ export default function MobileNavMenu({
   return (
     <div
       className={cn(
-        'absolute inset-x-0 top-22.5 z-40 border-b border-line bg-surface px-4 pb-4 pt-3 transition duration-200 sm:px-6 lg:hidden dark:border-dark-border dark:bg-dark-bg',
+        'absolute inset-x-0 top-22.5 z-40 border-b border-line bg-surface px-4 pb-4 pt-3 transition duration-200 sm:px-6 lg:hidden dark:border-dark-border dark:bg-dark-panel',
         isOpen
           ? 'translate-y-0 opacity-100 pointer-events-auto'
           : '-translate-y-2 opacity-0 pointer-events-none',

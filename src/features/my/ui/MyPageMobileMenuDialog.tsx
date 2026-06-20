@@ -27,13 +27,12 @@ export default function MyPageMobileMenuDialog({
   onClose,
   onTabLinkClick,
 }: MyPageMobileMenuDialogProps) {
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <div
-      className="fixed inset-0 z-80 md:hidden"
+      className={cn(
+        'fixed inset-0 z-230 md:hidden',
+        isOpen ? '' : 'pointer-events-none',
+      )}
       role="dialog"
       aria-modal="true"
       id="my-page-mobile-menu"
@@ -41,21 +40,27 @@ export default function MyPageMobileMenuDialog({
       <button
         type="button"
         aria-label="마이페이지 메뉴 닫기"
-        className="absolute inset-0 bg-ink/35"
+        className={cn(
+          'absolute inset-0 bg-ink/45 transition-opacity duration-200',
+          isOpen ? 'opacity-100' : 'opacity-0',
+        )}
         onClick={onClose}
       />
 
-      <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border border-line bg-surface px-5 pb-6 pt-4 shadow-xl dark:border-dark-border dark:bg-dark-bg">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <p className="text-lg font-semibold text-ink dark:text-surface">
-              메뉴 선택
-            </p>
-          </div>
+      <div
+        className={cn(
+          'absolute inset-x-0 bottom-0 rounded-t-3xl border border-line bg-surface p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl transition-transform duration-200 dark:border-dark-border dark:bg-dark-panel',
+          isOpen ? 'translate-y-0' : 'translate-y-full',
+        )}
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-base font-semibold text-ink dark:text-surface">
+            메뉴 선택
+          </p>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-muted transition-colors hover:bg-canvas hover:text-ink dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-canvas hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
             aria-label="닫기"
           >
             <IconX size={18} />
@@ -74,10 +79,10 @@ export default function MyPageMobileMenuDialog({
                 scroll={false}
                 onClick={(event) => onTabLinkClick(event, item.tab, onClose)}
                 className={cn(
-                  'flex items-center justify-between rounded-2xl border px-4 py-3 transition-colors',
+                  'flex items-center justify-between rounded-xl px-3 py-3 font-medium transition-colors',
                   isActive
-                    ? 'border-primary/25 bg-primary-soft text-primary dark:bg-blue-900/30'
-                    : 'border-line bg-surface text-ink hover:bg-canvas dark:border-dark-border dark:bg-dark-bg dark:text-surface dark:hover:bg-dark-bg-hover',
+                    ? 'bg-primary-soft text-primary dark:bg-primary-soft dark:text-primary'
+                    : 'text-ink hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-primary-soft dark:hover:text-primary',
                 )}
               >
                 <span className="flex items-center gap-3">

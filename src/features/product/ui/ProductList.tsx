@@ -11,6 +11,9 @@ import {
 import type { CatalogProductItem } from '@entities/product/model/types';
 import { ProductCard, ProductSkeleton } from '@entities/product/ui';
 
+import { cn } from '@shared/lib/utils/style';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
+
 import ProductItem from './ProductItem';
 
 const AUTO_LOAD_COOLDOWN_MS = 700;
@@ -37,6 +40,7 @@ type ProductListProps = {
   hasNextPage?: boolean;
   fetchNextPage?: () => void | Promise<void>;
   isFetchingNextPage?: boolean;
+  isRefreshing?: boolean;
   resetKey?: string;
   emptyTitle?: string;
   emptyDescription?: string;
@@ -52,6 +56,9 @@ const getAutoLoadScrollRestoreDistance = () =>
     ),
   );
 
+const getMaxWindowScrollY = () =>
+  Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
 export default function ProductList({
   products,
   isPending,
@@ -60,6 +67,7 @@ export default function ProductList({
   hasNextPage = false,
   fetchNextPage,
   isFetchingNextPage = false,
+  isRefreshing = false,
   resetKey,
   emptyTitle = '표시할 상품이 없습니다.',
   emptyDescription = '잠시 후 다시 시도해 주세요.',
@@ -100,8 +108,20 @@ export default function ProductList({
   const nextAutoLoadMinScrollYRef = useRef(0);
   const appendRequestedShownCountRef = useRef(0);
   const hasUserScrolledSinceResetRef = useRef(false);
+  const autoLoadRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const shouldShowAppendSkeleton =
     (isFetchingNextPage || showAppendSkeleton) && nextSkeletonCount > 0;
+
+  const clearAutoLoadRetryTimer = useCallback(() => {
+    if (!autoLoadRetryTimerRef.current) {
+      return;
+    }
+
+    clearTimeout(autoLoadRetryTimerRef.current);
+    autoLoadRetryTimerRef.current = null;
+  }, []);
 
   const settleAutoLoadRequest = useCallback(
     ({ restoreScroll = false }: SettleAutoLoadRequestOptions = {}) => {
@@ -118,8 +138,10 @@ export default function ProductList({
             });
           }
 
-          nextAutoLoadMinScrollYRef.current =
-            window.scrollY + AUTO_LOAD_SCROLL_ADVANCE_PX;
+          nextAutoLoadMinScrollYRef.current = Math.min(
+            window.scrollY + AUTO_LOAD_SCROLL_ADVANCE_PX,
+            getMaxWindowScrollY(),
+          );
           isRequestingNextPageRef.current = false;
         });
       });
@@ -156,13 +178,16 @@ export default function ProductList({
   useEffect(() => {
     setAutoLoadLimit(autoLoadBatchSize);
     lastAutoFetchAtRef.current = 0;
-    nextAutoLoadMinScrollYRef.current =
-      window.scrollY + AUTO_LOAD_SCROLL_ADVANCE_PX;
+    nextAutoLoadMinScrollYRef.current = Math.min(
+      window.scrollY + AUTO_LOAD_SCROLL_ADVANCE_PX,
+      getMaxWindowScrollY(),
+    );
     isRequestingNextPageRef.current = false;
     appendRequestedShownCountRef.current = 0;
     hasUserScrolledSinceResetRef.current = false;
+    clearAutoLoadRetryTimer();
     setShowAppendSkeleton(false);
-  }, [autoLoadBatchSize, resetKey]);
+  }, [autoLoadBatchSize, clearAutoLoadRetryTimer, resetKey]);
 
   useEffect(() => {
     if (!showAppendSkeleton || isFetchingNextPage) {
@@ -261,10 +286,6 @@ export default function ProductList({
     }
 
     const tryFetchNextPage = () => {
-      if (!hasUserScrolledSinceResetRef.current) {
-        return;
-      }
-
       const rect = target.getBoundingClientRect();
       const distanceFromDocumentBottom =
         document.documentElement.scrollHeight -
@@ -273,23 +294,38 @@ export default function ProductList({
         rect.top <= window.innerHeight + 1000 && rect.bottom >= -1000;
       const isNearDocumentBottom =
         distanceFromDocumentBottom <= AUTO_LOAD_BOTTOM_DISTANCE_PX;
+      const didReachListByScroll =
+        hasUserScrolledSinceResetRef.current || window.scrollY > 0;
+
+      if (!didReachListByScroll || isRequestingNextPageRef.current) {
+        return;
+      }
+
+      if (!isNearViewport && !isNearDocumentBottom) {
+        return;
+      }
 
       if (
-        (!isNearViewport && !isNearDocumentBottom) ||
-        isRequestingNextPageRef.current
+        !isNearDocumentBottom &&
+        window.scrollY < nextAutoLoadMinScrollYRef.current
       ) {
         return;
       }
 
-      if (window.scrollY < nextAutoLoadMinScrollYRef.current) {
-        return;
-      }
-
       const now = Date.now();
-      if (now - lastAutoFetchAtRef.current < AUTO_LOAD_COOLDOWN_MS) {
+      const elapsedSinceLastFetch = now - lastAutoFetchAtRef.current;
+      if (elapsedSinceLastFetch < AUTO_LOAD_COOLDOWN_MS) {
+        if (isNearDocumentBottom && !autoLoadRetryTimerRef.current) {
+          autoLoadRetryTimerRef.current = setTimeout(() => {
+            autoLoadRetryTimerRef.current = null;
+            tryFetchNextPage();
+          }, AUTO_LOAD_COOLDOWN_MS - elapsedSinceLastFetch);
+        }
+
         return;
       }
 
+      clearAutoLoadRetryTimer();
       lastAutoFetchAtRef.current = now;
       isRequestingNextPageRef.current = true;
       fetchNextPageAndSettle({ restoreScroll: true });
@@ -308,7 +344,8 @@ export default function ProductList({
     );
 
     observer.observe(target);
-    tryFetchNextPage();
+    const initialCheckFrame = requestAnimationFrame(tryFetchNextPage);
+    const delayedCheckTimer = setTimeout(tryFetchNextPage, 120);
 
     let scrollFrame = 0;
     const handleScroll = () => {
@@ -327,14 +364,18 @@ export default function ProductList({
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
+      clearAutoLoadRetryTimer();
       observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(initialCheckFrame);
+      clearTimeout(delayedCheckTimer);
       if (scrollFrame) {
         cancelAnimationFrame(scrollFrame);
       }
     };
   }, [
     canAutoLoadMore,
+    clearAutoLoadRetryTimer,
     fetchNextPage,
     fetchNextPageAndSettle,
     isFetchingNextPage,
@@ -380,7 +421,10 @@ export default function ProductList({
 
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[clamp(260px,38vh,420px)] w-full items-center justify-center px-6 text-center">
+      <div
+        className="relative flex min-h-[clamp(260px,38vh,420px)] w-full items-center justify-center px-6 text-center"
+        aria-busy={isRefreshing}
+      >
         <div className="max-w-sm">
           <p className="text-base font-semibold text-ink dark:text-surface">
             {emptyTitle}
@@ -390,22 +434,34 @@ export default function ProductList({
           </p>
           {emptyAction}
         </div>
+        {isRefreshing ? <ProductListRefreshingOverlay /> : null}
       </div>
     );
   }
 
   return (
     <div ref={productListRef} className="w-full">
-      <div className={gridClassName}>
-        {products.map((item, index) => (
-          <ProductCard key={item.id} width="w-full">
-            <ProductItem
-              product={item}
-              variant="catalog"
-              priorityImage={index < 3}
-            />
-          </ProductCard>
-        ))}
+      <div className="relative" aria-busy={isRefreshing}>
+        <div
+          className={cn(
+            gridClassName,
+            'transition-opacity duration-150',
+            isRefreshing
+              ? 'pointer-events-none select-none opacity-55'
+              : 'opacity-100',
+          )}
+        >
+          {products.map((item, index) => (
+            <ProductCard key={item.id} width="w-full">
+              <ProductItem
+                product={item}
+                variant="catalog"
+                priorityImage={index < 3}
+              />
+            </ProductCard>
+          ))}
+        </div>
+        {isRefreshing ? <ProductListRefreshingOverlay /> : null}
       </div>
 
       {shouldShowAppendSkeleton ? (
@@ -440,7 +496,7 @@ export default function ProductList({
         <div
           ref={loadMoreRef}
           aria-hidden
-          className={canAutoLoadMore ? 'min-h-[40vh] w-full' : 'h-8 w-full'}
+          className={canAutoLoadMore ? 'h-16 w-full' : 'h-4 w-full'}
         />
       </div>
 
@@ -457,6 +513,17 @@ export default function ProductList({
       >
         <IconArrowUp size={20} stroke={2.4} />
       </button>
+    </div>
+  );
+}
+
+function ProductListRefreshingOverlay() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10 flex justify-center">
+      <div className="sticky top-[50vh] inline-flex size-14 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface/95 shadow-lg backdrop-blur-sm dark:border-dark-border dark:bg-dark-panel/95">
+        <Spinner size="sm" />
+        <span className="sr-only">상품 목록을 불러오는 중</span>
+      </div>
     </div>
   );
 }

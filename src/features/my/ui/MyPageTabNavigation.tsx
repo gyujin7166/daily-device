@@ -69,7 +69,7 @@ export default function MyPageTabNavigation({
 
   return (
     <aside className="hidden self-start rounded-2xl border border-line bg-surface shadow-xs lg:block dark:border-dark-border dark:bg-dark-panel">
-      <div className="flex flex-col px-3 py-4">
+      <div className="flex flex-col px-3 py-3">
         {isSessionLoading ? (
           <div className="mb-5 flex min-w-0 items-center gap-3 rounded-2xl border border-line bg-canvas p-3.5 shadow-xs dark:border-dark-border dark:bg-dark-bg-hover">
             <div className="h-14 w-14 shrink-0 animate-pulse rounded-full bg-line dark:bg-dark-border" />

@@ -11,9 +11,7 @@ import type { Session } from 'next-auth';
 
 type NavAccountMenuProps = {
   avatarSrc: string;
-  isDarkMode: boolean;
   isDropdownOpen: boolean;
-  mounted: boolean;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
   session: Session | null;
@@ -24,16 +22,13 @@ type NavAccountMenuProps = {
   onLogin: () => void;
   onSignOut: () => void;
   onToggleDropdown: () => void;
-  onToggleTheme: () => void;
 };
 
 export default function NavAccountMenu({
   avatarSrc,
-  isDarkMode,
   isDropdownOpen,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
-  mounted,
   session,
   shouldShowAvatarImage,
   status,
@@ -42,7 +37,6 @@ export default function NavAccountMenu({
   onLogin,
   onSignOut,
   onToggleDropdown,
-  onToggleTheme,
 }: NavAccountMenuProps) {
   return (
     <div className="relative">
@@ -85,16 +79,13 @@ export default function NavAccountMenu({
       )}
       <NavAccountDropdown
         avatarSrc={avatarSrc}
-        isDarkMode={isDarkMode}
         isDropdownOpen={isDropdownOpen}
-        mounted={mounted}
         session={session}
         shouldShowAvatarImage={shouldShowAvatarImage}
         onAvatarError={onAvatarError}
         onClose={onClose}
         onLogin={onLogin}
         onSignOut={onSignOut}
-        onToggleTheme={onToggleTheme}
       />
     </div>
   );

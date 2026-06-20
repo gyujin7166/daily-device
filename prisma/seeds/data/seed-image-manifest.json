@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-19T07:28:41.695Z",
+  "generatedAt": "2026-06-20T15:28:11.202Z",
   "sourceRoot": "C:\\Users\\Yun\\Desktop\\FE\\daily-device\\.seed-images",
   "cloudName": "dmcv5suez",
   "folderPrefix": "ecommerce",
@@ -500,21 +500,6 @@
           "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631354/ecommerce/products/mice/slate-mouse-go/07-side-alt.webp",
           "order": 6,
           "isMain": false
-        }
-      ]
-    },
-    {
-      "productSlug": "breeze-mouse-desk",
-      "categorySlug": "mice",
-      "colorName": null,
-      "colorSlug": null,
-      "images": [
-        {
-          "fileName": "01-main.webp",
-          "publicId": "ecommerce/products/mice/breeze-mouse-desk/01-main",
-          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781853333/ecommerce/products/mice/breeze-mouse-desk/01-main.webp",
-          "order": 0,
-          "isMain": true
         }
       ]
     },
@@ -1357,21 +1342,6 @@
           "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631476/ecommerce/products/keyboards/breeze-keys-desk/07-side-alt.webp",
           "order": 5,
           "isMain": false
-        }
-      ]
-    },
-    {
-      "productSlug": "nook-keys-core",
-      "categorySlug": "keyboards",
-      "colorName": null,
-      "colorSlug": null,
-      "images": [
-        {
-          "fileName": "01-main.webp",
-          "publicId": "ecommerce/products/keyboards/nook-keys-core/01-main",
-          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781853419/ecommerce/products/keyboards/nook-keys-core/01-main.webp",
-          "order": 0,
-          "isMain": true
         }
       ]
     },
@@ -3524,21 +3494,6 @@
           "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631740/ecommerce/products/microphones/civic-mic-studio/07-side-alt.webp",
           "order": 6,
           "isMain": false
-        }
-      ]
-    },
-    {
-      "productSlug": "aster-webcam-mini",
-      "categorySlug": "webcams",
-      "colorName": null,
-      "colorSlug": null,
-      "images": [
-        {
-          "fileName": "01-main.webp",
-          "publicId": "ecommerce/products/webcams/aster-webcam-mini/01-main",
-          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781853628/ecommerce/products/webcams/aster-webcam-mini/01-main.webp",
-          "order": 0,
-          "isMain": true
         }
       ]
     },
@@ -8514,6 +8469,335 @@
           "isMain": false
         }
       ]
+    },
+    {
+      "productSlug": "breeze-mouse-desk",
+      "categorySlug": "mice",
+      "colorName": "그래파이트",
+      "colorSlug": "graphite",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631355/ecommerce/products/mice/breeze-mouse-desk/graphite/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631356/ecommerce/products/mice/breeze-mouse-desk/graphite/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631356/ecommerce/products/mice/breeze-mouse-desk/graphite/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "04-diagonal-with-accessories.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/04-diagonal-with-accessories",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631357/ecommerce/products/mice/breeze-mouse-desk/graphite/04-diagonal-with-accessories.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631358/ecommerce/products/mice/breeze-mouse-desk/graphite/06-side.webp",
+          "order": 4,
+          "isMain": false
+        },
+        {
+          "fileName": "07-side-alt.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/graphite/07-side-alt",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631359/ecommerce/products/mice/breeze-mouse-desk/graphite/07-side-alt.webp",
+          "order": 5,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "breeze-mouse-desk",
+      "categorySlug": "mice",
+      "colorName": "라일락",
+      "colorSlug": "lilac",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631360/ecommerce/products/mice/breeze-mouse-desk/lilac/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631361/ecommerce/products/mice/breeze-mouse-desk/lilac/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631361/ecommerce/products/mice/breeze-mouse-desk/lilac/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "04-diagonal-with-accessories.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/04-diagonal-with-accessories",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631362/ecommerce/products/mice/breeze-mouse-desk/lilac/04-diagonal-with-accessories.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631363/ecommerce/products/mice/breeze-mouse-desk/lilac/06-side.webp",
+          "order": 4,
+          "isMain": false
+        },
+        {
+          "fileName": "07-side-alt.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/lilac/07-side-alt",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631364/ecommerce/products/mice/breeze-mouse-desk/lilac/07-side-alt.webp",
+          "order": 5,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "breeze-mouse-desk",
+      "categorySlug": "mice",
+      "colorName": "페일그레이",
+      "colorSlug": "pale-gray",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631365/ecommerce/products/mice/breeze-mouse-desk/pale-gray/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631365/ecommerce/products/mice/breeze-mouse-desk/pale-gray/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631366/ecommerce/products/mice/breeze-mouse-desk/pale-gray/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "04-diagonal-with-accessories.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/04-diagonal-with-accessories",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631367/ecommerce/products/mice/breeze-mouse-desk/pale-gray/04-diagonal-with-accessories.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631368/ecommerce/products/mice/breeze-mouse-desk/pale-gray/06-side.webp",
+          "order": 4,
+          "isMain": false
+        },
+        {
+          "fileName": "07-side-alt.webp",
+          "publicId": "ecommerce/products/mice/breeze-mouse-desk/pale-gray/07-side-alt",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631368/ecommerce/products/mice/breeze-mouse-desk/pale-gray/07-side-alt.webp",
+          "order": 5,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "nook-keys-core",
+      "categorySlug": "keyboards",
+      "colorName": "라일락",
+      "colorSlug": "lilac",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/lilac/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631479/ecommerce/products/keyboards/nook-keys-core/lilac/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/lilac/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631480/ecommerce/products/keyboards/nook-keys-core/lilac/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/lilac/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631481/ecommerce/products/keyboards/nook-keys-core/lilac/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "05-bottom.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/lilac/05-bottom",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631482/ecommerce/products/keyboards/nook-keys-core/lilac/05-bottom.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/lilac/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631482/ecommerce/products/keyboards/nook-keys-core/lilac/06-side.webp",
+          "order": 4,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "nook-keys-core",
+      "categorySlug": "keyboards",
+      "colorName": "로즈핑크",
+      "colorSlug": "rose-pink",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/rose-pink/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631484/ecommerce/products/keyboards/nook-keys-core/rose-pink/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/rose-pink/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631485/ecommerce/products/keyboards/nook-keys-core/rose-pink/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/rose-pink/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631486/ecommerce/products/keyboards/nook-keys-core/rose-pink/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "05-bottom.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/rose-pink/05-bottom",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631487/ecommerce/products/keyboards/nook-keys-core/rose-pink/05-bottom.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/rose-pink/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631488/ecommerce/products/keyboards/nook-keys-core/rose-pink/06-side.webp",
+          "order": 4,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "nook-keys-core",
+      "categorySlug": "keyboards",
+      "colorName": "샌드베이지",
+      "colorSlug": "sand-beige",
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/sand-beige/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631489/ecommerce/products/keyboards/nook-keys-core/sand-beige/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/sand-beige/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631490/ecommerce/products/keyboards/nook-keys-core/sand-beige/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/sand-beige/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631491/ecommerce/products/keyboards/nook-keys-core/sand-beige/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "05-bottom.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/sand-beige/05-bottom",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631491/ecommerce/products/keyboards/nook-keys-core/sand-beige/05-bottom.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/keyboards/nook-keys-core/sand-beige/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631492/ecommerce/products/keyboards/nook-keys-core/sand-beige/06-side.webp",
+          "order": 4,
+          "isMain": false
+        }
+      ]
+    },
+    {
+      "productSlug": "aster-webcam-mini",
+      "categorySlug": "webcams",
+      "colorName": null,
+      "colorSlug": null,
+      "images": [
+        {
+          "fileName": "01-main.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/01-main",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781880916/ecommerce/products/webcams/aster-webcam-mini/01-main.webp",
+          "order": 0,
+          "isMain": true
+        },
+        {
+          "fileName": "02-front.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/02-front",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631741/ecommerce/products/webcams/aster-webcam-mini/02-front.webp",
+          "order": 1,
+          "isMain": false
+        },
+        {
+          "fileName": "03-diagonal.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/03-diagonal",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631742/ecommerce/products/webcams/aster-webcam-mini/03-diagonal.webp",
+          "order": 2,
+          "isMain": false
+        },
+        {
+          "fileName": "04-diagonal-alt.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/04-diagonal-alt",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631743/ecommerce/products/webcams/aster-webcam-mini/04-diagonal-alt.webp",
+          "order": 3,
+          "isMain": false
+        },
+        {
+          "fileName": "05-back.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/05-back",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631744/ecommerce/products/webcams/aster-webcam-mini/05-back.webp",
+          "order": 4,
+          "isMain": false
+        },
+        {
+          "fileName": "06-side.webp",
+          "publicId": "ecommerce/products/webcams/aster-webcam-mini/06-side",
+          "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1780631745/ecommerce/products/webcams/aster-webcam-mini/06-side.webp",
+          "order": 5,
+          "isMain": false
+        }
+      ]
     }
   ],
   "categories": [
@@ -8885,17 +9169,6 @@
         "fileName": "01-main.webp",
         "publicId": "ecommerce/home/category-carousel/tablet-keyboards/01-main",
         "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781348250/ecommerce/home/category-carousel/tablet-keyboards/01-main.webp",
-        "order": 0,
-        "isMain": true
-      }
-    },
-    {
-      "sectionKey": "category-carousel",
-      "itemKey": "headsets",
-      "image": {
-        "fileName": "01-main.webp",
-        "publicId": "ecommerce/home/category-carousel/headsets/01-main",
-        "secureUrl": "https://res.cloudinary.com/dmcv5suez/image/upload/v1781681191/ecommerce/home/category-carousel/headsets/01-main.webp",
         "order": 0,
         "isMain": true
       }

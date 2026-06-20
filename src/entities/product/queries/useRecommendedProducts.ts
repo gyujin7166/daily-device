@@ -9,6 +9,7 @@ type UseRecommendedProductsParams = {
   category?: string;
   excludeId?: number;
   limit?: number;
+  context?: 'default' | 'orders-empty' | 'wishlist-empty';
   enabled?: boolean;
 };
 
@@ -16,6 +17,7 @@ export const useSuspenseRecommendedProducts = ({
   category,
   excludeId,
   limit = 10,
+  context = 'default',
   enabled = true,
 }: UseRecommendedProductsParams) => {
   const normalizedCategory = category?.trim();
@@ -25,13 +27,19 @@ export const useSuspenseRecommendedProducts = ({
       normalizedCategory,
       excludeId,
       limit,
+      context,
     ),
     queryFn: () => {
       if (!normalizedCategory || !enabled) {
         return Promise.resolve([]);
       }
 
-      return getRecommendedProducts(normalizedCategory, excludeId, limit);
+      return getRecommendedProducts(
+        normalizedCategory,
+        excludeId,
+        limit,
+        context,
+      );
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -43,6 +51,7 @@ export const useRecommendedProducts = ({
   category,
   excludeId,
   limit = 10,
+  context = 'default',
   enabled = true,
 }: UseRecommendedProductsParams) => {
   const normalizedCategory = category?.trim();
@@ -52,8 +61,10 @@ export const useRecommendedProducts = ({
       normalizedCategory,
       excludeId,
       limit,
+      context,
     ),
-    queryFn: () => getRecommendedProducts(normalizedCategory, excludeId, limit),
+    queryFn: () =>
+      getRecommendedProducts(normalizedCategory, excludeId, limit, context),
     enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

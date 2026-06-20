@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 
 import Button from '@shared/ui/Button/Button';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import { CHECKOUT_SECTION_TITLES } from '../../model/constants';
 import CheckoutSection from '../common/CheckoutSection';
@@ -49,10 +50,10 @@ export default function CheckoutFlowPaymentPanel({
           className="w-full rounded-2xl disabled:cursor-not-allowed disabled:border-disabled-bg disabled:bg-disabled-bg disabled:text-disabled-text disabled:opacity-100"
         >
           {isCartSyncPending ? (
-            <span
-              aria-label="장바구니 반영 중"
-              className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-surface/35 border-t-surface"
-            />
+            <>
+              <Spinner size="sm" variant="inverse" className="size-5" />
+              <span className="sr-only">장바구니 반영 중</span>
+            </>
           ) : (
             actionLabel
           )}

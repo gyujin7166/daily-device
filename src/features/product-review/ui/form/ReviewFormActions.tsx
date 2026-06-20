@@ -1,4 +1,4 @@
-import { IconLoader2 } from '@tabler/icons-react';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 type ReviewFormActionsProps = {
   isEditing: boolean;
@@ -30,12 +30,12 @@ export default function ReviewFormActions({
         >
           {isUploading ? (
             <>
-              <IconLoader2 className="animate-spin" size={18} />
+              <Spinner size="sm" variant="inverse" />
               이미지 업로드 중
             </>
           ) : isPending ? (
             <>
-              <IconLoader2 className="animate-spin" size={18} />
+              <Spinner size="sm" variant="inverse" />
               {isEditing ? '수정 중' : '등록 중'}
             </>
           ) : isEditing ? (

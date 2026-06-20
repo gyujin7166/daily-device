@@ -3,10 +3,10 @@
 import type { ReactNode } from 'react';
 
 import {
+  IconBox,
   IconHeart,
-  IconMapPin,
-  IconPencil,
-  IconShoppingBag,
+  IconHomePlus,
+  IconPencilPlus,
   IconStar,
 } from '@tabler/icons-react';
 
@@ -23,62 +23,39 @@ type MyPageEmptyIconVariant =
 
 type EmptyIconConfig = {
   MainIcon: Icon;
-  glowClassName: string;
-  haloClassName: string;
-  offsetClassName: string;
-  boxClassName: string;
+  badgeClassName: string;
   iconClassName: string;
 };
 
 const EMPTY_ICON_CONFIG: Record<MyPageEmptyIconVariant, EmptyIconConfig> = {
   orders: {
-    MainIcon: IconShoppingBag,
-    glowClassName: 'bg-primary/10 dark:bg-primary/16',
-    haloClassName:
-      'border-primary/15 bg-primary-soft/70 dark:border-primary/20 dark:bg-primary/10',
-    offsetClassName: 'bg-primary/8 dark:bg-primary/12',
-    boxClassName:
-      'border-primary/10 bg-primary-soft text-primary dark:border-primary/20 dark:bg-dark-bg-hover',
+    MainIcon: IconBox,
+    badgeClassName:
+      'border-primary/15 bg-primary-soft text-primary dark:border-primary/25 dark:bg-primary/15',
     iconClassName: 'text-primary dark:text-primary',
   },
   wishlist: {
     MainIcon: IconHeart,
-    glowClassName: 'bg-primary/8 dark:bg-primary/12',
-    haloClassName:
-      'border-primary/10 bg-info-soft dark:border-primary/15 dark:bg-primary/8',
-    offsetClassName: 'bg-primary/7 dark:bg-primary/10',
-    boxClassName:
-      'border-primary/10 bg-info-soft text-primary dark:border-primary/15 dark:bg-dark-bg-hover',
-    iconClassName: 'text-primary dark:text-primary',
+    badgeClassName:
+      'border-danger/15 bg-danger/10 text-danger dark:border-danger/25 dark:bg-danger/15',
+    iconClassName: 'text-danger dark:text-danger',
   },
   address: {
-    MainIcon: IconMapPin,
-    glowClassName: 'bg-success/8 dark:bg-success/10',
-    haloClassName:
-      'border-success/10 bg-success-soft/70 dark:border-success/15 dark:bg-success/8',
-    offsetClassName: 'bg-success/7 dark:bg-success/10',
-    boxClassName:
-      'border-success/10 bg-success-soft text-success dark:border-success/15 dark:bg-dark-bg-hover',
+    MainIcon: IconHomePlus,
+    badgeClassName:
+      'border-success/15 bg-success-soft text-success dark:border-success/25 dark:bg-success/15',
     iconClassName: 'text-success dark:text-success',
   },
   'write-review': {
-    MainIcon: IconPencil,
-    glowClassName: 'bg-warning/8 dark:bg-warning/10',
-    haloClassName:
-      'border-warning/12 bg-warning-soft/70 dark:border-warning/15 dark:bg-warning/8',
-    offsetClassName: 'bg-warning/8 dark:bg-warning/10',
-    boxClassName:
-      'border-warning/12 bg-warning-soft text-warning dark:border-warning/15 dark:bg-dark-bg-hover',
+    MainIcon: IconPencilPlus,
+    badgeClassName:
+      'border-warning/20 bg-warning-soft text-warning dark:border-warning/30 dark:bg-warning/15',
     iconClassName: 'text-warning dark:text-warning',
   },
   reviews: {
     MainIcon: IconStar,
-    glowClassName: 'bg-accent-violet/7 dark:bg-accent-violet/10',
-    haloClassName:
-      'border-accent-violet/10 bg-primary-soft/60 dark:border-accent-violet/15 dark:bg-accent-violet/8',
-    offsetClassName: 'bg-accent-violet/7 dark:bg-accent-violet/10',
-    boxClassName:
-      'border-accent-violet/10 bg-primary-soft/80 text-accent-violet dark:border-accent-violet/15 dark:bg-dark-bg-hover',
+    badgeClassName:
+      'border-accent-violet/15 bg-accent-violet/10 text-accent-violet dark:border-accent-violet/25 dark:bg-accent-violet/15',
     iconClassName: 'text-accent-violet dark:text-accent-violet',
   },
 };
@@ -87,6 +64,7 @@ type MyPageEmptyStatePanelProps = {
   title: string;
   description: string;
   iconVariant: MyPageEmptyIconVariant;
+  layout?: 'vertical' | 'horizontal';
   action?: ReactNode;
   children?: ReactNode;
 };
@@ -95,16 +73,15 @@ export default function MyPageEmptyStatePanel({
   title,
   description,
   iconVariant,
+  layout = 'vertical',
   action,
   children,
 }: MyPageEmptyStatePanelProps) {
   const hasSupplement = Boolean(children);
+  const isHorizontal = layout === 'horizontal';
   const {
     MainIcon,
-    glowClassName,
-    haloClassName,
-    offsetClassName,
-    boxClassName,
+    badgeClassName,
     iconClassName,
   } = EMPTY_ICON_CONFIG[iconVariant];
 
@@ -112,59 +89,66 @@ export default function MyPageEmptyStatePanel({
     <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xs dark:border-dark-border dark:bg-dark-panel">
       <div
         className={cn(
-          'grid items-center justify-center gap-6 px-5 py-8 sm:px-8 sm:py-10 md:grid-cols-[auto_minmax(0,21.5rem)] md:gap-9 lg:gap-10 lg:px-12 lg:py-12',
-          hasSupplement
-            ? 'min-h-64 sm:min-h-68'
-            : 'min-h-72 sm:min-h-80 lg:min-h-86',
+          isHorizontal
+            ? 'flex flex-col items-center gap-4 px-5 py-6 text-center sm:flex-row sm:justify-between sm:gap-5 sm:px-7 sm:text-left lg:px-8'
+            : 'flex flex-col items-center justify-center gap-5 px-5 py-8 text-center sm:px-8 sm:py-9 lg:px-10',
+          isHorizontal
+            ? 'min-h-30 sm:min-h-32'
+            : hasSupplement
+              ? 'min-h-56 sm:min-h-60'
+              : 'min-h-58 sm:min-h-64',
         )}
       >
-        <div className="flex justify-center">
-          <div className="group relative flex size-34 items-center justify-center sm:size-42">
-            <div
+        <div
+          className={cn(
+            'flex items-center',
+            isHorizontal
+              ? 'w-full min-w-0 flex-col justify-center gap-3 sm:flex-1 sm:flex-row sm:justify-start sm:gap-4'
+              : 'flex-col justify-center',
+          )}
+        >
+          <div
+            className={cn(
+              'group flex shrink-0 items-center justify-center rounded-full border shadow-[0_18px_34px_-26px_rgba(15,23,42,0.65)] transition-transform duration-200 ease-out motion-safe:hover:-translate-y-0.5',
+              isHorizontal ? 'size-15 sm:size-17' : 'size-20 sm:size-22',
+              badgeClassName,
+            )}
+          >
+            <MainIcon
+              size={isHorizontal ? 28 : 38}
+              stroke={1.7}
               className={cn(
-                'absolute inset-5 rounded-[2rem] blur-2xl',
-                glowClassName,
+                'transition-transform duration-200 ease-out motion-safe:group-hover:scale-105',
+                iconClassName,
               )}
             />
-            <div
-              className={cn(
-                'absolute size-28 rounded-[1.75rem] border motion-safe:animate-pulse sm:size-34',
-                haloClassName,
-              )}
-            />
-            <div
-              className={cn(
-                'absolute size-20 rotate-6 rounded-[1.25rem] transition-transform duration-300 ease-out motion-safe:group-hover:rotate-12 sm:size-25',
-                offsetClassName,
-              )}
-            />
-            <div
-              className={cn(
-                'relative flex size-24 items-center justify-center rounded-[1.5rem] border shadow-[0_18px_38px_-28px_rgba(15,23,42,0.55)] transition-transform duration-300 ease-out motion-safe:group-hover:-translate-y-1 sm:size-30',
-                boxClassName,
-              )}
-            >
-              <MainIcon
-                size={54}
-                stroke={1.45}
-                className={cn(
-                  'transition-transform duration-300 ease-out motion-safe:group-hover:scale-105 sm:size-16',
-                  iconClassName,
-                )}
-              />
-            </div>
+          </div>
+
+          <div
+            className={cn(
+              'min-w-0',
+              isHorizontal
+                ? 'flex-1'
+                : 'mx-auto mt-5 w-full max-w-86 text-center',
+            )}
+          >
+            <h3 className="text-lg font-extrabold leading-tight text-ink dark:text-surface sm:text-xl">
+              {title}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-muted dark:text-dark-muted">
+              {description}
+            </p>
+            {!isHorizontal && action ? (
+              <div className="mt-4">{action}</div>
+            ) : null}
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-86 text-center md:mx-0 md:text-left">
-          <h3 className="text-lg font-extrabold leading-tight tracking-[-0.02em] text-ink dark:text-surface sm:text-xl">
-            {title}
-          </h3>
-          <p className="mt-2.5 text-sm leading-6 text-muted dark:text-dark-muted">
-            {description}
-          </p>
-          {action ? <div className="mt-5">{action}</div> : null}
-        </div>
+        {isHorizontal && action ? (
+          <div className="flex shrink-0 justify-center sm:justify-end">
+            {action}
+          </div>
+        ) : null}
       </div>
 
       {children}

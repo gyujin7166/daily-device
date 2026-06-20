@@ -49,7 +49,7 @@ export default function NavBarDropdown({
 
   if (variant === 'mobile') {
     return (
-      <div className="bg-surface dark:border-dark-border dark:bg-dark-bg">
+      <div className="bg-surface dark:border-dark-border dark:bg-dark-panel">
         {categoryIsLoading ? (
           <MobileDropdownSkeleton />
         ) : (
@@ -57,7 +57,7 @@ export default function NavBarDropdown({
             {categories?.map((category: CategoryItems) => (
               <div
                 key={category.id}
-                className="rounded-2xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
+                className="rounded-2xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-panel-hover"
               >
                 <p className="mb-2 text-base font-bold text-ink dark:text-surface">
                   {category.name_ko}
@@ -122,7 +122,7 @@ function MobileDropdownSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={`mobile-nav-skeleton-${index}`}
-          className="rounded-xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
+          className="rounded-xl border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-panel-hover"
         >
           <div className="mb-3 h-5 w-24 animate-pulse rounded-sm bg-line dark:bg-dark-bg-hover" />
           <div className="space-y-2">

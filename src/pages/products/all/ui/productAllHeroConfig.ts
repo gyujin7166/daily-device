@@ -1,5 +1,5 @@
 export const PRODUCT_ALL_HERO_MIN_HEIGHT_CLASS_NAME =
-  'min-h-[28vh] supports-[height:100svh]:min-h-[28svh] sm:min-h-[32vh] sm:supports-[height:100svh]:min-h-[32svh] md:min-h-[42vh] md:supports-[height:100svh]:min-h-[42svh] lg:min-h-[50vh]';
+  'min-h-[44vh] supports-[height:100svh]:min-h-[44svh] sm:min-h-[46vh] sm:supports-[height:100svh]:min-h-[46svh] md:min-h-[48vh] md:supports-[height:100svh]:min-h-[48svh] lg:min-h-[50vh]';
 
 export const PRODUCT_ALL_HERO_VIEWPORT_OFFSET_TOP_PX = 90;
 

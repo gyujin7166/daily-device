@@ -22,12 +22,18 @@ export const productQueryKeys = {
     [...productQueryKeys.all, 'list', params] as const,
   detail: (slug: string) => [...productQueryKeys.all, 'detail', slug] as const,
   images: (slug: string) => [...productQueryKeys.all, 'images', slug] as const,
-  recommended: (category?: string, excludeId?: number, limit = 10) =>
+  recommended: (
+    category?: string,
+    excludeId?: number,
+    limit = 10,
+    context = 'default',
+  ) =>
     [
       ...productQueryKeys.all,
       'recommended',
       category,
       excludeId,
       limit,
+      context,
     ] as const,
 };

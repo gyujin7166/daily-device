@@ -17,6 +17,7 @@ type FilteredProductsProps = {
   hasNextPage?: boolean;
   fetchNextPage?: () => void | Promise<void>;
   isFetchingNextPage?: boolean;
+  isRefreshing?: boolean;
   resetKey?: string;
 };
 
@@ -29,20 +30,37 @@ export default function FilteredProducts({
   hasNextPage = false,
   fetchNextPage,
   isFetchingNextPage = false,
+  isRefreshing = false,
   resetKey,
 }: FilteredProductsProps) {
   const routeParams = useParams<{ category?: string }>();
   const pathname = usePathname() ?? '/products';
-  const { setParam } = useQueryParams();
+  const { setParams } = useQueryParams();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
   const visibleItems = filteredItem ?? products ?? [];
   const searchFilters = params.get('filters');
+  const searchColors = params.get('colors');
+  const searchMinPrice = params.get('minPrice');
+  const searchMaxPrice = params.get('maxPrice');
   const categoryLabel =
     routeParams?.category ??
     pathname.split('/').filter(Boolean).at(-1) ??
     'products';
-  const hasActiveFilters = !!searchFilters?.trim();
+  const hasActiveFilters = [
+    searchFilters,
+    searchColors,
+    searchMinPrice,
+    searchMaxPrice,
+  ].some((value) => !!value?.trim());
+  const handleResetFilters = () => {
+    setParams({
+      filters: null,
+      colors: null,
+      minPrice: null,
+      maxPrice: null,
+    });
+  };
 
   return (
     <ProductList
@@ -53,6 +71,7 @@ export default function FilteredProducts({
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}
       isFetchingNextPage={isFetchingNextPage}
+      isRefreshing={isRefreshing}
       resetKey={resetKey}
       emptyTitle={
         hasActiveFilters
@@ -68,7 +87,7 @@ export default function FilteredProducts({
         hasActiveFilters ? (
           <button
             type="button"
-            onClick={() => setParam('filters', null)}
+            onClick={handleResetFilters}
             className="mt-5 inline-flex h-10 items-center justify-center rounded-full border border-line bg-surface px-5 text-sm font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel-deep dark:text-surface dark:hover:bg-dark-panel-hover"
           >
             필터 초기화

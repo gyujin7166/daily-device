@@ -45,6 +45,11 @@ type RecommendedProductItem = {
   };
 };
 
+type RecommendationContext = 'default' | 'orders-empty' | 'wishlist-empty';
+type RecommendedProductPayload = Prisma.ProductGetPayload<{
+  select: typeof baseSelect;
+}>;
+
 const baseSelect = {
   id: true,
   name_en: true,
@@ -91,8 +96,29 @@ const baseSelect = {
   },
 } satisfies Prisma.ProductSelect;
 
+const DEFAULT_RECOMMENDED_ORDER_BY = [
+  { id: 'desc' },
+] satisfies Prisma.ProductOrderByWithRelationInput[];
+
+const shouldShuffleRecommendations = (context: RecommendationContext) =>
+  context === 'orders-empty' || context === 'wishlist-empty';
+
+const shuffleProducts = <T,>(items: T[]) => {
+  const shuffledItems = [...items];
+
+  for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledItems[index], shuffledItems[randomIndex]] = [
+      shuffledItems[randomIndex],
+      shuffledItems[index],
+    ];
+  }
+
+  return shuffledItems;
+};
+
 const mapRecommendedItem = (
-  product: Prisma.ProductGetPayload<{ select: typeof baseSelect }>,
+  product: RecommendedProductPayload,
 ): RecommendedProductItem => {
   const parsedPrice = Number(product.price);
   const priceInfo = getProductPriceInfo(
@@ -127,10 +153,12 @@ const mapRecommendedItem = (
 
 export async function getRecommendedProductsList({
   category,
+  context = 'default',
   excludeId,
   limit,
 }: {
   category?: string;
+  context?: RecommendationContext;
   excludeId?: number;
   limit: number;
 }): Promise<RecommendedProductItem[]> {
@@ -139,11 +167,49 @@ export async function getRecommendedProductsList({
     ...(excludeId ? { id: { not: excludeId } } : {}),
   };
 
+  if (shouldShuffleRecommendations(context)) {
+    const primaryProducts = await prisma.product.findMany({
+      where: primaryWhere,
+      select: baseSelect,
+      orderBy: { id: 'asc' },
+    });
+    const randomPrimaryProducts = shuffleProducts(primaryProducts).slice(
+      0,
+      limit,
+    );
+
+    if (!category || randomPrimaryProducts.length >= limit) {
+      return randomPrimaryProducts.map(mapRecommendedItem);
+    }
+
+    const excludedIds = [
+      ...randomPrimaryProducts.map((item) => item.id),
+      ...(excludeId ? [excludeId] : []),
+    ];
+
+    const fallbackProducts = await prisma.product.findMany({
+      where: {
+        id: excludedIds.length ? { notIn: excludedIds } : undefined,
+        category: { slug: { not: category } },
+      },
+      select: baseSelect,
+      orderBy: { id: 'asc' },
+    });
+    const randomFallbackProducts = shuffleProducts(fallbackProducts).slice(
+      0,
+      limit - randomPrimaryProducts.length,
+    );
+
+    return [...randomPrimaryProducts, ...randomFallbackProducts].map(
+      mapRecommendedItem,
+    );
+  }
+
   const primaryProducts = await prisma.product.findMany({
     where: primaryWhere,
     select: baseSelect,
     take: limit,
-    orderBy: { id: 'desc' },
+    orderBy: DEFAULT_RECOMMENDED_ORDER_BY,
   });
 
   if (!category || primaryProducts.length >= limit) {
@@ -162,7 +228,7 @@ export async function getRecommendedProductsList({
     },
     select: baseSelect,
     take: limit - primaryProducts.length,
-    orderBy: { id: 'desc' },
+    orderBy: DEFAULT_RECOMMENDED_ORDER_BY,
   });
 
   return [...primaryProducts, ...fallbackProducts].map(mapRecommendedItem);

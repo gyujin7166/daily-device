@@ -62,8 +62,8 @@ export default function SearchFilterControls({
 
   return (
     <section className="mb-6 rounded-2xl border border-line bg-surface px-4 py-4 sm:px-5 dark:border-dark-border dark:bg-dark-panel">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           {categories.map((category) => {
             const isSelected = selectedCategories.includes(category);
             return (
@@ -93,8 +93,8 @@ export default function SearchFilterControls({
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 md:justify-end">
-          <p className="text-xs text-muted dark:text-dark-muted">
+        <div className="flex shrink-0 items-center justify-between gap-3 lg:justify-end">
+          <p className="whitespace-nowrap text-xs text-muted dark:text-dark-muted">
             표시 {visibleCount} / {totalCount}
           </p>
           <SortDropdown<SearchSortOption>

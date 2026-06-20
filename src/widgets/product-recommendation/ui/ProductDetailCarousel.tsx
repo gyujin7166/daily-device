@@ -42,6 +42,7 @@ type ProductDetailCarouselProps = {
   eyebrow?: string;
   title?: string;
   density?: 'default' | 'compact';
+  className?: string;
   productBackgroundClassName?: string;
 };
 
@@ -50,6 +51,7 @@ export default function ProductDetailCarousel({
   eyebrow,
   title,
   density = 'default',
+  className,
   productBackgroundClassName,
 }: ProductDetailCarouselProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -94,7 +96,10 @@ export default function ProductDetailCarousel({
     <PageWrapper
       as="section"
       padding="wide"
-      className={cn(isCompact ? 'max-w-4xl px-5 pb-8 sm:px-7 lg:px-8' : 'pb-16')}
+      className={cn(
+        isCompact ? 'max-w-4xl px-5 pb-8 sm:px-7 lg:px-8' : 'pb-16',
+        className,
+      )}
     >
       <header
         className={cn(

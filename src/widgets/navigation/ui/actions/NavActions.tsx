@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import { cn } from '@shared/lib/utils/style';
 
 import useNavActionsState from '../../model/hooks/useNavActionsState';
@@ -11,7 +13,7 @@ type NavActionsProps = {
   handleToggleSearch: () => void;
   isSearchOpen: boolean;
   className?: string;
-  hideThemeOnMobile?: boolean;
+  closeAccountDropdownSignal?: boolean;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
   onActionClick?: () => void;
@@ -21,20 +23,19 @@ export default function NavActions({
   handleToggleSearch,
   isSearchOpen,
   className = '',
-  hideThemeOnMobile = false,
+  closeAccountDropdownSignal = false,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
   onActionClick,
 }: NavActionsProps) {
+  const actionsRef = useRef<HTMLDivElement | null>(null);
   const {
     avatarSrc,
     cartItemCount,
     closeAccountDropdown,
     handleLogin,
     handleSignOut,
-    isDarkMode,
     isDropdownOpen,
-    mounted,
     session,
     setIsAvatarLoadFailed,
     shouldShowAvatarImage,
@@ -63,8 +64,47 @@ export default function NavActions({
     toggleAccountDropdown();
   };
 
+  useEffect(() => {
+    if (!isDropdownOpen) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        actionsRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      closeAccountDropdown();
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeAccountDropdown();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [closeAccountDropdown, isDropdownOpen]);
+
+  useEffect(() => {
+    if (closeAccountDropdownSignal) {
+      closeAccountDropdown();
+    }
+  }, [closeAccountDropdown, closeAccountDropdownSignal]);
+
   return (
     <div
+      ref={actionsRef}
       className={cn(
         'relative flex items-center justify-center gap-x-1 sm:gap-x-1.5',
         className,
@@ -83,18 +123,15 @@ export default function NavActions({
         onToggleCart={handleToggleCart}
       />
       <NavThemeButton
-        hideOnMobile={hideThemeOnMobile}
         isDarkOverlayStyle={isDarkOverlayStyle}
         isOverlayStyle={isOverlayStyle}
         onToggleTheme={handleToggleTheme}
       />
       <NavAccountMenu
         avatarSrc={avatarSrc}
-        isDarkMode={isDarkMode}
         isDarkOverlayStyle={isDarkOverlayStyle}
         isDropdownOpen={isDropdownOpen}
         isOverlayStyle={isOverlayStyle}
-        mounted={mounted}
         session={session}
         shouldShowAvatarImage={shouldShowAvatarImage}
         status={status}
@@ -103,7 +140,6 @@ export default function NavActions({
         onLogin={handleLogin}
         onSignOut={handleSignOut}
         onToggleDropdown={handleToggleAccountDropdown}
-        onToggleTheme={toggleTheme}
       />
     </div>
   );

@@ -5,14 +5,12 @@ import { cn } from '@shared/lib/utils/style';
 import { NAV_ICON_BUTTON_SURFACE_CLASS } from '../../model/navActions';
 
 type NavThemeButtonProps = {
-  hideOnMobile: boolean;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
   onToggleTheme: () => void;
 };
 
 export default function NavThemeButton({
-  hideOnMobile,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
   onToggleTheme,
@@ -21,7 +19,7 @@ export default function NavThemeButton({
     <button
       type="button"
       className={cn(
-        hideOnMobile ? 'hidden sm:flex' : 'flex',
+        'flex',
         isOverlayStyle
           ? 'h-10 w-10 items-center justify-center rounded-xl text-surface transition hover:bg-white/10 sm:h-11 sm:w-11'
           : isDarkOverlayStyle

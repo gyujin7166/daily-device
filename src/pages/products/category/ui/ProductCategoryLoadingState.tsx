@@ -15,7 +15,7 @@ export default function ProductCategoryLoadingState({
 }: ProductCategoryLoadingStateProps) {
   return (
     <div className="bg-canvas dark:bg-dark-bg">
-      <section className="relative min-h-[28vh] animate-pulse bg-line supports-[height:100svh]:min-h-[28svh] sm:min-h-[32vh] sm:supports-[height:100svh]:min-h-[32svh] md:min-h-[42vh] md:supports-[height:100svh]:min-h-[42svh] lg:min-h-[50vh] dark:bg-dark-bg-hover">
+      <section className="relative min-h-[36vh] animate-pulse bg-line supports-[height:100svh]:min-h-[36svh] sm:min-h-[38vh] sm:supports-[height:100svh]:min-h-[38svh] md:min-h-[44vh] md:supports-[height:100svh]:min-h-[44svh] lg:min-h-[50vh] dark:bg-dark-bg-hover">
         <div className="absolute inset-0 bg-line dark:bg-dark-bg-hover" />
       </section>
 

@@ -58,6 +58,7 @@ export const getRecommendedProducts = (
   normalizedCategory: string | undefined,
   excludeId: number | undefined,
   limit: number,
+  context?: string,
 ): Promise<RecommendedProductItem[]> => {
   const params = new URLSearchParams();
   if (normalizedCategory) {
@@ -65,6 +66,9 @@ export const getRecommendedProducts = (
   }
   if (excludeId) {
     params.set('excludeId', `${excludeId}`);
+  }
+  if (context && context !== 'default') {
+    params.set('context', context);
   }
   params.set('limit', `${limit}`);
   return fetchApi(`/api/products/recommended?${params.toString()}`);

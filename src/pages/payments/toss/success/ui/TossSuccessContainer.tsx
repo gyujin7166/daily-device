@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import {
   IconAlertCircleFilled,
   IconCircleCheckFilled,
-  IconLoader2,
 } from '@tabler/icons-react';
 
 import { fetchApi } from '@shared/api/fetchApi';
@@ -14,6 +13,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 type Status = 'idle' | 'confirming' | 'done' | 'error';
 
@@ -84,7 +84,7 @@ export default function TossSuccessContainer() {
             <div className="relative flex h-20 w-20 items-center justify-center">
               <span className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
               <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft text-primary dark:bg-blue-900/30 dark:text-blue-300">
-                <IconLoader2 size={34} className="animate-spin" stroke={2.2} />
+                <Spinner size="lg" variant="current" className="size-8.5" />
               </span>
             </div>
           )}

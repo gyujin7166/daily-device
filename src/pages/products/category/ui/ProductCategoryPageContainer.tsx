@@ -226,6 +226,8 @@ export default function ProductCategoryPageContainer({
   const resultCount = shouldWaitFilteredResult
     ? 0
     : (totalProducts ?? products?.length ?? 0);
+  const isRefreshingProducts =
+    isFetching && !isPending && !isFetchingNextPage && !shouldWaitFilteredResult;
 
   useEffect(() => {
     setRetainedProductLimit(PRODUCT_PAGE_SIZE);
@@ -308,7 +310,12 @@ export default function ProductCategoryPageContainer({
         onToggleFilter={() => setVisibleFilter((prev) => !prev)}
         sortOption={sortOption}
         onSortChange={handleSortChange}
-        isSorting={isPending || isFetchingNextPage}
+        isSorting={
+          isPending ||
+          isFetching ||
+          isFetchingNextPage ||
+          shouldWaitFilteredResult
+        }
       />
       <ProductCategoryContentSection
         isMobileViewport={isMobileViewport}
@@ -332,6 +339,7 @@ export default function ProductCategoryPageContainer({
         hasNextPage={hasNextPage}
         fetchNextPage={handleFetchNextPage}
         isFetchingNextPage={isFetchingNextPage}
+        isRefreshing={isRefreshingProducts}
         resetKey={productListResetKey}
       />
       <ProductCategoryMobileFilterDrawerSection

@@ -55,12 +55,12 @@ export default function HomePageContent() {
                 : 'drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)]',
             )}
           >
-            <h1 className="mb-5 max-w-155 text-4xl font-extrabold leading-[1.02] tracking-normal [word-break:keep-all] sm:text-5xl lg:mb-6 lg:text-6xl xl:text-7xl">
+            <h1 className="mb-5 max-w-155 text-4xl font-extrabold leading-[1.02] tracking-normal break-keep sm:text-5xl lg:mb-6 lg:text-6xl xl:text-7xl">
               {heroContent.description}
             </h1>
             <p
               className={cn(
-                'mb-8 max-w-md text-sm font-light leading-relaxed [word-break:keep-all] sm:text-base lg:text-lg',
+                'mb-8 max-w-md text-sm font-light leading-relaxed break-keep sm:text-base lg:text-lg',
                 heroUsesLightText ? 'text-surface/90' : 'text-ink/80',
               )}
             >
@@ -69,7 +69,7 @@ export default function HomePageContent() {
             <Link
               href="/products"
               className={cn(
-                'inline-flex min-h-12 cursor-pointer items-center justify-center rounded-md border-2 px-7 py-3.5 text-sm font-bold leading-5 shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition duration-150 sm:px-8 sm:py-4',
+                'inline-flex min-h-12 cursor-pointer items-center justify-center rounded-2xl border-2 px-7 py-3.5 text-sm font-bold leading-5 shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition duration-150 sm:px-8 sm:py-4',
                 heroUsesLightText
                   ? 'border-surface bg-surface text-ink hover:bg-surface/90 hover:text-ink'
                   : 'border-ink bg-ink text-surface hover:bg-ink/90 hover:text-surface',

@@ -6,8 +6,6 @@ export const NAV_ICON_BUTTON_SURFACE_CLASS = `${NAV_ICON_BUTTON_BASE_CLASS} text
 export const NAV_DROPDOWN_ACTION_ITEM_CLASS =
   'flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-ink transition hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-dark-bg-hover dark:hover:text-surface';
 
-export const NAV_MOBILE_THEME_ACTION_ITEM_CLASS = `${NAV_DROPDOWN_ACTION_ITEM_CLASS} disabled:cursor-not-allowed disabled:opacity-60 sm:hidden`;
-
 export const buildLoginCallbackPath = (pathname: string | null) => {
   const currentQuery =
     typeof window === 'undefined' ? '' : window.location.search;

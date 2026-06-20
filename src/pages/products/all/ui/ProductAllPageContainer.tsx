@@ -55,6 +55,9 @@ export default function ProductAllPageContainer({
       item.image_url ? [{ ...item, image_url: item.image_url }] : [],
     ),
   );
+  const isRefreshingProducts =
+    isFetching && !isPending && !isFetchingNextPage;
+
   useEffect(() => {
     if (
       isPending ||
@@ -122,6 +125,7 @@ export default function ProductAllPageContainer({
         hasNextPage={hasNextPage}
         fetchNextPage={handleFetchNextPage}
         isFetchingNextPage={isFetchingNextPage}
+        isRefreshing={isRefreshingProducts}
         resetKey={sortOption}
       />
     </div>

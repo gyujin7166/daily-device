@@ -2,12 +2,13 @@ import type { ChangeEvent } from 'react';
 
 import Image from 'next/image';
 
-import { IconCamera, IconLoader2, IconX } from '@tabler/icons-react';
+import { IconCamera, IconX } from '@tabler/icons-react';
 
 import { MAX_REVIEW_IMAGES } from '@entities/review/model/constants';
 
 import { CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB } from '@shared/lib/cloudinary/uploadImage';
 import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import ReviewFormSection from './ReviewFormSection';
 
@@ -128,7 +129,7 @@ export default function ReviewFormImageUploadSection({
                 className="sr-only"
               />
               {isUploading ? (
-                <IconLoader2 size={22} className="animate-spin" stroke={1.5} />
+                <Spinner size="md" variant="current" className="size-5.5" />
               ) : (
                 <IconCamera size={22} stroke={1.5} />
               )}

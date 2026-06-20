@@ -13,6 +13,7 @@ import {
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
 import { cn } from '@shared/lib/utils/style';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 export default function CartFooter() {
   const router = useRouter();
@@ -103,10 +104,10 @@ export default function CartFooter() {
           )}
         >
           {shouldShowSyncSpinner ? (
-            <span
-              aria-label="장바구니 반영 중"
-              className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-disabled-text/40 border-t-disabled-text"
-            />
+            <>
+              <Spinner size="sm" variant="current" className="size-5" />
+              <span className="sr-only">장바구니 반영 중</span>
+            </>
           ) : (
             '결제하기'
           )}

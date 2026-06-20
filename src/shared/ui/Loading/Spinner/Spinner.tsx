@@ -2,14 +2,25 @@ import { cn } from '@shared/lib/utils/style';
 
 type SpinnerProps = {
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'inverse' | 'muted' | 'current';
   className?: string;
 };
 
-export default function Spinner({ size = 'md', className = '' }: SpinnerProps) {
+export default function Spinner({
+  size = 'md',
+  variant = 'primary',
+  className = '',
+}: SpinnerProps) {
   const spinnerSize = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',
+  };
+  const spinnerVariant = {
+    primary: 'text-line fill-primary dark:text-dark-muted',
+    inverse: 'text-surface/35 fill-surface',
+    muted: 'text-line fill-muted dark:text-dark-muted dark:fill-dark-muted',
+    current: 'text-current fill-current',
   };
 
   return (
@@ -17,8 +28,9 @@ export default function Spinner({ size = 'md', className = '' }: SpinnerProps) {
       aria-hidden="true"
       className={cn(
         spinnerSize[size],
+        'animate-spin',
+        spinnerVariant[variant],
         className,
-        'animate-spin text-line fill-primary dark:text-dark-muted',
       )}
       viewBox="0 0 100 101"
       fill="none"

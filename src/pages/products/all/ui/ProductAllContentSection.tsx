@@ -11,6 +11,7 @@ type ProductAllContentSectionProps = {
   hasNextPage?: boolean;
   fetchNextPage?: () => void | Promise<void>;
   isFetchingNextPage?: boolean;
+  isRefreshing?: boolean;
   resetKey?: string;
 };
 
@@ -21,6 +22,7 @@ export default function ProductAllContentSection({
   hasNextPage,
   fetchNextPage,
   isFetchingNextPage,
+  isRefreshing,
   resetKey,
 }: ProductAllContentSectionProps) {
   return (
@@ -34,6 +36,7 @@ export default function ProductAllContentSection({
           hasNextPage={hasNextPage}
           fetchNextPage={fetchNextPage}
           isFetchingNextPage={isFetchingNextPage}
+          isRefreshing={isRefreshing}
           resetKey={resetKey}
         />
       </PageWrapper>

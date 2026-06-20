@@ -5,7 +5,6 @@ import type { SubmitEvent } from 'react';
 
 import {
   IconDeviceFloppy,
-  IconLoader2,
   IconPlus,
   IconUpload,
 } from '@tabler/icons-react';
@@ -20,6 +19,7 @@ import {
 
 import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
+import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import { getAdminHeroTypeLabel } from '../model/types';
 
@@ -230,7 +230,7 @@ export default function AdminHeroFormSection({
               className="sr-only"
             />
             {isUploading ? (
-              <IconLoader2 size={16} className="animate-spin" />
+              <Spinner size="sm" variant="current" />
             ) : (
               <IconUpload size={16} />
             )}

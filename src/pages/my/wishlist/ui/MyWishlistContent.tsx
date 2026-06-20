@@ -4,12 +4,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 import { IconTrash } from '@tabler/icons-react';
+import { useIsMutating } from '@tanstack/react-query';
 
 import { MyPageScrollArea, MyPageSectionHeader } from '@features/my/ui';
 import { ProductItem } from '@features/product/ui';
 
 import { ProductCard } from '@entities/product/ui';
 import type { WishlistItem } from '@entities/wishlist/model/types';
+import { wishlistQueryKeys } from '@entities/wishlist/queries/queryKeys';
 import { useClearWishlist } from '@entities/wishlist/queries/useClearWishlist';
 import { useSuspenseWishlist } from '@entities/wishlist/queries/useWishlist';
 
@@ -62,9 +64,15 @@ const getWishlistPaginationPages = (
 export default function MyWishlistContent() {
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const { data: wishlistItems = [] } = useSuspenseWishlist();
+  const upsertingWishlistCount = useIsMutating({
+    mutationKey: wishlistQueryKeys.upsertMutation(),
+  });
   const { mutate: clearWishlist, isPending: isClearingWishlist } =
     useClearWishlist();
   const [currentPage, setCurrentPage] = useState(1);
+  const [wasEmptyBeforeUpsert, setWasEmptyBeforeUpsert] = useState(
+    wishlistItems.length === 0,
+  );
   const totalPages = Math.max(
     1,
     Math.ceil(wishlistItems.length / WISHLIST_PAGE_SIZE),
@@ -78,6 +86,9 @@ export default function MyWishlistContent() {
       ),
     [currentPage, wishlistItems],
   );
+  const shouldShowEmptyState =
+    wishlistItems.length === 0 ||
+    (upsertingWishlistCount > 0 && wasEmptyBeforeUpsert);
 
   const handlePageChange = (page: number) => {
     if (
@@ -105,6 +116,14 @@ export default function MyWishlistContent() {
     }
   }, [currentPage, totalPages]);
 
+  useEffect(() => {
+    if (upsertingWishlistCount > 0) {
+      return;
+    }
+
+    setWasEmptyBeforeUpsert(wishlistItems.length === 0);
+  }, [upsertingWishlistCount, wishlistItems.length]);
+
   return (
     <div className="w-full rounded-2xl lg:pl-4 dark:border-dark-border dark:bg-dark-bg">
       <MyPageSectionHeader
@@ -127,22 +146,29 @@ export default function MyWishlistContent() {
       />
 
       <MyPageScrollArea ref={listTopRef} className="scroll-mt-28">
-        {wishlistItems.length === 0 ? (
-          <MyPageEmptyStatePanel
-            title="찜한 상품이 없어요"
-            description="관심 있는 상품을 찜해두고 나중에 다시 확인해보세요."
-            iconVariant="wishlist"
-            action={
-              <Link
-                href="/products"
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover"
-              >
-                상품 둘러보기
-              </Link>
-            }
-          >
-            <MyPageEmptyRecommendedProducts />
-          </MyPageEmptyStatePanel>
+        {shouldShowEmptyState ? (
+          <>
+            <MyPageEmptyStatePanel
+              title="찜한 상품이 없어요"
+              description="관심 있는 상품을 모아두면 나중에 빠르게 다시 확인할 수 있습니다."
+              iconVariant="wishlist"
+              layout="horizontal"
+              action={
+                <Link
+                  href="/products"
+                  className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover"
+                >
+                  추천 상품 보기
+                </Link>
+              }
+            />
+            <div className="mt-4">
+              <MyPageEmptyRecommendedProducts
+                title="찜하기 좋은 상품"
+                context="wishlist-empty"
+              />
+            </div>
+          </>
         ) : (
           <>
             <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 xl:grid-cols-3">

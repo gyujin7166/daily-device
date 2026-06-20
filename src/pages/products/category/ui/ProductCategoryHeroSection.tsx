@@ -20,7 +20,7 @@ export default function ProductCategoryHeroSection({
     <Hero
       imagesSet={heroImages}
       minHeight={50}
-      minHeightClassName="min-h-[28vh] supports-[height:100svh]:min-h-[28svh] sm:min-h-[32vh] sm:supports-[height:100svh]:min-h-[32svh] md:min-h-[42vh] md:supports-[height:100svh]:min-h-[42svh] lg:min-h-[50vh]"
+      minHeightClassName="min-h-[44vh] supports-[height:100svh]:min-h-[44svh] sm:min-h-[46vh] sm:supports-[height:100svh]:min-h-[46svh] md:min-h-[48vh] md:supports-[height:100svh]:min-h-[48svh] lg:min-h-[50vh]"
       imageClassName="object-center"
       viewportOffsetTopPx={90}
       contentWidth="1/2"
