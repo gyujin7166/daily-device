@@ -24,6 +24,7 @@ type ProductCategoryContentSectionProps = {
   colorOptions: ProductFilterProps['colorOptions'];
   selectedColorIds: ProductFilterProps['selectedColorIds'];
   onColorChange: ProductFilterProps['onColorChange'];
+  onProductQueryChange?: ProductFilterProps['onQueryChange'];
   filteredItem: FilteredProductsProps['filteredItem'];
   isPending: boolean;
   shouldWaitFilteredResult: boolean;
@@ -50,6 +51,7 @@ export default function ProductCategoryContentSection({
   colorOptions,
   selectedColorIds,
   onColorChange,
+  onProductQueryChange,
   filteredItem,
   isPending,
   shouldWaitFilteredResult,
@@ -79,6 +81,7 @@ export default function ProductCategoryContentSection({
                 colorOptions={colorOptions}
                 selectedColorIds={selectedColorIds}
                 onColorChange={onColorChange}
+                onQueryChange={onProductQueryChange}
                 syncFilteredResultOnChange={false}
               />
             </aside>
@@ -94,6 +97,7 @@ export default function ProductCategoryContentSection({
                 colorOptions={colorOptions}
                 selectedColorIds={selectedColorIds}
                 onColorChange={onColorChange}
+                onQueryChange={onProductQueryChange}
               />
             ) : null}
             <FilteredProducts

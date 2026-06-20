@@ -36,6 +36,7 @@ type UseProductFilterStateParams = {
   onCheckboxStatesChange?: Dispatch<
     SetStateAction<ProductFilterCheckboxStates>
   >;
+  onQueryChange?: () => void;
   syncQueryOnChange: boolean;
   syncFilteredResultOnChange: boolean;
 };
@@ -47,6 +48,7 @@ export default function useProductFilterState({
   variant,
   checkboxStatesOverride,
   onCheckboxStatesChange,
+  onQueryChange,
   syncQueryOnChange,
   syncFilteredResultOnChange,
 }: UseProductFilterStateParams) {
@@ -109,6 +111,7 @@ export default function useProductFilterState({
 
     // query string은 공유 가능한 URL을 위한 source이므로 값이 실제로 바뀔 때만 history를 갱신한다.
     if (nextFilters !== currentFilters) {
+      onQueryChange?.();
       setParam('filters', nextFilters);
     }
   };

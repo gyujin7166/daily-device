@@ -29,6 +29,8 @@ export default function ProductAllPageContainer({
   const [retainedProductLimit, setRetainedProductLimit] = useState(
     PRODUCT_GRID_PAGE_SIZE,
   );
+  const [hasUserChangedProductQuery, setHasUserChangedProductQuery] =
+    useState(false);
   const heroType: HeroTypeValue = discountedOnly
     ? 'product-discounts'
     : 'product-all';
@@ -56,7 +58,10 @@ export default function ProductAllPageContainer({
     ),
   );
   const isRefreshingProducts =
-    isFetching && !isPending && !isFetchingNextPage;
+    hasUserChangedProductQuery &&
+    isFetching &&
+    !isPending &&
+    !isFetchingNextPage;
 
   useEffect(() => {
     if (
@@ -96,6 +101,7 @@ export default function ProductAllPageContainer({
 
   const handleSortChange = useCallback(
     (nextSort: ProductSortOption) => {
+      setHasUserChangedProductQuery(true);
       setRetainedProductLimit(PRODUCT_GRID_PAGE_SIZE);
       setSortOption(nextSort);
     },

@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
 import { getProductPage } from '@entities/product/api/product';
+import { PRODUCT_LIST_STALE_TIME_MS } from '@entities/product/constants/cache';
 import { PRODUCT_PAGE_SIZE } from '@entities/product/constants/pagination';
 import type { ProductSortOption } from '@entities/product/model/sort';
 
@@ -171,7 +172,7 @@ export const useProduct = ({
         limit: pageSize,
       };
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: PRODUCT_LIST_STALE_TIME_MS,
     gcTime: 30 * 60 * 1000,
     placeholderData: keepPreviousData,
     enabled: enabled && (shouldFetchAllProducts || !!category),

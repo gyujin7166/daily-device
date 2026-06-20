@@ -23,6 +23,7 @@ type ProductCategoryMobileFilterDrawerSectionProps = {
   colorOptions: ProductFilterProps['colorOptions'];
   selectedColorIds: ProductFilterProps['selectedColorIds'];
   onColorChange: ProductFilterProps['onColorChange'];
+  onProductQueryChange?: ProductFilterProps['onQueryChange'];
   mobileDraftCheckboxStates: Record<number, boolean> | null;
   checkboxStates: Record<number, boolean>;
   onMobileDraftCheckboxStatesChange: ProductFilterProps['onCheckboxStatesChange'];
@@ -43,6 +44,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
   colorOptions,
   selectedColorIds,
   onColorChange,
+  onProductQueryChange,
   mobileDraftCheckboxStates,
   checkboxStates,
   onMobileDraftCheckboxStatesChange,
@@ -102,6 +104,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
               colorOptions={colorOptions}
               selectedColorIds={selectedColorIds}
               onColorChange={onColorChange}
+              onQueryChange={onProductQueryChange}
               checkboxStatesOverride={
                 mobileDraftCheckboxStates ?? checkboxStates
               }

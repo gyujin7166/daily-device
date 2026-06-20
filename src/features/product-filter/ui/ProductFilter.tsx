@@ -42,6 +42,7 @@ type FilterProps = {
   colorOptions?: ProductColorFilterOption[];
   selectedColorIds?: number[];
   onColorChange?: (nextColorIds: number[]) => void;
+  onQueryChange?: () => void;
   syncQueryOnChange?: boolean;
   syncFilteredResultOnChange?: boolean;
 };
@@ -59,6 +60,7 @@ export default function ProductFilter({
   colorOptions = [],
   selectedColorIds = [],
   onColorChange,
+  onQueryChange,
   syncQueryOnChange = true,
   syncFilteredResultOnChange = true,
 }: FilterProps) {
@@ -84,6 +86,7 @@ export default function ProductFilter({
     variant,
     checkboxStatesOverride,
     onCheckboxStatesChange,
+    onQueryChange,
     syncQueryOnChange,
     syncFilteredResultOnChange,
   });

@@ -61,6 +61,8 @@ export default function ProductCategoryPageContainer({
   const [mobileDraftColorIds, setMobileDraftColorIds] = useState<
     number[] | null
   >(null);
+  const [hasUserChangedProductQuery, setHasUserChangedProductQuery] =
+    useState(false);
 
   const currentFilters = params.get('filters');
   const rawMinPrice = params.get('minPrice');
@@ -134,7 +136,12 @@ export default function ProductCategoryPageContainer({
     ],
   );
 
+  const markProductQueryChanged = useCallback(() => {
+    setHasUserChangedProductQuery(true);
+  }, [setHasUserChangedProductQuery]);
+
   const applyPriceParams = (nextValue: ProductPriceFilterValue) => {
+    markProductQueryChanged();
     setParams({
       minPrice:
         typeof nextValue.minPrice === 'number'
@@ -148,6 +155,7 @@ export default function ProductCategoryPageContainer({
   };
 
   const applyColorParams = (nextColorIds: number[]) => {
+    markProductQueryChanged();
     setParams({
       colors: nextColorIds.length > 0 ? nextColorIds.join(',') : undefined,
     });
@@ -158,6 +166,7 @@ export default function ProductCategoryPageContainer({
     nextPriceValue: ProductPriceFilterValue,
     nextColorIds: number[],
   ) => {
+    markProductQueryChanged();
     setParams({
       filters: nextFilters,
       minPrice:
@@ -227,7 +236,11 @@ export default function ProductCategoryPageContainer({
     ? 0
     : (totalProducts ?? products?.length ?? 0);
   const isRefreshingProducts =
-    isFetching && !isPending && !isFetchingNextPage && !shouldWaitFilteredResult;
+    hasUserChangedProductQuery &&
+    isFetching &&
+    !isPending &&
+    !isFetchingNextPage &&
+    !shouldWaitFilteredResult;
 
   useEffect(() => {
     setRetainedProductLimit(PRODUCT_PAGE_SIZE);
@@ -269,10 +282,11 @@ export default function ProductCategoryPageContainer({
 
   const handleSortChange = useCallback(
     (nextSort: ProductSortOption) => {
+      markProductQueryChanged();
       setRetainedProductLimit(PRODUCT_PAGE_SIZE);
       setSortOption(nextSort);
     },
-    [setRetainedProductLimit, setSortOption],
+    [markProductQueryChanged, setRetainedProductLimit, setSortOption],
   );
 
   const mobilePriceValue = mobileDraftPriceValue ?? currentPriceValue;
@@ -332,6 +346,7 @@ export default function ProductCategoryPageContainer({
         colorOptions={colorOptions}
         selectedColorIds={currentColorIds}
         onColorChange={applyColorParams}
+        onProductQueryChange={markProductQueryChanged}
         filteredItem={filteredItem}
         isPending={isPending}
         shouldWaitFilteredResult={shouldWaitFilteredResult}
@@ -357,6 +372,7 @@ export default function ProductCategoryPageContainer({
         colorOptions={colorOptions}
         selectedColorIds={mobileColorIds}
         onColorChange={setMobileDraftColorIds}
+        onProductQueryChange={markProductQueryChanged}
         mobileDraftCheckboxStates={mobileDraftCheckboxStates}
         checkboxStates={checkboxStates}
         onMobileDraftCheckboxStatesChange={

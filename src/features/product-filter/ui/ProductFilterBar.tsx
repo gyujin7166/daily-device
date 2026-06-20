@@ -20,6 +20,7 @@ type ProductFilterBarProps = {
   colorOptions?: ProductColorFilterOption[];
   selectedColorIds?: number[];
   onColorChange?: (nextColorIds: number[]) => void;
+  onQueryChange?: () => void;
 };
 
 const formatPrice = (value: number) => value.toLocaleString('ko-KR');
@@ -31,6 +32,7 @@ export default function ProductFilterBar({
   colorOptions = [],
   selectedColorIds = [],
   onColorChange,
+  onQueryChange,
 }: ProductFilterBarProps) {
   const { checkboxStates, setCheckboxStates, hasCheckedFilters, filter } =
     useProductFilterContext();
@@ -76,6 +78,7 @@ export default function ProductFilterBar({
       return;
     }
 
+    onQueryChange?.();
     setParam('filters', nextFilters);
   };
 
@@ -84,7 +87,10 @@ export default function ProductFilterBar({
       {priceFilterLabel && onPriceChange ? (
         <button
           type="button"
-          onClick={() => onPriceChange({})}
+          onClick={() => {
+            onQueryChange?.();
+            onPriceChange({});
+          }}
           className="inline-flex h-9 items-center gap-2 rounded-full border border-line bg-primary-soft px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-surface dark:border-dark-border dark:bg-dark-panel dark:text-primary dark:hover:bg-dark-panel-hover dark:hover:text-surface"
         >
           <span>{priceFilterLabel}</span>
@@ -98,11 +104,12 @@ export default function ProductFilterBar({
             <button
               key={color.id}
               type="button"
-              onClick={() =>
+              onClick={() => {
+                onQueryChange?.();
                 onColorChange(
                   selectedColorIds.filter((colorId) => colorId !== color.id),
-                )
-              }
+                );
+              }}
               className="inline-flex h-9 items-center gap-2 rounded-full border border-line bg-primary-soft px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-surface dark:border-dark-border dark:bg-dark-panel dark:text-primary dark:hover:bg-dark-panel-hover dark:hover:text-surface"
             >
               <span
@@ -148,6 +155,7 @@ export default function ProductFilterBar({
             }, {});
             setCheckboxStates(nextCheckboxStates);
             if (hasActivePriceFilter || hasActiveColorFilter) {
+              onQueryChange?.();
               setParams({
                 filters: '',
                 minPrice: undefined,

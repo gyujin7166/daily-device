@@ -17,6 +17,7 @@ import { getStaticProductCategoryParams } from '@app/api-routes/products/static-
 import ProductFilterProvider from '@features/product-filter/model/context/ProductFilterContext';
 import { productFilterQueryKeys } from '@features/product-filter/queries/queryKeys';
 
+import { PRODUCT_LIST_STALE_TIME_MS } from '@entities/product/constants/cache';
 import { PRODUCT_PAGE_SIZE } from '@entities/product/constants/pagination';
 import { productQueryKeys } from '@entities/product/queries/queryKeys';
 
@@ -86,7 +87,7 @@ export default async function ProductCategoryPage({
           {},
         );
       },
-    staleTime: 10 * 60 * 1000,
+    staleTime: PRODUCT_LIST_STALE_TIME_MS,
     gcTime: 30 * 60 * 1000,
   });
   queryClient.setQueryData(
