@@ -11,6 +11,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - 배포 사이트: https://daily-device.vercel.app
 - 관리자 페이지: https://daily-device.vercel.app/admin
 - 데모 로그인: 로그인 페이지의 데모 로그인 버튼 사용
+- 네이버 로그인: 현재 네이버 개발자센터 검수 중으로, 배포 환경에서는 등록된 테스트 계정만 사용할 수 있습니다.
 
 관리자 권한은 DB의 `User.role` 값으로 판단합니다.
 
