@@ -29,6 +29,7 @@ export default function LogoHeader() {
               className="h-8 w-auto select-none object-contain dark:invert sm:hidden"
               draggable={false}
               loading="eager"
+              unoptimized
             />
             <Image
               src={DAILY_DEVICE_LOGO_SRC}
@@ -36,9 +37,10 @@ export default function LogoHeader() {
               width={DAILY_DEVICE_LOGO_SIZE.width}
               height={DAILY_DEVICE_LOGO_SIZE.height}
               sizes="100vw"
-              className="hidden h-full w-auto select-none object-contain dark:invert sm:block"
+              className="hidden h-8 w-auto select-none object-contain dark:invert sm:block lg:h-9"
               draggable={false}
               loading="eager"
+              unoptimized
             />
           </Link>
         </div>

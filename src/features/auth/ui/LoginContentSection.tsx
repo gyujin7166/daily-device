@@ -34,6 +34,7 @@ export default function LoginContentSection({
               className="h-7 w-auto select-none object-contain dark:invert"
               draggable={false}
               aria-hidden="true"
+              unoptimized
             />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink dark:text-surface">
