@@ -10,15 +10,30 @@ import { toast } from '@shared/lib/toast';
 import {
   buildPopupLoginUrl,
   getDemoLoginCallbackUrl,
+  getSocialLoginErrorMessage,
   SOCIAL_LOGIN_COMPLETED_MESSAGE,
+  SOCIAL_LOGIN_ERROR_MESSAGE,
 } from '../login';
 
-import type { SocialProvider } from '../login';
+import type { SocialLoginErrorMessage, SocialProvider } from '../login';
 
 type UseLoginPageStateParams = {
   callbackUrl?: string;
   error?: string;
   reason?: string;
+};
+
+const isSocialLoginErrorMessage = (
+  value: unknown,
+): value is SocialLoginErrorMessage => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    'error' in value &&
+    value.type === SOCIAL_LOGIN_ERROR_MESSAGE &&
+    typeof value.error === 'string'
+  );
 };
 
 export default function useLoginPageState({
@@ -33,6 +48,7 @@ export default function useLoginPageState({
   const socialLoginTimerRef = useRef<number | null>(null);
   const hasRequestedSessionRefreshRef = useRef(false);
   const [isDemoSigningIn, setIsDemoSigningIn] = useState(false);
+
   const clearSocialLoginTimer = useCallback(() => {
     if (socialLoginTimerRef.current !== null) {
       window.clearInterval(socialLoginTimerRef.current);
@@ -154,12 +170,17 @@ export default function useLoginPageState({
       if (event.origin !== window.location.origin) {
         return;
       }
-      if (event.data !== SOCIAL_LOGIN_COMPLETED_MESSAGE) {
+
+      if (event.data === SOCIAL_LOGIN_COMPLETED_MESSAGE) {
+        clearSocialLoginTimer();
+        void refreshSessionAfterSocialLogin();
         return;
       }
 
-      clearSocialLoginTimer();
-      void refreshSessionAfterSocialLogin();
+      if (isSocialLoginErrorMessage(event.data)) {
+        clearSocialLoginTimer();
+        toast.error(getSocialLoginErrorMessage(event.data.error));
+      }
     };
 
     window.addEventListener('message', handleMessage);
@@ -191,14 +212,26 @@ export default function useLoginPageState({
 
     hasShownErrorToast.current = true;
 
-    if (error === 'OAuthAccountNotLinked') {
-      toast.error(
-        '이미 다른 로그인 방식으로 가입된 이메일입니다. 처음 사용한 로그인 방식으로 다시 로그인해주세요.',
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage(
+        {
+          type: SOCIAL_LOGIN_ERROR_MESSAGE,
+          error,
+        } satisfies SocialLoginErrorMessage,
+        window.location.origin,
       );
-      return;
+      window.close();
+
+      const fallbackTimer = window.setTimeout(() => {
+        window.location.replace('/login');
+      }, 500);
+
+      return () => {
+        window.clearTimeout(fallbackTimer);
+      };
     }
 
-    toast.error('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    toast.error(getSocialLoginErrorMessage(error));
   }, [error]);
 
   return {
