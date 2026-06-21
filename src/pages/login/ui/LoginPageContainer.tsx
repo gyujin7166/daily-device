@@ -6,6 +6,7 @@ import PopupLoginBridge from './PopupLoginBridge';
 
 type LoginPageContainerProps = {
   callbackUrl?: string;
+  error?: string;
   reason?: string;
   popupMode?: string;
   popupProvider?: SocialProvider;
@@ -13,6 +14,7 @@ type LoginPageContainerProps = {
 
 export default function LoginPageContainer({
   callbackUrl,
+  error,
   reason,
   popupMode,
   popupProvider,
@@ -27,5 +29,7 @@ export default function LoginPageContainer({
     );
   }
 
-  return <LoginMainContent callbackUrl={callbackUrl} reason={reason} />;
+  return (
+    <LoginMainContent callbackUrl={callbackUrl} error={error} reason={reason} />
+  );
 }

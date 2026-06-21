@@ -5,16 +5,19 @@ import LogoHeader from '@shared/ui/Header/LogoHeader';
 
 type LoginMainContentProps = {
   callbackUrl?: string;
+  error?: string;
   reason?: string;
 };
 
 export default function LoginMainContent({
   callbackUrl,
+  error,
   reason,
 }: LoginMainContentProps) {
   const { handleDemoLogin, handleSocialLogin, isDemoSigningIn } =
     useLoginPageState({
       callbackUrl,
+      error,
       reason,
     });
 

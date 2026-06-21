@@ -6,7 +6,7 @@ import NaverProvider from 'next-auth/providers/naver';
 
 import prisma from 'prisma/prismaClientSingleton';
 
-import type { NextAuthConfig } from 'next-auth';
+import type { NextAuthConfig, Session } from 'next-auth';
 
 const DEMO_USER_EMAIL =
   process.env.DEMO_USER_EMAIL ?? 'demo@daily-device.local';
@@ -109,17 +109,24 @@ const authConfig = {
       const sessionUserId = user?.id ?? null;
       const normalizedUserEmail = user?.email?.trim().toLowerCase() ?? null;
       const normalizedDemoEmail = DEMO_USER_EMAIL.trim().toLowerCase();
-
-      session.user.id = sessionUserId;
+      const publicSession: Session = {
+        expires: session.expires,
+        user: {
+          name: session.user?.name ?? user?.name ?? null,
+          email: session.user?.email ?? user?.email ?? null,
+          image: session.user?.image ?? user?.image ?? null,
+          id: sessionUserId,
+          provider: null,
+        },
+      };
 
       if (!sessionUserId) {
-        session.user.provider = null;
-        return session;
+        return publicSession;
       }
 
       if (normalizedUserEmail === normalizedDemoEmail) {
-        session.user.provider = 'demo-login';
-        return session;
+        publicSession.user.provider = 'demo-login';
+        return publicSession;
       }
 
       const cachedProvider = getCachedSessionProvider(sessionUserId);
@@ -136,8 +143,8 @@ const authConfig = {
         setCachedSessionProvider(sessionUserId, resolvedProvider);
       }
 
-      session.user.provider = resolvedProvider;
-      return session;
+      publicSession.user.provider = resolvedProvider;
+      return publicSession;
     },
     async redirect({ url, baseUrl }) {
       if (!url) {

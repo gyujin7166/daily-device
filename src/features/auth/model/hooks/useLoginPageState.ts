@@ -17,15 +17,18 @@ import type { SocialProvider } from '../login';
 
 type UseLoginPageStateParams = {
   callbackUrl?: string;
+  error?: string;
   reason?: string;
 };
 
 export default function useLoginPageState({
   callbackUrl,
+  error,
   reason,
 }: UseLoginPageStateParams) {
   const { status, update } = useSession();
   const router = useRouter();
+  const hasShownErrorToast = useRef(false);
   const hasShownReasonToast = useRef(false);
   const socialLoginTimerRef = useRef<number | null>(null);
   const hasRequestedSessionRefreshRef = useRef(false);
@@ -180,6 +183,23 @@ export default function useLoginPageState({
     hasShownReasonToast.current = true;
     toast.info('찜 기능은 로그인 후 사용할 수 있습니다.');
   }, [reason]);
+
+  useEffect(() => {
+    if (hasShownErrorToast.current || !error) {
+      return;
+    }
+
+    hasShownErrorToast.current = true;
+
+    if (error === 'OAuthAccountNotLinked') {
+      toast.error(
+        '이미 다른 로그인 방식으로 가입된 이메일입니다. 처음 사용한 로그인 방식으로 다시 로그인해주세요.',
+      );
+      return;
+    }
+
+    toast.error('로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+  }, [error]);
 
   return {
     handleDemoLogin,

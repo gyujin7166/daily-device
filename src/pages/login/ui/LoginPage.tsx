@@ -9,6 +9,7 @@ import LoginPageContainer from './LoginPageContainer';
 type LoginPageProps = {
   searchParams: Promise<{
     callbackUrl?: string;
+    error?: string;
     reason?: string;
     popup?: string;
     provider?: SocialProvider;
@@ -30,6 +31,7 @@ const getSafeCallbackUrl = (value: string | undefined) => {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const {
     callbackUrl,
+    error,
     reason,
     popup: popupMode,
     provider: popupProvider,
@@ -46,6 +48,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <LoginPageContainer
       callbackUrl={safeCallbackUrl}
+      error={error}
       reason={reason}
       popupMode={popupMode}
       popupProvider={popupProvider}
