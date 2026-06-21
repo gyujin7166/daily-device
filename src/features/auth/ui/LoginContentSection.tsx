@@ -1,3 +1,10 @@
+import Image from 'next/image';
+
+import {
+  DAILY_DEVICE_SYMBOL_SIZE,
+  DAILY_DEVICE_SYMBOL_SRC,
+} from '@shared/constants/images';
+
 import SocialLoginButton from './SocialLoginButton';
 
 import type { SocialProvider } from '../model/login';
@@ -17,20 +24,17 @@ export default function LoginContentSection({
     <div className="flex w-full items-center justify-center px-4">
       <section className="w-full max-w-md rounded-xl border border-line bg-surface p-8 shadow-xl dark:border-dark-border dark:bg-dark-panel">
         <div className="flex flex-col items-center gap-2 pb-6 text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-dark-bg text-surface">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
+          <div className="mb-2 flex h-12 w-12 items-center justify-center">
+            <Image
+              src={DAILY_DEVICE_SYMBOL_SRC}
+              alt=""
+              width={DAILY_DEVICE_SYMBOL_SIZE.width}
+              height={DAILY_DEVICE_SYMBOL_SIZE.height}
+              sizes="28px"
+              className="h-7 w-auto select-none object-contain dark:invert"
+              draggable={false}
               aria-hidden="true"
-            >
-              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
+            />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink dark:text-surface">
             로그인
