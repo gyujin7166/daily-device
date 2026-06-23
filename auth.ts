@@ -117,6 +117,10 @@ const authConfig = {
           image: session.user?.image ?? user?.image ?? null,
           id: sessionUserId,
           provider: null,
+          lastLoginAt:
+            user && 'lastLoginAt' in user && user.lastLoginAt instanceof Date
+              ? user.lastLoginAt.toISOString()
+              : null,
         },
       };
 
@@ -167,6 +171,27 @@ const authConfig = {
     },
   },
   events: {
+    async signIn({ user, account }) {
+      if (!user.id) {
+        return;
+      }
+
+      const now = new Date();
+
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: now },
+        }),
+        prisma.loginHistory.create({
+          data: {
+            userId: user.id,
+            provider: account?.provider ?? null,
+            createdAt: now,
+          },
+        }),
+      ]);
+    },
     async createUser({ user }) {
       if (!user.id) {
         return;

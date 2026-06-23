@@ -40,14 +40,28 @@ export async function getOrCreateDemoUser() {
 export async function createDemoSession(userId: string) {
   const sessionToken = `demo-${randomUUID()}-${randomUUID()}`;
   const expires = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
+  const now = new Date();
 
-  await prisma.session.create({
-    data: {
-      sessionToken,
-      userId,
-      expires,
-    },
-  });
+  await prisma.$transaction([
+    prisma.session.create({
+      data: {
+        sessionToken,
+        userId,
+        expires,
+      },
+    }),
+    prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: now },
+    }),
+    prisma.loginHistory.create({
+      data: {
+        userId,
+        provider: 'demo-login',
+        createdAt: now,
+      },
+    }),
+  ]);
 
   return {
     sessionToken,

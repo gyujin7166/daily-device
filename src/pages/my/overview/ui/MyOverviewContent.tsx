@@ -19,8 +19,6 @@ import MyOverviewRecentOrderCard from './MyOverviewRecentOrderCard';
 
 import type { Session } from 'next-auth';
 
-const LAST_LOGIN_STORAGE_KEY = 'my:last-login-at';
-
 type MyOverviewContentProps = {
   session: Session;
 };
@@ -35,7 +33,6 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
   const orders = ordersPage?.items ?? [];
   const avatarSrc = session.user?.image?.trim() ?? '';
   const [isAvatarLoadFailed, setIsAvatarLoadFailed] = useState(false);
-  const [lastLoginAt, setLastLoginAt] = useState<string | null>(null);
   const displayName = getUserDisplayName(session.user);
   const provider = session.user?.provider;
   const normalizedEmail = session.user?.email?.trim() || '';
@@ -52,16 +49,6 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
 
   const defaultAddress = addresses.find((address) => address.isDefault) ?? null;
   const latestOrder = orders[0] ?? null;
-
-  useEffect(() => {
-    // 현재 로그인 시각은 다음 방문 때 "최근 로그인"으로 보여주기 위해 브라우저에 저장한다.
-    const previousLoginAt = window.localStorage.getItem(LAST_LOGIN_STORAGE_KEY);
-    setLastLoginAt(previousLoginAt);
-    window.localStorage.setItem(
-      LAST_LOGIN_STORAGE_KEY,
-      new Date().toISOString(),
-    );
-  }, []);
 
   useEffect(() => {
     setIsAvatarLoadFailed(false);
@@ -92,7 +79,10 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
           defaultAddress={defaultAddress}
           manageAddressHref={MY_TAB_PATHS.address}
         />
-        <MyOverviewLastLoginCard lastLoginAt={lastLoginAt} isAuthenticated />
+        <MyOverviewLastLoginCard
+          lastLoginAt={session.user?.lastLoginAt ?? null}
+          isAuthenticated
+        />
       </MyPageScrollArea>
     </div>
   );

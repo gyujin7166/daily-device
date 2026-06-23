@@ -47,17 +47,32 @@ model User {
   emailVerified DateTime?
   image         String?
   role          UserRole  @default(USER)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts              Account[]
   sessions              Session[]
+  loginHistories        LoginHistory[]
   cart                  Cart[]
   ProductReview         ProductReview[]
   Order                 Order[]
   userAddresses         UserAddress[]
   wishlist              Wishlist[]
   productReviewFeedback ProductReviewFeedback[]
+}
+
+model LoginHistory {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  provider  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([provider])
+  @@index([createdAt])
 }
 
 model VerificationToken {
