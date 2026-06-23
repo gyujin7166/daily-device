@@ -1,4 +1,4 @@
-import Image from 'next/image';
+/* eslint-disable @next/next/no-img-element */
 import Link from 'next/link';
 
 import {
@@ -20,27 +20,21 @@ export default function LogoHeader() {
             draggable={false}
             className="inline-flex h-10 select-none items-center justify-center"
           >
-            <Image
+            <img
               src={DAILY_DEVICE_SYMBOL_SRC}
               alt="Daily Device"
               width={DAILY_DEVICE_SYMBOL_SIZE.width}
               height={DAILY_DEVICE_SYMBOL_SIZE.height}
-              sizes="52px"
               className="h-8 w-auto select-none object-contain dark:invert sm:hidden"
               draggable={false}
-              loading="eager"
-              unoptimized
             />
-            <Image
+            <img
               src={DAILY_DEVICE_LOGO_SRC}
               alt="Daily Device"
               width={DAILY_DEVICE_LOGO_SIZE.width}
               height={DAILY_DEVICE_LOGO_SIZE.height}
-              sizes="100vw"
               className="hidden h-8 w-auto select-none object-contain dark:invert sm:block lg:h-9"
               draggable={false}
-              loading="eager"
-              unoptimized
             />
           </Link>
         </div>
