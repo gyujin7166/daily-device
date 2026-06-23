@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+import Link from 'next/link';
+
 import {
   DAILY_DEVICE_SYMBOL_SIZE,
   DAILY_DEVICE_SYMBOL_SRC,
@@ -71,19 +73,19 @@ export default function LoginContentSection({
 
         <p className="pt-6 text-center text-xs leading-relaxed text-muted dark:text-dark-muted">
           계속 진행하면{' '}
-          <button
-            type="button"
+          <Link
+            href="/terms"
             className="underline underline-offset-2 transition-colors hover:text-ink dark:hover:text-surface"
           >
             이용약관
-          </button>{' '}
+          </Link>{' '}
           및{' '}
-          <button
-            type="button"
+          <Link
+            href="/privacy"
             className="underline underline-offset-2 transition-colors hover:text-ink dark:hover:text-surface"
           >
             개인정보처리방침
-          </button>
+          </Link>
           에 동의하게 됩니다.
         </p>
       </section>
