@@ -48,6 +48,7 @@ export default function useLoginPageState({
   const socialLoginTimerRef = useRef<number | null>(null);
   const hasRequestedSessionRefreshRef = useRef(false);
   const [isDemoSigningIn, setIsDemoSigningIn] = useState(false);
+  const [loginContentRenderKey, setLoginContentRenderKey] = useState(0);
 
   const clearSocialLoginTimer = useCallback(() => {
     if (socialLoginTimerRef.current !== null) {
@@ -179,6 +180,7 @@ export default function useLoginPageState({
 
       if (isSocialLoginErrorMessage(event.data)) {
         clearSocialLoginTimer();
+        setLoginContentRenderKey((prevKey) => prevKey + 1);
         toast.error(getSocialLoginErrorMessage(event.data.error));
       }
     };
@@ -238,5 +240,6 @@ export default function useLoginPageState({
     handleDemoLogin,
     handleSocialLogin,
     isDemoSigningIn,
+    loginContentRenderKey,
   };
 }

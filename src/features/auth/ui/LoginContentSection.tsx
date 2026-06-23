@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image';
 import Link from 'next/link';
 
 import {
@@ -26,14 +26,16 @@ export default function LoginContentSection({
       <section className="w-full max-w-md rounded-xl border border-line bg-surface p-8 shadow-xl dark:border-dark-border dark:bg-dark-panel">
         <div className="flex flex-col items-center gap-2 pb-6 text-center">
           <div className="mb-2 flex h-12 w-12 items-center justify-center">
-            <img
+            <Image
               src={DAILY_DEVICE_SYMBOL_SRC}
               alt=""
               width={DAILY_DEVICE_SYMBOL_SIZE.width}
               height={DAILY_DEVICE_SYMBOL_SIZE.height}
+              sizes="28px"
               className="h-7 w-auto select-none object-contain dark:invert"
               draggable={false}
               aria-hidden="true"
+              priority
             />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink dark:text-surface">

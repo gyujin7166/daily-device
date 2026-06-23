@@ -12,7 +12,12 @@ export default function LoginMainContent({
   error,
   reason,
 }: LoginMainContentProps) {
-  const { handleDemoLogin, handleSocialLogin, isDemoSigningIn } =
+  const {
+    handleDemoLogin,
+    handleSocialLogin,
+    isDemoSigningIn,
+    loginContentRenderKey,
+  } =
     useLoginPageState({
       callbackUrl,
       error,
@@ -24,6 +29,7 @@ export default function LoginMainContent({
       <div className="flex min-h-screen flex-col">
         <main className="flex flex-1 items-center justify-center bg-canvas dark:bg-dark-bg">
           <LoginContentSection
+            key={loginContentRenderKey}
             onSocialLogin={handleSocialLogin}
             onDemoLogin={handleDemoLogin}
             isDemoSigningIn={isDemoSigningIn}
