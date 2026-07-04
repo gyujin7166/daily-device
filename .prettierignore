@@ -1,5 +1,8 @@
 node_modules
 .next
+.next-playwright
+.gitignore
+.prettierignore
 .codex
 public
 out
