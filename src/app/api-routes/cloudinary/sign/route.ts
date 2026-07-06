@@ -10,13 +10,13 @@ import { getRequiredUserId } from '@shared/lib/api/getRequiredUserId';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
-import {
-  ForbiddenError,
-  InternalServerError,
-  NotFoundError,
-} from '@shared/lib/errors/httpError';
+import { InternalServerError } from '@shared/lib/errors/httpError';
 
-import prisma from 'prisma/prismaClientSingleton';
+import {
+  getHeroUploadFolderData,
+  getProductUploadFolderData,
+  getReviewUploadFolderData,
+} from './service';
 
 export const runtime = 'nodejs';
 
@@ -191,33 +191,18 @@ const resolveProductFolder = async (
 ) => {
   await assertAdminWriteAccess();
 
-  const category = await prisma.productCategory.findUnique({
-    where: { id: body.categoryId },
-    select: { slug: true },
-  });
-
-  if (!category) {
-    throw new NotFoundError('상품 카테고리를 찾을 수 없습니다.');
-  }
-
-  let colorSlug: string | null = null;
-  if (body.colorId) {
-    const color = await prisma.color.findUnique({
-      where: { id: body.colorId },
-      select: { name: true },
-    });
-
-    if (!color) {
-      throw new NotFoundError('상품 색상을 찾을 수 없습니다.');
-    }
-
-    colorSlug = colorSlugMap[color.name] ?? toCloudinarySlug(color.name);
-  }
+  const { categorySlug, colorName } = await getProductUploadFolderData(
+    body.categoryId,
+    body.colorId,
+  );
+  const colorSlug = colorName
+    ? (colorSlugMap[colorName] ?? toCloudinarySlug(colorName))
+    : null;
 
   return joinCloudinaryFolder([
     getCloudinaryFolderPrefix(),
     'products',
-    toCloudinarySlug(category.slug, 'category'),
+    toCloudinarySlug(categorySlug, 'category'),
     toCloudinarySlug(body.productSlug, 'product'),
     ...(colorSlug ? [colorSlug] : []),
   ]);
@@ -228,28 +213,12 @@ const resolveHeroFolder = async (
 ) => {
   await assertAdminWriteAccess();
 
-  const heroType = await prisma.heroType.findUnique({
-    where: { id: body.heroTypeId },
-    select: { name: true },
-  });
-
-  if (!heroType) {
-    throw new NotFoundError('Hero 타입을 찾을 수 없습니다.');
-  }
-
-  if (
-    heroType.name !== 'main' &&
-    heroType.name !== 'product' &&
-    heroType.name !== 'product-all' &&
-    heroType.name !== 'product-discounts'
-  ) {
-    throw new ForbiddenError('지원하지 않는 Hero 타입입니다.');
-  }
+  const { heroTypeName } = await getHeroUploadFolderData(body.heroTypeId);
 
   return joinCloudinaryFolder([
     getCloudinaryFolderPrefix(),
     'heroes',
-    toCloudinarySlug(heroType.name, 'hero'),
+    toCloudinarySlug(heroTypeName, 'hero'),
   ]);
 };
 
@@ -257,30 +226,16 @@ const resolveReviewFolder = async (
   body: Extract<SignatureBody, { target: 'review' }>,
 ) => {
   const userId = await getRequiredUserId();
-  const orderItem = await prisma.orderItem.findFirst({
-    where: {
-      id: body.orderItemId,
-      order: { userId },
-    },
-    select: {
-      id: true,
-      product: {
-        select: {
-          slug: true,
-        },
-      },
-    },
-  });
-
-  if (!orderItem) {
-    throw new NotFoundError('상품평을 작성할 주문 상품을 찾을 수 없습니다.');
-  }
+  const { orderItemId, productSlug } = await getReviewUploadFolderData(
+    userId,
+    body.orderItemId,
+  );
 
   return joinCloudinaryFolder([
     getCloudinaryFolderPrefix(),
     'reviews',
-    toCloudinarySlug(orderItem.product.slug, 'product'),
-    String(orderItem.id),
+    toCloudinarySlug(productSlug, 'product'),
+    String(orderItemId),
   ]);
 };
 
