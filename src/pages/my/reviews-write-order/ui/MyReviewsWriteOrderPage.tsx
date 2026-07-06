@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
 import { getOrdersListByUserId } from '@app/api-routes/orders/service';
+import { getReviewWriteData } from '@app/api-routes/product-reviews/service';
 
 import { orderQueryKeys } from '@entities/order/queries/queryKeys';
 
@@ -10,7 +11,6 @@ import { getLoginRedirectPath } from '@shared/lib/authRedirect';
 import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 
 import { auth } from 'auth';
-import prisma from 'prisma/prismaClientSingleton';
 
 import ReviewWritePageContainer from './ReviewWritePageContainer';
 
@@ -60,64 +60,20 @@ export default async function MyReviewsWriteOrderPage({
     notFound();
   }
 
-  const nextDay = new Date(targetDate);
-  nextDay.setDate(nextDay.getDate() + 1);
-
   const userId = session.user.id;
-
-  const orderItem = await prisma.orderItem.findFirst({
-    where: {
-      order: {
-        userId,
-        orderNumber,
-        deliveryDate: {
-          gte: targetDate,
-          lt: nextDay,
-        },
-      },
-      productId: parsedProductId,
-      productColorId: colorId,
-    },
-    select: {
-      id: true,
-    },
+  const reviewWriteData = await getReviewWriteData({
+    userId,
+    orderNumber,
+    productId: parsedProductId,
+    colorId,
+    deliveryDate: targetDate,
   });
 
-  if (!orderItem) {
+  if (!reviewWriteData) {
     notFound();
   }
 
-  const productReview = await prisma.productReview.findUnique({
-    where: {
-      userId_orderItemId: {
-        userId,
-        orderItemId: orderItem.id,
-      },
-    },
-    select: {
-      id: true,
-      productId: true,
-      rating: true,
-      title: true,
-      content: true,
-      adminHiddenAt: true,
-      ProductReviewImage: {
-        select: {
-          image_url: true,
-          blur_data_url: true,
-          order: true,
-        },
-      },
-    },
-  });
-  const reviewAdminHiddenAt =
-    productReview?.adminHiddenAt?.toISOString() ?? null;
-  const editableProductReview = productReview
-    ? {
-        ...productReview,
-        adminHiddenAt: reviewAdminHiddenAt,
-      }
-    : null;
+  const { orderItemId, productReview, reviewAdminHiddenAt } = reviewWriteData;
 
   const queryClient = new QueryClient();
 
@@ -134,8 +90,8 @@ export default async function MyReviewsWriteOrderPage({
         orderNumber={orderNumber}
         productId={parsedProductId}
         colorId={colorId}
-        orderItemId={orderItem.id}
-        productReview={reviewAdminHiddenAt ? null : editableProductReview}
+        orderItemId={orderItemId}
+        productReview={productReview}
         reviewAdminHiddenAt={reviewAdminHiddenAt}
       />
     </HydrationBoundary>

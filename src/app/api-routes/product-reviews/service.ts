@@ -5,6 +5,7 @@ import { ReviewStatus } from '@prisma/client';
 import type { ProductReviewFilter } from '@entities/review/model/filter';
 import type { ProductReviewSortOption } from '@entities/review/model/sort';
 import type {
+  ProductReviewEditItem,
   ProductReviewListItem,
   ProductReviewsPayload,
 } from '@entities/review/model/types';
@@ -273,6 +274,91 @@ type UpsertReviewParams = {
     }
   >;
 };
+
+type GetReviewWriteDataParams = {
+  userId: string;
+  orderNumber: string;
+  productId: number;
+  colorId: number | null;
+  deliveryDate: Date;
+};
+
+type ReviewWriteData = {
+  orderItemId: number;
+  productReview: ProductReviewEditItem | null;
+  reviewAdminHiddenAt: string | null;
+};
+
+export async function getReviewWriteData({
+  userId,
+  orderNumber,
+  productId,
+  colorId,
+  deliveryDate,
+}: GetReviewWriteDataParams): Promise<ReviewWriteData | null> {
+  const nextDay = new Date(deliveryDate);
+  nextDay.setDate(nextDay.getDate() + 1);
+
+  const orderItem = await prisma.orderItem.findFirst({
+    where: {
+      order: {
+        userId,
+        orderNumber,
+        deliveryDate: {
+          gte: deliveryDate,
+          lt: nextDay,
+        },
+      },
+      productId,
+      productColorId: colorId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!orderItem) {
+    return null;
+  }
+
+  const productReview = await prisma.productReview.findUnique({
+    where: {
+      userId_orderItemId: {
+        userId,
+        orderItemId: orderItem.id,
+      },
+    },
+    select: {
+      id: true,
+      productId: true,
+      rating: true,
+      title: true,
+      content: true,
+      adminHiddenAt: true,
+      ProductReviewImage: {
+        select: {
+          image_url: true,
+          blur_data_url: true,
+          order: true,
+        },
+      },
+    },
+  });
+  const reviewAdminHiddenAt =
+    productReview?.adminHiddenAt?.toISOString() ?? null;
+  const editableProductReview = productReview
+    ? {
+        ...productReview,
+        adminHiddenAt: reviewAdminHiddenAt,
+      }
+    : null;
+
+  return {
+    orderItemId: orderItem.id,
+    productReview: reviewAdminHiddenAt ? null : editableProductReview,
+    reviewAdminHiddenAt,
+  };
+}
 
 export async function findReviewableOrderItem(
   userId: string,
