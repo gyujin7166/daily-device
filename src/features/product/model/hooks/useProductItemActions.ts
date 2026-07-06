@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import useCartActions from '@entities/cart/model/hooks/useCartActions';
+import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 import {
   buildWishlistItem,
   getWishlistLoginPath,
@@ -15,6 +16,7 @@ import { useDeleteWishlist } from '@entities/wishlist/queries/useDeleteWishlist'
 import { useUpsertWishlist } from '@entities/wishlist/queries/useUpsertWishlist';
 import { useWishlist } from '@entities/wishlist/queries/useWishlist';
 
+import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { createCurrentPath } from '@shared/lib/router/currentPath';
 
 import type {
@@ -96,6 +98,38 @@ export const useProductItemActions = ({
       quantity: 1,
       productColorId: hasColors ? resolvedColor?.id : undefined,
       colorName: hasColors ? resolvedColor?.name : undefined,
+      product: {
+        id: product.id,
+        name_en: product.name_en ?? product.name_ko ?? product.name ?? '',
+        slug: product.slug ?? undefined,
+        price: Number(product.price ?? 0),
+        originalPrice:
+          product.originalPrice == null
+            ? undefined
+            : Number(product.originalPrice),
+        discountedPrice:
+          product.discountedPrice == null
+            ? undefined
+            : Number(product.discountedPrice),
+        discountRate: product.discountRate ?? undefined,
+        isDiscounted: product.isDiscounted ?? undefined,
+        priceLabel: product.priceLabel ?? undefined,
+        originalPriceLabel: product.originalPriceLabel ?? undefined,
+        discountedPriceLabel: product.discountedPriceLabel ?? undefined,
+        image_url:
+          getProductThumbnailUrlBySelectedColor(
+            product.ProductImage,
+            hasColors ? resolvedColor?.id : undefined,
+          ) ??
+          product.image_url ??
+          IMAGE_FALLBACK_URL,
+        category: product.category?.name_en
+          ? {
+              name_en: product.category.name_en,
+              slug: product.category.slug ?? undefined,
+            }
+          : undefined,
+      },
       skipIfPending: true,
     });
 

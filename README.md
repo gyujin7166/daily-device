@@ -149,11 +149,64 @@ npm run upload:seed-images
 npm run db:seed
 ```
 
-## 검증
+## 테스트
 
-로컬에서 아래 명령으로 타입 검사, 린트, 빌드를 확인할 수 있습니다.
+테스트 범위에 따라 다음 도구를 구분해 사용합니다.
+
+- Vitest: 가격 계산, 장바구니 variant, checkout 조건과 같은 순수 로직 및 hook 테스트
+- React Testing Library: 사용자에게 보이는 컴포넌트 상태와 상호작용 테스트
+- MSW: 장바구니, 찜, 주문 API의 성공, 실패, 빈 응답에 따른 클라이언트 통합 테스트
+- Playwright: 실제 Chromium에서 라우팅, 인증 상태, 저장소와 핵심 사용자 흐름을 검증하는 E2E 테스트
+
+주요 테스트 명령은 다음과 같습니다.
+
+| 명령어                | 설명                                          |
+| --------------------- | --------------------------------------------- |
+| `npm test`            | Vitest watch 모드                             |
+| `npm run test:unit`   | 단위·컴포넌트·클라이언트 통합 테스트 1회 실행 |
+| `npm run test:e2e`    | Playwright Chromium E2E 실행                  |
+| `npm run test:e2e:ui` | Playwright UI 모드 실행                       |
+| `npm run test:all`    | Vitest 실행 후 Playwright E2E 실행            |
+| `npm run test:visual` | `@visual` 태그가 있는 시각 회귀 테스트 실행   |
+
+Playwright 브라우저가 설치되지 않았다면 최초 한 번 Chromium을 설치합니다.
 
 ```bash
+npx playwright install chromium
+```
+
+현재 E2E 테스트는 다음 흐름을 검증합니다.
+
+- 홈 화면의 핵심 탐색 UI 표시
+- 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
+- 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
+
+인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 없으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다. E2E DB에는 상품 seed 데이터가 준비되어 있어야 합니다.
+
+```env
+PLAYWRIGHT_DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/TEST_DATABASE?sslaccept=strict"
+```
+
+실제 OAuth, Toss Payments 승인과 운영 DB는 자동화 테스트에서 사용하지 않습니다. 결제 E2E는 외부 결제창을 호출하지 않는 데모 결제 흐름만 검증합니다.
+
+## CI
+
+GitHub Actions의 `Quality Check` workflow는 pull request와 `main` 브랜치 push에서 다음 검사를 실행합니다.
+
+```bash
+npm run test:unit
+npx tsc --noEmit
+npm run lint
+```
+
+현재 CI는 별도 DB나 Secrets 없이 실행할 수 있는 가벼운 품질 검사만 담당합니다. DB와 브라우저가 필요한 Next.js build 및 Playwright E2E는 로컬 검증 범위로 유지합니다.
+
+## 검증
+
+로컬에서 전체 테스트와 타입 검사, 린트, 빌드를 확인할 수 있습니다.
+
+```bash
+npm run test:all
 npx tsc --noEmit
 npm run lint
 npm run build

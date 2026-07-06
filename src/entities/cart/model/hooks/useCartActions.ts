@@ -3,9 +3,8 @@ import { useRef } from 'react';
 import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
-import {
-  bumpCartVariantMutationRevision,
-} from '@entities/cart/lib/cartMutationRevision';
+import { bumpCartVariantMutationRevision } from '@entities/cart/lib/cartMutationRevision';
+import type { LocalCartItem } from '@entities/cart/model/types';
 
 import { useAddToCart } from '../../queries/useAddToCart';
 import { useDeleteCartItem } from '../../queries/useDeleteCartItem';
@@ -43,6 +42,7 @@ export default function useCartActions() {
     cartItemId,
     productColorId,
     colorName,
+    product,
     isDirectInput = false,
     skipIfPending = false,
     event,
@@ -51,6 +51,7 @@ export default function useCartActions() {
       cartItemId?: number;
       productColorId?: number;
       colorName?: string;
+      product?: LocalCartItem['product'];
       isDirectInput?: boolean;
       skipIfPending?: boolean;
       event?: React.ChangeEvent<HTMLInputElement>;
@@ -161,6 +162,7 @@ export default function useCartActions() {
         cartItemId,
         productColorId,
         colorName,
+        product,
       });
     }
   };
