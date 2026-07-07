@@ -184,6 +184,26 @@ export default function useProductDetailState({
       quantity,
       productColorId: selectedColor?.id,
       colorName: selectedColor?.name,
+      product: {
+        id: product.id,
+        name_en: product.name_en,
+        slug: product.slug,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        discountedPrice: product.discountedPrice,
+        discountRate: product.discountRate,
+        isDiscounted: product.isDiscounted,
+        priceLabel: product.priceLabel,
+        originalPriceLabel: product.originalPriceLabel,
+        discountedPriceLabel: product.discountedPriceLabel,
+        image_url: mainImageUrl ?? '',
+        category: product.category?.name_en
+          ? {
+              name_en: product.category.name_en,
+              slug: product.category.slug,
+            }
+          : undefined,
+      },
       skipIfPending: true,
     });
     openCart();
