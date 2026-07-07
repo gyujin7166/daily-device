@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 
 import { IconCheck } from '@tabler/icons-react';
 
+import { cn } from '@shared/lib/utils/style';
 import {
   ImageUrlList,
   PaginationControls,
   RowActions,
   TableHeader,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import { cn } from '@shared/lib/utils/style';
+} from '@shared/ui/AdminControls';
 
 import { getAdminHeroTypeLabel } from '../model/types';
 

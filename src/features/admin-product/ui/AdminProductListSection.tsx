@@ -1,14 +1,13 @@
+import { getProductLineLabel } from '@shared/constants/productLine';
+import { getProductPriceInfo } from '@shared/lib/price/discount';
+import { cn } from '@shared/lib/utils/style';
 import {
   ImageUrlList,
   PaginationControls,
   RowActions,
   TableHeader,
   inputClass,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import { getProductLineLabel } from '@shared/constants/productLine';
-import { getProductPriceInfo } from '@shared/lib/price/discount';
-import { cn } from '@shared/lib/utils/style';
+} from '@shared/ui/AdminControls';
 
 import type {
   AdminProduct,

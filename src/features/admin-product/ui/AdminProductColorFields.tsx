@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import { inputClass, labelClass } from '@pages/admin/ui/shared/AdminControls';
+import { inputClass, labelClass } from '@shared/ui/AdminControls';
 
 import type { AdminColor, ProductFormState } from '../model/types';
 

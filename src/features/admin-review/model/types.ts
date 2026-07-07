@@ -1,4 +1,4 @@
-import type { AdminPageResult } from '@pages/admin/model/adminApi';
+import type { AdminPageResult } from '@shared/api/adminApi';
 
 export type AdminReviewStatus = 'all' | 'visible' | 'hidden';
 

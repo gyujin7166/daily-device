@@ -9,6 +9,11 @@ import {
 } from '@tabler/icons-react';
 
 import {
+  getCategoryHref,
+  getProductHref,
+} from '@shared/lib/routes/productRoutes';
+import { cn } from '@shared/lib/utils/style';
+import {
   ImageUrlList,
   PaginationControls,
   SectionTitle,
@@ -17,13 +22,7 @@ import {
   TextInput,
   inputClass,
   labelClass,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import {
-  getCategoryHref,
-  getProductHref,
-} from '@shared/lib/routes/productRoutes';
-import { cn } from '@shared/lib/utils/style';
+} from '@shared/ui/AdminControls';
 
 import {
   createEmptyHomeSectionItemForm,

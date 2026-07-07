@@ -3,16 +3,15 @@ import type { SubmitEvent } from 'react';
 
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 
+import { PRODUCT_LINE_OPTIONS } from '@shared/constants/productLine';
+import type { ProductLineValue } from '@shared/constants/productLine';
 import {
   SectionTitle,
   TextArea,
   TextInput,
   inputClass,
   labelClass,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import { PRODUCT_LINE_OPTIONS } from '@shared/constants/productLine';
-import type { ProductLineValue } from '@shared/constants/productLine';
+} from '@shared/ui/AdminControls';
 
 import AdminProductColorFields from './AdminProductColorFields';
 import AdminProductImageFields from './AdminProductImageFields';
