@@ -1,14 +1,13 @@
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 
+import { maskEmail, maskName } from '@shared/lib/utils/mask';
+import { cn } from '@shared/lib/utils/style';
 import {
   ImageUrlList,
   PaginationControls,
   TableHeader,
   inputClass,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import { maskEmail, maskName } from '@shared/lib/utils/mask';
-import { cn } from '@shared/lib/utils/style';
+} from '@shared/ui/AdminControls';
 
 import type {
   AdminReview,

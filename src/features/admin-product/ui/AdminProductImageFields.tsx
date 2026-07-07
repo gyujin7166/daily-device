@@ -1,19 +1,10 @@
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 
-import {
-  IconPhotoPlus,
-  IconTrash,
-  IconUpload,
-} from '@tabler/icons-react';
-
-import {
-  TextInput,
-  inputClass,
-  labelClass,
-} from '@pages/admin/ui/shared/AdminControls';
+import { IconPhotoPlus, IconTrash, IconUpload } from '@tabler/icons-react';
 
 import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
+import { TextInput, inputClass, labelClass } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import type { AdminColor, ProductFormState } from '../model/types';

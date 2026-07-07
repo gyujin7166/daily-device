@@ -1,5 +1,4 @@
-import type { AdminPageResult } from '@pages/admin/model/adminApi';
-
+import type { AdminPageResult } from '@shared/api/adminApi';
 import type { ProductLineValue } from '@shared/constants/productLine';
 
 export type ProductCategory = {

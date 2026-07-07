@@ -3,22 +3,17 @@ import type { ChangeEvent } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { SubmitEvent } from 'react';
 
-import {
-  IconDeviceFloppy,
-  IconPlus,
-  IconUpload,
-} from '@tabler/icons-react';
+import { IconDeviceFloppy, IconPlus, IconUpload } from '@tabler/icons-react';
 
+import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
+import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 import {
   SectionTitle,
   TextArea,
   TextInput,
   inputClass,
   labelClass,
-} from '@pages/admin/ui/shared/AdminControls';
-
-import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
-import { getCategoryHref } from '@shared/lib/routes/productRoutes';
+} from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import { getAdminHeroTypeLabel } from '../model/types';

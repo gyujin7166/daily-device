@@ -1,4 +1,4 @@
-import { SummaryItem } from '../shared/AdminControls';
+import { SummaryItem } from '@shared/ui/AdminControls';
 
 import type { AdminSummaryItem } from '../../model/types';
 

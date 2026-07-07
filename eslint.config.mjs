@@ -85,6 +85,10 @@ const toSameLayerSliceConfigs = ({
   });
 
 const featureSliceEntries = [
+  '@features/admin-hero',
+  '@features/admin-home',
+  '@features/admin-product',
+  '@features/admin-review',
   '@features/auth',
   '@features/cart',
   '@features/checkout',

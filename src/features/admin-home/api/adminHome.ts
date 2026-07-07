@@ -1,4 +1,4 @@
-import { adminFetch } from '@pages/admin/model/adminApi';
+import { adminFetch } from '@shared/api/adminApi';
 
 import type {
   AdminHomePayload,
