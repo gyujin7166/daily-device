@@ -98,10 +98,22 @@ model ProductCategory {
   product          Product[]
   hero             Hero[]
   homeSectionItems HomeSectionItem[]
+  translations     ProductCategoryTranslation[]
 
   @@unique([parentId, name_en])
   @@unique([parentId, name_ko])
   @@index([parentId])
+}
+
+model ProductCategoryTranslation {
+  id         Int             @id @default(autoincrement())
+  categoryId Int
+  category   ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale     String
+  name       String
+
+  @@unique([categoryId, locale])
+  @@index([locale])
 }
 
 model Product {
@@ -129,10 +141,25 @@ model Product {
   ProductImage        ProductImage[]
   wishlistItem        WishlistItem[]
   homeSectionItems    HomeSectionItem[]
+  translations        ProductTranslation[]
 
   // @@index([heroId])
   @@index([categoryId])
   @@index([discountRate])
+}
+
+model ProductTranslation {
+  id                   Int     @id @default(autoincrement())
+  productId            Int
+  product              Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locale               String
+  name                 String
+  description          String
+  detailed_description String?
+  note                 String?
+
+  @@unique([productId, locale])
+  @@index([locale])
 }
 
 enum ProductLine {
@@ -205,14 +232,42 @@ model ProductDetail {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  translations ProductDetailTranslation[]
+
   @@index([productId])
 }
 
+model ProductDetailTranslation {
+  id            Int           @id @default(autoincrement())
+  detailId      Int
+  detail        ProductDetail @relation(fields: [detailId], references: [id], onDelete: Cascade)
+  locale        String
+  title_middle  String?
+  title_sub     String?
+  specification String?
+  note          String?
+
+  @@unique([detailId, locale])
+  @@index([locale])
+}
+
 model Color {
-  id      Int            @id @default(autoincrement())
-  name    String         @unique
-  hex     String
-  product ProductColor[]
+  id           Int                @id @default(autoincrement())
+  name         String             @unique
+  hex          String
+  product      ProductColor[]
+  translations ColorTranslation[]
+}
+
+model ColorTranslation {
+  id      Int    @id @default(autoincrement())
+  colorId  Int
+  color   Color  @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  locale  String
+  name    String
+
+  @@unique([colorId, locale])
+  @@index([locale])
 }
 
 model ProductColor {
@@ -425,6 +480,18 @@ model Filter {
   categoryName String
 
   filterOption FilterOption[]
+  translations FilterTranslation[]
+}
+
+model FilterTranslation {
+  id       Int    @id @default(autoincrement())
+  filterId Int
+  filter   Filter @relation(fields: [filterId], references: [id], onDelete: Cascade)
+  locale   String
+  name     String
+
+  @@unique([filterId, locale])
+  @@index([locale])
 }
 
 model FilterOption {
@@ -436,8 +503,20 @@ model FilterOption {
   categoryName String
 
   ProductFilterOption ProductFilterOption[]
+  translations         FilterOptionTranslation[]
 
   @@index([filterId])
+}
+
+model FilterOptionTranslation {
+  id             Int          @id @default(autoincrement())
+  filterOptionId Int
+  filterOption   FilterOption @relation(fields: [filterOptionId], references: [id], onDelete: Cascade)
+  locale         String
+  name           String
+
+  @@unique([filterOptionId, locale])
+  @@index([locale])
 }
 
 model HeroType {
@@ -466,10 +545,24 @@ model Hero {
 
   targetCategoryId Int?
   targetCategory   ProductCategory? @relation(fields: [targetCategoryId], references: [id], onDelete: SetNull)
+  translations     HeroTranslation[]
 
   @@index([heroTypeId])
   @@index([targetCategoryId])
   @@index([heroTypeId, targetCategoryId, isDefault])
+}
+
+model HeroTranslation {
+  id                   Int     @id @default(autoincrement())
+  heroId               Int
+  hero                 Hero    @relation(fields: [heroId], references: [id], onDelete: Cascade)
+  locale               String
+  name                 String
+  description          String?
+  detailed_description String?
+
+  @@unique([heroId, locale])
+  @@index([locale])
 }
 
 model HomeSection {
@@ -483,10 +576,24 @@ model HomeSection {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  items HomeSectionItem[]
+  items        HomeSectionItem[]
+  translations HomeSectionTranslation[]
 
   @@index([displayOrder])
   @@index([isVisible])
+}
+
+model HomeSectionTranslation {
+  id        Int         @id @default(autoincrement())
+  sectionId Int
+  section   HomeSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  locale    String
+  eyebrow   String?
+  title     String
+  subtitle  String?     @db.Text
+
+  @@unique([sectionId, locale])
+  @@index([locale])
 }
 
 model HomeSectionItem {
@@ -514,10 +621,27 @@ model HomeSectionItem {
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
+  translations HomeSectionItemTranslation[]
+
   @@index([sectionId])
   @@index([sectionId, displayOrder])
   @@index([sectionId, layoutGroup])
   @@index([targetCategoryId])
   @@index([targetProductId])
   @@index([isVisible])
+}
+
+model HomeSectionItemTranslation {
+  id          Int             @id @default(autoincrement())
+  itemId      Int
+  item        HomeSectionItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  locale      String
+  label       String?
+  title       String
+  description String?         @db.Text
+  cta         String?
+  imageAlt    String?
+
+  @@unique([itemId, locale])
+  @@index([locale])
 }
