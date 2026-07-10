@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import { getHeroList } from '@app/api-routes/products/hero/service';
 import { getProductsPage } from '@app/api-routes/products/service';
@@ -26,17 +27,19 @@ async function ProductAllRoutePage({
   const heroType: HeroTypeValue = discountedOnly
     ? 'product-discounts'
     : 'product-all';
+  const locale = await getLocale();
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: productQueryKeys.hero(heroType, undefined),
-    queryFn: () => getHeroList(heroType),
+    queryKey: productQueryKeys.hero(heroType, undefined, locale),
+    queryFn: () => getHeroList(heroType, undefined, locale),
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
   void queryClient.prefetchInfiniteQuery({
     queryKey: productQueryKeys.list({
       category: undefined,
+      locale,
       sort: 'relevance',
       pageSize: PRODUCT_GRID_PAGE_SIZE,
       filtersKey: '',
@@ -58,6 +61,7 @@ async function ProductAllRoutePage({
         {
           discountedOnly,
         },
+        locale,
       ),
     staleTime: PRODUCT_LIST_STALE_TIME_MS,
     gcTime: 30 * 60 * 1000,

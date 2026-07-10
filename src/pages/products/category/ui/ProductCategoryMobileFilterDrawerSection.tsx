@@ -1,6 +1,7 @@
 import type React from 'react';
 
 import { IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { ProductFilter } from '@features/product-filter/ui';
 
@@ -49,6 +50,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
   checkboxStates,
   onMobileDraftCheckboxStatesChange,
 }: ProductCategoryMobileFilterDrawerSectionProps) {
+  const t = useTranslations('Products.category.filterDrawer');
   const isDrawerVisible = isMobileViewport && visibleFilter;
 
   if (!isMobileViewport) {
@@ -64,7 +66,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
     >
       <button
         type="button"
-        aria-label="필터 닫기"
+        aria-label={t('close')}
         onClick={onClose}
         className={cn(
           'absolute inset-0 bg-ink/45 transition-opacity duration-300',
@@ -80,13 +82,13 @@ export default function ProductCategoryMobileFilterDrawerSection({
       >
         <div className="flex items-center justify-between border-b border-line px-5 py-4 dark:border-dark-border">
           <h2 className="text-xl font-semibold text-ink dark:text-surface">
-            필터
+            {t('title')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-canvas hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
-            aria-label="필터 닫기"
+            aria-label={t('close')}
           >
             <IconX size={20} />
           </button>
@@ -120,14 +122,14 @@ export default function ProductCategoryMobileFilterDrawerSection({
                 onClick={onReset}
                 className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-line bg-surface text-sm font-semibold text-ink transition-colors hover:bg-canvas dark:border-dark-border dark:bg-dark-panel-deep dark:text-surface dark:hover:bg-dark-panel-hover"
               >
-                초기화
+                {t('reset')}
               </button>
               <button
                 type="button"
                 onClick={onApply}
                 className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-surface transition-colors hover:bg-primary/90"
               >
-                적용하기
+                {t('apply')}
               </button>
             </div>
           </div>

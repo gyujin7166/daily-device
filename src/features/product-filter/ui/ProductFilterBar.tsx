@@ -1,6 +1,7 @@
 import { useSearchParams } from 'next/navigation';
 
 import { IconX } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import type { ProductColorFilterOption } from '@entities/product/model/types';
 
@@ -23,7 +24,17 @@ type ProductFilterBarProps = {
   onQueryChange?: () => void;
 };
 
-const formatPrice = (value: number) => value.toLocaleString('ko-KR');
+const formatPrice = (value: number, locale: string) => {
+  if (locale === 'ko') {
+    return value.toLocaleString('ko-KR');
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(value);
+};
 
 export default function ProductFilterBar({
   priceRange,
@@ -34,6 +45,8 @@ export default function ProductFilterBar({
   onColorChange,
   onQueryChange,
 }: ProductFilterBarProps) {
+  const locale = useLocale();
+  const t = useTranslations('ProductFilter');
   const { checkboxStates, setCheckboxStates, hasCheckedFilters, filter } =
     useProductFilterContext();
   const { setParam, setParams } = useQueryParams();
@@ -63,7 +76,10 @@ export default function ProductFilterBar({
   const hasActiveColorFilter = selectedColors.length > 0;
   const priceFilterLabel =
     priceRange && hasActivePriceFilter
-      ? `가격 ${formatPrice(priceValue.minPrice ?? priceRange.minPrice)}원 - ${formatPrice(priceValue.maxPrice ?? priceRange.maxPrice)}원`
+      ? t('price.activeRange', {
+          min: formatPrice(priceValue.minPrice ?? priceRange.minPrice, locale),
+          max: formatPrice(priceValue.maxPrice ?? priceRange.maxPrice, locale),
+        })
       : null;
 
   const updateFilterQuery = (nextCheckboxStates: CheckboxStates) => {
@@ -168,7 +184,7 @@ export default function ProductFilterBar({
           }}
           className="inline-flex h-9 items-center rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel-deep dark:text-dark-muted dark:hover:bg-dark-panel-hover dark:hover:text-surface"
         >
-          모두 지우기
+          {t('actions.clearAll')}
         </button>
       )}
     </div>

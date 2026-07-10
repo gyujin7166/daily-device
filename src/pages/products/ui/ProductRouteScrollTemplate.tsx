@@ -2,7 +2,7 @@
 import { useLayoutEffect } from 'react';
 import type { ReactNode } from 'react';
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@shared/lib/i18n/navigation';
 
 type ProductRouteScrollTemplateProps = {
   children: ReactNode;

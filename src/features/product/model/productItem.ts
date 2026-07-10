@@ -5,6 +5,13 @@ import { getProductHref } from '@shared/lib/routes/productRoutes';
 
 import type { Prisma } from '@prisma/client';
 
+const formatFallbackPrice = (price: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(price);
+
 type ProductItemColor = {
   id: number;
   isDefault?: boolean;
@@ -94,18 +101,16 @@ export const getProductItemViewModel = (
     IMAGE_FALLBACK_URL;
   const price =
     product.priceLabel ??
-    (typeof product.price === 'number'
-      ? `${product.price.toLocaleString('ko-KR')}원`
-      : null);
+    (typeof product.price === 'number' ? formatFallbackPrice(product.price) : null);
   const originalPrice =
     product.originalPriceLabel ??
     (typeof product.originalPrice === 'number'
-      ? `${product.originalPrice.toLocaleString('ko-KR')}원`
+      ? formatFallbackPrice(product.originalPrice)
       : null);
   const discountedPrice =
     product.discountedPriceLabel ??
     (typeof product.discountedPrice === 'number'
-      ? `${product.discountedPrice.toLocaleString('ko-KR')}원`
+      ? formatFallbackPrice(product.discountedPrice)
       : price);
   const discountRate =
     typeof product.discountRate === 'number'

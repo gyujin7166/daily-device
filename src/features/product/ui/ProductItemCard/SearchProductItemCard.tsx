@@ -1,8 +1,10 @@
-import Link from 'next/link';
+
+import { useTranslations } from 'next-intl';
 
 import { ProductColorPalette } from '@entities/product/ui';
 
-import { getProductLineLabel } from '@shared/constants/productLine';
+import { isProductLineValue } from '@shared/constants/productLine';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 import { ProductImageLink, WishlistButton } from './ProductItemParts';
@@ -21,6 +23,7 @@ export default function SearchProductItemCard({
   onColorChange,
   onToggleWishlist,
 }: ProductItemCardProps) {
+  const commonT = useTranslations('Common');
   const {
     productName,
     productHref,
@@ -62,7 +65,9 @@ export default function SearchProductItemCard({
       <div className="mt-4 flex flex-1 flex-col">
         {product.productLine ? (
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-primary dark:text-primary">
-            {getProductLineLabel(product.productLine)}
+            {isProductLineValue(product.productLine)
+              ? commonT(`productLines.${product.productLine}`)
+              : product.productLine}
           </p>
         ) : null}
 

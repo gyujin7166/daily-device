@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 type FilterToggleButtonProps = {
   visibleFilter: boolean;
@@ -11,12 +12,13 @@ export default function FilterToggleButton({
   visibleFilter,
   onToggleFilter,
 }: FilterToggleButtonProps) {
+  const t = useTranslations('ProductFilter.toggle');
   const [isHydrated, setIsHydrated] = useState(false);
   const label = isHydrated
     ? visibleFilter
-      ? '필터 숨기기'
-      : '필터 표시'
-    : '필터';
+      ? t('hide')
+      : t('show')
+    : t('default');
 
   useEffect(() => {
     setIsHydrated(true);

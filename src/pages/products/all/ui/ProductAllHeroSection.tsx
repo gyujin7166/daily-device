@@ -23,7 +23,7 @@ export default function ProductAllHeroSection({
   const heroContent = heroImages[0];
   const resolvedContent = {
     eyebrow: content.eyebrow,
-    title: heroContent?.name_ko || content.title,
+    title: heroContent?.name_en || content.title,
     description: heroContent?.description || content.description,
   };
 

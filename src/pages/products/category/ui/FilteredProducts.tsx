@@ -1,11 +1,14 @@
 import type { ComponentProps } from 'react';
 
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
+
+import { useTranslations } from 'next-intl';
 
 import { ProductList } from '@features/product/ui';
 
 import type { CatalogProductItem } from '@entities/product/model/types';
 
+import { usePathname } from '@shared/lib/i18n/navigation';
 import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
 type FilteredProductsProps = {
@@ -33,6 +36,7 @@ export default function FilteredProducts({
   isRefreshing = false,
   resetKey,
 }: FilteredProductsProps) {
+  const t = useTranslations('Products.category');
   const routeParams = useParams<{ category?: string }>();
   const pathname = usePathname() ?? '/products';
   const { setParams } = useQueryParams();
@@ -75,13 +79,13 @@ export default function FilteredProducts({
       resetKey={resetKey}
       emptyTitle={
         hasActiveFilters
-          ? '선택한 필터에 맞는 상품이 없습니다.'
-          : `${categoryLabel} 상품이 없습니다.`
+          ? t('emptyFilteredTitle')
+          : t('emptyCategoryTitle', { category: categoryLabel })
       }
       emptyDescription={
         hasActiveFilters
-          ? '다른 필터를 선택하거나 초기화해 보세요.'
-          : '잠시 후 다시 시도해 주세요.'
+          ? t('emptyFilteredDescription')
+          : t('emptyCategoryDescription')
       }
       emptyAction={
         hasActiveFilters ? (
@@ -90,7 +94,7 @@ export default function FilteredProducts({
             onClick={handleResetFilters}
             className="mt-5 inline-flex h-10 items-center justify-center rounded-full border border-line bg-surface px-5 text-sm font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel-deep dark:text-surface dark:hover:bg-dark-panel-hover"
           >
-            필터 초기화
+            {t('resetFilters')}
           </button>
         ) : null
       }

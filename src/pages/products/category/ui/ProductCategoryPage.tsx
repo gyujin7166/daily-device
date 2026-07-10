@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import {
   getFilterList,
@@ -40,13 +41,14 @@ export default async function ProductCategoryPage({
   params,
 }: ProductCategoryPageProps) {
   const { category } = await params;
+  const locale = await getLocale();
   const normalizedCategory = decodeURIComponent(category).trim();
   const [productCategory, filterItems, priceRange, colorOptions] =
     await Promise.all([
       getProductCategoryBySlug(normalizedCategory),
-      getFilterList(normalizedCategory),
+      getFilterList(normalizedCategory, locale),
       getProductPriceRange(normalizedCategory),
-      getProductColorFilterOptions(normalizedCategory),
+      getProductColorFilterOptions(normalizedCategory, locale),
     ]);
 
   if (!productCategory) {
@@ -56,14 +58,15 @@ export default async function ProductCategoryPage({
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: productQueryKeys.hero('product', normalizedCategory),
-    queryFn: () => getHeroList('product', normalizedCategory),
+    queryKey: productQueryKeys.hero('product', normalizedCategory, locale),
+    queryFn: () => getHeroList('product', normalizedCategory, locale),
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
   void queryClient.prefetchInfiniteQuery({
     queryKey: productQueryKeys.list({
       category: normalizedCategory,
+      locale,
       sort: 'relevance',
       pageSize: PRODUCT_PAGE_SIZE,
       filtersKey: '',
@@ -85,13 +88,15 @@ export default async function ProductCategoryPage({
           [],
           {},
           {},
+          {},
+          locale,
         );
       },
     staleTime: PRODUCT_LIST_STALE_TIME_MS,
     gcTime: 30 * 60 * 1000,
   });
   queryClient.setQueryData(
-    productFilterQueryKeys.filters(normalizedCategory),
+    productFilterQueryKeys.filters(normalizedCategory, locale),
     filterItems,
   );
 

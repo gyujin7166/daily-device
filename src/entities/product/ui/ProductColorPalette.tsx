@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 import type { CSSVariableStyle } from '@shared/lib/utils/style';
 
@@ -37,6 +39,7 @@ export default function ProductColorPalette({
   selectedColorId: controlledSelectedColorId,
   onColorChange,
 }: ProductColorPaletteProps) {
+  const t = useTranslations('ProductDetail.purchase');
   const [selectedColor, setSelectedColor] = useState('');
   const [uncontrolledSelectedColorId, setUncontrolledSelectedColorId] =
     useState<number | null>(null);
@@ -126,7 +129,7 @@ export default function ProductColorPalette({
             <button
               key={`${colorId}-${index}`}
               type="button"
-              aria-label={`${item.color.name} 색상 선택`}
+              aria-label={t('selectColor', { color: item.color.name })}
               aria-pressed={interactive ? isSelected : undefined}
               className={cn(
                 'group relative rounded-full',

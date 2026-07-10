@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import type { ProductSortOption } from '@entities/product/model/sort';
 
 import SortDropdown from '@shared/ui/SortDropdown';
@@ -8,27 +10,28 @@ type SortControlButtonProps = {
   disabled?: boolean;
 };
 
-const SORT_OPTIONS: { value: ProductSortOption; label: string }[] = [
-  { value: 'relevance', label: '추천순' },
-  { value: 'name_asc', label: '이름 오름차순' },
-  { value: 'name_desc', label: '이름 내림차순' },
-  { value: 'price_asc', label: '가격 낮은순' },
-  { value: 'price_desc', label: '가격 높은순' },
-];
-
 export default function SortControlButton({
   sortOption,
   onSortChange,
   disabled = false,
 }: SortControlButtonProps) {
+  const t = useTranslations('ProductFilter.sort');
+  const sortOptions: { value: ProductSortOption; label: string }[] = [
+    { value: 'relevance', label: t('relevance') },
+    { value: 'name_asc', label: t('nameAsc') },
+    { value: 'name_desc', label: t('nameDesc') },
+    { value: 'price_asc', label: t('priceAsc') },
+    { value: 'price_desc', label: t('priceDesc') },
+  ];
+
   return (
     <SortDropdown<ProductSortOption>
       value={sortOption}
-      options={SORT_OPTIONS}
+      options={sortOptions}
       onChange={onSortChange}
       disabled={disabled}
       mobileSheetOnMobile
-      mobileSheetTitle="정렬 기준"
+      mobileSheetTitle={t('sheetTitle')}
     />
   );
 }
