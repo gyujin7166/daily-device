@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { IconArrowUp } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import {
   PRODUCT_GRID_PAGE_SIZE,
@@ -69,10 +70,13 @@ export default function ProductList({
   isFetchingNextPage = false,
   isRefreshing = false,
   resetKey,
-  emptyTitle = '표시할 상품이 없습니다.',
-  emptyDescription = '잠시 후 다시 시도해 주세요.',
+  emptyTitle,
+  emptyDescription,
   emptyAction,
 }: ProductListProps) {
+  const t = useTranslations('Products.list');
+  const resolvedEmptyTitle = emptyTitle ?? t('emptyTitle');
+  const resolvedEmptyDescription = emptyDescription ?? t('emptyDescription');
   const gridClassName =
     columns === 'four'
       ? 'grid grid-cols-2 items-stretch gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4'
@@ -427,10 +431,10 @@ export default function ProductList({
       >
         <div className="max-w-sm">
           <p className="text-base font-semibold text-ink dark:text-surface">
-            {emptyTitle}
+            {resolvedEmptyTitle}
           </p>
           <p className="mt-2 text-sm text-muted dark:text-dark-muted">
-            {emptyDescription}
+            {resolvedEmptyDescription}
           </p>
           {emptyAction}
         </div>
@@ -476,7 +480,7 @@ export default function ProductList({
 
       <div className="mt-10 flex flex-col items-center">
         <p className="text-sm text-muted dark:text-dark-muted">
-          총 {effectiveTotal}개 중 {shownCount}개 표시
+          {t('range', { total: effectiveTotal, shown: shownCount })}
         </p>
         <div className="mt-3 h-1.5 w-40 overflow-hidden rounded-full bg-line dark:bg-dark-bg-hover">
           <div
@@ -490,7 +494,7 @@ export default function ProductList({
             onClick={handleResumeAutoLoad}
             className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-line bg-surface px-8 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-panel dark:text-primary dark:hover:bg-primary-soft"
           >
-            더보기
+            {t('loadMore')}
           </button>
         ) : null}
         <div
@@ -502,7 +506,7 @@ export default function ProductList({
 
       <button
         type="button"
-        aria-label="최상단으로 이동"
+        aria-label={t('backToTop')}
         onClick={handleBackToTop}
         className={`fixed bottom-24 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-canvas focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 sm:bottom-8 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover ${
           showBackToTop
@@ -518,11 +522,13 @@ export default function ProductList({
 }
 
 function ProductListRefreshingOverlay() {
+  const t = useTranslations('Products.list');
+
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex justify-center">
       <div className="sticky top-[50vh] inline-flex size-14 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface/95 shadow-lg backdrop-blur-sm dark:border-dark-border dark:bg-dark-panel/95">
         <Spinner size="sm" />
-        <span className="sr-only">상품 목록을 불러오는 중</span>
+        <span className="sr-only">{t('loading')}</span>
       </div>
     </div>
   );

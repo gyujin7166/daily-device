@@ -6,6 +6,7 @@ import useNavActionsState from '../../model/hooks/useNavActionsState';
 import NavAccountMenu from '../account/NavAccountMenu';
 
 import NavCartButton from './NavCartButton';
+import NavLocaleSwitcher from './NavLocaleSwitcher';
 import NavSearchButton from './NavSearchButton';
 import NavThemeButton from './NavThemeButton';
 
@@ -58,6 +59,13 @@ export default function NavActions({
     onActionClick?.();
     closeAccountDropdown();
     toggleTheme();
+  };
+  const handleOpenLocaleDropdown = () => {
+    closeAccountDropdown();
+  };
+  const handleSelectLocale = () => {
+    onActionClick?.();
+    closeAccountDropdown();
   };
   const handleToggleAccountDropdown = () => {
     onActionClick?.();
@@ -126,6 +134,12 @@ export default function NavActions({
         isDarkOverlayStyle={isDarkOverlayStyle}
         isOverlayStyle={isOverlayStyle}
         onToggleTheme={handleToggleTheme}
+      />
+      <NavLocaleSwitcher
+        isDarkOverlayStyle={isDarkOverlayStyle}
+        isOverlayStyle={isOverlayStyle}
+        onOpenDropdown={handleOpenLocaleDropdown}
+        onSelectLocale={handleSelectLocale}
       />
       <NavAccountMenu
         avatarSrc={avatarSrc}

@@ -227,11 +227,14 @@ export default function ProductCategoryPageContainer({
   });
   useScrollLock(isMobileViewport && visibleFilter);
 
-  const imagesSet = useBlurImages(
-    (hero ?? []).flatMap((item) =>
-      item.image_url ? [{ ...item, image_url: item.image_url }] : [],
-    ),
+  const heroItems = useMemo(
+    () =>
+      (hero ?? []).flatMap((item) =>
+        item.image_url ? [{ ...item, image_url: item.image_url }] : [],
+      ),
+    [hero],
   );
+  const imagesSet = useBlurImages(heroItems);
   const resultCount = shouldWaitFilteredResult
     ? 0
     : (totalProducts ?? products?.length ?? 0);

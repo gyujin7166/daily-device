@@ -1,5 +1,7 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useTranslations } from 'next-intl';
 
 import { ProductSortBar } from '@features/product-filter/ui';
 
@@ -12,10 +14,6 @@ import { useProduct } from '@entities/product/queries/useProduct';
 import { useBlurImages } from '@shared/hooks/useBlurImages';
 
 import ProductAllContentSection from './ProductAllContentSection';
-import {
-  PRODUCT_ALL_HERO_CONTENT,
-  PRODUCT_DISCOUNTS_HERO_CONTENT,
-} from './productAllHeroConfig';
 import ProductAllHeroSection from './ProductAllHeroSection';
 
 type ProductAllPageContainerProps = {
@@ -25,6 +23,7 @@ type ProductAllPageContainerProps = {
 export default function ProductAllPageContainer({
   discountedOnly = false,
 }: ProductAllPageContainerProps) {
+  const t = useTranslations('Products.allHero');
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance');
   const [retainedProductLimit, setRetainedProductLimit] = useState(
     PRODUCT_GRID_PAGE_SIZE,
@@ -52,11 +51,14 @@ export default function ProductAllPageContainer({
     initialLimit: retainedProductLimit,
     pageSize: PRODUCT_GRID_PAGE_SIZE,
   });
-  const imagesSet = useBlurImages(
-    (hero ?? []).flatMap((item) =>
-      item.image_url ? [{ ...item, image_url: item.image_url }] : [],
-    ),
+  const heroItems = useMemo(
+    () =>
+      (hero ?? []).flatMap((item) =>
+        item.image_url ? [{ ...item, image_url: item.image_url }] : [],
+      ),
+    [hero],
   );
+  const imagesSet = useBlurImages(heroItems);
   const isRefreshingProducts =
     hasUserChangedProductQuery &&
     isFetching &&
@@ -113,8 +115,16 @@ export default function ProductAllPageContainer({
       <ProductAllHeroSection
         content={
           discountedOnly
-            ? PRODUCT_DISCOUNTS_HERO_CONTENT
-            : PRODUCT_ALL_HERO_CONTENT
+            ? {
+                eyebrow: t('discounts.eyebrow'),
+                title: t('discounts.title'),
+                description: t('discounts.description'),
+              }
+            : {
+                eyebrow: t('all.eyebrow'),
+                title: t('all.title'),
+                description: t('all.description'),
+              }
         }
         imagesSet={imagesSet}
       />

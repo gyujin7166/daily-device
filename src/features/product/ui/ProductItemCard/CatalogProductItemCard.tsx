@@ -1,10 +1,11 @@
-import Link from 'next/link';
 
 import { IconShoppingBag } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { ProductColorPalette } from '@entities/product/ui';
 
-import { getProductLineLabel } from '@shared/constants/productLine';
+import { isProductLineValue } from '@shared/constants/productLine';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 import { ProductImageLink, WishlistButton } from './ProductItemParts';
@@ -26,6 +27,8 @@ export default function CatalogProductItemCard({
   onToggleWishlist,
   onAddToCart,
 }: ProductItemCardProps) {
+  const t = useTranslations('ProductFilter.actions');
+  const commonT = useTranslations('Common');
   const {
     productName,
     productHref,
@@ -68,7 +71,9 @@ export default function CatalogProductItemCard({
       <div className="px-1 pb-1 mt-3 flex flex-1 flex-col sm:mt-2">
         {product.productLine ? (
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary dark:text-primary">
-            {getProductLineLabel(product.productLine)}
+            {isProductLineValue(product.productLine)
+              ? commonT(`productLines.${product.productLine}`)
+              : product.productLine}
           </p>
         ) : null}
 
@@ -122,7 +127,7 @@ export default function CatalogProductItemCard({
               onClick={onAddToCart}
               disabled={!canAddToCart}
               className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-surface transition duration-200 hover:bg-primary-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text dark:bg-primary dark:hover:bg-primary-hover"
-              aria-label="장바구니에 추가"
+              aria-label={t('addToCart')}
             >
               <IconShoppingBag size={18} stroke={2} />
             </button>

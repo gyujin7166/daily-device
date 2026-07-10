@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
 
 import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
+import { Link } from '@shared/lib/i18n/navigation';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
@@ -114,6 +115,8 @@ export function WishlistButton({
   compact = false,
   onClick,
 }: WishlistButtonProps) {
+  const t = useTranslations('ProductDetail.purchase');
+
   if (!visible) {
     return null;
   }
@@ -133,7 +136,7 @@ export function WishlistButton({
           ? 'border-primary bg-primary-soft text-primary dark:bg-primary-soft'
           : 'border-line bg-surface text-muted hover:bg-canvas dark:border-dark-border dark:bg-dark-panel-deep dark:text-dark-muted dark:hover:bg-dark-panel-hover',
       )}
-      aria-label={isInWishlist ? '찜 해제' : '찜 추가'}
+      aria-label={isInWishlist ? t('wishlistRemove') : t('wishlistAdd')}
       aria-pressed={isInWishlist}
     >
       {isInWishlist ? (

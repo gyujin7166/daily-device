@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 import { useSession } from 'next-auth/react';
 
@@ -17,6 +18,7 @@ import { useUpsertWishlist } from '@entities/wishlist/queries/useUpsertWishlist'
 import { useWishlist } from '@entities/wishlist/queries/useWishlist';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
+import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { createCurrentPath } from '@shared/lib/router/currentPath';
 
 import type {

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { usePathname, useRouter } from 'next/navigation';
 
 import { signOut, useSession } from 'next-auth/react';
 
@@ -8,6 +7,7 @@ import { useCartContext } from '@entities/cart/model/context/CartContext';
 
 import { useDropdown } from '@shared/hooks/useDropdown';
 import { useThemeMode } from '@shared/hooks/useThemeMode';
+import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 
 import { buildLoginCallbackPath } from '../navActions';
 
