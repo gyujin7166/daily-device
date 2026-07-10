@@ -1,18 +1,25 @@
-import type { PropsWithChildren } from 'react';
+import type { ReactNode } from 'react';
 
 import type { Metadata } from 'next';
 
 import localFont from 'next/font/local';
+import { notFound } from 'next/navigation';
+import Script from 'next/script';
+
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { setRequestLocale } from 'next-intl/server';
 
 import '@app/styles/globals.css';
 
 import Providers from '@app/providers';
 import { themeInitScript } from '@app/theme/themeInitScript';
 
+import { routing } from '../../src/i18n/routing';
+
 const pretendard = localFont({
   src: [
     {
-      path: '../src/shared/assets/fonts/PretendardVariable.woff2',
+      path: '../../src/shared/assets/fonts/PretendardVariable.woff2',
       weight: '45 920',
       style: 'normal',
     },
@@ -42,21 +49,44 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 };
 
-type RootLayoutProps = PropsWithChildren;
+type LocaleLayoutProps = {
+  children: ReactNode;
+  params: Promise<{
+    locale: string;
+  }>;
+};
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: LocaleLayoutProps) {
+  const { locale } = await params;
+
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
+  setRequestLocale(locale);
+
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
-        <script
+        <Script
           id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
       <body
         className={`${pretendard.className} bg-canvas text-ink dark:bg-dark-bg dark:text-surface`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        </Providers>
       </body>
     </html>
   );

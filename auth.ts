@@ -134,9 +134,9 @@ const authConfig = {
       }
 
       const cachedProvider = getCachedSessionProvider(sessionUserId);
-      let resolvedProvider = cachedProvider;
+      let resolvedProvider = cachedProvider ?? null;
 
-      if (typeof resolvedProvider === 'undefined') {
+      if (typeof cachedProvider === 'undefined') {
         const account = await prisma.account.findFirst({
           where: { userId: sessionUserId },
           orderBy: { id: 'desc' },

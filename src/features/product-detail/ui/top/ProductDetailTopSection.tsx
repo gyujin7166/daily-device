@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import type React from 'react';
 
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 import ProductDetail from '../detail/ProductDetail';
+import ProductDetailSkeleton from '../detail/ProductDetailSkeleton';
 
 import BreadCrumbSkeleton from './BreadCrumbSkeleton';
 import ProductCarouselSkeleton from './ProductCarouselSkeleton';
@@ -54,10 +55,12 @@ export default function ProductDetailTopSection({
                 : undefined
             }
           >
-            <ProductDetail
-              detail={detail}
-              onSelectedColorChange={setSelectedColorId}
-            />
+            <Suspense fallback={<ProductDetailSkeleton />}>
+              <ProductDetail
+                detail={detail}
+                onSelectedColorChange={setSelectedColorId}
+              />
+            </Suspense>
           </div>
         </div>
       </section>

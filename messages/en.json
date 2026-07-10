@@ -1,0 +1,1400 @@
+{
+  "Navigation": {
+    "menu": {
+      "products": "Products",
+      "new": "New",
+      "sale": "Sale",
+      "support": "Support",
+      "allProducts": "All products",
+      "expandProducts": "Expand product categories",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "closeMobileBackdrop": "Close mobile menu backdrop",
+      "homeAriaLabel": "Go to home"
+    },
+    "actions": {
+      "search": "Search products",
+      "cart": "Open cart",
+      "theme": "Toggle theme",
+      "account": "Open user menu"
+    },
+    "account": {
+      "myPage": "My page",
+      "signOut": "Sign out",
+      "loginRequired": "Login required",
+      "loginDescription": "Check your orders and delivery.",
+      "login": "Log in",
+      "profileImageAlt": "User profile image"
+    },
+    "localeSwitcher": {
+      "label": "Change language",
+      "title": "Language"
+    }
+  },
+  "RouteError": {
+    "title": "Could not load the page.",
+    "description": "A temporary problem occurred. Please try again."
+  },
+  "Common": {
+    "homeAriaLabel": "Go to home",
+    "queryError": {
+      "description": "Check your network connection and try again.",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "goToPage": "Go to page {page}"
+    },
+    "feedback": {
+      "notImplemented": "This feature is coming soon."
+    },
+    "productLines": {
+      "EVERYDAY_LINE": "Everyday Line",
+      "BUSINESS_SERIES": "Business Series",
+      "PERFORMANCE_SERIES": "Performance Series"
+    },
+    "sortDropdown": {
+      "prefix": "Sort",
+      "mobileSheetTitle": "Choose sort option",
+      "changeLabel": "Change {label}",
+      "optionsLabel": "{label} options",
+      "closeSheet": "Close sort sheet"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Log in",
+      "description": "Log in with your preferred social account.",
+      "demoLogin": "Demo login",
+      "demoSigningIn": "Signing in to demo...",
+      "demoHelper": "Use demo login to test the order and checkout flow right away.",
+      "agreementPrefix": "By continuing, you agree to the",
+      "agreementAnd": "and",
+      "agreementSuffix": ".",
+      "terms": "Terms",
+      "privacy": "Privacy Policy"
+    },
+    "social": {
+      "google": "Continue with Google",
+      "naver": "Continue with Naver",
+      "kakao": "Continue with Kakao"
+    },
+    "errors": {
+      "accountNotLinked": "This email is already linked to another login method. Try the login method you used first.",
+      "loginFailed": "Login failed. Please try again later.",
+      "demoLoginFailed": "Demo login failed. Please try again later."
+    },
+    "toast": {
+      "wishlistLoginRequired": "Log in to use wishlist."
+    }
+  },
+  "Search": {
+    "placeholder": "Search products",
+    "close": "Close search",
+    "submit": "Submit",
+    "checking": "Checking your search...",
+    "filters": {
+      "clearAll": "Clear all",
+      "visibleCount": "Showing {visible} / {total}",
+      "sortSheetTitle": "Sort by",
+      "sort": {
+        "relevance": "Relevance",
+        "nameAsc": "Name A-Z",
+        "nameDesc": "Name Z-A",
+        "priceAsc": "Price low to high",
+        "priceDesc": "Price high to low"
+      },
+      "categories": {
+        "mice": "Mice",
+        "keyboards": "Keyboards",
+        "tabletKeyboards": "Tablet Keyboards",
+        "headsets": "Headsets",
+        "earphones": "Earphones",
+        "microphones": "Microphones",
+        "webcams": "Webcams",
+        "cameras": "Cameras",
+        "lighting": "Lighting",
+        "streamingGear": "Streaming Gear",
+        "tabletAccessories": "Tablet Accessories",
+        "phoneAccessories": "Phone Accessories",
+        "stands": "Stands",
+        "cables": "Cables",
+        "bluetoothSpeakers": "Bluetooth® Speakers",
+        "computerSpeakers": "Computer Speakers",
+        "securityCameras": "Security Cameras",
+        "smartHome": "Smart Home"
+      }
+    },
+    "results": {
+      "fallbackQuery": "products",
+      "title": "Search results for '{query}'",
+      "total": "{count} total",
+      "description": "Browse all products related to {query}.",
+      "emptyTitle": "No results for '{query}'",
+      "emptyDescription": "Try searching with another term."
+    }
+  },
+  "Home": {
+    "hero": {
+      "viewAllProducts": "View all products"
+    },
+    "featured": {
+      "eyebrow": "Featured",
+      "title": "Products that reshape daily work",
+      "subtitle": "Choose Daily Device essentials for work, calls, and everything in between.",
+      "defaultCta": "Learn more"
+    },
+    "category": {
+      "eyebrow": "Categories",
+      "title": "Product lines for every setup",
+      "subtitle": "Browse product groups that match your environment and workflow.",
+      "viewCta": "View {label}",
+      "imageFallbackAlt": "Product image coming soon",
+      "previousSlide": "Previous category slide",
+      "nextSlide": "Next category slide",
+      "goToSlide": "Go to category slide {page}",
+      "notImplemented": "This feature is coming soon.",
+      "fallbackItems": {
+        "miceAndKeyboards": "Mice & Keyboards",
+        "streaming": "Streaming",
+        "ipadKeyboards": "iPad Keyboards",
+        "headsetsAndEarbuds": "Headsets & Earbuds",
+        "homeSecurity": "Home Security",
+        "presentationRemotes": "Presentation Remotes",
+        "speakers": "Speakers",
+        "videoConferencing": "Video Conferencing"
+      }
+    }
+  },
+  "ProductFilter": {
+    "sections": {
+      "price": "Price",
+      "color": "Color"
+    },
+    "summary": {
+      "resultCount": "{count} products"
+    },
+    "toggle": {
+      "default": "Filter",
+      "show": "Show filters",
+      "hide": "Hide filters"
+    },
+    "price": {
+      "range": "{min} - {max}",
+      "activeRange": "Price {min} - {max}",
+      "minLabel": "Minimum price",
+      "maxLabel": "Maximum price",
+      "min": "Min",
+      "max": "Max"
+    },
+    "sort": {
+      "sheetTitle": "Sort by",
+      "relevance": "Recommended",
+      "nameAsc": "Name A-Z",
+      "nameDesc": "Name Z-A",
+      "priceAsc": "Price low to high",
+      "priceDesc": "Price high to low"
+    },
+    "actions": {
+      "clearAll": "Clear all",
+      "addToCart": "Add to cart"
+    }
+  },
+  "ProductDetail": {
+    "accordion": {
+      "sections": {
+        "details": "Specs and details",
+        "compatibility": "Compatibility",
+        "included": "In the box",
+        "support": "Support",
+        "fallback": "Details"
+      }
+    },
+    "support": {
+      "description": "Find all documents you need to use this product.",
+      "manual": "Product manual",
+      "faq": "Frequently asked questions",
+      "register": "Register product"
+    },
+    "purchase": {
+      "productLineFallback": "Product line",
+      "wishlistAdd": "Add to wishlist",
+      "wishlistRemove": "Remove from wishlist",
+      "color": "Color",
+      "selectColor": "Select {color} color",
+      "quantity": "Quantity",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity",
+      "addToCart": "Add to cart",
+      "buyNow": "Buy now"
+    },
+    "rating": {
+      "ariaLabel": "Rating {rating}, {count} reviews",
+      "reviewCount": "{count} reviews"
+    },
+    "media": {
+      "fallbackAlt": "Product image coming soon",
+      "imageAlt": "Product image {index}",
+      "thumbnailAlt": "Product thumbnail {index}"
+    },
+    "errors": {
+      "ratingLoadFailed": "Could not load rating information."
+    }
+  },
+  "Products": {
+    "allHero": {
+      "all": {
+        "eyebrow": "Products",
+        "title": "All products",
+        "description": "Browse Daily Device essentials from mice, keyboards, and headsets to accessories in one place."
+      },
+      "discounts": {
+        "eyebrow": "Special Offers",
+        "title": "Special offers",
+        "description": "Find discounted Daily Device products and get the gear you need for less."
+      }
+    },
+    "list": {
+      "emptyTitle": "No products to display.",
+      "emptyDescription": "Please try again later.",
+      "range": "Showing {shown} of {total}",
+      "loadMore": "Load more",
+      "backToTop": "Back to top",
+      "loading": "Loading product list"
+    },
+    "category": {
+      "emptyFilteredTitle": "No products match the selected filters.",
+      "emptyFilteredDescription": "Choose different filters or reset them.",
+      "emptyCategoryTitle": "No products in {category}.",
+      "emptyCategoryDescription": "Please try again later.",
+      "resetFilters": "Reset filters",
+      "filterDrawer": {
+        "title": "Filters",
+        "close": "Close filters",
+        "reset": "Reset",
+        "apply": "Apply"
+      }
+    },
+    "detail": {
+      "recommendedLoadFailed": "Could not load recommended products.",
+      "loading": {
+        "reviews": "Reviews",
+        "starPoint": "{star} stars"
+      },
+      "carousel": {
+        "recommended": "Recommended products",
+        "recentlyViewed": "Recently viewed",
+        "forYou": "You may also like",
+        "previous": "Previous products",
+        "next": "Next products",
+        "goToPage": "Go to page {page}"
+      }
+    }
+  },
+  "Checkout": {
+    "page": {
+      "title": "Checkout",
+      "demoNotice": {
+        "title": "Portfolio demo notice",
+        "description": "This checkout flow is for feature demonstration. Test payment and demo payment do not create real charges or product delivery."
+      }
+    },
+    "routeError": {
+      "title": "Could not load the page.",
+      "description": "A temporary problem occurred. Please try again."
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "descriptionLine1": "There are no products in your cart yet.",
+      "descriptionLine2": "Find something you like.",
+      "goHome": "Back to home"
+    },
+    "sections": {
+      "shipping": "Shipping information",
+      "payment": "Payment method",
+      "orderItems": "Order items ({count})",
+      "summary": "Order summary"
+    },
+    "shipping": {
+      "selectOrEnter": "Select or enter address",
+      "summary": {
+        "empty": "No shipping address selected.",
+        "address": "Address",
+        "recipient": "Recipient",
+        "phone": "Phone"
+      },
+      "savedAddress": {
+        "empty": "No saved addresses.",
+        "selectAria": "Select {name}'s shipping address",
+        "defaultBadge": "Default address",
+        "recentBadge": "Recent address",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "modal": {
+        "title": "Select address",
+        "close": "Close address modal",
+        "addNew": "Add new address"
+      },
+      "form": {
+        "editTitle": "Edit address",
+        "createTitle": "Add new address"
+      },
+      "toast": {
+        "deleteSuccess": "Address deleted.",
+        "deleteFailed": "Could not delete address.",
+        "invalidAddress": "Check your shipping information.",
+        "saveSuccess": "Address saved.",
+        "saveFailed": "Could not save address."
+      }
+    },
+    "payment": {
+      "description": "Choose test payment or demo payment. No real charges or product delivery will occur.",
+      "actions": {
+        "cartSyncing": "Syncing cart",
+        "requestingPayment": "Requesting payment...",
+        "processing": "Processing..."
+      },
+      "validation": {
+        "shippingRequired": "Enter shipping information.",
+        "shippingInvalid": "Check your shipping information.",
+        "emptyCart": "Your cart is empty."
+      },
+      "errors": {
+        "createOrderFailed": "Could not create the order.",
+        "paymentRequestFailed": "An error occurred while requesting payment.",
+        "demoOrderFailed": "An error occurred while processing the demo order.",
+        "tossSdkLoadFailed": "Could not load TossPayments SDK."
+      },
+      "toast": {
+        "demoCompleted": "Demo order completed."
+      },
+      "orderName": {
+        "multiple": "{primaryName} and {count} more"
+      },
+      "methods": {
+        "test": {
+          "title": "Test payment",
+          "description": "Opens the Toss test payment window. No real charge is made."
+        },
+        "demo": {
+          "title": "Demo payment",
+          "description": "Completes the order without payment approval."
+        }
+      }
+    },
+    "summary": {
+      "productAmount": "Products",
+      "shippingFee": "Shipping",
+      "freeShipping": "Free shipping",
+      "total": "Total",
+      "currency": "₩{amount}",
+      "cartChanged": "Cart information has changed."
+    },
+    "orderItems": {
+      "quantity": "Qty: {count}",
+      "currency": "₩{amount}"
+    },
+    "complete": {
+      "title": "Order complete",
+      "orderNumber": "Order no.",
+      "demoNotice": "This is a portfolio demo order. No real charges or product delivery will occur.",
+      "total": "Total paid",
+      "currency": "₩{amount}",
+      "quantity": "{count}",
+      "viewOrderDetail": "View order details",
+      "continueShopping": "Continue shopping",
+      "empty": {
+        "description": "Order information was not found.",
+        "goToOrders": "Go to orders"
+      }
+    }
+  },
+  "Cart": {
+    "title": "Cart",
+    "close": "Close cart",
+    "subtotal": "Subtotal",
+    "shippingFee": "Shipping",
+    "free": "Free",
+    "total": "Total",
+    "currency": "₩{amount}",
+    "syncing": "Syncing cart",
+    "checkout": "Checkout",
+    "deleteItem": "Delete item",
+    "color": "Color:",
+    "decreaseQuantity": "Decrease quantity",
+    "quantity": "Quantity",
+    "increaseQuantity": "Increase quantity",
+    "updateFailed": "Could not update the cart. Please try again later."
+  },
+  "Payment": {
+    "tossSuccess": {
+      "confirming": {
+        "title": "Confirming payment",
+        "description": "Syncing payment and order information. Please wait."
+      },
+      "done": {
+        "title": "Payment completed",
+        "description": "Redirecting to your orders."
+      },
+      "error": {
+        "title": "Could not confirm payment",
+        "description": "A problem occurred while processing the payment.",
+        "invalidResponse": "Invalid payment response.",
+        "processFailed": "An error occurred while processing the payment."
+      },
+      "backToCheckout": "Back to checkout"
+    },
+    "tossFail": {
+      "title": "Payment failed",
+      "description": "A problem occurred while processing the payment. Please try again.",
+      "loading": "Loading payment error details.",
+      "errorCode": "Error code:",
+      "errorMessage": "Error message:",
+      "backToCheckout": "Back to checkout"
+    }
+  },
+  "MyOrders": {
+    "meta": {
+      "reviewWrite": {
+        "label": "WRITE REVIEW",
+        "title": "Write a review",
+        "description": "Delivered items that are still waiting for your review."
+      },
+      "reviewWritten": {
+        "label": "REVIEWS",
+        "title": "Your reviews",
+        "description": "Edit reviews you have already written."
+      },
+      "all": {
+        "label": "ORDERS",
+        "title": "Orders",
+        "description": "Review your recent orders."
+      }
+    },
+    "status": {
+      "PENDING": "Payment pending",
+      "CONFIRMED": "Paid",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "authRequired": "Log in to view your orders.",
+    "loadFailed": "Could not load {title}.",
+    "loading": "Loading orders",
+    "confirmSuccess": "Delivery has been confirmed.",
+    "confirmFailed": "Could not confirm delivery.",
+    "labels": {
+      "orderNumber": "Order no.",
+      "detail": "View details",
+      "orderDate": "Order date",
+      "total": "Total",
+      "recipient": "Ship to",
+      "product": "Product",
+      "color": "Color",
+      "quantity": "Qty",
+      "amount": "Amount",
+      "noOption": "No option",
+      "confirmDelivery": "Confirm delivery",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
+    },
+    "actions": {
+      "hiddenReview": "Review hidden",
+      "writeReview": "Write review",
+      "editReview": "Edit review",
+      "trackDelivery": "Track delivery"
+    },
+    "empty": {
+      "reviewWrite": {
+        "title": "No reviews to write yet",
+        "description": "Delivered products will appear here when they are ready for review.",
+        "action": "View purchases"
+      },
+      "reviewWritten": {
+        "title": "No written reviews yet",
+        "description": "Once you share your experience, you can find and edit it here.",
+        "action": "View recommendations"
+      },
+      "all": {
+        "title": "No orders yet",
+        "description": "Find something you like and place your first order.",
+        "action": "View today's deals"
+      }
+    },
+    "format": {
+      "currency": "₩{amount}",
+      "quantity": "{count}"
+    }
+  },
+  "MyPage": {
+    "menu": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "wishlist": "Wishlist",
+      "address": "Addresses",
+      "writeReview": "Write review",
+      "reviews": "Reviews",
+      "selectMenu": "Select menu",
+      "closeMenu": "Close my page menu",
+      "close": "Close",
+      "openActiveMenu": "Open {label} menu",
+      "menu": "Menu"
+    },
+    "fallback": {
+      "reviews": {
+        "title": "Reviews",
+        "description": "Review the product reviews you have written."
+      },
+      "writeReview": {
+        "title": "Write a review",
+        "description": "Choose an order to write a product review."
+      },
+      "orders": {
+        "title": "Orders",
+        "description": "Review your order history."
+      }
+    },
+    "shell": {
+      "loadingTab": "Loading my page tab"
+    }
+  },
+  "MyOverview": {
+    "page": {
+      "title": "Overview",
+      "description": "{name}, review your recent activity and order status.",
+      "authRequired": "Log in to view your overview.",
+      "loadFailed": "Could not load overview information."
+    },
+    "account": {
+      "title": "Account",
+      "profileImageAlt": "{name} profile image",
+      "demoAccount": "Demo account",
+      "kakaoEmailMissing": "Kakao login account (email not provided)",
+      "emailMissing": "No email information"
+    },
+    "recentOrder": {
+      "title": "Recent order",
+      "viewOrders": "View orders",
+      "orderNumber": "Order no.",
+      "orderDate": "Order date: {date}",
+      "product": "Product: {name}",
+      "extraItems": " and {count} more",
+      "total": "Total: ₩{amount}",
+      "empty": "No recent orders."
+    },
+    "defaultAddress": {
+      "title": "Default address",
+      "manage": "Manage addresses",
+      "empty": "No default address is set."
+    },
+    "lastLogin": {
+      "title": "Recent login",
+      "firstLogin": "This is your first login record."
+    }
+  },
+  "MyWishlist": {
+    "page": {
+      "title": "Wishlist",
+      "description": "{count} products in your wishlist.",
+      "clearAll": "Clear all",
+      "authRequired": "Log in to view your wishlist.",
+      "loadFailed": "Could not load wishlist."
+    },
+    "empty": {
+      "title": "No wishlist items",
+      "description": "Save products you like and quickly find them later.",
+      "action": "View recommended products"
+    },
+    "recommended": {
+      "title": "Products to wishlist"
+    },
+    "pagination": {
+      "label": "Wishlist pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "goToPage": "Go to page {page}"
+    }
+  },
+  "MyOrderDetail": {
+    "header": {
+      "eyebrow": "ORDER",
+      "title": "Order details",
+      "cancel": "Cancel order",
+      "delete": "Delete order",
+      "backToList": "Orders"
+    },
+    "status": {
+      "PENDING": "Payment pending",
+      "CONFIRMED": "Paid",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "labels": {
+      "orderNumber": "Order no.",
+      "shippingInfo": "Shipping information",
+      "recipient": "Recipient:",
+      "phone": "Phone:",
+      "address": "Address:",
+      "orderItems": "Ordered items",
+      "color": "Color:",
+      "price": "Price:",
+      "quantity": "Quantity:",
+      "totalPrice": "Total order amount",
+      "deliveryDate": "Delivery date:"
+    },
+    "state": {
+      "emptyTitle": "No orders yet",
+      "emptyDescription": "You have not placed any orders yet.",
+      "startShopping": "Start shopping",
+      "notFound": "Could not find this order.",
+      "backToOrders": "Back to orders",
+      "noShipping": "No saved shipping information."
+    },
+    "toast": {
+      "deleteOnlyDelivered": "Only delivered orders can be deleted.",
+      "deleteConfirm": "Delete this order from your list?",
+      "deleteSuccess": "Order has been deleted.",
+      "deleteFailed": "Could not delete the order.",
+      "cancelOnlyConfirmed": "Only paid orders can be cancelled.",
+      "cancelConfirm": "Cancel this order?",
+      "cancelSuccess": "Order has been cancelled.",
+      "cancelFailed": "Could not cancel the order."
+    },
+    "format": {
+      "currency": "₩{amount}",
+      "quantity": "{count}"
+    }
+  },
+  "ReviewWrite": {
+    "page": {
+      "orderLoadFailed": "Could not load order information.",
+      "orderItemNotFound": "Could not find this ordered product.",
+      "hiddenTitle": "Review hidden",
+      "editTitle": "Edit review",
+      "writeTitle": "Write a review",
+      "hiddenDescription": "This review was hidden by admin review and cannot be edited.",
+      "description": "Write a review for order <span>{orderNumber}</span>.",
+      "hiddenNotice": "Hidden reviews are not shown on the product detail page and cannot be edited or written again. Contact support if you need help."
+    },
+    "summary": {
+      "amount": "Amount",
+      "unitPrice": "{price} each",
+      "color": "Color",
+      "quantity": "Quantity",
+      "deliveryDate": "Delivery date"
+    },
+    "form": {
+      "rating": "Rating",
+      "selectRating": "Select {star} stars",
+      "title": "Title",
+      "titlePlaceholder": "Summarize your experience in a few words",
+      "content": "Content",
+      "contentPlaceholder": "What did you like? What could be better?",
+      "optional": "Optional",
+      "characterCount": "{count} / {max}",
+      "imageUpload": "Add photos",
+      "existingImageAlt": "Existing image {index}",
+      "newImageAlt": "New image {index}",
+      "removeImage": "Remove image",
+      "uploading": "Uploading",
+      "addImage": "Add image",
+      "uploadGuide": "You can upload up to {maxCount} images, {maxSize}MB per file.",
+      "cancel": "Cancel",
+      "uploadingImage": "Uploading image",
+      "updating": "Updating",
+      "submitting": "Submitting",
+      "editSubmit": "Update review",
+      "writeSubmit": "Submit review"
+    },
+    "validation": {
+      "titleRequired": "Enter a title.",
+      "titleMin": "Enter at least 2 characters.",
+      "contentRequired": "Enter review content.",
+      "contentMin": "Enter at least 10 characters."
+    },
+    "toast": {
+      "loginRequired": "Login is required.",
+      "updated": "Review has been updated.",
+      "created": "Review has been submitted.",
+      "uploadFailed": "Image upload failed: {message}",
+      "updateFailed": "Could not update the review. Please try again.",
+      "createFailed": "Could not submit the review. Please try again.",
+      "leaveConfirm": "Your draft will be lost. Leave this page?",
+      "hiddenReviewError": "Reviews hidden by admin cannot be edited."
+    },
+    "upload": {
+      "selectFailed": "An error occurred while selecting the image.",
+      "uploadFailed": "An error occurred while uploading the image.",
+      "uploadFailedWithMessage": "Image upload failed: {message}",
+      "uploadErrors": {
+        "cloudNameMissing": "Cloudinary cloud name is not configured.",
+        "invalidImageType": "Only jpg, png, webp, and heic images can be uploaded.",
+        "imageTooLarge": "Images must be {maxSize}MB or smaller.",
+        "signatureRequestFailed": "Could not request an image upload signature.",
+        "signatureResponseInvalid": "Image upload signature response is invalid.",
+        "uploadRequestFailed": "Cloudinary image upload request failed.",
+        "uploadResponseInvalid": "Uploaded image response is invalid.",
+        "productCategoryNotFound": "Product category not found.",
+        "productColorNotFound": "Product color not found.",
+        "heroTypeNotFound": "Hero type not found.",
+        "heroTypeUnsupported": "This Hero type is not supported.",
+        "reviewOrderItemNotFound": "Order item for this review was not found.",
+        "cloudinaryConfigMissing": "Cloudinary API configuration is missing.",
+        "cloudinaryUploadPresetMissing": "Cloudinary upload preset is not configured."
+      }
+    },
+    "format": {
+      "currency": "₩{amount}",
+      "quantity": "{count}"
+    }
+  },
+  "ProductReview": {
+    "summary": {
+      "title": "Reviews",
+      "scoreBase": "Based on {count} reviews",
+      "starPoint": "{star} stars"
+    },
+    "sort": {
+      "latest": "Latest",
+      "oldest": "Oldest",
+      "ratingDesc": "Highest rated",
+      "ratingAsc": "Lowest rated"
+    },
+    "filters": {
+      "all": "All reviews",
+      "withImages": "With images",
+      "rangeAll": "Showing {start}-{end} of {total}",
+      "rangeWithImages": "Showing {start}-{end} of {total} image reviews"
+    },
+    "empty": {
+      "noReviews": "No reviews to display.",
+      "noImageReviews": "No reviews with images.",
+      "productTitle": "No reviews yet.",
+      "productDescription": "Have you used this product? Share an honest review."
+    },
+    "feedback": {
+      "loginRequired": "Log in to mark reviews as helpful.",
+      "question": "Was this review helpful?",
+      "ariaLabel": "{count} helpful votes",
+      "label": "Helpful",
+      "active": "Marked helpful",
+      "inactive": "Helpful",
+      "countText": "{count} people found this helpful"
+    },
+    "errors": {
+      "loadFailed": "Could not load reviews"
+    },
+    "gallery": {
+      "previewLabel": "Photo reviews",
+      "moreAria": "View more photo reviews, {count} more",
+      "detailAria": "View photo review {index}",
+      "imageAlt": "Product review gallery image",
+      "reviewImageAlt": "Product review image",
+      "more": "More",
+      "noImagesCurrentPage": "Review images exist, but none are shown on this page.",
+      "noImages": "No photo reviews yet.",
+      "modalLabel": "Photo review gallery",
+      "title": "Photo reviews",
+      "close": "Close gallery",
+      "empty": "No photo reviews to display.",
+      "loadingMore": "Loading...",
+      "totalImages": "{count} photos",
+      "backToGallery": "Back to photo reviews",
+      "backToGalleryLabel": "Photo reviews",
+      "closeModal": "Close photo review modal",
+      "previousReview": "Previous review",
+      "nextReview": "Next review",
+      "selectedImageAlt": "Selected photo review {index}",
+      "selectImage": "Select photo review image {index}",
+      "thumbnailAlt": "Thumbnail {index}",
+      "anonymous": "Anonymous",
+      "noTitle": "This review has no title.",
+      "noContent": "No review content.",
+      "collapse": "Collapse",
+      "expand": "More",
+      "createdAt": "Reviewed on {date}"
+    }
+  },
+  "MyAddress": {
+    "page": {
+      "label": "ADDRESSES",
+      "title": "Addresses",
+      "description": "{count} saved addresses",
+      "add": "Add address",
+      "authRequired": "Log in to view your addresses.",
+      "loadFailed": "Could not load addresses."
+    },
+    "card": {
+      "updatedUnknown": "No recent update information",
+      "updatedAt": "Updated: {date}",
+      "defaultBadge": "Default",
+      "edit": "Edit address",
+      "delete": "Delete address",
+      "address": "Address",
+      "phone": "Phone",
+      "setting": "Setting...",
+      "setDefault": "Set as default",
+      "defaultAddress": "Default address"
+    },
+    "editModal": {
+      "ariaLabel": "Edit address",
+      "eyebrow": "Edit Address",
+      "title": "Edit address",
+      "recipient": "Recipient",
+      "recipientPlaceholder": "Recipient name",
+      "phone": "Phone",
+      "address": "Address",
+      "addressPlaceholder": "Base address",
+      "addressDetail": "Address detail",
+      "addressDetailPlaceholder": "Address detail (optional)",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "empty": {
+      "title": "Add an address",
+      "description": "Save a default address to make your next order faster.",
+      "action": "Add address"
+    },
+    "pagination": {
+      "label": "Address pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "goToPage": "Go to page {page}"
+    },
+    "toast": {
+      "defaultSuccess": "Default address has been set.",
+      "defaultFailed": "Could not set the default address.",
+      "deleteConfirm": "Delete this address?",
+      "deleteSuccess": "Address has been deleted.",
+      "deleteFailed": "Could not delete the address.",
+      "required": "Enter recipient, phone, and address.",
+      "invalidPhone": "Phone number must start with 010 and contain 11 digits.",
+      "editSuccess": "Address has been updated.",
+      "editFailed": "Could not update the address.",
+      "createInvalid": "Check the address information.",
+      "createSuccess": "Address has been saved.",
+      "createFailed": "Could not save the address."
+    },
+    "createModal": {
+      "title": "Add new address",
+      "description": "Enter shipping information.",
+      "close": "Close address modal",
+      "backToAddressInput": "Back to address input",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save address",
+      "saveAsDefault": "Set as default address",
+      "saveAsDefaultDescription": "Use this address as your default shipping address.",
+      "fields": {
+        "name": "Recipient name",
+        "phone_number": "Phone",
+        "address_1": "Address",
+        "address_2": "Address detail"
+      },
+      "placeholders": {
+        "name": "e.g. Jane Doe",
+        "phone_number": "01012345678",
+        "address_1": "Search road name or lot number address",
+        "address_2": "Enter unit, building, or other details"
+      },
+      "defaultPlaceholders": {
+        "name": "Enter recipient name",
+        "phone_number": "Enter numbers without hyphens",
+        "address_1": "Search address",
+        "address_2": "Enter address details"
+      },
+      "helper": {
+        "phone_number": "Used only for delivery."
+      },
+      "errors": {
+        "name": "Use Korean/English letters and spaces only.",
+        "phone_number": "Enter a valid mobile number. (e.g. 01012345678)",
+        "address_1": "Enter an address.",
+        "generic": "{label} format is invalid."
+      }
+    }
+  },
+  "Admin": {
+    "common": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "header": {
+      "eyebrow": "Admin",
+      "title": "Content management",
+      "toggleTheme": "Toggle theme",
+      "refresh": "Refresh"
+    },
+    "tabs": {
+      "heroes": "Hero",
+      "home": "Home",
+      "products": "Products",
+      "reviews": "Reviews"
+    },
+    "feedback": {
+      "readOnly": "Standard accounts can view admin data, but creating, editing, and deleting are restricted.",
+      "readOnlyToast": "Standard accounts cannot modify admin data."
+    },
+    "apiErrors": {
+      "loginRequired": "Admin login is required.",
+      "writeForbidden": "You do not have admin permission.",
+      "uniqueConstraint": "This unique value is already in use.",
+      "relationConstraint": "This item cannot be deleted because related data exists.",
+      "homeSectionUpdateFailed": "Could not update the home section.",
+      "homeSectionNotFound": "Home section not found.",
+      "homeCardCarouselFieldsRequired": "Cards shown in the Categories carousel require a carousel page and card position.",
+      "homeCardUnsupportedLayout": "This Categories carousel layout is not supported.",
+      "homeCardPresetConflict": "Only one layout preset can be used on the same carousel page.",
+      "homeCardAreaConflict": "This card position is already used on the same carousel page.",
+      "homeCardLayoutLimitExceeded": "The selected layout preset has reached its display limit.",
+      "homeCardCreateFailed": "Could not create the home section item.",
+      "homeCardNotFound": "Home card not found.",
+      "homeCardUpdateFailed": "Could not update the home section item.",
+      "heroTypeNotFound": "Hero type not found.",
+      "heroTypeUnsupported": "This Hero type is not supported.",
+      "heroProductCategoryRequired": "Product Hero requires a target category.",
+      "heroTargetCategoryNotFound": "Target category not found.",
+      "heroCreateFailed": "Could not create the Hero.",
+      "heroUpdateFailed": "Could not update the Hero.",
+      "heroDeleteFailed": "Could not delete the Hero.",
+      "productImageColorRequired": "Product images with colors require a linked color.",
+      "productImageCommonOnly": "Products without colors can only use common images.",
+      "productImageColorNotFound": "Product color linked to the image was not found.",
+      "productColorNotFound": "One or more selected colors do not exist.",
+      "productColorDeleteBlocked": "Product colors with order history cannot be removed.",
+      "productNotFound": "Product not found.",
+      "productCreateFailed": "Could not create the product.",
+      "productUpdateFailed": "Could not update the product.",
+      "productDeleteBlocked": "Products linked to orders, carts, or reviews cannot be deleted.",
+      "productDeleteFailed": "Could not delete the product."
+    },
+    "summary": {
+      "scope": "Section",
+      "heroesScope": "HERO",
+      "heroTotal": "Total heroes",
+      "productHero": "Product heroes",
+      "homeScope": "Home",
+      "homeSections": "Home sections",
+      "homeCards": "Home cards",
+      "productsScope": "Products",
+      "productTotal": "Total products",
+      "categories": "Categories",
+      "reviewsScope": "Reviews",
+      "visibleReviews": "Visible reviews",
+      "totalReviews": "Total reviews"
+    }
+  },
+  "AdminProduct": {
+    "feedback": {
+      "saveCompleted": "Product {action} completed: ID {id} / Name: {name}",
+      "deleteCompleted": "Product deleted: ID {id} / Name: {name}",
+      "createAction": "created",
+      "editAction": "updated",
+      "saveFailed": "Could not save product",
+      "deleteConfirm": "Delete this product?",
+      "deleteFailed": "Could not delete product",
+      "loading": "Loading product data."
+    },
+    "list": {
+      "title": "Products",
+      "searchPlaceholder": "Product name, slug, search keyword",
+      "allCategories": "All categories",
+      "product": "Product",
+      "imageUrl": "Image URL",
+      "category": "Category",
+      "color": "Color",
+      "price": "Price",
+      "manage": "Manage",
+      "imageCount": "{count} images",
+      "mainImage": "Main",
+      "defaultColorSuffix": " · Default",
+      "discount": "{rate}% off"
+    },
+    "form": {
+      "editTitle": "Edit product",
+      "createTitle": "Add product",
+      "new": "New",
+      "nameEn": "English name",
+      "slug": "Slug",
+      "nameKo": "Korean name",
+      "searchKeyword": "Search keyword",
+      "price": "Price",
+      "discountRate": "Discount rate (%)",
+      "category": "Category",
+      "productLine": "Product line",
+      "none": "None",
+      "description": "Description",
+      "detailedDescription": "Detailed description",
+      "note": "Note",
+      "save": "Save"
+    },
+    "colors": {
+      "title": "Product colors",
+      "empty": "No colors registered.",
+      "defaultColor": "Default color"
+    },
+    "images": {
+      "categoryRequired": "Select a product category first.",
+      "slugRequired": "Enter a product slug first.",
+      "colorRequired": "Select a linked color before uploading images for products with colors.",
+      "uploadFailed": "Could not upload product image.",
+      "uploadErrors": {
+        "cloudNameMissing": "Cloudinary cloud name is not configured.",
+        "invalidImageType": "Only jpg, png, webp, and heic images can be uploaded.",
+        "imageTooLarge": "Images must be {maxSize}MB or smaller.",
+        "signatureRequestFailed": "Could not request an image upload signature.",
+        "signatureResponseInvalid": "Image upload signature response is invalid.",
+        "uploadRequestFailed": "Cloudinary image upload request failed.",
+        "uploadResponseInvalid": "Uploaded image response is invalid.",
+        "productCategoryNotFound": "Product category not found.",
+        "productColorNotFound": "Product color not found.",
+        "heroTypeNotFound": "Hero type not found.",
+        "heroTypeUnsupported": "This Hero type is not supported.",
+        "reviewOrderItemNotFound": "Order item for this review was not found.",
+        "cloudinaryConfigMissing": "Cloudinary API configuration is missing.",
+        "cloudinaryUploadPresetMissing": "Cloudinary upload preset is not configured."
+      },
+      "title": "Product images",
+      "add": "Add image",
+      "guide": "Products with colors require a linked color for each image. Products without colors use common images only.",
+      "empty": "No product images registered.",
+      "urlLabel": "Image URL {index}",
+      "uploading": "Uploading",
+      "upload": "Upload file",
+      "linkedColor": "Linked color",
+      "commonImage": "Common image",
+      "selectColor": "Select color",
+      "order": "Order",
+      "main": "Main image",
+      "delete": "Delete"
+    }
+  },
+  "AdminHero": {
+    "feedback": {
+      "saveCompleted": "Hero {action} completed: ID {id} / Name: {name}",
+      "deleteCompleted": "Hero deleted: ID {id} / Name: {name}",
+      "createAction": "created",
+      "editAction": "updated",
+      "saveFailed": "Could not save Hero",
+      "deleteConfirm": "Delete this Hero?",
+      "deleteFailed": "Could not delete Hero",
+      "loading": "Loading Hero data."
+    },
+    "types": {
+      "main": "Main Hero",
+      "product": "Product category Hero",
+      "product-all": "All products Hero",
+      "product-discounts": "Discount products Hero"
+    },
+    "list": {
+      "title": "Heroes",
+      "type": "Type",
+      "mainImage": "Main image",
+      "name": "Name",
+      "image": "Image",
+      "manage": "Manage"
+    },
+    "form": {
+      "editTitle": "Edit Hero",
+      "createTitle": "Add Hero",
+      "new": "New",
+      "nameKo": "Korean name",
+      "type": "Type",
+      "disabledSuffix": " (Unavailable)",
+      "pathPreview": "Path: {path}",
+      "targetCategory": "Target category",
+      "selectCategory": "Select category",
+      "nameEn": "English name",
+      "imageUrl": "Image URL",
+      "typeRequired": "Select a Hero type first.",
+      "uploadFailed": "Could not upload Hero image.",
+      "uploadErrors": {
+        "cloudNameMissing": "Cloudinary cloud name is not configured.",
+        "invalidImageType": "Only jpg, png, webp, and heic images can be uploaded.",
+        "imageTooLarge": "Images must be {maxSize}MB or smaller.",
+        "signatureRequestFailed": "Could not request an image upload signature.",
+        "signatureResponseInvalid": "Image upload signature response is invalid.",
+        "uploadRequestFailed": "Cloudinary image upload request failed.",
+        "uploadResponseInvalid": "Uploaded image response is invalid.",
+        "productCategoryNotFound": "Product category not found.",
+        "productColorNotFound": "Product color not found.",
+        "heroTypeNotFound": "Hero type not found.",
+        "heroTypeUnsupported": "This Hero type is not supported.",
+        "reviewOrderItemNotFound": "Order item for this review was not found.",
+        "cloudinaryConfigMissing": "Cloudinary API configuration is missing.",
+        "cloudinaryUploadPresetMissing": "Cloudinary upload preset is not configured."
+      },
+      "uploading": "Uploading",
+      "upload": "Upload Hero image",
+      "imageWidth": "Image width",
+      "imageHeight": "Image height",
+      "position": "Position",
+      "defaultImage": "Use as default Hero image",
+      "textTone": "Text color",
+      "navTone": "Navbar color",
+      "overlay": "Overlay",
+      "description": "Description",
+      "detailedDescription": "Detailed description",
+      "save": "Save"
+    },
+    "options": {
+      "position": {
+        "start": "Left",
+        "center": "Center",
+        "end": "Right"
+      },
+      "tone": {
+        "light": "Light text",
+        "dark": "Dark text"
+      },
+      "overlay": {
+        "none": "Disabled",
+        "dark": "Dark",
+        "light": "Light"
+      }
+    }
+  },
+  "AdminHome": {
+    "feedback": {
+      "sectionSaved": "Home section updated: {title}",
+      "sectionSaveFailed": "Could not update home section",
+      "cardSaved": "Home card {action} completed: {title}",
+      "createAction": "created",
+      "editAction": "updated",
+      "cardSaveFailed": "Could not save home card",
+      "loading": "Loading home section data.",
+      "emptySections": "No home sections registered."
+    },
+    "layout": {
+      "disabled": "Disabled",
+      "default": "Default",
+      "threeColumn": "Three-column equal",
+      "leftCard": "Left card",
+      "centerCard": "Center card",
+      "rightCard": "Right card",
+      "fitCover": "Fill area",
+      "fitContain": "Show full image",
+      "labelTop": "Top",
+      "labelBottom": "Bottom"
+    },
+    "sectionList": {
+      "title": "Home sections",
+      "cardCount": "{key} / {count} cards"
+    },
+    "sectionForm": {
+      "title": "Edit section",
+      "refresh": "Refresh",
+      "eyebrow": "Section label",
+      "sectionTitle": "Title",
+      "subtitle": "Subtitle",
+      "displayOrder": "Display order",
+      "visible": "Show on home",
+      "save": "Save section"
+    },
+    "cardList": {
+      "title": "Home cards",
+      "add": "Add card",
+      "order": "Order",
+      "cardTitle": "Title",
+      "target": "Target",
+      "image": "Image",
+      "manage": "Manage",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "edit": "Edit"
+    },
+    "cardForm": {
+      "editTitle": "Edit card",
+      "createTitle": "Add card",
+      "refresh": "Refresh",
+      "label": "Label",
+      "displayOrder": "Display order",
+      "title": "Title",
+      "description": "Description",
+      "imageUrl": "Image URL",
+      "imageAlt": "Image alt text",
+      "layoutOptions": "Layout options",
+      "carouselPage": "Carousel page number",
+      "layoutPreset": "Layout preset",
+      "cardPosition": "Card position",
+      "disabledHelper": "Disabled keeps the data saved but does not show it in the categories carousel.",
+      "usageHelper": "Carousel page {page} / {preset}: {used}/{limit} used",
+      "presetConflict": "Only one layout preset can be used on the same carousel page.",
+      "areaUsed": "This card position is already used. Choose another position.",
+      "layoutFull": "No more cards can be added to {preset}.",
+      "imageFit": "Image fit",
+      "labelPosition": "Label position",
+      "visible": "Show on home",
+      "save": "Save card",
+      "add": "Add card"
+    },
+    "target": {
+      "title": "Target",
+      "category": "Category",
+      "product": "Product",
+      "custom": "Custom URL",
+      "none": "None",
+      "selectCategory": "Select category",
+      "selectProduct": "Select product",
+      "customUrl": "Custom URL",
+      "pathPreview": "Applied path: {path}"
+    }
+  },
+  "AdminReview": {
+    "feedback": {
+      "statusChanged": "Review {action} completed: ID {id} / Product: {productName}",
+      "hideAction": "hidden",
+      "restoreAction": "restored",
+      "statusChangeFailed": "Could not change review status",
+      "loading": "Loading review data."
+    },
+    "list": {
+      "title": "Reviews",
+      "searchPlaceholder": "Product, author, title, content",
+      "allStatus": "All status",
+      "visibleFilter": "Visible",
+      "hiddenFilter": "Hidden",
+      "status": "Status",
+      "product": "Product",
+      "rating": "Rating",
+      "content": "Content",
+      "imageUrl": "Image URL",
+      "author": "Author",
+      "manage": "Manage",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "restore": "Restore"
+    }
+  },
+  "Policy": {
+    "terms": {
+      "title": "Terms of Use",
+      "description": "Basic conditions for using the Daily Device shopping demo.",
+      "updatedAt": "Effective date: 2026.01.01",
+      "sections": [
+        {
+          "title": "Portfolio Demo Notice",
+          "items": [
+            "This service is a demo built for portfolio and feature demonstration purposes and does not provide real e-commerce transactions.",
+            "Product purchases, test payments, demo payments, orders, and shipping features are provided only to verify screens and flows. No real charges or product delivery will occur.",
+            "Do not enter real payment information, real shipping addresses, or sensitive personal information when using this service."
+          ]
+        },
+        {
+          "title": "Service Use",
+          "items": [
+            "Members may use shopping features such as product browsing, cart, order, and checkout flows.",
+            "Some features may be changed or temporarily suspended when needed to keep the demo stable."
+          ]
+        },
+        {
+          "title": "Member Responsibilities",
+          "items": [
+            "Members should provide accurate information and must not use another person's account or payment method without permission.",
+            "Actions that disrupt service operation or use features for improper purposes may be restricted."
+          ]
+        },
+        {
+          "title": "Orders and Payments",
+          "items": [
+            "Order information created in the checkout flow is recorded only to demonstrate demo functionality.",
+            "Demo payments confirm orders without external payment approval, and test payments also do not create real purchases or delivery."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Personal information handled by Daily Device to provide the demo service and the standards used to protect it.",
+      "updatedAt": "Effective date: 2026.01.01",
+      "sections": [
+        {
+          "title": "Portfolio Demo Service Notice",
+          "items": [
+            "This is a portfolio demo service. Information entered by users may be stored to demonstrate features such as sign-up, login, cart, orders, and address management.",
+            "Entered information is used only to provide demo features, display screens, and verify functionality.",
+            "Do not enter real personal information, real addresses, real payment information, or sensitive information."
+          ]
+        },
+        {
+          "title": "Information Collected",
+          "items": [
+            "Names, contact details, shipping addresses, payment-related information, and order information may be processed during sign-up and order flows.",
+            "Access records, device information, cart data, and wishlist data may be generated while using the service."
+          ]
+        },
+        {
+          "title": "Purpose of Use",
+          "items": [
+            "Entered information is used for identity display, demo order submission, test payment flow verification, and shipping address UI implementation.",
+            "Usage records may be analyzed within the necessary scope to improve service quality and prevent improper use."
+          ]
+        },
+        {
+          "title": "Retention and Deletion",
+          "items": [
+            "Personal information is deleted without delay after the purpose is fulfilled, and information legally required to be retained is kept for the required period.",
+            "Members may request access, correction, deletion, or suspension of processing for their personal information."
+          ]
+        }
+      ]
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Cookies and similar technologies used by Daily Device to maintain login state and improve the demo service.",
+      "updatedAt": "Effective date: 2026.01.01",
+      "sections": [
+        {
+          "title": "Portfolio Demo Service Notice",
+          "items": [
+            "This service is a demo for portfolio feature demonstration.",
+            "Cookies and browser storage may be used to provide demo features such as login state, theme settings, and cart state."
+          ]
+        },
+        {
+          "title": "Purpose of Cookies",
+          "items": [
+            "Cookies may be used to maintain login sessions, manage cart state, and save user preferences.",
+            "Non-identifying usage information may be used to analyze performance and improve errors."
+          ]
+        },
+        {
+          "title": "Cookie Management",
+          "items": [
+            "Users can block cookie storage or delete existing cookies through browser settings.",
+            "Blocking required cookies may limit some features such as login, orders, and checkout."
+          ]
+        },
+        {
+          "title": "Policy Changes",
+          "items": [
+            "If the way cookies are used changes, updates will be announced on this page.",
+            "Important changes may be announced through appropriate in-service notices."
+          ]
+        }
+      ]
+    }
+  },
+  "Footer": {
+    "navigation": {
+      "about": "About",
+      "features": "Features",
+      "careers": "Careers",
+      "support": "Support"
+    },
+    "legal": {
+      "terms": "Terms",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy"
+    },
+    "homeAriaLabel": "Go to home"
+  }
+}
