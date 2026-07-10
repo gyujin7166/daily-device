@@ -6,6 +6,10 @@ import type {
   CatalogProductItem,
 } from '@entities/product/model/types';
 
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -112,7 +116,9 @@ export async function getProductsPage(
   priceRange: ProductPriceRangeQuery = {},
   colorFilter: ProductColorFilterQuery = {},
   discountQuery: ProductDiscountQuery = {},
+  localeValue?: string,
 ): Promise<ProductPageResponse> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const groupedFilterConditions = await findProductFilterConditions(
     category,
     filters,
@@ -183,7 +189,33 @@ export async function getProductsPage(
         description: true,
         price: true,
         discountRate: true,
-        category: true,
+        translations: {
+          where: { locale: { in: localeFallbacks } },
+          select: {
+            locale: true,
+            name: true,
+            description: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name_en: true,
+            name_ko: true,
+            slug: true,
+            parentId: true,
+            displayOrder: true,
+            image_url: true,
+            isVisible: true,
+            translations: {
+              where: { locale: { in: localeFallbacks } },
+              select: {
+                locale: true,
+                name: true,
+              },
+            },
+          },
+        },
         ProductImage: {
           where: {
             OR: [
@@ -210,7 +242,20 @@ export async function getProductsPage(
           select: {
             id: true,
             isDefault: true,
-            color: true,
+            color: {
+              select: {
+                id: true,
+                name: true,
+                hex: true,
+                translations: {
+                  where: { locale: { in: localeFallbacks } },
+                  select: {
+                    locale: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         productFilterOption: {
@@ -294,10 +339,16 @@ export async function getProductsPage(
       ProductImage,
       productColor,
     } = product;
+    const translation = pickTranslation(product.translations, locale);
+    const categoryTranslation = pickTranslation(
+      productCategory.translations,
+      locale,
+    );
     const parsedPrice = Number(rawPrice);
     const priceInfo = getProductPriceInfo(
       Number.isFinite(parsedPrice) ? parsedPrice : 0,
       discountRate,
+      locale,
     );
     const filterData: CatalogProductFilterMap = {};
 
@@ -313,15 +364,38 @@ export async function getProductsPage(
 
     return {
       id,
-      name_en,
+      name_en: translation?.name ?? name_en,
       slug,
-      description,
+      description: translation?.description ?? description,
       productLine,
       ...priceInfo,
-      category: productCategory,
+      category: {
+        id: productCategory.id,
+        name_en: categoryTranslation?.name ?? productCategory.name_en,
+        name_ko: productCategory.name_ko,
+        slug: productCategory.slug,
+        parentId: productCategory.parentId,
+        displayOrder: productCategory.displayOrder,
+        image_url: productCategory.image_url,
+        isVisible: productCategory.isVisible,
+      },
       filter: [filterData],
       ProductImage,
-      productColor,
+      productColor: productColor.map((item) => {
+        const colorTranslation = pickTranslation(
+          item.color.translations,
+          locale,
+        );
+
+        return {
+          id: item.id,
+          isDefault: item.isDefault,
+          color: {
+            name: colorTranslation?.name ?? item.color.name,
+            hex: item.color.hex,
+          },
+        };
+      }),
     };
   });
 

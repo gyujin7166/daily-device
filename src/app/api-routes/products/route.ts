@@ -36,6 +36,7 @@ const getProductsQuerySchema = z.object({
   filters: z.preprocess(emptyToUndefined, z.string().optional()),
   colors: z.preprocess(emptyToUndefined, z.string().optional()),
   discounted: z.preprocess(emptyToUndefined, z.string().optional()),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
   minPrice: z.preprocess(
     emptyToUndefined,
     z.coerce.number().nonnegative().optional(),
@@ -69,6 +70,7 @@ export async function GET(request: Request) {
         filters: url.searchParams.get('filters'),
         colors: url.searchParams.get('colors'),
         discounted: url.searchParams.get('discounted'),
+        locale: url.searchParams.get('locale'),
         minPrice: url.searchParams.get('minPrice'),
         maxPrice: url.searchParams.get('maxPrice'),
       },
@@ -118,6 +120,7 @@ export async function GET(request: Request) {
       {
         discountedOnly,
       },
+      query.locale,
     );
 
     const response: Data = {

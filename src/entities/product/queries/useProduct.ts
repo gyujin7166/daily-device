@@ -1,6 +1,7 @@
 import { useParams, useSearchParams } from 'next/navigation';
 
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { getProductPage } from '@entities/product/api/product';
 import { PRODUCT_LIST_STALE_TIME_MS } from '@entities/product/constants/cache';
@@ -94,6 +95,7 @@ export const useProduct = ({
   initialLimit,
   pageSize: pageSizeParam,
 }: UseProductParams = {}) => {
+  const locale = useLocale();
   const routeParams = useParams<{ category?: string }>();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
@@ -131,6 +133,7 @@ export const useProduct = ({
   const query = useInfiniteQuery({
     queryKey: productQueryKeys.list({
       category,
+      locale,
       sort,
       pageSize,
       filtersKey,
@@ -155,6 +158,7 @@ export const useProduct = ({
         },
         colorIds,
         discountedOnly,
+        locale,
       );
     },
     getNextPageParam: (lastPage, allPages) => {

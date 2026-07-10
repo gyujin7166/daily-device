@@ -15,11 +15,19 @@ const getProductDetailParamsSchema = z.object({
   slug: z.string().trim().min(1),
 });
 
+const emptyToUndefined = (value: unknown) =>
+  value === '' || value === null ? undefined : value;
+
+const getProductDetailQuerySchema = z.object({
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+});
+
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const url = new URL(request.url);
     const routeParams = await params;
     const parsedParams = parseWithSchema(
       getProductDetailParamsSchema,
@@ -28,7 +36,17 @@ export async function GET(
       },
       API_MESSAGE.BAD_REQUEST,
     );
-    const productDetail = await getProductDetailBySlug(parsedParams.slug);
+    const query = parseWithSchema(
+      getProductDetailQuerySchema,
+      {
+        locale: url.searchParams.get('locale'),
+      },
+      API_MESSAGE.BAD_REQUEST,
+    );
+    const productDetail = await getProductDetailBySlug(
+      parsedParams.slug,
+      query.locale,
+    );
     const response: ApiResponse<ProductDetailResponse> = {
       items: productDetail,
       message: API_MESSAGE.SUCCESS,

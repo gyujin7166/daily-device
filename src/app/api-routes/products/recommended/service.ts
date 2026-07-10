@@ -1,6 +1,10 @@
 import 'server-only';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
 
@@ -58,10 +62,23 @@ const baseSelect = {
   productLine: true,
   price: true,
   discountRate: true,
+  translations: {
+    select: {
+      locale: true,
+      name: true,
+      description: true,
+    },
+  },
   category: {
     select: {
       name_en: true,
       slug: true,
+      translations: {
+        select: {
+          locale: true,
+          name: true,
+        },
+      },
     },
   },
   ProductImage: {
@@ -90,6 +107,12 @@ const baseSelect = {
         select: {
           name: true,
           hex: true,
+          translations: {
+            select: {
+              locale: true,
+              name: true,
+            },
+          },
         },
       },
     },
@@ -119,11 +142,18 @@ const shuffleProducts = <T,>(items: T[]) => {
 
 const mapRecommendedItem = (
   product: RecommendedProductPayload,
+  locale: string,
 ): RecommendedProductItem => {
+  const translation = pickTranslation(product.translations, locale);
+  const categoryTranslation = pickTranslation(
+    product.category.translations,
+    locale,
+  );
   const parsedPrice = Number(product.price);
   const priceInfo = getProductPriceInfo(
     Number.isFinite(parsedPrice) ? parsedPrice : 0,
     product.discountRate,
+    locale,
   );
   const categorySlug = product.category.slug;
   const normalizedProductLine =
@@ -136,16 +166,27 @@ const mapRecommendedItem = (
     id: product.id,
     slug: product.slug,
     image_url: product.ProductImage[0]?.image_url ?? IMAGE_FALLBACK_URL,
-    alt: product.name_en,
+    alt: translation?.name ?? product.name_en,
     ...(normalizedProductLine ? { productLine: normalizedProductLine } : {}),
-    name: product.name_en.toUpperCase(),
-    description: product.description,
+    name: (translation?.name ?? product.name_en).toUpperCase(),
+    description: translation?.description ?? product.description,
     ...priceInfo,
     href: getProductHref({ categorySlug, productSlug: product.slug }),
     ProductImage: product.ProductImage,
-    productColor: product.productColor,
+    productColor: product.productColor.map((item) => {
+      const colorTranslation = pickTranslation(item.color.translations, locale);
+
+      return {
+        id: item.id,
+        isDefault: item.isDefault,
+        color: {
+          name: colorTranslation?.name ?? item.color.name,
+          hex: item.color.hex,
+        },
+      };
+    }),
     category: {
-      name_en: product.category.name_en,
+      name_en: categoryTranslation?.name ?? product.category.name_en,
       slug: categorySlug,
     },
   };
@@ -156,12 +197,15 @@ export async function getRecommendedProductsList({
   context = 'default',
   excludeId,
   limit,
+  locale: localeValue,
 }: {
   category?: string;
   context?: RecommendationContext;
   excludeId?: number;
   limit: number;
+  locale?: string;
 }): Promise<RecommendedProductItem[]> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const primaryWhere: Prisma.ProductWhereInput = {
     ...(category ? { category: { slug: category } } : {}),
     ...(excludeId ? { id: { not: excludeId } } : {}),
@@ -170,7 +214,22 @@ export async function getRecommendedProductsList({
   if (shouldShuffleRecommendations(context)) {
     const primaryProducts = await prisma.product.findMany({
       where: primaryWhere,
-      select: baseSelect,
+      select: {
+        ...baseSelect,
+        translations: {
+          ...baseSelect.translations,
+          where: { locale: { in: localeFallbacks } },
+        },
+        category: {
+          select: {
+            ...baseSelect.category.select,
+            translations: {
+              ...baseSelect.category.select.translations,
+              where: { locale: { in: localeFallbacks } },
+            },
+          },
+        },
+      },
       orderBy: { id: 'asc' },
     });
     const randomPrimaryProducts = shuffleProducts(primaryProducts).slice(
@@ -179,7 +238,9 @@ export async function getRecommendedProductsList({
     );
 
     if (!category || randomPrimaryProducts.length >= limit) {
-      return randomPrimaryProducts.map(mapRecommendedItem);
+      return randomPrimaryProducts.map((product) =>
+        mapRecommendedItem(product, locale),
+      );
     }
 
     const excludedIds = [
@@ -192,7 +253,22 @@ export async function getRecommendedProductsList({
         id: excludedIds.length ? { notIn: excludedIds } : undefined,
         category: { slug: { not: category } },
       },
-      select: baseSelect,
+      select: {
+        ...baseSelect,
+        translations: {
+          ...baseSelect.translations,
+          where: { locale: { in: localeFallbacks } },
+        },
+        category: {
+          select: {
+            ...baseSelect.category.select,
+            translations: {
+              ...baseSelect.category.select.translations,
+              where: { locale: { in: localeFallbacks } },
+            },
+          },
+        },
+      },
       orderBy: { id: 'asc' },
     });
     const randomFallbackProducts = shuffleProducts(fallbackProducts).slice(
@@ -200,20 +276,35 @@ export async function getRecommendedProductsList({
       limit - randomPrimaryProducts.length,
     );
 
-    return [...randomPrimaryProducts, ...randomFallbackProducts].map(
-      mapRecommendedItem,
+    return [...randomPrimaryProducts, ...randomFallbackProducts].map((product) =>
+      mapRecommendedItem(product, locale),
     );
   }
 
   const primaryProducts = await prisma.product.findMany({
     where: primaryWhere,
-    select: baseSelect,
+    select: {
+      ...baseSelect,
+      translations: {
+        ...baseSelect.translations,
+        where: { locale: { in: localeFallbacks } },
+      },
+      category: {
+        select: {
+          ...baseSelect.category.select,
+          translations: {
+            ...baseSelect.category.select.translations,
+            where: { locale: { in: localeFallbacks } },
+          },
+        },
+      },
+    },
     take: limit,
     orderBy: DEFAULT_RECOMMENDED_ORDER_BY,
   });
 
   if (!category || primaryProducts.length >= limit) {
-    return primaryProducts.map(mapRecommendedItem);
+    return primaryProducts.map((product) => mapRecommendedItem(product, locale));
   }
 
   const excludedIds = [
@@ -226,10 +317,27 @@ export async function getRecommendedProductsList({
       id: excludedIds.length ? { notIn: excludedIds } : undefined,
       category: { slug: { not: category } },
     },
-    select: baseSelect,
+    select: {
+      ...baseSelect,
+      translations: {
+        ...baseSelect.translations,
+        where: { locale: { in: localeFallbacks } },
+      },
+      category: {
+        select: {
+          ...baseSelect.category.select,
+          translations: {
+            ...baseSelect.category.select.translations,
+            where: { locale: { in: localeFallbacks } },
+          },
+        },
+      },
+    },
     take: limit - primaryProducts.length,
     orderBy: DEFAULT_RECOMMENDED_ORDER_BY,
   });
 
-  return [...primaryProducts, ...fallbackProducts].map(mapRecommendedItem);
+  return [...primaryProducts, ...fallbackProducts].map((product) =>
+    mapRecommendedItem(product, locale),
+  );
 }

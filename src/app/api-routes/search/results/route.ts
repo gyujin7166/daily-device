@@ -46,6 +46,7 @@ const getSearchResultQuerySchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
   ),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 type Data = ApiResponse<
@@ -71,6 +72,7 @@ export async function GET(request: Request) {
         sort: url.searchParams.get('sort'),
         page: url.searchParams.get('page'),
         limit: url.searchParams.get('limit'),
+        locale: url.searchParams.get('locale'),
       },
       API_MESSAGE.BAD_REQUEST,
     );
@@ -89,6 +91,7 @@ export async function GET(request: Request) {
       limit,
       categories,
       sort,
+      locale: query.locale,
     });
 
     const response: Data = {

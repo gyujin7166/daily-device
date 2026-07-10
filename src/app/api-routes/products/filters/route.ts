@@ -16,6 +16,7 @@ const emptyToUndefined = (value: unknown) =>
 
 const getFilterQuerySchema = z.object({
   category: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 export async function GET(request: Request) {
@@ -25,10 +26,11 @@ export async function GET(request: Request) {
       getFilterQuerySchema,
       {
         category: url.searchParams.get('category'),
+        locale: url.searchParams.get('locale'),
       },
       API_MESSAGE.BAD_REQUEST,
     );
-    const filter = await getFilterList(query.category ?? '');
+    const filter = await getFilterList(query.category ?? '', query.locale);
     const response: ApiResponse<FilterWithOptions[]> = {
       items: filter,
       message: API_MESSAGE.SUCCESS,

@@ -29,12 +29,14 @@ export const getSearchPage = ({
   sort,
   page,
   limit,
+  locale,
 }: {
   keyword: string;
   categories: string[];
   sort: SearchSortOption;
   page: number;
   limit: number;
+  locale?: string;
 }): Promise<SearchResultPageResponse> => {
   const params = new URLSearchParams({
     keyword,
@@ -45,6 +47,9 @@ export const getSearchPage = ({
 
   if (categories.length > 0) {
     params.set('categories', categories.join(','));
+  }
+  if (locale) {
+    params.set('locale', locale);
   }
 
   return fetchApiResponse(`/api/search/results?${params.toString()}`);
