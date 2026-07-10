@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Transition } from 'react-transition-group';
 
 import { cn } from '@shared/lib/utils/style';
@@ -29,7 +30,17 @@ type ProductPriceFilterSectionProps = {
 
 const PRICE_STEP = 1000;
 
-const formatPrice = (value: number) => value.toLocaleString('ko-KR');
+const formatPrice = (value: number, locale: string) => {
+  if (locale === 'ko') {
+    return value.toLocaleString('ko-KR');
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(value);
+};
 
 const clampPrice = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -74,6 +85,8 @@ export default function ProductPriceFilterSection({
   variant,
   containerClassName,
 }: ProductPriceFilterSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations('ProductFilter');
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [isClosed, setIsClosed] = useState(false);
   const { minPrice: minBound, maxPrice: maxBound } = priceRange;
@@ -136,7 +149,7 @@ export default function ProductPriceFilterSection({
         className="flex w-full items-center justify-between text-left"
         onClick={() => setIsClosed((prev) => !prev)}
       >
-        <p className={sectionTitleClassName}>가격</p>
+        <p className={sectionTitleClassName}>{t('sections.price')}</p>
         {isClosed ? (
           <IconPlus size={16} className="text-muted dark:text-dark-muted" />
         ) : (
@@ -165,7 +178,10 @@ export default function ProductPriceFilterSection({
             <div className="min-h-0 overflow-hidden">
               <div className="pt-3">
                 <p className="mb-2 text-md font-bold text-primary dark:text-surface">
-                  {formatPrice(safeMin)}원 ~ {formatPrice(safeMax)}원
+                  {t('price.range', {
+                    min: formatPrice(safeMin, locale),
+                    max: formatPrice(safeMax, locale),
+                  })}
                 </p>
 
                 <div
@@ -194,7 +210,7 @@ export default function ProductPriceFilterSection({
                       }
                       onPointerUp={() => commitPriceValue()}
                       onBlur={() => commitPriceValue()}
-                      aria-label="최소 가격"
+                      aria-label={t('price.minLabel')}
                       className={cn(
                         'pointer-events-none absolute inset-x-0 top-1/2 z-10 h-2 w-full -translate-y-1/2 appearance-none bg-transparent',
                         rangeThumbClassName,
@@ -211,7 +227,7 @@ export default function ProductPriceFilterSection({
                       }
                       onPointerUp={() => commitPriceValue()}
                       onBlur={() => commitPriceValue()}
-                      aria-label="최대 가격"
+                      aria-label={t('price.maxLabel')}
                       className={cn(
                         'pointer-events-none absolute inset-x-0 top-1/2 z-20 h-2 w-full -translate-y-1/2 appearance-none bg-transparent',
                         rangeThumbClassName,
@@ -221,8 +237,8 @@ export default function ProductPriceFilterSection({
                 </div>
 
                 <div className="mt-1 flex items-center justify-between px-1 text-xs font-bold text-muted dark:text-dark-muted">
-                  <span>최소</span>
-                  <span>최대</span>
+                  <span>{t('price.min')}</span>
+                  <span>{t('price.max')}</span>
                 </div>
               </div>
             </div>

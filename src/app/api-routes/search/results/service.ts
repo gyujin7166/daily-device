@@ -5,6 +5,10 @@ import type {
   SearchSortOption,
 } from '@features/search/model/types';
 
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { escapeRegExp } from '@shared/lib/utils/escapeRegExp';
 import { normalizeSearchTerm } from '@shared/lib/utils/normalizeSearchText';
@@ -72,13 +76,17 @@ export async function getSearchResultPage({
   limit,
   categories,
   sort,
+  locale: localeValue,
 }: {
   keyword: string;
   page: number;
   limit: number;
   categories: string[];
   sort: SearchSortOption;
+  locale?: string;
 }): Promise<SearchResultPageResponse> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
+
   if (!keyword.trim()) {
     return {
       items: [],
@@ -133,6 +141,14 @@ export async function getSearchResultPage({
           slug: true,
           name_ko: true,
           search_keyword: true,
+          translations: {
+            where: { locale: { in: localeFallbacks } },
+            select: {
+              locale: true,
+              name: true,
+              description: true,
+            },
+          },
           price: true,
           discountRate: true,
           ProductImage: {
@@ -165,6 +181,13 @@ export async function getSearchResultPage({
                 select: {
                   name: true,
                   hex: true,
+                  translations: {
+                    where: { locale: { in: localeFallbacks } },
+                    select: {
+                      locale: true,
+                      name: true,
+                    },
+                  },
                 },
               },
             },
@@ -176,6 +199,13 @@ export async function getSearchResultPage({
               name_ko: true,
               slug: true,
               displayOrder: true,
+              translations: {
+                where: { locale: { in: localeFallbacks } },
+                select: {
+                  locale: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -241,17 +271,46 @@ export async function getSearchResultPage({
     const priceInfo = getProductPriceInfo(
       Number.isFinite(parsedPrice) ? parsedPrice : 0,
       item.discountRate,
+      locale,
     );
-    const { search_keyword: _searchKeyword, category, ...product } = item;
+    const {
+      search_keyword: _searchKeyword,
+      category,
+      translations,
+      ...product
+    } = item;
+    const translation = pickTranslation(translations, locale);
+    const categoryTranslation = pickTranslation(category.translations, locale);
     const {
       name_ko: _categoryNameKo,
       displayOrder: _categoryDisplayOrder,
+      translations: _categoryTranslations,
       ...publicCategory
     } = category;
 
     return {
       ...product,
-      category: publicCategory,
+      name_en: translation?.name ?? product.name_en,
+      description: translation?.description ?? product.description,
+      productColor: product.productColor.map((productColor) => {
+        const colorTranslation = pickTranslation(
+          productColor.color.translations,
+          locale,
+        );
+
+        return {
+          id: productColor.id,
+          isDefault: productColor.isDefault,
+          color: {
+            name: colorTranslation?.name ?? productColor.color.name,
+            hex: productColor.color.hex,
+          },
+        };
+      }),
+      category: {
+        ...publicCategory,
+        name_en: categoryTranslation?.name ?? publicCategory.name_en,
+      },
       ...priceInfo,
     };
   });

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 
 import { IconCheck, IconMinus, IconPlus } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Transition } from 'react-transition-group';
 
 import type { ProductColorFilterOption } from '@entities/product/model/types';
@@ -33,6 +34,7 @@ export default function ProductColorFilterSection({
   variant,
   containerClassName,
 }: ProductColorFilterSectionProps) {
+  const t = useTranslations('ProductFilter.sections');
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [isClosed, setIsClosed] = useState(false);
   const selectedColorIdSet = new Set(selectedColorIds);
@@ -57,7 +59,7 @@ export default function ProductColorFilterSection({
         className="flex w-full items-center justify-between text-left"
         onClick={() => setIsClosed((prev) => !prev)}
       >
-        <p className={sectionTitleClassName}>색상</p>
+        <p className={sectionTitleClassName}>{t('color')}</p>
         {isClosed ? (
           <IconPlus size={16} className="text-muted dark:text-dark-muted" />
         ) : (

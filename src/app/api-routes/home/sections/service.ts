@@ -3,6 +3,11 @@ import 'server-only';
 import type { HomeSection } from '@entities/home/model/types';
 
 import {
+  DEFAULT_LOCALE,
+  getLocaleFallbacks,
+  toSupportedLocale,
+} from '@shared/lib/i18n/locale';
+import {
   getCategoryHref,
   getProductHref,
 } from '@shared/lib/routes/productRoutes';
@@ -11,11 +16,15 @@ import prisma from 'prisma/prismaClientSingleton';
 
 type GetHomeSectionsOptions = {
   keys?: string[];
+  locale?: string;
 };
 
 export async function getHomeSections({
   keys,
+  locale: localeValue,
 }: GetHomeSectionsOptions = {}): Promise<HomeSection[]> {
+  const locale = toSupportedLocale(localeValue);
+  const localeFallbacks = getLocaleFallbacks(locale);
   const sections = await prisma.homeSection.findMany({
     where: {
       isVisible: true,
@@ -28,6 +37,15 @@ export async function getHomeSections({
       title: true,
       subtitle: true,
       displayOrder: true,
+      translations: {
+        where: { locale: { in: localeFallbacks } },
+        select: {
+          locale: true,
+          eyebrow: true,
+          title: true,
+          subtitle: true,
+        },
+      },
       items: {
         where: { isVisible: true },
         select: {
@@ -60,6 +78,17 @@ export async function getHomeSections({
           layoutAreaClassName: true,
           labelPosition: true,
           imageClassName: true,
+          translations: {
+            where: { locale: { in: localeFallbacks } },
+            select: {
+              locale: true,
+              label: true,
+              title: true,
+              description: true,
+              cta: true,
+              imageAlt: true,
+            },
+          },
         },
         orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
       },
@@ -68,8 +97,28 @@ export async function getHomeSections({
   });
 
   return sections.map((section) => ({
-    ...section,
+    id: section.id,
+    key: section.key,
+    eyebrow:
+      section.translations.find((item) => item.locale === locale)?.eyebrow ??
+      section.translations.find((item) => item.locale === DEFAULT_LOCALE)
+        ?.eyebrow ??
+      section.eyebrow,
+    title:
+      section.translations.find((item) => item.locale === locale)?.title ??
+      section.translations.find((item) => item.locale === DEFAULT_LOCALE)
+        ?.title ??
+      section.title,
+    subtitle:
+      section.translations.find((item) => item.locale === locale)?.subtitle ??
+      section.translations.find((item) => item.locale === DEFAULT_LOCALE)
+        ?.subtitle ??
+      section.subtitle,
+    displayOrder: section.displayOrder,
     items: section.items.map((item) => {
+      const translation =
+        item.translations.find((entry) => entry.locale === locale) ??
+        item.translations.find((entry) => entry.locale === DEFAULT_LOCALE);
       const href =
         item.targetProduct && item.targetProduct.category
           ? getProductHref({
@@ -82,13 +131,13 @@ export async function getHomeSections({
 
       return {
         id: item.id,
-        label: item.label,
-        title: item.title,
-        description: item.description,
-        cta: item.cta,
+        label: translation?.label ?? item.label,
+        title: translation?.title ?? item.title,
+        description: translation?.description ?? item.description,
+        cta: translation?.cta ?? item.cta,
         href,
         image_url: item.image_url,
-        imageAlt: item.imageAlt,
+        imageAlt: translation?.imageAlt ?? item.imageAlt,
         displayOrder: item.displayOrder,
         layoutGroup: item.layoutGroup,
         layoutGroupClassName: item.layoutGroupClassName,

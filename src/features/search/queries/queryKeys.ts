@@ -9,6 +9,7 @@ export const searchQueryKeys = {
     categoriesKey: string,
     sort: SearchSortOption,
     limit: number,
+    locale?: string,
   ) =>
     [
       ...searchQueryKeys.all,
@@ -17,5 +18,6 @@ export const searchQueryKeys = {
       categoriesKey,
       sort,
       limit,
+      locale,
     ] as const,
 };
