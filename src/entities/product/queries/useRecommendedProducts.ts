@@ -1,4 +1,9 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useQuery,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { getRecommendedProducts } from '@entities/product/api/product';
 import { productQueryKeys } from '@entities/product/queries/queryKeys';
@@ -20,6 +25,7 @@ export const useSuspenseRecommendedProducts = ({
   context = 'default',
   enabled = true,
 }: UseRecommendedProductsParams) => {
+  const locale = useLocale();
   const normalizedCategory = category?.trim();
 
   return useSuspenseQuery({
@@ -28,6 +34,7 @@ export const useSuspenseRecommendedProducts = ({
       excludeId,
       limit,
       context,
+      locale,
     ),
     queryFn: () => {
       if (!normalizedCategory || !enabled) {
@@ -39,6 +46,7 @@ export const useSuspenseRecommendedProducts = ({
         excludeId,
         limit,
         context,
+        locale,
       );
     },
     staleTime: 5 * 60 * 1000,
@@ -54,6 +62,7 @@ export const useRecommendedProducts = ({
   context = 'default',
   enabled = true,
 }: UseRecommendedProductsParams) => {
+  const locale = useLocale();
   const normalizedCategory = category?.trim();
 
   return useQuery({
@@ -62,9 +71,17 @@ export const useRecommendedProducts = ({
       excludeId,
       limit,
       context,
+      locale,
     ),
     queryFn: () =>
-      getRecommendedProducts(normalizedCategory, excludeId, limit, context),
+      getRecommendedProducts(
+        normalizedCategory,
+        excludeId,
+        limit,
+        context,
+        locale,
+      ),
+    placeholderData: keepPreviousData,
     enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

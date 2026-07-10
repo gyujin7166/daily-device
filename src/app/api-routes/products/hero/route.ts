@@ -17,6 +17,7 @@ const emptyToUndefined = (value: unknown) =>
 const getHeroQuerySchema = z.object({
   type: z.preprocess(emptyToUndefined, z.string().trim().optional()),
   category: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 export async function GET(request: Request) {
@@ -27,10 +28,15 @@ export async function GET(request: Request) {
       {
         type: url.searchParams.get('type'),
         category: url.searchParams.get('category'),
+        locale: url.searchParams.get('locale'),
       },
       API_MESSAGE.BAD_REQUEST,
     );
-    const hero = await getHeroList(query.type ?? '', query.category ?? '');
+    const hero = await getHeroList(
+      query.type ?? '',
+      query.category ?? '',
+      query.locale,
+    );
     const response: ApiResponse<HeroSummaryItem[]> = {
       items: hero,
       message: API_MESSAGE.SUCCESS,

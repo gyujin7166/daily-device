@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { getQueryPageParam } from '@shared/lib/query/getQueryPageParam';
 import { shouldRetryQuery } from '@shared/lib/query/shouldRetryQuery';
@@ -23,6 +24,7 @@ export const useSearchResult = ({
   sort = 'relevance',
   limit = 12,
 }: UseSearchResultParams) => {
+  const locale = useLocale();
   const decodeKeyword = decodeSlugToText(keyword);
   const normalizedCategories = [...categories].sort();
   const categoriesKey = normalizedCategories.join(',');
@@ -33,6 +35,7 @@ export const useSearchResult = ({
       categoriesKey,
       sort,
       limit,
+      locale,
     ),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
@@ -42,6 +45,7 @@ export const useSearchResult = ({
         sort,
         page: getQueryPageParam(pageParam),
         limit,
+        locale,
       }),
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? lastPage.page + 1 : undefined,

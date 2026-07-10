@@ -33,6 +33,7 @@ const getRecommendedProductsQuerySchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
   ),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 export async function GET(request: Request) {
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
         context: url.searchParams.get('context'),
         excludeId: url.searchParams.get('excludeId'),
         limit: url.searchParams.get('limit'),
+        locale: url.searchParams.get('locale'),
       },
       API_MESSAGE.BAD_REQUEST,
     );
@@ -57,6 +59,7 @@ export async function GET(request: Request) {
       context: query.context,
       excludeId: query.excludeId,
       limit,
+      locale: query.locale,
     });
     const response: Data = { items, message: API_MESSAGE.SUCCESS };
     return NextResponse.json(response, { status: 200 });

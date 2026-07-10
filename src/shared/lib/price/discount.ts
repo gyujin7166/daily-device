@@ -9,7 +9,17 @@ export type ProductPriceInfo = {
   discountedPriceLabel: string;
 };
 
-const formatWon = (price: number) => `${price.toLocaleString('ko-KR')}원`;
+const formatWon = (price: number, locale = 'ko') => {
+  if (locale.startsWith('en')) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'KRW',
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
+
+  return `${price.toLocaleString('ko-KR')}원`;
+};
 
 const normalizeDiscountRate = (discountRate?: number | null) => {
   if (typeof discountRate !== 'number' || !Number.isFinite(discountRate)) {
@@ -36,6 +46,7 @@ const calculateDiscountedPrice = (
 export const getProductPriceInfo = (
   price: number,
   discountRate?: number | null,
+  locale?: string,
 ): ProductPriceInfo => {
   const originalPrice = Number.isFinite(price) ? Math.max(price, 0) : 0;
   const normalizedDiscountRate = normalizeDiscountRate(discountRate);
@@ -52,8 +63,8 @@ export const getProductPriceInfo = (
     discountedPrice,
     discountRate: normalizedDiscountRate,
     isDiscounted,
-    priceLabel: formatWon(discountedPrice),
-    originalPriceLabel: formatWon(originalPrice),
-    discountedPriceLabel: formatWon(discountedPrice),
+    priceLabel: formatWon(discountedPrice, locale),
+    originalPriceLabel: formatWon(originalPrice, locale),
+    discountedPriceLabel: formatWon(discountedPrice, locale),
   };
 };

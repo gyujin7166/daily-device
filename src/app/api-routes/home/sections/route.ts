@@ -16,6 +16,7 @@ const emptyToUndefined = (value: unknown) =>
 
 const getHomeSectionsQuerySchema = z.object({
   keys: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 export async function GET(request: Request) {
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
       getHomeSectionsQuerySchema,
       {
         keys: url.searchParams.get('keys'),
+        locale: url.searchParams.get('locale'),
       },
       API_MESSAGE.BAD_REQUEST,
     );
@@ -32,7 +34,7 @@ export async function GET(request: Request) {
       ?.split(',')
       .map((key) => key.trim())
       .filter(Boolean);
-    const sections = await getHomeSections({ keys });
+    const sections = await getHomeSections({ keys, locale: query.locale });
     const response: ApiResponse<HomeSection[]> = {
       items: sections,
       message: API_MESSAGE.SUCCESS,

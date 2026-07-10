@@ -59,6 +59,7 @@ export const getRecommendedProducts = (
   excludeId: number | undefined,
   limit: number,
   context?: string,
+  locale?: string,
 ): Promise<RecommendedProductItem[]> => {
   const params = new URLSearchParams();
   if (normalizedCategory) {
@@ -70,6 +71,9 @@ export const getRecommendedProducts = (
   if (context && context !== 'default') {
     params.set('context', context);
   }
+  if (locale) {
+    params.set('locale', locale);
+  }
   params.set('limit', `${limit}`);
   return fetchApi(`/api/products/recommended?${params.toString()}`);
 };
@@ -79,8 +83,20 @@ export const getProductImages = (slug: string): Promise<ProductImageItem[]> =>
 
 export const getProductDescription = (
   slug: string,
-): Promise<ProductDetailResponse> =>
-  fetchApi(`/api/products/${encodeURIComponent(slug)}`);
+  locale?: string,
+): Promise<ProductDetailResponse> => {
+  const params = new URLSearchParams();
+
+  if (locale) {
+    params.set('locale', locale);
+  }
+
+  const query = params.toString();
+
+  return fetchApi(
+    `/api/products/${encodeURIComponent(slug)}${query ? `?${query}` : ''}`,
+  );
+};
 
 export const getProductPage = (
   category: string | undefined,
@@ -94,6 +110,7 @@ export const getProductPage = (
   } = {},
   colorIds: number[] = [],
   discountedOnly = false,
+  locale?: string,
 ): Promise<ProductPageResponse> => {
   const params = new URLSearchParams({
     page: `${page}`,
@@ -118,6 +135,9 @@ export const getProductPage = (
   if (discountedOnly) {
     params.set('discounted', 'true');
   }
+  if (locale) {
+    params.set('locale', locale);
+  }
 
   return fetchApiResponse(`/api/products?${params.toString()}`);
 };
@@ -125,11 +145,15 @@ export const getProductPage = (
 export const getHero = (
   type: HeroTypeValue,
   category: string | undefined,
+  locale?: string,
 ): Promise<HeroSummaryItem[]> => {
   const params = new URLSearchParams({ type });
 
   if (category) {
     params.set('category', category);
+  }
+  if (locale) {
+    params.set('locale', locale);
   }
 
   return fetchApi(`/api/products/hero?${params.toString()}`);
