@@ -1,3 +1,5 @@
+import type React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,6 +15,28 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
   usePathname: () => '/products',
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) =>
+    key === 'addToCart' ? '장바구니에 추가' : key,
+}));
+
+vi.mock('@shared/lib/i18n/navigation', () => ({
+  Link: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => '/products',
 }));
 
 vi.mock('next-auth/react', () => ({

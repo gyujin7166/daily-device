@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -79,10 +79,7 @@ export default function NavActions({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target;
-      if (
-        target instanceof Node &&
-        actionsRef.current?.contains(target)
-      ) {
+      if (target instanceof Node && actionsRef.current?.contains(target)) {
         return;
       }
 
@@ -135,12 +132,16 @@ export default function NavActions({
         isOverlayStyle={isOverlayStyle}
         onToggleTheme={handleToggleTheme}
       />
-      <NavLocaleSwitcher
-        isDarkOverlayStyle={isDarkOverlayStyle}
-        isOverlayStyle={isOverlayStyle}
-        onOpenDropdown={handleOpenLocaleDropdown}
-        onSelectLocale={handleSelectLocale}
-      />
+      <Suspense
+        fallback={<span aria-hidden className="h-10 w-12 sm:h-11 sm:w-13" />}
+      >
+        <NavLocaleSwitcher
+          isDarkOverlayStyle={isDarkOverlayStyle}
+          isOverlayStyle={isOverlayStyle}
+          onOpenDropdown={handleOpenLocaleDropdown}
+          onSelectLocale={handleSelectLocale}
+        />
+      </Suspense>
       <NavAccountMenu
         avatarSrc={avatarSrc}
         isDarkOverlayStyle={isDarkOverlayStyle}
