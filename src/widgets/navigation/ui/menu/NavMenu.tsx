@@ -1,8 +1,8 @@
-import Link from 'next/link';
 
 import { IconChevronDown } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
-import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
+import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 import { cn } from '@shared/lib/utils/style';
 
@@ -27,8 +27,10 @@ export default function NavMenu({
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
 }: NavigationMenuProps) {
+  const t = useTranslations('Navigation.menu');
+  const commonFeedbackT = useTranslations('Common.feedback');
   const handleUnavailableMenuClick = () => {
-    toast.info(NOT_IMPLEMENTED_MESSAGE);
+    toast.info(commonFeedbackT('notImplemented'));
   };
 
   return (
@@ -66,9 +68,9 @@ export default function NavMenu({
               onMouseLeave={idx === 0 ? handleMouseLeave : undefined}
               onMouseMove={idx === 0 ? handleMouseMove : undefined}
             >
-              {idx === 0 ? (
-                <Link href="/products" className={menuItemClassName}>
-                  {category}
+              {category.type === 'dropdown' ? (
+                <Link href={category.href} className={menuItemClassName}>
+                  {t(category.key)}
                   <IconChevronDown
                     size={14}
                     className={cn(
@@ -77,12 +79,9 @@ export default function NavMenu({
                     )}
                   />
                 </Link>
-              ) : category === '특가' ? (
-                <Link
-                  href="/products/discounts"
-                  className={menuItemClassName}
-                >
-                  {category}
+              ) : category.type === 'link' ? (
+                <Link href={category.href} className={menuItemClassName}>
+                  {t(category.key)}
                 </Link>
               ) : (
                 <button
@@ -90,7 +89,7 @@ export default function NavMenu({
                   className={menuItemClassName}
                   onClick={handleUnavailableMenuClick}
                 >
-                  {category}
+                  {t(category.key)}
                 </button>
               )}
             </li>

@@ -79,7 +79,10 @@ export default function NavActions({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target;
-      if (target instanceof Node && actionsRef.current?.contains(target)) {
+      if (
+        target instanceof Node &&
+        actionsRef.current?.contains(target)
+      ) {
         return;
       }
 

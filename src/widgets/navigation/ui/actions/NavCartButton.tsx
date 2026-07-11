@@ -1,4 +1,5 @@
 import { IconShoppingCart } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -17,6 +18,8 @@ export default function NavCartButton({
   isDarkOverlayStyle = false,
   onToggleCart,
 }: NavCartButtonProps) {
+  const t = useTranslations('Navigation.actions');
+
   return (
     <button
       className={cn(
@@ -28,7 +31,7 @@ export default function NavCartButton({
             : NAV_ICON_BUTTON_SURFACE_CLASS,
       )}
       onClick={onToggleCart}
-      aria-label="장바구니 열기"
+      aria-label={t('cart')}
       data-cart-trigger="true"
     >
       <IconShoppingCart />

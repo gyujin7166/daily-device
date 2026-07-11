@@ -1,4 +1,5 @@
 import { IconMoon, IconSun } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -15,6 +16,8 @@ export default function NavThemeButton({
   isDarkOverlayStyle = false,
   onToggleTheme,
 }: NavThemeButtonProps) {
+  const t = useTranslations('Navigation.actions');
+
   return (
     <button
       type="button"
@@ -27,7 +30,7 @@ export default function NavThemeButton({
             : NAV_ICON_BUTTON_SURFACE_CLASS,
       )}
       onClick={onToggleTheme}
-      aria-label="테마 전환"
+      aria-label={t('theme')}
     >
       <IconMoon className="dark:hidden" />
       <IconSun className="hidden dark:block" />

@@ -1,10 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import type { ReactElement } from 'react';
 
-import Link from 'next/link';
-
 import { IconSearch } from '@tabler/icons-react';
 
+import { Link } from '@shared/lib/i18n/navigation';
 import { createSearchPattern } from '@shared/lib/utils/normalizeSearchText';
 
 type SearchSuggestionItem = {

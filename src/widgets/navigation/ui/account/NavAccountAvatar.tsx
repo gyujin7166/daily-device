@@ -1,6 +1,7 @@
 import Image from 'next/image';
 
 import { IconUser } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -17,6 +18,7 @@ export default function NavAccountAvatar({
   size = 'sm',
   onAvatarError,
 }: NavAccountAvatarProps) {
+  const t = useTranslations('Navigation.account');
   const dimension = size === 'md' ? 48 : 40;
   const wrapperClassName = size === 'md' ? 'h-12 w-12' : 'h-9 w-9';
 
@@ -30,7 +32,7 @@ export default function NavAccountAvatar({
       >
         <Image
           src={avatarSrc}
-          alt="사용자 프로필 이미지"
+          alt={t('profileImageAlt')}
           width={dimension}
           height={dimension}
           className="h-full w-full object-cover"

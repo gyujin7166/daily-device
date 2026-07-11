@@ -1,4 +1,5 @@
 import { IconUser } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -38,6 +39,8 @@ export default function NavAccountMenu({
   onSignOut,
   onToggleDropdown,
 }: NavAccountMenuProps) {
+  const t = useTranslations('Navigation.actions');
+
   return (
     <div className="relative">
       {session?.user ? (
@@ -51,7 +54,7 @@ export default function NavAccountMenu({
                 ? 'text-ink hover:bg-black/5'
                 : 'hover:bg-canvas dark:hover:bg-dark-bg-hover',
           )}
-          aria-label="사용자 메뉴 열기"
+          aria-label={t('account')}
           aria-expanded={isDropdownOpen}
         >
           <NavAccountAvatar
@@ -71,7 +74,7 @@ export default function NavAccountMenu({
           }
           onClick={onToggleDropdown}
           disabled={status === 'loading'}
-          aria-label="사용자 메뉴 열기"
+          aria-label={t('account')}
           aria-expanded={isDropdownOpen}
         >
           <IconUser />

@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import type React from 'react';
 
-import { usePathname } from 'next/navigation';
 
 import { IconMenu2, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { useSearchSuggestion } from '@features/search/queries/useSearchSuggestion';
 import { SearchBar, SearchSuggestion } from '@features/search/ui';
 
 import { useDropdown } from '@shared/hooks/useDropdown';
+import { usePathname } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import { useHeroNavToneContext } from '@shared/model/context/HeroNavToneContext';
 import Logo from '@shared/ui/Logo/Logo';
@@ -23,6 +24,7 @@ import MobileNavMenu from './menu/MobileNavMenu';
 import NavMenu from './menu/NavMenu';
 
 export default function NavBar() {
+  const t = useTranslations('Navigation.menu');
   const pathname = usePathname();
   const searchLayerRef = useRef<HTMLDivElement | null>(null);
   const { heroNavTone } = useHeroNavToneContext();
@@ -185,13 +187,14 @@ export default function NavBar() {
                   ? 'bg-primary-soft dark:bg-blue-900/30 text-primary'
                   : '',
               )}
-              aria-label={isMobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+              aria-label={isMobileMenuOpen ? t('closeMenu') : t('openMenu')}
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <IconX size={20} /> : <IconMenu2 size={20} />}
             </button>
             <div className="mt-2 shrink-0">
               <Logo
+                ariaLabel={t('homeAriaLabel')}
                 ignoreDarkMode={useDarkOverlayContent}
                 isInverted={useLightOverlayContent}
                 onClick={handleLogoClick}
@@ -256,7 +259,7 @@ export default function NavBar() {
           type="button"
           onClick={handleCloseMobileMenu}
           className="fixed inset-0 top-22.5 z-30 bg-ink/20 lg:hidden"
-          aria-label="모바일 메뉴 닫기 배경"
+          aria-label={t('closeMobileBackdrop')}
         />
       )}
     </header>
