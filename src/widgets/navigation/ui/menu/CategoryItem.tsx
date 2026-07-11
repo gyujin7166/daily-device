@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import Link from 'next/link';
 
 import type { CategoryItems } from '@entities/category/model/types';
 
+import { Link } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 

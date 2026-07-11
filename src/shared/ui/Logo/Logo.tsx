@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 
 import {
   DAILY_DEVICE_LOGO_SIZE,
@@ -7,23 +6,26 @@ import {
   DAILY_DEVICE_SYMBOL_SIZE,
   DAILY_DEVICE_SYMBOL_SRC,
 } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 type LogoProps = {
   isInverted?: boolean;
   ignoreDarkMode?: boolean;
+  ariaLabel?: string;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 };
 
 export default function Logo({
   isInverted = false,
   ignoreDarkMode = false,
+  ariaLabel = 'Go to home',
   onClick,
 }: LogoProps) {
   return (
     <Link
       href="/"
-      aria-label="홈으로 이동"
+      aria-label={ariaLabel}
       onClick={onClick}
       draggable={false}
       className="inline-block select-none leading-0"

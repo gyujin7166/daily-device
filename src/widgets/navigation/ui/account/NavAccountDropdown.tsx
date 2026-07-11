@@ -1,8 +1,9 @@
-import Link from 'next/link';
 
 import { IconUser } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { getUserDisplayName } from '@shared/lib/auth/userDisplay';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 import { NAV_DROPDOWN_ACTION_ITEM_CLASS } from '../../model/navActions';
@@ -32,6 +33,7 @@ export default function NavAccountDropdown({
   onLogin,
   onSignOut,
 }: NavAccountDropdownProps) {
+  const t = useTranslations('Navigation.account');
   const userDisplayName = getUserDisplayName(session?.user);
 
   return (
@@ -69,14 +71,14 @@ export default function NavAccountDropdown({
               className={NAV_DROPDOWN_ACTION_ITEM_CLASS}
               onClick={onClose}
             >
-              <span>마이페이지</span>
+              <span>{t('myPage')}</span>
               <span className="text-muted dark:text-dark-muted">→</span>
             </Link>
             <button
               onClick={onSignOut}
               className={NAV_DROPDOWN_ACTION_ITEM_CLASS}
             >
-              <span>로그아웃</span>
+              <span>{t('signOut')}</span>
               <span className="text-muted dark:text-dark-muted">→</span>
             </button>
           </div>
@@ -89,10 +91,10 @@ export default function NavAccountDropdown({
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink dark:text-surface">
-                로그인 필요
+                {t('loginRequired')}
               </div>
               <div className="text-xs text-muted dark:text-dark-muted">
-                주문과 배송을 확인하세요.
+                {t('loginDescription')}
               </div>
             </div>
           </div>
@@ -101,7 +103,7 @@ export default function NavAccountDropdown({
               onClick={onLogin}
               className="flex w-full items-center justify-between rounded-xl border border-primary bg-primary-soft px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary hover:text-surface dark:bg-blue-900/30 dark:text-blue-300"
             >
-              로그인
+              {t('login')}
               <span className="text-muted dark:text-dark-muted">→</span>
             </button>
           </div>

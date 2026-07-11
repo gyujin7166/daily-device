@@ -1,11 +1,10 @@
 import { useEffect, useMemo } from 'react';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-
 import type { CategoryItems } from '@entities/category/model/types';
 import { useCategory } from '@entities/product/queries/useCategory';
 
+import { Link } from '@shared/lib/i18n/navigation';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 
 import CategoryItem from './CategoryItem';

@@ -1,8 +1,8 @@
-import Link from 'next/link';
 
 import { IconChevronDown } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
-import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
+import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 import { cn } from '@shared/lib/utils/style';
 
@@ -23,8 +23,10 @@ export default function MobileNavMenu({
   onToggleShop,
   onCloseMenu,
 }: MobileNavMenuProps) {
+  const t = useTranslations('Navigation.menu');
+  const commonFeedbackT = useTranslations('Common.feedback');
   const handleUnavailableMenuClick = () => {
-    toast.info(NOT_IMPLEMENTED_MESSAGE);
+    toast.info(commonFeedbackT('notImplemented'));
     onCloseMenu();
   };
 
@@ -44,12 +46,12 @@ export default function MobileNavMenu({
             onClick={onCloseMenu}
             className="block w-full rounded-xl px-3 py-2.5 text-left text-base font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
           >
-            전체 상품
+            {t('allProducts')}
           </Link>
         </li>
-        {NAVBAR_CATEGORIES.map((category, idx) => (
-          <li key={idx}>
-            {idx === 0 ? (
+        {NAVBAR_CATEGORIES.map((category) => (
+          <li key={category.key}>
+            {category.type === 'dropdown' ? (
               <>
                 <button
                   type="button"
@@ -60,11 +62,11 @@ export default function MobileNavMenu({
                       ? 'bg-primary-soft text-primary dark:bg-blue-900/30 dark:text-blue-300'
                       : 'text-ink hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300',
                   )}
-                  aria-label="상품 카테고리 펼치기"
+                  aria-label={t('expandProducts')}
                   aria-expanded={isShopOpen}
                   aria-controls="mobile-product-category-menu"
                 >
-                  <span>{category}</span>
+                  <span>{t(category.key)}</span>
                   <IconChevronDown
                     size={16}
                     className={cn(
@@ -82,13 +84,13 @@ export default function MobileNavMenu({
                   </div>
                 )}
               </>
-            ) : category === '특가' ? (
+            ) : category.type === 'link' ? (
               <Link
-                href="/products/discounts"
+                href={category.href}
                 onClick={onCloseMenu}
                 className="block w-full rounded-xl px-3 py-2.5 text-left text-base font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
               >
-                {category}
+                {t(category.key)}
               </Link>
             ) : (
               <button
@@ -96,7 +98,7 @@ export default function MobileNavMenu({
                 onClick={handleUnavailableMenuClick}
                 className="block w-full rounded-xl px-3 py-2.5 text-left text-base font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:text-surface dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
               >
-                {category}
+                {t(category.key)}
               </button>
             )}
           </li>

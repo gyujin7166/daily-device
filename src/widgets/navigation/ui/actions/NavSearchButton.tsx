@@ -1,4 +1,5 @@
 import { IconSearch } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -15,6 +16,8 @@ export default function NavSearchButton({
   isDarkOverlayStyle = false,
   onToggleSearch,
 }: NavSearchButtonProps) {
+  const t = useTranslations('Navigation.actions');
+
   return (
     <button
       className={cn(
@@ -28,7 +31,7 @@ export default function NavSearchButton({
               : 'text-ink dark:text-surface hover:bg-canvas dark:hover:bg-dark-bg-hover',
       )}
       onClick={onToggleSearch}
-      aria-label="상품 검색"
+      aria-label={t('search')}
       aria-pressed={isSearchOpen}
     >
       <IconSearch />
