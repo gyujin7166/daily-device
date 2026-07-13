@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { useReviewContentState } from '../../model/hooks/useReviewContentState';
 import { ReviewGalleryModal } from '../gallery/ReviewGalleryModal';
 import ReviewGalleryPreviewSection from '../gallery/ReviewGalleryPreviewSection';
@@ -20,6 +22,7 @@ export default function ReviewContent({
   isRefreshing = false,
   isLoading = false,
 }: ReviewContentProps) {
+  const t = useTranslations('ProductReview.empty');
   const reviewContentState = useReviewContentState({
     detail,
     currentPath,
@@ -65,8 +68,8 @@ export default function ReviewContent({
         shouldShowSkeleton={reviewContentState.shouldShowSkeleton}
         emptyMessage={
           reviewFilter === 'with_images'
-            ? '이미지가 포함된 상품평이 없습니다.'
-            : '표시할 상품평이 없습니다.'
+            ? t('noImageReviews')
+            : t('noReviews')
         }
         getReviewImages={reviewContentState.getReviewImages}
         isFeedbackPendingForReview={

@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
 
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 import { useProductReviewGalleryImages } from '@entities/review/queries/useProductReviewGalleryImages';
 
 import { getLoginRedirectPath } from '@shared/lib/authRedirect';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
 import { useUpsertProductReviewFeedback } from '../../queries/useUpsertProductReviewFeedback';
@@ -26,6 +27,7 @@ export const useReviewContentState = ({
   isRefreshing = false,
   isLoading = false,
 }: ReviewContentProps) => {
+  const t = useTranslations('ProductReview.feedback');
   const router = useRouter();
   const { status } = useSession();
   const {
@@ -164,7 +166,7 @@ export const useReviewContentState = ({
     }
 
     if (status !== 'authenticated') {
-      toast.info('리뷰 도움 표시 기능은 로그인 후 사용할 수 있습니다.');
+      toast.info(t('loginRequired'));
       router.push(getLoginRedirectPath(currentPath));
       return;
     }

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { getProductReviewSummary } from '../../model/reviewSummary';
 
 import ProductReviewDistribution from './ProductReviewDistribution';
@@ -20,6 +22,7 @@ export default function ProductReviewHeader({
   ratingCounts = [0, 0, 0, 0, 0],
   isLoading = false,
 }: ProductReviewProps) {
+  const t = useTranslations('ProductReview.summary');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const [isInView, setIsInView] = useState(false);
@@ -92,7 +95,7 @@ export default function ProductReviewHeader({
       <div ref={containerRef}>
         <div className="flex items-end justify-between border-b border-line pb-5 dark:border-dark-border">
           <div className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl dark:text-surface">
-            상품평
+            {t('title')}
           </div>
         </div>
 

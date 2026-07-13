@@ -1,4 +1,5 @@
 import { IconStar } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import ReviewFormSection from './ReviewFormSection';
 
@@ -15,8 +16,10 @@ export default function ReviewFormRatingField({
   onRatingChange,
   onHoverChange,
 }: ReviewFormRatingFieldProps) {
+  const t = useTranslations('ReviewWrite.form');
+
   return (
-    <ReviewFormSection label="만족도 평가" required>
+    <ReviewFormSection label={t('rating')} required>
       <div className="flex items-center justify-center py-2">
         {[1, 2, 3, 4, 5].map((star) => {
           const isFilled = star <= (hovered ?? rating);
@@ -32,7 +35,7 @@ export default function ReviewFormRatingField({
               onMouseEnter={() => onHoverChange(star)}
               onMouseLeave={() => onHoverChange(null)}
               className="flex h-11 w-11 items-center justify-center transition-transform duration-150 hover:scale-110 active:scale-95 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/35"
-              aria-label={`${star}점 선택`}
+              aria-label={t('selectRating', { star })}
               aria-pressed={rating === star}
             >
               <IconStar

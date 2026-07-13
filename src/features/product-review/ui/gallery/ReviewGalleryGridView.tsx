@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import Image from 'next/image';
 
 import { IconX } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
@@ -32,17 +33,20 @@ export default function ReviewGalleryGridView({
   onLoadMore,
   onClose,
 }: ReviewGalleryGridViewProps) {
+  const t = useTranslations('ProductReview.gallery');
+  const format = useFormatter();
+
   return (
     <div className="flex h-full flex-col">
       <header className="flex items-center justify-between border-b border-line px-4 py-5 sm:px-6 sm:py-6 dark:border-dark-border">
         <h3 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl dark:text-surface">
-          사진 후기
+          {t('title')}
         </h3>
         <button
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-primary-soft hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
           onClick={onClose}
-          aria-label="갤러리 닫기"
+          aria-label={t('close')}
         >
           <IconX size={26} />
         </button>
@@ -59,12 +63,12 @@ export default function ReviewGalleryGridView({
                 }}
                 type="button"
                 onClick={() => onOpenDetailModal(idx)}
-                aria-label={`${idx + 1}번째 사진 후기 자세히 보기`}
+                aria-label={t('detailAria', { index: idx + 1 })}
                 className="group relative aspect-square select-none overflow-hidden rounded-xl border border-line transition dark:border-dark-border"
               >
                 <Image
                   src={getCloudinaryReviewImageUrl(image.image_url, 'preview')}
-                  alt={`사진 후기 ${idx + 1}`}
+                  alt={t('detailAria', { index: idx + 1 })}
                   width={220}
                   height={220}
                   sizes="(min-width: 1280px) 168px, (min-width: 1024px) 156px, (min-width: 768px) 170px, (min-width: 640px) 150px, 140px"
@@ -86,7 +90,7 @@ export default function ReviewGalleryGridView({
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-line px-6 py-10 text-center text-base text-muted dark:border-dark-border dark:text-dark-muted">
-            표시할 사진 후기가 없습니다.
+            {t('empty')}
           </div>
         )}
 
@@ -98,7 +102,7 @@ export default function ReviewGalleryGridView({
               disabled={isLoadingMore}
               className="inline-flex h-11 items-center justify-center rounded-full border border-line bg-surface px-6 text-sm font-semibold text-ink transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-bg dark:text-surface dark:hover:bg-dark-bg-hover"
             >
-              {isLoadingMore ? '불러오는 중...' : '더보기'}
+              {isLoadingMore ? t('loadingMore') : t('more')}
             </button>
           </div>
         ) : null}
@@ -106,7 +110,7 @@ export default function ReviewGalleryGridView({
 
       <footer className="flex items-center justify-end gap-2 border-t border-line px-8 py-4 text-sm font-medium text-muted sm:px-10 sm:text-base dark:border-dark-border dark:text-dark-muted">
         <span className="h-2.5 w-2.5 rounded-full bg-success" />
-        <span>총 {totalCount.toLocaleString('ko-KR')}장</span>
+        <span>{t('totalImages', { count: format.number(totalCount) })}</span>
       </footer>
     </div>
   );

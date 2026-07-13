@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { useReviewFormState } from '../../model/hooks/useReviewFormState';
 
 import ReviewFormActions from './ReviewFormActions';
@@ -12,6 +14,7 @@ export default function ReviewForm({
   orderItemId,
   initialReview,
 }: ReviewFormProps) {
+  const t = useTranslations('ReviewWrite.form');
   const {
     formData,
     hovered,
@@ -48,11 +51,11 @@ export default function ReviewForm({
 
       <ReviewFormTextField
         id="title"
-        label="제목"
+        label={t('title')}
         value={formData.title}
         error={errors.title}
         isBlurred={blurState.title}
-        placeholder="몇 마디로 경험을 요약해 주세요"
+        placeholder={t('titlePlaceholder')}
         maxLength={100}
         onChange={handleFieldChange}
         onBlur={handleBlur}
@@ -60,11 +63,11 @@ export default function ReviewForm({
 
       <ReviewFormTextField
         id="content"
-        label="내용"
+        label={t('content')}
         value={formData.content}
         error={errors.content}
         isBlurred={blurState.content}
-        placeholder="어떤 점이 좋았나요? 아쉬웠던 점은 무엇인가요?"
+        placeholder={t('contentPlaceholder')}
         maxLength={1000}
         multiline
         onChange={handleFieldChange}

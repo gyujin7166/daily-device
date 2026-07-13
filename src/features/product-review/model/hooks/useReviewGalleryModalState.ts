@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useLocale, useTranslations } from 'next-intl';
+
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
 import { useScrollLock } from '@shared/hooks/useScrollLock';
@@ -30,6 +32,8 @@ export const useReviewGalleryModalState = ({
   detailEntrySource,
   onClose,
 }: UseReviewGalleryModalStateParams) => {
+  const locale = useLocale();
+  const t = useTranslations('ProductReview.gallery');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isReviewContentExpanded, setIsReviewContentExpanded] = useState(false);
@@ -70,8 +74,9 @@ export const useReviewGalleryModalState = ({
         selectedImage,
         images,
         detailSelectedImageId,
+        emptyContentText: t('noContent'),
       }),
-    [detailSelectedImageId, images, selectedImage],
+    [detailSelectedImageId, images, selectedImage, t],
   );
   const {
     detailImage,
@@ -245,6 +250,25 @@ export const useReviewGalleryModalState = ({
             onNext: goToNext,
             onSelectDetailImage: (imageId: number) =>
               setDetailSelectedImageId(imageId),
+            formatReviewDate: (createdAt?: string) => {
+              if (!createdAt) {
+                return '-';
+              }
+
+              const parsedDate = new Date(createdAt);
+              if (Number.isNaN(parsedDate.getTime())) {
+                return '-';
+              }
+
+              return new Intl.DateTimeFormat(
+                locale === 'en' ? 'en-US' : 'ko-KR',
+                {
+                  year: 'numeric',
+                  month: locale === 'en' ? 'short' : 'long',
+                  day: 'numeric',
+                },
+              ).format(parsedDate);
+            },
           })
         : null,
     openDetailModal,

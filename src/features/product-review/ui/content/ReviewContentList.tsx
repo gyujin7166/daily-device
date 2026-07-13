@@ -73,7 +73,7 @@ export default function ReviewContentList({
   isFeedbackPendingForReview,
   onFeedbackClick,
   onOpenImageDetail,
-  emptyMessage = '표시할 상품평이 없습니다.',
+  emptyMessage,
 }: ReviewContentListProps) {
   return (
     <div

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 type ReviewFormSectionProps = {
   label: string;
   required?: boolean;
@@ -13,6 +15,8 @@ export default function ReviewFormSection({
   optional = false,
   children,
 }: ReviewFormSectionProps) {
+  const t = useTranslations('ReviewWrite.form');
+
   return (
     <section className="rounded-2xl border border-line bg-surface p-6 dark:border-dark-border dark:bg-dark-panel">
       <div className="mb-4 flex items-center justify-between">
@@ -26,7 +30,7 @@ export default function ReviewFormSection({
         </p>
         {optional ? (
           <span className="text-xs font-medium text-primary dark:text-blue-300">
-            선택
+            {t('optional')}
           </span>
         ) : null}
       </div>

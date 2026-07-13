@@ -1,6 +1,9 @@
 import { IconCube, IconMessage, IconStarFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 export default function NoReviewProduct() {
+  const t = useTranslations('ProductReview.empty');
+
   return (
     <section className="rounded-3xl border border-line bg-surface px-5 py-12 text-center sm:px-8 sm:py-16 dark:border-dark-border dark:bg-dark-panel/50">
       <div className="mx-auto flex max-w-3xl flex-col items-center">
@@ -31,10 +34,10 @@ export default function NoReviewProduct() {
         </div>
 
         <h3 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl dark:text-surface">
-          아직 상품평이 없어요.
+          {t('productTitle')}
         </h3>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-muted sm:text-base sm:leading-7 dark:text-dark-muted">
-          이 상품을 사용해보셨나요? 솔직한 후기를 남겨주세요.
+          {t('productDescription')}
         </p>
       </div>
     </section>

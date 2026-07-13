@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 
 import { useReviewGalleryModalState } from '../../model/hooks/useReviewGalleryModalState';
@@ -20,6 +22,7 @@ export function ReviewGalleryModal({
   initialView = 'grid',
   detailEntrySource = 'gallery',
 }: ReviewGalleryModalProps) {
+  const t = useTranslations('ProductReview.gallery');
   const {
     selectedIndex,
     isDetailOpen,
@@ -45,7 +48,7 @@ export function ReviewGalleryModal({
       className="fixed inset-0 z-70 flex items-stretch justify-center bg-ink/70 lg:items-center lg:px-4 lg:py-5"
       role="dialog"
       aria-modal="true"
-      aria-label="사진 후기 갤러리"
+      aria-label={t('modalLabel')}
       onClick={onClose}
     >
       <div

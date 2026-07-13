@@ -26,11 +26,11 @@ const formatReviewGalleryDate = (createdAt?: string) => {
     return '-';
   }
 
-  return parsedDate.toLocaleDateString('ko-KR', {
+  return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric',
-  });
+  }).format(parsedDate);
 };
 
 const getReviewGalleryDetailImages = ({
@@ -68,12 +68,14 @@ type GetReviewGallerySelectedDetailParams = {
   selectedImage?: ProductReviewGalleryImage;
   images: ProductReviewGalleryImage[];
   detailSelectedImageId: number | null;
+  emptyContentText?: string;
 };
 
 export const getReviewGallerySelectedDetail = ({
   selectedImage,
   images,
   detailSelectedImageId,
+  emptyContentText = 'No review content.',
 }: GetReviewGallerySelectedDetailParams) => {
   const selectedReview = selectedImage?.productReview;
   const detailImages = getReviewGalleryDetailImages({
@@ -89,7 +91,7 @@ export const getReviewGallerySelectedDetail = ({
   const helpfulCount = Math.max(0, selectedReview?.helpfulCount ?? 0);
   const selectedReviewId = selectedReview?.id ?? null;
   const isHelpfulActive = selectedReview?.currentUserVote === true;
-  const reviewContentText = selectedReview?.content ?? '리뷰 내용이 없습니다.';
+  const reviewContentText = selectedReview?.content ?? emptyContentText;
   const shouldShowContentToggle = reviewContentText.length > 140;
 
   return {

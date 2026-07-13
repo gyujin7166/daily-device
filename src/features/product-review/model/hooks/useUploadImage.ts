@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import {
   assertValidCloudinaryImageFile,
   CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB,
+  CloudinaryUploadError,
+  cloudinaryUploadErrorKeyByCode,
   uploadCloudinaryImage,
 } from '@shared/lib/cloudinary/uploadImage';
 import type {
@@ -16,7 +20,21 @@ type SelectedImage = {
   previewUrl: string;
 };
 
+const getUploadErrorMessage = (
+  error: unknown,
+  t: ReturnType<typeof useTranslations<'ReviewWrite.upload'>>,
+) => {
+  if (error instanceof CloudinaryUploadError) {
+    const key = cloudinaryUploadErrorKeyByCode[error.code];
+
+    return t(`uploadErrors.${key}`, { maxSize: error.details ?? '' });
+  }
+
+  return error instanceof Error ? error.message : t('uploadFailed');
+};
+
 export default function useUploadImage() {
+  const t = useTranslations('ReviewWrite.upload');
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,12 +82,7 @@ export default function useUploadImage() {
         })),
       ]);
     } catch (selectError) {
-      const message =
-        selectError instanceof Error
-          ? selectError.message
-          : '이미지 선택 중 오류가 발생했습니다.';
-
-      setError(message);
+      setError(getUploadErrorMessage(selectError, t));
     }
   };
 
@@ -99,12 +112,9 @@ export default function useUploadImage() {
         ),
       );
     } catch (uploadError) {
-      const message =
-        uploadError instanceof Error
-          ? uploadError.message
-          : '이미지 업로드 중 오류가 발생했습니다.';
+      const message = getUploadErrorMessage(uploadError, t);
 
-      setError(`이미지 업로드 실패: ${message}`);
+      setError(t('uploadFailedWithMessage', { message }));
       throw uploadError;
     } finally {
       setIsUploading(false);

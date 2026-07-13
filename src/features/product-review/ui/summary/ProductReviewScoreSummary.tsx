@@ -1,3 +1,5 @@
+import { useFormatter, useTranslations } from 'next-intl';
+
 import { ProductReviewScoreSkeleton } from './ProductReviewHeaderSkeleton';
 import ProductReviewStars from './ProductReviewStars';
 
@@ -14,6 +16,9 @@ export default function ProductReviewScoreSummary({
   isLoading,
   summary,
 }: ProductReviewScoreSummaryProps) {
+  const t = useTranslations('ProductReview.summary');
+  const format = useFormatter();
+
   if (isLoading) {
     return <ProductReviewScoreSkeleton />;
   }
@@ -35,7 +40,9 @@ export default function ProductReviewScoreSummary({
         hasReviews={summary.hasReviews}
       />
       <div className="mt-3 text-base font-medium text-muted dark:text-dark-muted">
-        총 {summary.safeTotalReviews.toLocaleString('ko-KR')}개 리뷰 기준
+        {t('scoreBase', {
+          count: format.number(summary.safeTotalReviews),
+        })}
       </div>
     </>
   );

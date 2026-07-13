@@ -1,3 +1,5 @@
+import { useFormatter, useTranslations } from 'next-intl';
+
 import type { ProductReviewSortOption } from '@entities/review/model/sort';
 
 import { cn } from '@shared/lib/utils/style';
@@ -32,6 +34,23 @@ export default function ReviewContentControls({
   onFilterChange,
   onSortChange,
 }: ReviewContentControlsProps) {
+  const t = useTranslations('ProductReview');
+  const format = useFormatter();
+  const sortOptions = REVIEW_SORT_OPTIONS.map((option) => ({
+    value: option.value,
+    label: t(`sort.${option.labelKey}`),
+  }));
+  const rangeText = t(
+    reviewFilter === 'with_images'
+      ? 'filters.rangeWithImages'
+      : 'filters.rangeAll',
+    {
+      total: format.number(safeTotalItems),
+      start: format.number(showingStart),
+      end: format.number(showingEnd),
+    },
+  );
+
   if (shouldShowSkeleton) {
     return (
       <section className="mt-10 rounded-2xl border border-line bg-surface px-4 py-4 sm:px-5 dark:border-dark-border dark:bg-dark-panel">
@@ -57,7 +76,7 @@ export default function ReviewContentControls({
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <SortDropdown<ProductReviewSortOption>
             value={sortOption}
-            options={REVIEW_SORT_OPTIONS}
+            options={sortOptions}
             onChange={(nextValue) => onSortChange?.(nextValue)}
             disabled={isSorting}
             menuWidthClassName="w-47.5"
@@ -75,7 +94,7 @@ export default function ReviewContentControls({
               disabled={isRefreshing}
               onClick={() => onFilterChange?.('all')}
             >
-              전체 리뷰
+              {t('filters.all')}
             </button>
             <button
               type="button"
@@ -88,22 +107,13 @@ export default function ReviewContentControls({
               disabled={isRefreshing}
               onClick={() => onFilterChange?.('with_images')}
             >
-              이미지 포함
+              {t('filters.withImages')}
             </button>
           </div>
         </div>
 
         <div className="text-sm text-muted dark:text-dark-muted">
-          {reviewFilter === 'with_images' ? '이미지 포함 리뷰 ' : '총 '}
-          <span className="font-semibold text-ink dark:text-surface">
-            {safeTotalItems.toLocaleString('ko-KR')}
-          </span>{' '}
-          개 중{' '}
-          <span className="font-semibold text-ink dark:text-surface">
-            {showingStart.toLocaleString('ko-KR')}-
-            {showingEnd.toLocaleString('ko-KR')}
-          </span>
-          개 표시
+          {rangeText}
         </div>
       </div>
     </section>

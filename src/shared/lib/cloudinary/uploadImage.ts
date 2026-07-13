@@ -1,3 +1,8 @@
+import {
+  CLOUDINARY_UPLOAD_ERROR_CODE,
+} from '@shared/constants/cloudinaryUploadErrorCode';
+import type { CloudinaryUploadErrorCode } from '@shared/constants/cloudinaryUploadErrorCode';
+
 export type CloudinaryUploadTarget =
   | {
       target: 'product';
@@ -29,6 +34,42 @@ type CloudinaryUploadResponse = {
   secure_url: string;
   public_id: string;
 };
+
+export class CloudinaryUploadError extends Error {
+  constructor(
+    message: string,
+    public code: CloudinaryUploadErrorCode,
+    public details?: string,
+  ) {
+    super(message);
+    this.name = 'CloudinaryUploadError';
+  }
+}
+
+export const cloudinaryUploadErrorKeyByCode = {
+  [CLOUDINARY_UPLOAD_ERROR_CODE.CLOUD_NAME_MISSING]: 'cloudNameMissing',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.INVALID_IMAGE_TYPE]: 'invalidImageType',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.IMAGE_TOO_LARGE]: 'imageTooLarge',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.SIGNATURE_REQUEST_FAILED]:
+    'signatureRequestFailed',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.SIGNATURE_RESPONSE_INVALID]:
+    'signatureResponseInvalid',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.UPLOAD_REQUEST_FAILED]: 'uploadRequestFailed',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.UPLOAD_RESPONSE_INVALID]:
+    'uploadResponseInvalid',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.PRODUCT_CATEGORY_NOT_FOUND]:
+    'productCategoryNotFound',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.PRODUCT_COLOR_NOT_FOUND]:
+    'productColorNotFound',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.HERO_TYPE_NOT_FOUND]: 'heroTypeNotFound',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.HERO_TYPE_UNSUPPORTED]: 'heroTypeUnsupported',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.REVIEW_ORDER_ITEM_NOT_FOUND]:
+    'reviewOrderItemNotFound',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.CLOUDINARY_CONFIG_MISSING]:
+    'cloudinaryConfigMissing',
+  [CLOUDINARY_UPLOAD_ERROR_CODE.CLOUDINARY_UPLOAD_PRESET_MISSING]:
+    'cloudinaryUploadPresetMissing',
+} as const;
 
 const CLOUDINARY_DEFAULT_UPLOAD_MAX_SIZE_MB = 5;
 export const CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB = 10;
@@ -78,7 +119,10 @@ const getCloudinaryUploadUrl = () => {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
   if (!cloudName) {
-    throw new Error('Cloudinary cloud name이 설정되지 않았습니다.');
+    throw new CloudinaryUploadError(
+      'Cloudinary cloud name is not configured.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.CLOUD_NAME_MISSING,
+    );
   }
 
   return `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -112,24 +156,35 @@ export const assertValidCloudinaryImageFile = (
     CLOUDINARY_ALLOWED_IMAGE_EXTENSIONS.includes(extension);
 
   if (!hasAllowedMimeType && !hasAllowedExtension) {
-    throw new Error('jpg, png, webp, heic 이미지만 업로드할 수 있습니다.');
+    throw new CloudinaryUploadError(
+      'Only jpg, png, webp, and heic images can be uploaded.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.INVALID_IMAGE_TYPE,
+    );
   }
 
   if (file.size > getCloudinaryUploadMaxSizeBytes(maxSizeMb)) {
-    throw new Error(`이미지는 ${maxSizeMb}MB 이하만 업로드할 수 있습니다.`);
+    throw new CloudinaryUploadError(
+      `Images must be ${maxSizeMb}MB or smaller.`,
+      CLOUDINARY_UPLOAD_ERROR_CODE.IMAGE_TOO_LARGE,
+      String(maxSizeMb),
+    );
   }
 };
 
-const getCloudinaryResponseErrorMessage = async (response: Response) => {
+const getCloudinaryResponseError = async (response: Response) => {
   try {
     const body = (await response.json()) as {
+      code?: string;
       error?: { message?: string };
       message?: string;
     };
 
-    return body.error?.message ?? body.message ?? response.statusText;
+    return {
+      code: body.code,
+      message: body.error?.message ?? body.message ?? response.statusText,
+    };
   } catch {
-    return response.statusText;
+    return { code: undefined, message: response.statusText };
   }
 };
 
@@ -150,13 +205,26 @@ const getCloudinarySignature = async (
   });
 
   if (!response.ok) {
-    throw new Error(await getCloudinaryResponseErrorMessage(response));
+    const responseError = await getCloudinaryResponseError(response);
+    throw new CloudinaryUploadError(
+      responseError.message,
+      responseError.code &&
+        Object.values(CLOUDINARY_UPLOAD_ERROR_CODE).includes(
+          responseError.code as CloudinaryUploadErrorCode,
+        )
+        ? (responseError.code as CloudinaryUploadErrorCode)
+        : CLOUDINARY_UPLOAD_ERROR_CODE.SIGNATURE_REQUEST_FAILED,
+      responseError.message,
+    );
   }
 
   const body: unknown = await response.json();
 
   if (!isCloudinarySignResponse(body)) {
-    throw new Error('Cloudinary 서명을 받지 못했습니다.');
+    throw new CloudinaryUploadError(
+      'Cloudinary signature response is invalid.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.SIGNATURE_RESPONSE_INVALID,
+    );
   }
 
   return body;
@@ -195,13 +263,21 @@ export const uploadCloudinaryImage = async ({
   });
 
   if (!response.ok) {
-    throw new Error(await getCloudinaryResponseErrorMessage(response));
+    const responseError = await getCloudinaryResponseError(response);
+    throw new CloudinaryUploadError(
+      responseError.message,
+      CLOUDINARY_UPLOAD_ERROR_CODE.UPLOAD_REQUEST_FAILED,
+      responseError.message,
+    );
   }
 
   const body: unknown = await response.json();
 
   if (!isCloudinaryUploadResponse(body)) {
-    throw new Error('업로드된 이미지 정보를 받지 못했습니다.');
+    throw new CloudinaryUploadError(
+      'Cloudinary upload response is invalid.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.UPLOAD_RESPONSE_INVALID,
+    );
   }
 
   return {
