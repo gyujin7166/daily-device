@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 type SearchSuggestionProps = {
   highlightedText: ReactElement[];
   isLoading: boolean;
@@ -9,6 +11,7 @@ export default function SearchSuggestion({
   highlightedText,
   isLoading,
 }: SearchSuggestionProps) {
+  const t = useTranslations('Search');
   const shouldRender = isLoading || highlightedText.length > 0;
 
   if (!shouldRender) {
@@ -22,7 +25,7 @@ export default function SearchSuggestion({
           <ul className="max-h-[60vh] overflow-y-auto p-3 leading-6">
             {isLoading && highlightedText.length === 0 ? (
               <li className="rounded-xl px-3 py-3 text-sm text-muted dark:text-dark-muted">
-                검색어를 확인하고 있습니다...
+                {t('checking')}
               </li>
             ) : (
               highlightedText

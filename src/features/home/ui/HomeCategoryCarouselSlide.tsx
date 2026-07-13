@@ -1,10 +1,11 @@
 import type React from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
 
-import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
+import { useTranslations } from 'next-intl';
+
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
@@ -43,11 +44,13 @@ function HomeCategoryCarouselItemCard({
 }: {
   item: HomeCategoryCarouselItem;
 }) {
+  const t = useTranslations('Home.category');
   const isLabelTop = item.labelPosition === 'top';
   const hasImage = item.imageSrc.trim().length > 0;
   const imageSrc = hasImage ? item.imageSrc : IMAGE_FALLBACK_URL;
   const isUnavailableLink = !item.href;
-  const ctaLabel = item.cta ?? `${item.label} 보기`;
+  const label = item.labelKey ? t(item.labelKey) : item.label;
+  const ctaLabel = item.cta ?? t('viewCta', { label });
   const handleUnavailableLinkClick = (
     event: React.MouseEvent<HTMLAnchorElement>,
   ) => {
@@ -56,7 +59,7 @@ function HomeCategoryCarouselItemCard({
     }
 
     event.preventDefault();
-    toast.info(NOT_IMPLEMENTED_MESSAGE);
+    toast.info(t('notImplemented'));
   };
 
   return (
@@ -78,7 +81,7 @@ function HomeCategoryCarouselItemCard({
           >
             <Image
               src={getCloudinaryImageUrl(imageSrc, 'homeCard')}
-              alt={hasImage ? item.imageAlt : '상품 이미지 준비 중'}
+              alt={hasImage ? item.imageAlt : t('imageFallbackAlt')}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className={cn(
@@ -97,7 +100,7 @@ function HomeCategoryCarouselItemCard({
             )}
           >
             <h3 className="max-w-full text-xl font-bold leading-tight tracking-normal break-keep drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] sm:text-2xl lg:text-3xl">
-              {item.label}
+              {label}
             </h3>
             <span className="mt-3 inline-flex h-11 max-w-full items-center justify-center rounded-xl bg-surface px-6 text-sm font-bold whitespace-nowrap text-ink shadow-xs transition group-hover:bg-surface/90">
               {ctaLabel}

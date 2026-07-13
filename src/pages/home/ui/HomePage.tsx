@@ -1,4 +1,5 @@
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import { getHomeSections } from '@app/api-routes/home/sections/service';
 import { getHeroList } from '@app/api-routes/products/hero/service';
@@ -11,18 +12,19 @@ import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 import HomePageContent from './HomePageContent';
 
 export default async function HomePage() {
+  const locale = await getLocale();
   const queryClient = new QueryClient();
 
   await Promise.all([
     queryClient.prefetchQuery({
-      queryKey: productQueryKeys.hero('main'),
-      queryFn: () => getHeroList('main'),
+      queryKey: productQueryKeys.hero('main', undefined, locale),
+      queryFn: () => getHeroList('main', undefined, locale),
       staleTime: 60 * 60 * 1000,
       gcTime: 60 * 60 * 1000,
     }),
     queryClient.prefetchQuery({
-      queryKey: homeQueryKeys.sections(),
-      queryFn: () => getHomeSections(),
+      queryKey: homeQueryKeys.sections([], locale),
+      queryFn: () => getHomeSections({ locale }),
       staleTime: 60 * 60 * 1000,
       gcTime: 60 * 60 * 1000,
     }),

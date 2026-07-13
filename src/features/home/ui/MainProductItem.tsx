@@ -1,14 +1,15 @@
 import type React from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
 
 import { IconArrowRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+
 
 import type { HomeSection } from '@entities/home/model/types';
 
-import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 import { cn } from '@shared/lib/utils/style';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
@@ -30,6 +31,7 @@ type MainProductCardItem = {
 };
 
 export default function MainProductItem({ section }: MainProductItemProps) {
+  const t = useTranslations('Home.featured');
   const items: readonly MainProductCardItem[] =
     section?.items
       .slice()
@@ -41,7 +43,7 @@ export default function MainProductItem({ section }: MainProductItemProps) {
         title: item.title,
         description: item.description ?? '',
         href: item.href ?? '#',
-        cta: item.cta ?? '자세히 보기',
+        cta: item.cta ?? t('defaultCta'),
       })) ?? [];
 
   if (!section || items.length === 0) {
@@ -51,12 +53,9 @@ export default function MainProductItem({ section }: MainProductItemProps) {
   return (
     <PageWrapper as="section" className="pt-10 sm:pt-14 lg:pt-16">
       <HomeSectionHeader
-        eyebrow={section?.eyebrow ?? 'Featured'}
-        title={section?.title ?? '매일의 작업을 바꾸는 제품'}
-        subtitle={
-          section?.subtitle ??
-          '작업, 통화, 이동까지 이어지는 사용 흐름에 맞춰 Daily Device의 대표 제품을 골라보세요.'
-        }
+        eyebrow={section?.eyebrow ?? t('eyebrow')}
+        title={section?.title ?? t('title')}
+        subtitle={section?.subtitle ?? t('subtitle')}
       />
 
       <div className="grid gap-5 md:grid-cols-3">
@@ -79,6 +78,7 @@ function MainProductCard({
   item: MainProductCardItem;
   priorityImage: boolean;
 }) {
+  const t = useTranslations('Common.feedback');
   const hasImage = item.imageSrc.trim().length > 0;
   const imageSrc = hasImage ? item.imageSrc : IMAGE_FALLBACK_URL;
   const isUnavailableLink = !item.href || item.href === '#';
@@ -90,7 +90,7 @@ function MainProductCard({
     }
 
     event.preventDefault();
-    toast.info(NOT_IMPLEMENTED_MESSAGE);
+    toast.info(t('notImplemented'));
   };
 
   return (

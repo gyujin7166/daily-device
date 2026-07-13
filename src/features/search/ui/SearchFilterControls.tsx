@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 import SortDropdown from '@shared/ui/SortDropdown';
 
@@ -14,37 +16,26 @@ type SearchFilterControlsProps = {
   totalCount: number;
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  mice: '마우스',
-  keyboards: '키보드',
-  'tablet-keyboards': '태블릿 키보드',
-  headsets: '헤드셋',
-  earphones: '이어폰',
-  microphones: '마이크',
-  webcams: '웹캠',
-  cameras: '카메라',
-  lighting: '조명',
-  'streaming-gear': '스트리밍 장비',
-  'tablet-accessories': '태블릿용',
-  'phone-accessories': '스마트폰용',
-  stands: '거치대',
-  cables: '케이블',
-  'bluetooth-speakers': 'Bluetooth® 스피커',
-  'computer-speakers': '컴퓨터 스피커',
-  'security-cameras': '보안 카메라',
-  'smart-home': '스마트 홈',
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  mice: 'mice',
+  keyboards: 'keyboards',
+  'tablet-keyboards': 'tabletKeyboards',
+  headsets: 'headsets',
+  earphones: 'earphones',
+  microphones: 'microphones',
+  webcams: 'webcams',
+  cameras: 'cameras',
+  lighting: 'lighting',
+  'streaming-gear': 'streamingGear',
+  'tablet-accessories': 'tabletAccessories',
+  'phone-accessories': 'phoneAccessories',
+  stands: 'stands',
+  cables: 'cables',
+  'bluetooth-speakers': 'bluetoothSpeakers',
+  'computer-speakers': 'computerSpeakers',
+  'security-cameras': 'securityCameras',
+  'smart-home': 'smartHome',
 };
-
-const SORT_OPTIONS: { value: SearchSortOption; label: string }[] = [
-  { value: 'relevance', label: '관련도순' },
-  { value: 'name_asc', label: '이름 오름차순' },
-  { value: 'name_desc', label: '이름 내림차순' },
-  { value: 'price_asc', label: '가격 낮은순' },
-  { value: 'price_desc', label: '가격 높은순' },
-];
-
-const getCategoryLabel = (category: string) =>
-  CATEGORY_LABELS[category] ?? category;
 
 export default function SearchFilterControls({
   categories,
@@ -56,6 +47,20 @@ export default function SearchFilterControls({
   visibleCount,
   totalCount,
 }: SearchFilterControlsProps) {
+  const t = useTranslations('Search.filters');
+  const sortOptions: { value: SearchSortOption; label: string }[] = [
+    { value: 'relevance', label: t('sort.relevance') },
+    { value: 'name_asc', label: t('sort.nameAsc') },
+    { value: 'name_desc', label: t('sort.nameDesc') },
+    { value: 'price_asc', label: t('sort.priceAsc') },
+    { value: 'price_desc', label: t('sort.priceDesc') },
+  ];
+  const getCategoryLabel = (category: string) => {
+    const key = CATEGORY_LABEL_KEYS[category];
+
+    return key ? t(`categories.${key}`) : category;
+  };
+
   if (categories.length === 0 && visibleCount === 0 && totalCount === 0) {
     return null;
   }
@@ -88,22 +93,22 @@ export default function SearchFilterControls({
               onClick={onClearCategories}
               className="inline-flex h-8 items-center rounded-full border border-line bg-surface px-3 text-xs font-semibold text-muted transition-colors hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
             >
-              모두 지우기
+              {t('clearAll')}
             </button>
           )}
         </div>
 
         <div className="flex shrink-0 items-center justify-between gap-3 lg:justify-end">
           <p className="whitespace-nowrap text-xs text-muted dark:text-dark-muted">
-            표시 {visibleCount} / {totalCount}
+            {t('visibleCount', { visible: visibleCount, total: totalCount })}
           </p>
           <SortDropdown<SearchSortOption>
             value={sortOption}
-            options={SORT_OPTIONS}
+            options={sortOptions}
             onChange={onSortChange}
             menuWidthClassName="w-52.5"
             mobileSheetOnMobile
-            mobileSheetTitle="정렬 기준"
+            mobileSheetTitle={t('sortSheetTitle')}
           />
         </div>
       </div>

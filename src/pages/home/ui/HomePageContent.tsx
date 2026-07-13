@@ -1,7 +1,8 @@
 'use client';
 import { useMemo } from 'react';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+
 
 import { HomeCategoryCarousel, MainProductItem } from '@features/home/ui';
 
@@ -9,10 +10,12 @@ import { useHomeSections } from '@entities/home/queries/useHomeSections';
 import { useHero } from '@entities/product/queries/useHero';
 
 import { useBlurImages } from '@shared/hooks/useBlurImages';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import Hero from '@shared/ui/Hero/Hero';
 
 export default function HomePageContent() {
+  const t = useTranslations('Home.hero');
   const { data: hero } = useHero({ type: 'main' });
   const { data: homeSections } = useHomeSections();
   const featuredSection = homeSections?.find(
@@ -75,7 +78,7 @@ export default function HomePageContent() {
                   : 'border-ink bg-ink text-surface hover:bg-ink/90 hover:text-surface',
               )}
             >
-              <span>모든 상품 보기</span>
+              <span>{t('viewAllProducts')}</span>
             </Link>
           </div>
         ) : null}

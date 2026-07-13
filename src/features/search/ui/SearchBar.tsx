@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import type { ChangeEvent, Dispatch, SetStateAction, SubmitEvent } from 'react';
 
-import { useRouter } from 'next/navigation';
 
 import { IconSearch, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { Transition } from 'react-transition-group';
 
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import { getTransitionStyle } from '@shared/types/transition';
 import type { TransitionStyle } from '@shared/types/transition';
@@ -26,6 +27,7 @@ export default function SearchBar({
   onInputChange,
   inputText,
 }: SearchBarProps) {
+  const t = useTranslations('Search');
   const router = useRouter();
   const nodeRef = useRef(null);
   const duration = 150;
@@ -102,7 +104,7 @@ export default function SearchBar({
               />
               <input
                 type="text"
-                placeholder="상품을 검색해보세요"
+                placeholder={t('placeholder')}
                 className="h-10 w-full bg-transparent text-base font-medium text-ink outline-hidden placeholder:text-muted dark:text-surface dark:placeholder:text-slate-400"
                 onChange={onInputChange}
                 value={inputText}
@@ -110,7 +112,7 @@ export default function SearchBar({
               />
               <button
                 type="button"
-                aria-label="검색창 닫기"
+                aria-label={t('close')}
                 className="flex h-9 w-9 items-center justify-center rounded-full text-muted transition hover:bg-primary-soft dark:hover:bg-blue-900/40 hover:text-primary dark:text-dark-muted dark:hover:text-blue-300"
                 onClick={() => setShowSearchBar((prev) => !prev)}
               >
@@ -118,7 +120,7 @@ export default function SearchBar({
               </button>
             </div>
             <button type="submit" className="hidden">
-              전송
+              {t('submit')}
             </button>
           </PageWrapper>
         </form>
