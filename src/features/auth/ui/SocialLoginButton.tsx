@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react';
 
 import { cva } from 'class-variance-authority';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -46,18 +47,14 @@ const iconWrapperVariants = cva(
   },
 );
 
-const labelByProvider: Record<SocialProvider, string> = {
-  google: 'Google로 로그인',
-  naver: 'Naver로 로그인',
-  kakao: 'Kakao로 로그인',
-};
-
 export default function SocialLoginButton({
   provider,
   children,
   className,
   ...props
 }: SocialLoginButtonProps) {
+  const t = useTranslations('Auth.social');
+
   return (
     <button
       type="button"
@@ -68,7 +65,7 @@ export default function SocialLoginButton({
         <ProviderIcon provider={provider} />
       </span>
       <span className="absolute left-1/2 -translate-x-1/2">
-        {children ?? labelByProvider[provider]}
+        {children ?? t(provider)}
       </span>
     </button>
   );
