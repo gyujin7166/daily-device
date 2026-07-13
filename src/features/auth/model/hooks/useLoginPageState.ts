@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { signIn, useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { fetchApi } from '@shared/api/fetchApi';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
 import {
@@ -41,6 +41,7 @@ export default function useLoginPageState({
   error,
   reason,
 }: UseLoginPageStateParams) {
+  const t = useTranslations('Auth');
   const { status, update } = useSession();
   const router = useRouter();
   const hasShownErrorToast = useRef(false);
@@ -49,6 +50,14 @@ export default function useLoginPageState({
   const hasRequestedSessionRefreshRef = useRef(false);
   const [isDemoSigningIn, setIsDemoSigningIn] = useState(false);
   const [loginContentRenderKey, setLoginContentRenderKey] = useState(0);
+  const getTranslatedSocialLoginErrorMessage = useCallback(
+    (nextError: string) =>
+      getSocialLoginErrorMessage(nextError, {
+        accountNotLinked: t('errors.accountNotLinked'),
+        defaultError: t('errors.loginFailed'),
+      }),
+    [t],
+  );
 
   const clearSocialLoginTimer = useCallback(() => {
     if (socialLoginTimerRef.current !== null) {
@@ -134,7 +143,7 @@ export default function useLoginPageState({
       router.replace(result.url || getDemoLoginCallbackUrl(callbackUrl));
       router.refresh();
     } catch {
-      toast.error('데모 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      toast.error(t('errors.demoLoginFailed'));
     } finally {
       setIsDemoSigningIn(false);
     }
@@ -181,7 +190,7 @@ export default function useLoginPageState({
       if (isSocialLoginErrorMessage(event.data)) {
         clearSocialLoginTimer();
         setLoginContentRenderKey((prevKey) => prevKey + 1);
-        toast.error(getSocialLoginErrorMessage(event.data.error));
+        toast.error(getTranslatedSocialLoginErrorMessage(event.data.error));
       }
     };
 
@@ -190,7 +199,11 @@ export default function useLoginPageState({
     return () => {
       window.removeEventListener('message', handleMessage);
     };
-  }, [clearSocialLoginTimer, refreshSessionAfterSocialLogin]);
+  }, [
+    clearSocialLoginTimer,
+    getTranslatedSocialLoginErrorMessage,
+    refreshSessionAfterSocialLogin,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -204,8 +217,8 @@ export default function useLoginPageState({
     }
 
     hasShownReasonToast.current = true;
-    toast.info('찜 기능은 로그인 후 사용할 수 있습니다.');
-  }, [reason]);
+    toast.info(t('toast.wishlistLoginRequired'));
+  }, [reason, t]);
 
   useEffect(() => {
     if (hasShownErrorToast.current || !error) {
@@ -233,8 +246,8 @@ export default function useLoginPageState({
       };
     }
 
-    toast.error(getSocialLoginErrorMessage(error));
-  }, [error]);
+    toast.error(getTranslatedSocialLoginErrorMessage(error));
+  }, [error, getTranslatedSocialLoginErrorMessage]);
 
   return {
     handleDemoLogin,

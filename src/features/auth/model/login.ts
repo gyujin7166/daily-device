@@ -8,12 +8,21 @@ export type SocialLoginErrorMessage = {
   error: string;
 };
 
-export const getSocialLoginErrorMessage = (error: string) => {
+export const getSocialLoginErrorMessage = (
+  error: string,
+  messages?: {
+    accountNotLinked: string;
+    defaultError: string;
+  },
+) => {
   if (error === 'OAuthAccountNotLinked') {
-    return '이미 다른 로그인 방식으로 가입된 이메일입니다. 처음 사용한 로그인 방식으로 다시 로그인해주세요.';
+    return (
+      messages?.accountNotLinked ??
+      'This email is already linked to another login method. Try the login method you used first.'
+    );
   }
 
-  return '로그인에 실패했습니다. 잠시 후 다시 시도해주세요.';
+  return messages?.defaultError ?? 'Login failed. Please try again later.';
 };
 
 const DEFAULT_LOGIN_CALLBACK_URL = '/products';

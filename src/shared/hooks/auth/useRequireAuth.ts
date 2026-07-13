@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 import { useSession } from 'next-auth/react';
 
 import { getLoginRedirectPath } from '@shared/lib/authRedirect';
+import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { createCurrentPath } from '@shared/lib/router/currentPath';
 
 export const useRequireAuth = () => {

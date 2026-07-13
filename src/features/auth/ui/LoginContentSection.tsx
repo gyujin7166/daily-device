@@ -1,10 +1,13 @@
 import Image from 'next/image';
-import Link from 'next/link';
+
+import { useTranslations } from 'next-intl';
 
 import {
   DAILY_DEVICE_SYMBOL_SIZE,
   DAILY_DEVICE_SYMBOL_SRC,
 } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
+
 
 import SocialLoginButton from './SocialLoginButton';
 
@@ -21,6 +24,8 @@ export default function LoginContentSection({
   onDemoLogin,
   isDemoSigningIn = false,
 }: LoginContentSectionProps) {
+  const t = useTranslations('Auth.login');
+
   return (
     <div className="flex w-full items-center justify-center px-4">
       <section className="w-full max-w-md rounded-xl border border-line bg-surface p-8 shadow-xl dark:border-dark-border dark:bg-dark-panel">
@@ -39,10 +44,10 @@ export default function LoginContentSection({
             />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-ink dark:text-surface">
-            로그인
+            {t('title')}
           </h1>
           <p className="text-sm text-muted dark:text-dark-muted">
-            원하는 소셜 계정으로 로그인하세요.
+            {t('description')}
           </p>
         </div>
 
@@ -53,7 +58,7 @@ export default function LoginContentSection({
             disabled={isDemoSigningIn}
             className="relative flex h-12 w-full items-center justify-center rounded-md border border-primary bg-primary-soft px-4 text-base font-semibold text-primary transition hover:bg-primary hover:text-surface disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-blue-900/30 dark:text-blue-300"
           >
-            {isDemoSigningIn ? '데모 로그인 중...' : '데모 로그인'}
+            {isDemoSigningIn ? t('demoSigningIn') : t('demoLogin')}
           </button>
           <SocialLoginButton
             provider="google"
@@ -70,25 +75,25 @@ export default function LoginContentSection({
         </div>
 
         <p className="pt-4 text-center text-xs text-muted dark:text-dark-muted">
-          데모 로그인으로 주문/결제 플로우를 바로 테스트할 수 있습니다.
+          {t('demoHelper')}
         </p>
 
         <p className="pt-6 text-center text-xs leading-relaxed text-muted dark:text-dark-muted">
-          계속 진행하면{' '}
+          {t('agreementPrefix')}{' '}
           <Link
             href="/terms"
             className="underline underline-offset-2 transition-colors hover:text-ink dark:hover:text-surface"
           >
-            이용약관
+            {t('terms')}
           </Link>{' '}
-          및{' '}
+          {t('agreementAnd')}{' '}
           <Link
             href="/privacy"
             className="underline underline-offset-2 transition-colors hover:text-ink dark:hover:text-surface"
           >
-            개인정보처리방침
+            {t('privacy')}
           </Link>
-          에 동의하게 됩니다.
+          {t('agreementSuffix')}
         </p>
       </section>
     </div>
