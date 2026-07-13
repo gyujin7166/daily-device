@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { addToCart } from '@entities/cart/api/cart';
+import type { AddToCartVariables } from '@entities/cart/api/cart';
 import {
   getCartVariantKey,
   isSameCartVariant,
@@ -42,16 +44,21 @@ const mergeCartResponse = (
 };
 
 export const useAddToCart = () => {
+  const locale = useLocale();
   const queryClient = useQueryClient();
+  const cartQueryKey = cartQueryKeys.cart(locale);
 
-  return useMutation({
+  return useMutation<
+    CartResponse,
+    Error,
+    AddToCartVariables,
+    { prevCart?: CartResponse }
+  >({
     mutationKey: cartMutationKeys.addToCart(),
-    mutationFn: addToCart,
+    mutationFn: (variables) => addToCart({ ...variables, locale }),
     onMutate: async (newItem) => {
-      await queryClient.cancelQueries({ queryKey: cartQueryKeys.cart() });
-      const prevCart = queryClient.getQueryData<CartResponse>(
-        cartQueryKeys.cart(),
-      );
+      await queryClient.cancelQueries({ queryKey: cartQueryKey });
+      const prevCart = queryClient.getQueryData<CartResponse>(cartQueryKey);
 
       if (prevCart) {
         const updatedItems = prevCart.items.map((item) =>
@@ -68,7 +75,7 @@ export const useAddToCart = () => {
           0,
         );
 
-        queryClient.setQueryData<CartResponse>(cartQueryKeys.cart(), {
+        queryClient.setQueryData<CartResponse>(cartQueryKey, {
           ...prevCart,
           items: updatedItems,
           totalPrice: updatedTotalPrice,
@@ -83,7 +90,7 @@ export const useAddToCart = () => {
         return;
       }
 
-      queryClient.setQueryData(cartQueryKeys.cart(), context?.prevCart);
+      queryClient.setQueryData(cartQueryKey, context?.prevCart);
     },
     onSuccess: (nextCart, variables) => {
       const variantKey = getCartVariantKey(variables);
@@ -91,10 +98,10 @@ export const useAddToCart = () => {
         return;
       }
 
-      queryClient.setQueryData<CartResponse>(cartQueryKeys.cart(), (prevCart) =>
+      queryClient.setQueryData<CartResponse>(cartQueryKey, (prevCart) =>
         mergeCartResponse(prevCart, nextCart),
       );
-      queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart() });
+      queryClient.invalidateQueries({ queryKey: cartQueryKey });
     },
     networkMode: 'always',
   });

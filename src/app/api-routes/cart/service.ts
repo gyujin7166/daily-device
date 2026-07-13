@@ -5,6 +5,10 @@ import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/p
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { BadRequestError, ForbiddenError } from '@shared/lib/errors/httpError';
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -32,7 +36,11 @@ export type DeleteCartParams = {
   colorName?: string;
 };
 
-export async function getCartByUserId(userId: string): Promise<CartResponse> {
+export async function getCartByUserId(
+  userId: string,
+  localeValue?: string,
+): Promise<CartResponse> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const cart = await prisma.cart.findFirst({
     where: { userId },
     orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
@@ -50,12 +58,43 @@ export async function getCartByUserId(userId: string): Promise<CartResponse> {
               id: true,
               name_en: true,
               slug: true,
+              translations: {
+                where: { locale: { in: localeFallbacks } },
+                select: {
+                  locale: true,
+                  name: true,
+                },
+              },
               price: true,
               discountRate: true,
               category: {
                 select: {
                   name_en: true,
                   slug: true,
+                  translations: {
+                    where: { locale: { in: localeFallbacks } },
+                    select: {
+                      locale: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+              productColor: {
+                select: {
+                  id: true,
+                  color: {
+                    select: {
+                      name: true,
+                      translations: {
+                        where: { locale: { in: localeFallbacks } },
+                        select: {
+                          locale: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
               ProductImage: {
@@ -95,28 +134,52 @@ export async function getCartByUserId(userId: string): Promise<CartResponse> {
   }
 
   const items: UserCartItem[] = cart.cartItem.map((item) => {
-    const { id, name_en, slug, price, discountRate, category, ProductImage } =
-      item.product;
+    const {
+      id,
+      name_en,
+      slug,
+      price,
+      discountRate,
+      category,
+      ProductImage,
+      translations,
+      productColor,
+    } = item.product;
+    const translation = pickTranslation(translations, locale);
+    const categoryTranslation = category
+      ? pickTranslation(category.translations, locale)
+      : undefined;
+    const selectedProductColor =
+      typeof item.productColorId === 'number'
+        ? productColor.find((color) => color.id === item.productColorId)
+        : undefined;
+    const colorTranslation = selectedProductColor
+      ? pickTranslation(selectedProductColor.color.translations, locale)
+      : undefined;
     const parsedPrice = Number(price);
     const priceInfo = getProductPriceInfo(
       Number.isFinite(parsedPrice) ? parsedPrice : 0,
       discountRate,
+      locale,
     );
 
     return {
       id: item.id,
       productId: item.productId,
       productColorId: item.productColorId,
-      colorName: item.colorName,
+      colorName:
+        colorTranslation?.name ??
+        selectedProductColor?.color.name ??
+        item.colorName,
       quantity: item.quantity,
       product: {
         id,
-        name_en,
+        name_en: translation?.name ?? name_en,
         slug,
         ...priceInfo,
         category: category
           ? {
-              name_en: category.name_en,
+              name_en: categoryTranslation?.name ?? category.name_en,
               slug: category.slug,
             }
           : undefined,

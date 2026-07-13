@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
@@ -22,6 +23,7 @@ export default function CheckoutSummary({
   disableCartSyncEffects = false,
 }: CheckoutSummaryProps) {
   const queryClient = useQueryClient();
+  const locale = useLocale();
   const { userCartItems, userTotalPrice } = useCartContext();
   const prevTotalQuantityRef = useRef(0);
   const refetchDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -73,14 +75,14 @@ export default function CheckoutSummary({
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart() });
+      queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart(locale) });
 
       if (refetchDelayRef.current) {
         clearTimeout(refetchDelayRef.current);
       }
 
       refetchDelayRef.current = setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart() });
+        queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart(locale) });
       }, 600);
     };
 
@@ -105,7 +107,7 @@ export default function CheckoutSummary({
         clearTimeout(refetchDelayRef.current);
       }
     };
-  }, [disableCartSyncEffects, queryClient]);
+  }, [disableCartSyncEffects, locale, queryClient]);
 
   return <OrderSummaryPriceTable totalPrice={checkoutTotalPrice} />;
 }

@@ -1,9 +1,11 @@
 import { IconShoppingBag, IconX } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 
 export default function CartHeader() {
+  const t = useTranslations('Cart');
   const { closeCart, userCartItems, localCartItems } = useCartContext();
   const { status } = useSession();
   const items = status === 'authenticated' ? userCartItems : localCartItems;
@@ -17,7 +19,7 @@ export default function CartHeader() {
           </div>
           <div className="flex items-center gap-2.5">
             <h2 className="text-lg leading-none font-semibold tracking-tight text-ink dark:text-surface">
-              장바구니
+              {t('title')}
             </h2>
             {totalQuantity > 0 && (
               <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-sm font-semibold text-surface">
@@ -30,7 +32,7 @@ export default function CartHeader() {
           type="button"
           className="flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-canvas hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
           onClick={closeCart}
-          aria-label="장바구니 닫기"
+          aria-label={t('close')}
         >
           <IconX size={25} stroke={1.8} />
         </button>

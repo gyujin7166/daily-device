@@ -9,6 +9,13 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
   await page.goto(PRODUCT_PATH);
 
   await expect(
+    page.getByRole('button', {
+      name: '사용자 메뉴 열기',
+      exact: true,
+    }),
+  ).toBeEnabled();
+
+  await expect(
     page.getByRole('heading', {
       name: 'Aster Mouse Mini',
       level: 1,

@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
 
 import { useMutationState } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import { cartMutationKeys } from '@entities/cart/queries/queryKeys';
 
 import { toast } from '@shared/lib/toast';
 
 export default function CartError() {
+  const t = useTranslations('Cart');
   const latestNotifiedAtRef = useRef(0);
   const failedCartMutationTimes = useMutationState({
     filters: {
@@ -23,10 +25,8 @@ export default function CartError() {
     }
 
     latestNotifiedAtRef.current = latestFailedAt;
-    toast.error(
-      '장바구니를 업데이트하지 못했습니다. 잠시 후 다시 시도해 주세요.',
-    );
-  }, [latestFailedAt]);
+    toast.error(t('updateFailed'));
+  }, [latestFailedAt, t]);
 
   return null;
 }

@@ -55,7 +55,7 @@ export default function useProductDetailState({
   const { mutate: removeWishlist } = useDeleteWishlist();
   const { data, isPending } = useProductDescription(detail);
   const { data: productImages } = useProductImages(detail);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const [toggleState, setToggleState] = useState<Record<string, boolean>>({});
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -83,7 +83,8 @@ export default function useProductDetailState({
       })
     : null;
   const isAddToCartDisabled =
-    !!cartVariantKey && isCartVariantMutationPending(cartVariantKey);
+    status === 'loading' ||
+    (!!cartVariantKey && isCartVariantMutationPending(cartVariantKey));
 
   const wishlistItem =
     product?.id && mainImageUrl
@@ -179,7 +180,7 @@ export default function useProductDetailState({
   };
 
   const handleAddToCart = () => {
-    if (!product || isAddToCartDisabled) {
+    if (!product || status === 'loading' || isAddToCartDisabled) {
       return;
     }
 

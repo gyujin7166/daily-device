@@ -59,6 +59,8 @@ export default async function ProductDetailPage({
     notFound();
   }
 
+  const excludeId = productDetail.product.id;
+
   await queryClient.prefetchQuery({
     queryKey: productQueryKeys.images(slug),
     queryFn: () => getProductImageListBySlug(slug),
@@ -66,54 +68,51 @@ export default async function ProductDetailPage({
     gcTime: 60 * 60 * 1000,
   });
 
-  void queryClient.prefetchQuery({
-    queryKey: productReviewQueryKeys.reviews(
-      slug,
-      1,
-      'latest',
-      'all',
-      'guest',
-      locale,
-    ),
-    queryFn: () =>
-      getProductReviewsBySlug(
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: productReviewQueryKeys.reviews(
         slug,
         1,
-        PRODUCT_REVIEW_PER_PAGE,
         'latest',
         'all',
-        undefined,
+        'guest',
         locale,
       ),
-    staleTime: 60 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
-  });
-
-  void queryClient.prefetchInfiniteQuery({
-    queryKey: productReviewQueryKeys.gallery(
-      slug,
-      PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
-      'guest',
-      locale,
-    ),
-    initialPageParam: 1,
-    queryFn: ({ pageParam }) =>
-      getProductReviewGalleryBySlug(
+      queryFn: () =>
+        getProductReviewsBySlug(
+          slug,
+          1,
+          PRODUCT_REVIEW_PER_PAGE,
+          'latest',
+          'all',
+          undefined,
+          locale,
+        ),
+      staleTime: 60 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
+    }),
+    queryClient.prefetchInfiniteQuery({
+      queryKey: productReviewQueryKeys.gallery(
         slug,
-        Number(pageParam),
         PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
-        undefined,
+        'guest',
         locale,
       ),
-    getNextPageParam: (lastPage: ProductReviewGalleryPageResponse) =>
-      lastPage.hasMore ? lastPage.page + 1 : undefined,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-  });
-
-  const excludeId = productDetail?.product?.id;
-  if (excludeId) {
-    void queryClient.prefetchQuery({
+      initialPageParam: 1,
+      queryFn: ({ pageParam }) =>
+        getProductReviewGalleryBySlug(
+          slug,
+          Number(pageParam),
+          PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
+          undefined,
+          locale,
+        ),
+      getNextPageParam: (lastPage: ProductReviewGalleryPageResponse) =>
+        lastPage.hasMore ? lastPage.page + 1 : undefined,
+      staleTime: 10 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+    }),
+    queryClient.prefetchQuery({
       queryKey: productQueryKeys.recommended(
         normalizedCategory,
         excludeId,
@@ -130,8 +129,8 @@ export default async function ProductDetailPage({
         }),
       staleTime: 5 * 60 * 1000,
       gcTime: 30 * 60 * 1000,
-    });
-  }
+    }),
+  ]);
 
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>

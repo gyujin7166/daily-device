@@ -3,6 +3,7 @@ import type { SubmitEvent } from 'react';
 import Image from 'next/image';
 
 import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import { useCartContext } from '@entities/cart/model/context/CartContext';
@@ -17,6 +18,8 @@ type CartContextProps = {
 };
 
 export default function CartContent({ item }: CartContextProps) {
+  const format = useFormatter();
+  const t = useTranslations('Cart');
   const { handleUpsertCartItem, handleDeleteCartItem } = useCartActions();
   const { quantities, isCartVariantAdding } = useCartContext();
   const variantKey = getCartVariantKey(item);
@@ -59,7 +62,7 @@ export default function CartContent({ item }: CartContextProps) {
                     });
                   }}
                   disabled={isVariantAdding}
-                  aria-label="상품 삭제"
+                  aria-label={t('deleteItem')}
                 >
                   <IconTrash size={18} stroke={1.6} />
                 </button>
@@ -78,12 +81,14 @@ export default function CartContent({ item }: CartContextProps) {
                 ) : null}
                 <p className="text-base font-semibold leading-none text-primary sm:text-lg dark:text-surface">
                   {item.product.priceLabel ??
-                    `${item.product.price.toLocaleString('ko-KR')}원`}
+                    t('currency', {
+                      amount: format.number(item.product.price),
+                    })}
                 </p>
               </div>
               {item.colorName ? (
                 <p className="mt-1.5 text-xs text-muted sm:text-sm dark:text-dark-muted">
-                  색상:{' '}
+                  {t('color')}{' '}
                   <span className="font-medium text-ink dark:text-surface">
                     {item.colorName}
                   </span>
@@ -116,7 +121,7 @@ export default function CartContent({ item }: CartContextProps) {
                     });
                   }}
                   disabled={displayedQuantity <= 1}
-                  aria-label="수량 감소"
+                  aria-label={t('decreaseQuantity')}
                 >
                   <IconMinus size={16} stroke={2} />
                 </button>
@@ -134,7 +139,7 @@ export default function CartContent({ item }: CartContextProps) {
                     });
                   }}
                   inputMode="numeric"
-                  aria-label="수량"
+                  aria-label={t('quantity')}
                 />
                 <button
                   className={cn(
@@ -154,7 +159,7 @@ export default function CartContent({ item }: CartContextProps) {
                     });
                   }}
                   disabled={displayedQuantity >= 10}
-                  aria-label="수량 증가"
+                  aria-label={t('increaseQuantity')}
                 >
                   <IconPlus size={16} stroke={2} />
                 </button>

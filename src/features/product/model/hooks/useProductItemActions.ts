@@ -42,7 +42,7 @@ export const useProductItemActions = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { openCart, isCartVariantMutationPending } = useCartContext();
   const { handleUpsertCartItem } = useCartActions();
   const { data: wishlistItems = [] } = useWishlist();
@@ -63,6 +63,7 @@ export const useProductItemActions = ({
         })
       : null;
   const canAddToCart =
+    status !== 'loading' &&
     typeof product.id === 'number' &&
     (!cartVariantKey || !isCartVariantMutationPending(cartVariantKey));
 
@@ -91,7 +92,7 @@ export const useProductItemActions = ({
     event.preventDefault();
     event.stopPropagation();
 
-    if (!canAddToCart || !product.id) {
+    if (status === 'loading' || !canAddToCart || !product.id) {
       return;
     }
 

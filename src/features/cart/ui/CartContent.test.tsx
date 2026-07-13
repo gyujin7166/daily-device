@@ -19,6 +19,21 @@ vi.mock('next/image', () => ({
   default: ({ alt }: { alt: string }) => <span role="img" aria-label={alt} />,
 }));
 
+vi.mock('next-intl', () => ({
+  useFormatter: () => ({
+    number: (value: number) => value.toLocaleString('ko-KR'),
+  }),
+  useTranslations: () => (key: string) =>
+    ({
+      color: '색상',
+      currency: '{amount}원',
+      decreaseQuantity: '수량 감소',
+      deleteItem: '상품 삭제',
+      increaseQuantity: '수량 증가',
+      quantity: '수량',
+    })[key] ?? key,
+}));
+
 vi.mock('@entities/cart/model/context/CartContext', () => ({
   useCartContext: () => ({
     quantities: mocks.quantities,

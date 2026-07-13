@@ -1,8 +1,7 @@
 import { useTransition } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { useIsMutating } from '@tanstack/react-query';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import { useCartContext } from '@entities/cart/model/context/CartContext';
@@ -12,10 +11,13 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 export default function CartFooter() {
+  const format = useFormatter();
+  const t = useTranslations('Cart');
   const router = useRouter();
   const [isCheckoutRouting, startCheckoutRouting] = useTransition();
   const {
@@ -70,24 +72,24 @@ export default function CartFooter() {
       <div className="relative px-6 py-6 text-dark-bg shadow-lg">
         <div className="space-y-2.5">
           <div className="flex items-center justify-between text-sm text-muted dark:text-dark-muted">
-            <span>소계</span>
+            <span>{t('subtotal')}</span>
             <span className="font-semibold text-ink dark:text-surface">
-              ₩{subtotal.toLocaleString('ko-KR')}
+              {t('currency', { amount: format.number(subtotal) })}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm text-muted dark:text-dark-muted">
-            <span>배송비</span>
+            <span>{t('shippingFee')}</span>
             <span className="font-semibold text-primary dark:text-surface">
-              무료
+              {t('free')}
             </span>
           </div>
           <div className="h-px w-full bg-line dark:bg-dark-bg-hover" />
           <div className="flex items-center justify-between">
             <span className="text-base font-semibold text-ink dark:text-surface">
-              총 결제금액
+              {t('total')}
             </span>
             <span className="text-2xl font-bold text-primary dark:text-surface">
-              ₩{subtotal.toLocaleString('ko-KR')}
+              {t('currency', { amount: format.number(subtotal) })}
             </span>
           </div>
         </div>
@@ -106,10 +108,10 @@ export default function CartFooter() {
           {shouldShowSyncSpinner ? (
             <>
               <Spinner size="sm" variant="current" className="size-5" />
-              <span className="sr-only">장바구니 반영 중</span>
+              <span className="sr-only">{t('syncing')}</span>
             </>
           ) : (
-            '결제하기'
+            t('checkout')
           )}
         </button>
       </div>

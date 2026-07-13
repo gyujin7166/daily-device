@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { deleteCartItem } from '@entities/cart/api/cart';
 import { isSameCartVariant } from '@entities/cart/lib/cartItemVariant';
@@ -9,16 +10,16 @@ import {
 } from '@entities/cart/queries/queryKeys';
 
 export const useDeleteCartItem = () => {
+  const locale = useLocale();
   const queryClient = useQueryClient();
+  const cartQueryKey = cartQueryKeys.cart(locale);
 
   return useMutation({
     mutationKey: cartMutationKeys.deleteCartItem(),
     mutationFn: deleteCartItem,
     onMutate: async (newItem) => {
-      await queryClient.cancelQueries({ queryKey: cartQueryKeys.cart() });
-      const prevCart = queryClient.getQueryData<CartResponse>(
-        cartQueryKeys.cart(),
-      );
+      await queryClient.cancelQueries({ queryKey: cartQueryKey });
+      const prevCart = queryClient.getQueryData<CartResponse>(cartQueryKey);
 
       if (prevCart) {
         const updatedItems = prevCart.items.filter(
@@ -35,7 +36,7 @@ export const useDeleteCartItem = () => {
           0,
         );
 
-        queryClient.setQueryData<CartResponse>(cartQueryKeys.cart(), {
+        queryClient.setQueryData<CartResponse>(cartQueryKey, {
           ...prevCart,
           items: updatedItems,
           totalPrice: updatedTotalPrice,
@@ -46,11 +47,11 @@ export const useDeleteCartItem = () => {
     },
     onError: (_err, _variables, context) => {
       if (context?.prevCart) {
-        queryClient.setQueryData(cartQueryKeys.cart(), context.prevCart);
+        queryClient.setQueryData(cartQueryKey, context.prevCart);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart() });
+      queryClient.invalidateQueries({ queryKey: cartQueryKey });
     },
   });
 };

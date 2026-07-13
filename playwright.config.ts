@@ -4,7 +4,7 @@ import { config as loadEnv } from 'dotenv';
 loadEnv({ path: '.env.local', quiet: true });
 loadEnv({ quiet: true });
 
-const baseURL = 'http://127.0.0.1:3100';
+const baseURL = 'http://localhost:3100';
 const playwrightDatabaseUrl = process.env.PLAYWRIGHT_DATABASE_URL;
 const databaseUrl = playwrightDatabaseUrl ?? process.env.DATABASE_URL;
 const testUserEmail = 'playwright@daily-device.local';
@@ -31,11 +31,12 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL,
+    locale: 'ko-KR',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run dev -- --hostname 127.0.0.1 --port 3100',
+    command: 'npm run dev -- --hostname localhost --port 3100',
     env: {
       NEXT_DIST_DIR: '.next-playwright',
       AUTH_URL: baseURL,

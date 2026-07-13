@@ -1,10 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
+
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
 import useProductDetailPageState from '@features/product-detail/model/hooks/useProductDetailPageState';
-import { ProductDetailTopSection } from '@features/product-detail/ui';
+import {
+  ProductCarouselSectionSkeleton,
+  ProductDetailTopSection,
+} from '@features/product-detail/ui';
 import { ProductDetailReviewSection } from '@features/product-review/ui';
 
 import { useProductDescription } from '@entities/product/queries/useProductDescription';
@@ -82,11 +87,13 @@ export default function ProductDetailPageContainer({
                 </section>
               )}
             >
-              <ProductDetailRecommendedSectionSuspense
-                category={category}
-                excludeId={productDetailData?.product?.id}
-                recentlyViewedItems={visibleRecentlyViewed}
-              />
+              <Suspense fallback={<ProductCarouselSectionSkeleton />}>
+                <ProductDetailRecommendedSectionSuspense
+                  category={category}
+                  excludeId={productDetailData?.product?.id}
+                  recentlyViewedItems={visibleRecentlyViewed}
+                />
+              </Suspense>
             </ErrorBoundary>
           )}
         </QueryErrorResetBoundary>
