@@ -111,7 +111,7 @@ export async function POST(request: Request) {
 
     if (orderItem.hiddenReviewId) {
       throw new ConflictError(
-        'This review was hidden by an administrator and cannot be edited.',
+        '관리자에 의해 비공개 처리된 상품평은 수정할 수 없습니다.',
         PRODUCT_REVIEW_ERROR_CODE.HIDDEN_REVIEW_EDIT_FORBIDDEN,
       );
     }
