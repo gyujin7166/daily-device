@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { IconStarFilled, IconThumbUp } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -35,9 +36,13 @@ export default function ReviewGalleryDetailInfoPanel({
   onFeedbackClick,
   formatReviewDate,
 }: ReviewGalleryDetailInfoPanelProps) {
+  const t = useTranslations('ProductReview');
+  const format = useFormatter();
   const [isHelpfulAnimating, setIsHelpfulAnimating] = useState(false);
   const reviewColorName = selectedReview?.orderItem.colorName?.trim();
   const reviewColorHex = selectedReview?.orderItem.colorHex;
+  const maskedUser =
+    selectedReview?.user.maskedUser.trim() || t('gallery.anonymous');
 
   const handleFeedbackClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -56,7 +61,7 @@ export default function ReviewGalleryDetailInfoPanel({
       <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 sm:py-5 lg:px-6 lg:py-8">
         <div className="flex items-start justify-between gap-3">
           <p className="min-w-0 break-all text-lg font-semibold leading-none text-ink sm:text-lg dark:text-surface">
-            {selectedReview?.user.maskedUser ?? '익명'}
+            {maskedUser}
           </p>
           <button
             type="button"
@@ -84,8 +89,8 @@ export default function ReviewGalleryDetailInfoPanel({
                 isHelpfulActive ? '-translate-y-0.5' : '',
               )}
             />
-            <span>도움돼요</span>
-            <span>{helpfulCount.toLocaleString('ko-KR')}</span>
+            <span>{t('feedback.label')}</span>
+            <span>{format.number(helpfulCount)}</span>
           </button>
         </div>
 
@@ -121,7 +126,7 @@ export default function ReviewGalleryDetailInfoPanel({
         ) : null}
 
         <h4 className="mt-3 wrap-break-word text-lg font-semibold leading-tight tracking-tight text-ink sm:mt-4 sm:text-[clamp(18px,1.7vw,22px)] dark:text-surface">
-          {selectedReview?.title ?? '리뷰 제목이 없습니다.'}
+          {selectedReview?.title ?? t('gallery.noTitle')}
         </h4>
 
         <div className="mt-2.5 sm:mt-3">
@@ -141,13 +146,17 @@ export default function ReviewGalleryDetailInfoPanel({
               onClick={onToggleReviewContent}
               className="mt-2 hidden text-xs font-semibold text-primary hover:underline lg:inline-flex"
             >
-              {isReviewContentExpanded ? '접기' : '더보기'}
+              {isReviewContentExpanded
+                ? t('gallery.collapse')
+                : t('gallery.expand')}
             </button>
           ) : null}
         </div>
 
         <div className="mt-6 text-xs font-medium tracking-[0.02em] text-muted sm:mt-9 dark:text-dark-muted">
-          리뷰 작성일 {formatReviewDate(selectedReview?.createdAt)}
+          {t('gallery.createdAt', {
+            date: formatReviewDate(selectedReview?.createdAt),
+          })}
         </div>
 
         <div className="mt-6 hidden border-t border-line pt-4 lg:block lg:pt-6 dark:border-dark-border">
@@ -159,7 +168,9 @@ export default function ReviewGalleryDetailInfoPanel({
               }
             />
             <span>
-              {helpfulCount.toLocaleString('ko-KR')}명이 도움이 되었다고 했어요
+              {t('feedback.countText', {
+                count: format.number(helpfulCount),
+              })}
             </span>
           </div>
         </div>
@@ -192,7 +203,9 @@ export default function ReviewGalleryDetailInfoPanel({
               isHelpfulActive ? '-translate-y-0.5' : '',
             )}
           />
-          <span>{isHelpfulActive ? '도움이 됐어요' : '도움이 돼요'}</span>
+          <span>
+            {isHelpfulActive ? t('feedback.active') : t('feedback.inactive')}
+          </span>
         </button>
       </div>
     </aside>

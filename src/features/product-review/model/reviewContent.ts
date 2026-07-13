@@ -27,12 +27,12 @@ export type ReviewContentProps = {
 
 export const REVIEW_SORT_OPTIONS: {
   value: ProductReviewSortOption;
-  label: string;
+  labelKey: 'latest' | 'oldest' | 'ratingDesc' | 'ratingAsc';
 }[] = [
-  { value: 'latest', label: '최신순' },
-  { value: 'oldest', label: '오래된순' },
-  { value: 'rating_desc', label: '평점 높은순' },
-  { value: 'rating_asc', label: '평점 낮은순' },
+  { value: 'latest', labelKey: 'latest' },
+  { value: 'oldest', labelKey: 'oldest' },
+  { value: 'rating_desc', labelKey: 'ratingDesc' },
+  { value: 'rating_asc', labelKey: 'ratingAsc' },
 ];
 
 export const getReviewShowingRange = ({

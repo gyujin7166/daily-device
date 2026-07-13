@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import type { ChangeEvent, FocusEvent, SubmitEvent } from 'react';
 
-import { useRouter } from 'next/navigation';
 
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MY_TAB_PATHS } from '@shared/constants/myRoutes';
+import { PRODUCT_REVIEW_ERROR_CODE } from '@shared/constants/productReviewErrorCode';
+import { HttpError } from '@shared/lib/errors/httpError';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
 import { useUpsertProductReview } from '../../queries/useUpsertProductReview';
@@ -27,6 +30,7 @@ export const useReviewFormState = ({
   orderItemId,
   initialReview,
 }: ReviewFormProps) => {
+  const t = useTranslations('ReviewWrite');
   const { data: session } = useSession();
   const router = useRouter();
   const { isPending, mutateAsync } = useUpsertProductReview();
@@ -91,9 +95,10 @@ export const useReviewFormState = ({
     }
 
     setBlurState((prev) => ({ ...prev, [name]: true }));
+    const errorKey = getReviewFormFieldError(name, value);
     setErrors((prev) => ({
       ...prev,
-      [name]: getReviewFormFieldError(name, value),
+      [name]: errorKey ? t(`validation.${errorKey}`) : '',
     }));
   };
 
@@ -105,14 +110,21 @@ export const useReviewFormState = ({
     event.preventDefault();
 
     if (!session?.user.id) {
-      toast.error('로그인이 필요합니다.');
+      toast.error(t('toast.loginRequired'));
       router.push('/login');
       return;
     }
 
     const validationResult = validateReviewForm(formData);
     if (!validationResult.isValid) {
-      setErrors(validationResult.errors);
+      setErrors(
+        Object.fromEntries(
+          Object.entries(validationResult.errors).map(([key, errorKey]) => [
+            key,
+            errorKey ? t(`validation.${errorKey}`) : '',
+          ]),
+        ),
+      );
       setBlurState({ title: true, content: true });
       return;
     }
@@ -144,7 +156,7 @@ export const useReviewFormState = ({
       });
 
       toast.success(
-        isEditing ? '상품평이 수정되었습니다.' : '상품평이 등록되었습니다.',
+        isEditing ? t('toast.updated') : t('toast.created'),
       );
       clearSelectedImages();
       router.push(MY_TAB_PATHS.orders);
@@ -153,28 +165,25 @@ export const useReviewFormState = ({
         error instanceof Error ? error.message : uploadError;
       const isUploadFailure =
         typeof uploadErrorMessage === 'string' &&
-        (uploadErrorMessage.includes('업로드') ||
+        (uploadErrorMessage === uploadError ||
           uploadErrorMessage.includes('Upload') ||
+          uploadErrorMessage.includes('Image upload') ||
           uploadErrorMessage.includes('API v1 key'));
 
       if (isUploadFailure) {
-        toast.error(`이미지 업로드 실패: ${uploadErrorMessage}`);
+        toast.error(t('toast.uploadFailed', { message: uploadErrorMessage }));
         return;
       }
 
       if (
-        error instanceof Error &&
-        error.message.includes('비공개 처리된 상품평')
+        error instanceof HttpError &&
+        error.code === PRODUCT_REVIEW_ERROR_CODE.HIDDEN_REVIEW_EDIT_FORBIDDEN
       ) {
-        toast.error(error.message);
+        toast.error(t('toast.hiddenReviewError'));
         return;
       }
 
-      toast.error(
-        isEditing
-          ? '상품평 수정에 실패했습니다. 다시 시도해주세요.'
-          : '상품평 등록에 실패했습니다. 다시 시도해주세요.',
-      );
+      toast.error(isEditing ? t('toast.updateFailed') : t('toast.createFailed'));
     }
   };
 
@@ -185,7 +194,7 @@ export const useReviewFormState = ({
     }
 
     const shouldLeave = window.confirm(
-      '작성 중인 내용이 사라집니다. 페이지를 나가시겠습니까?',
+      t('toast.leaveConfirm'),
     );
 
     if (shouldLeave) {

@@ -11,7 +11,15 @@ export type ReviewFormBlurState = {
   content: boolean;
 };
 
-type ReviewFormErrors = Partial<Record<keyof ReviewFormBlurState, string>>;
+export type ReviewFormErrorKey =
+  | 'titleRequired'
+  | 'titleMin'
+  | 'contentRequired'
+  | 'contentMin';
+
+type ReviewFormErrors = Partial<
+  Record<keyof ReviewFormBlurState, ReviewFormErrorKey>
+>;
 
 type ReviewFormExistingImage = {
   image_url: string;
@@ -58,21 +66,21 @@ export const getReviewFormFieldError = (
 ) => {
   if (name === 'title') {
     if (!value.trim()) {
-      return '제목을 입력해주세요.';
+      return 'titleRequired';
     }
 
     if (value.trim().length < 2) {
-      return '최소 2글자 이상 입력해주세요.';
+      return 'titleMin';
     }
   }
 
   if (name === 'content') {
     if (!value.trim()) {
-      return '내용을 입력해주세요.';
+      return 'contentRequired';
     }
 
     if (value.trim().length < 10) {
-      return '최소 10글자 이상 입력해주세요.';
+      return 'contentMin';
     }
   }
 

@@ -3,6 +3,7 @@ import type { ChangeEvent } from 'react';
 import Image from 'next/image';
 
 import { IconCamera, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { MAX_REVIEW_IMAGES } from '@entities/review/model/constants';
 
@@ -46,6 +47,7 @@ export default function ReviewFormImageUploadSection({
   onRemoveExistingImage,
   onRemoveSelectedImage,
 }: ReviewFormImageUploadSectionProps) {
+  const t = useTranslations('ReviewWrite.form');
   const canAddImage = totalImages < MAX_REVIEW_IMAGES;
   const remainingImageCount = MAX_REVIEW_IMAGES - totalImages;
   const isUploadDisabled = !canAddImage || isUploading;
@@ -65,7 +67,7 @@ export default function ReviewFormImageUploadSection({
   };
 
   return (
-    <ReviewFormSection label="사진 첨부" optional>
+    <ReviewFormSection label={t('imageUpload')} optional>
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {existingImages.map((img, index) => (
@@ -73,7 +75,7 @@ export default function ReviewFormImageUploadSection({
               <div className="relative h-full w-full overflow-hidden rounded-xl border border-line bg-canvas dark:border-dark-border dark:bg-dark-bg">
                 <Image
                   src={getCloudinaryReviewImageUrl(img.image_url, 'preview')}
-                  alt={`기존 이미지 ${index + 1}`}
+                  alt={t('existingImageAlt', { index: index + 1 })}
                   width={200}
                   height={200}
                   className="h-full w-full select-none object-cover"
@@ -84,7 +86,7 @@ export default function ReviewFormImageUploadSection({
                 type="button"
                 onClick={() => onRemoveExistingImage(index)}
                 className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-surface shadow-sm transition-transform hover:scale-110 dark:bg-surface dark:text-ink"
-                aria-label="이미지 삭제"
+                aria-label={t('removeImage')}
               >
                 <IconX size={10} stroke={2.5} />
               </button>
@@ -96,7 +98,7 @@ export default function ReviewFormImageUploadSection({
               <div className="relative h-full w-full overflow-hidden rounded-xl border border-line bg-canvas dark:border-dark-border dark:bg-dark-bg">
                 <Image
                   src={img.previewUrl}
-                  alt={`새 이미지 ${index + 1}`}
+                  alt={t('newImageAlt', { index: index + 1 })}
                   width={200}
                   height={200}
                   unoptimized
@@ -108,7 +110,7 @@ export default function ReviewFormImageUploadSection({
                 type="button"
                 onClick={() => onRemoveSelectedImage(index)}
                 className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-surface shadow-sm transition-transform hover:scale-110 dark:bg-surface dark:text-ink"
-                aria-label="이미지 삭제"
+                aria-label={t('removeImage')}
               >
                 <IconX size={10} stroke={2.5} />
               </button>
@@ -134,7 +136,7 @@ export default function ReviewFormImageUploadSection({
                 <IconCamera size={22} stroke={1.5} />
               )}
               <span className="text-[10px] font-medium tracking-wide">
-                {isUploading ? '업로드 중' : '이미지 추가'}
+                {isUploading ? t('uploading') : t('addImage')}
               </span>
             </label>
           ) : null}
@@ -147,8 +149,10 @@ export default function ReviewFormImageUploadSection({
         ) : null}
 
         <p className="text-[11px] italic text-disabled-text dark:text-dark-muted">
-          이미지는 최대 {MAX_REVIEW_IMAGES}개, 파일당{' '}
-          {CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB}MB까지 업로드할 수 있습니다.
+          {t('uploadGuide', {
+            maxCount: MAX_REVIEW_IMAGES,
+            maxSize: CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB,
+          })}
         </p>
       </div>
     </ReviewFormSection>

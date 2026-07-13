@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 import { IconStarFilled, IconThumbUp } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { MAX_REVIEW_IMAGES } from '@entities/review/model/constants';
 import type { ProductReviewListItem } from '@entities/review/model/types';
@@ -32,11 +33,14 @@ export default function ReviewContentItemCard({
   onFeedbackClick,
   onOpenImageDetail,
 }: ReviewContentItemCardProps) {
+  const t = useTranslations('ProductReview');
+  const format = useFormatter();
   const isHelpfulActive = item.currentUserVote === true;
   const [isHelpfulAnimating, setIsHelpfulAnimating] = useState(false);
   const visibleReviewImages = reviewImages.slice(0, MAX_REVIEW_IMAGES);
   const reviewColorName = item.orderItem.colorName?.trim();
   const reviewColorHex = item.orderItem.colorHex;
+  const maskedUser = item.user.maskedUser.trim() || t('gallery.anonymous');
 
   const handleFeedbackClick = () => {
     setIsHelpfulAnimating(false);
@@ -52,7 +56,7 @@ export default function ReviewContentItemCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold text-ink dark:text-surface">
-              {item.user.maskedUser}
+              {maskedUser}
             </div>
           </div>
           <div className="shrink-0 text-xs font-medium text-muted dark:text-dark-muted">
@@ -110,7 +114,7 @@ export default function ReviewContentItemCard({
               key={`${image.id}-${image.order ?? imageIdx}`}
               type="button"
               disabled={isRefreshing}
-              aria-label={`${imageIdx + 1}번째 상품평 이미지 확대 보기`}
+              aria-label={t('gallery.detailAria', { index: imageIdx + 1 })}
               className="aspect-square w-full select-none overflow-hidden rounded-2xl border border-line disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border"
               onClick={() => {
                 if (isRefreshing) {
@@ -122,7 +126,7 @@ export default function ReviewContentItemCard({
             >
               <Image
                 src={getCloudinaryReviewImageUrl(image.image_url, 'preview')}
-                alt="상품평 리뷰 이미지"
+                alt={t('gallery.reviewImageAlt')}
                 width={112}
                 height={112}
                 sizes="(min-width: 768px) 6vw, 22vw"
@@ -143,7 +147,7 @@ export default function ReviewContentItemCard({
       <div className="mt-6 rounded-xl bg-canvas px-3 py-3 dark:bg-dark-bg-hover">
         <div className="flex items-center justify-between">
           <p className="text-xs text-muted dark:text-dark-muted">
-            이 리뷰가 도움이 되었나요?
+            {t('feedback.question')}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -152,7 +156,9 @@ export default function ReviewContentItemCard({
               onAnimationEnd={() => setIsHelpfulAnimating(false)}
               disabled={isFeedbackPending || isRefreshing}
               aria-pressed={isHelpfulActive}
-              aria-label={`도움돼요 ${item.helpfulCount.toLocaleString('ko-KR')}개`}
+              aria-label={t('feedback.ariaLabel', {
+                count: format.number(item.helpfulCount),
+              })}
               className={cn(
                 'inline-flex h-10 min-w-17 items-center justify-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-[background-color,border-color,color,transform,box-shadow]',
                 isHelpfulActive
@@ -173,7 +179,7 @@ export default function ReviewContentItemCard({
                   isHelpfulActive ? '-translate-y-0.5' : '',
                 )}
               />
-              <span>{item.helpfulCount}</span>
+              <span>{format.number(item.helpfulCount)}</span>
             </button>
           </div>
         </div>

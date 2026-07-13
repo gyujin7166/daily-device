@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { PRODUCT_REVIEW_PER_PAGE } from '@entities/review/model/constants';
 import type { ProductReviewFilter } from '@entities/review/model/filter';
 import type { ProductReviewSortOption } from '@entities/review/model/sort';
@@ -186,9 +188,11 @@ function ReviewLoadErrorNotice({
   hasPreviousReviews,
   onRetry,
 }: ReviewLoadErrorNoticeProps) {
+  const t = useTranslations('ProductReview.errors');
+
   return (
     <QueryErrorFallback
-      title="상품평을 불러오지 못했습니다"
+      title={t('loadFailed')}
       onRetry={onRetry}
       className={cn(
         'bg-surface/95 px-5 py-5 backdrop-blur-sm dark:bg-dark-panel/95',

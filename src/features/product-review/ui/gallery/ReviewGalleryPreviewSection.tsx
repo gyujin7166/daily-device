@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+import { useFormatter, useTranslations } from 'next-intl';
+
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
 import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
@@ -21,10 +23,13 @@ export default function ReviewGalleryPreviewSection({
   shouldShowGallerySkeleton,
   onOpenGalleryModal,
 }: ReviewGalleryPreviewSectionProps) {
+  const t = useTranslations('ProductReview.gallery');
+  const format = useFormatter();
+
   return (
     <section
       className="mt-12 rounded-2xl border border-line bg-surface p-5 shadow-xs sm:p-6 dark:border-dark-border dark:bg-dark-panel"
-      aria-label="사진 후기"
+      aria-label={t('previewLabel')}
     >
       {shouldShowGallerySkeleton ? (
         <div className="grid grid-cols-4 gap-2.5 sm:gap-3 md:grid-cols-8">
@@ -48,8 +53,10 @@ export default function ReviewGalleryPreviewSection({
                 className="relative aspect-square select-none overflow-hidden rounded-xl border border-line dark:border-dark-border"
                 aria-label={
                   isMoreTile
-                    ? `사진 후기 더보기, ${hiddenGalleryCount.toLocaleString('ko-KR')}개 더 보기`
-                    : `${idx + 1}번째 사진 후기 자세히 보기`
+                    ? t('moreAria', {
+                        count: format.number(hiddenGalleryCount),
+                      })
+                    : t('detailAria', { index: idx + 1 })
                 }
                 onClick={() => {
                   onOpenGalleryModal(idx);
@@ -57,7 +64,7 @@ export default function ReviewGalleryPreviewSection({
               >
                 <Image
                   src={getCloudinaryReviewImageUrl(image.image_url, 'preview')}
-                  alt="상품평 갤러리 이미지"
+                  alt={t('imageAlt')}
                   width={124}
                   height={124}
                   sizes="124px"
@@ -69,10 +76,10 @@ export default function ReviewGalleryPreviewSection({
                 {isMoreTile ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-ink/70 text-surface">
                     <span className="text-sm font-semibold sm:text-base">
-                      더보기
+                      {t('more')}
                     </span>
                     <span className="text-xl font-bold sm:text-2xl">
-                      +{hiddenGalleryCount.toLocaleString('ko-KR')}
+                      +{format.number(hiddenGalleryCount)}
                     </span>
                   </div>
                 ) : null}
@@ -83,8 +90,8 @@ export default function ReviewGalleryPreviewSection({
       ) : (
         <div className="rounded-xl border border-dashed border-line bg-surface px-5 py-7 text-sm text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted">
           {totalReviewImageCount > 0
-            ? '전체 리뷰 이미지는 존재하지만 현재 페이지에는 표시할 이미지가 없습니다.'
-            : '등록된 사진 후기가 없습니다.'}
+            ? t('noImagesCurrentPage')
+            : t('noImages')}
         </div>
       )}
     </section>

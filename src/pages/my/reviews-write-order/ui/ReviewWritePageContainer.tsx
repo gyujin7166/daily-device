@@ -1,6 +1,8 @@
 'use client';
 import Image from 'next/image';
 
+import { useFormatter, useTranslations } from 'next-intl';
+
 import { MyReviewWriteSkeleton } from '@features/my/ui/skeletons';
 import { ReviewForm } from '@features/product-review/ui';
 
@@ -10,7 +12,6 @@ import type { ProductReviewEditItem } from '@entities/review/model/types';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
-import { formatDate } from '@shared/lib/utils/formatDate';
 import type { CSSVariableStyle } from '@shared/lib/utils/style';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
@@ -31,6 +32,8 @@ export default function ReviewWritePageContainer({
   productReview,
   reviewAdminHiddenAt = null,
 }: ReviewWritePageContainerProps) {
+  const t = useTranslations('ReviewWrite');
+  const format = useFormatter();
   const { data, isPending } = useOrders();
 
   const order = data?.find((item) => item.orderNumber === orderNumber);
@@ -49,11 +52,11 @@ export default function ReviewWritePageContainer({
   }
 
   if (!order) {
-    return <div>주문 정보를 불러오지 못했습니다.</div>;
+    return <div>{t('page.orderLoadFailed')}</div>;
   }
 
   if (!orderItem) {
-    return <div>해당 상품의 주문 정보를 찾을 수 없습니다.</div>;
+    return <div>{t('page.orderItemNotFound')}</div>;
   }
 
   const unitPrice = orderItem.price;
@@ -68,10 +71,21 @@ export default function ReviewWritePageContainer({
   };
   const isReviewAdminHidden = Boolean(reviewAdminHiddenAt);
   const pageTitle = isReviewAdminHidden
-    ? '상품평 비공개'
+    ? t('page.hiddenTitle')
     : productReview
-      ? '상품평 수정'
-      : '상품평 작성';
+      ? t('page.editTitle')
+      : t('page.writeTitle');
+  const formatCurrency = (price: number) =>
+    t('format.currency', { amount: format.number(price) });
+  const deliveryDate = order.deliveryDate ? new Date(order.deliveryDate) : null;
+  const deliveryDateText =
+    deliveryDate && !Number.isNaN(deliveryDate.getTime())
+      ? format.dateTime(deliveryDate, {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        })
+      : '-';
 
   return (
     <PageWrapper size="form" className="mt-22.5 max-w-2xl pb-12 pt-5 sm:pt-6">
@@ -82,15 +96,18 @@ export default function ReviewWritePageContainer({
           </h1>
           {isReviewAdminHidden ? (
             <p className="mt-1.5 text-sm text-danger">
-              이 상품평은 관리자 검토로 비공개 처리되어 수정할 수 없습니다.
+              {t('page.hiddenDescription')}
             </p>
           ) : (
             <p className="mt-1.5 text-sm text-muted dark:text-dark-muted">
-              주문번호{' '}
-              <span className="font-semibold text-primary dark:text-blue-300">
-                #{orderNumber}
-              </span>
-              에 대한 상품평을 작성해 주세요.
+              {t.rich('page.description', {
+                orderNumber: `#${orderNumber}`,
+                span: (chunks) => (
+                  <span className="font-semibold text-primary dark:text-blue-300">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </p>
           )}
         </div>
@@ -113,12 +130,12 @@ export default function ReviewWritePageContainer({
               <dl className="space-y-1">
                 <div className="flex items-baseline gap-2">
                   <dt className="w-12 shrink-0 text-sm text-muted dark:text-dark-muted">
-                    금액
+                    {t('summary.amount')}
                   </dt>
                   <dd className="text-sm font-medium text-ink dark:text-surface">
-                    {totalPrice.toLocaleString()}원
+                    {formatCurrency(totalPrice)}
                     <span className="ml-1 text-disabled-text dark:text-dark-muted">
-                      (개당 {unitPrice.toLocaleString()}원)
+                      ({t('summary.unitPrice', { price: formatCurrency(unitPrice) })})
                     </span>
                   </dd>
                 </div>
@@ -126,7 +143,7 @@ export default function ReviewWritePageContainer({
                 {orderItem.colorName ? (
                   <div className="flex items-baseline gap-2">
                     <dt className="w-12 shrink-0 text-sm text-muted dark:text-dark-muted">
-                      색상
+                      {t('summary.color')}
                     </dt>
                     <dd className="flex items-center gap-2 text-sm font-medium text-ink dark:text-surface">
                       <div
@@ -140,19 +157,21 @@ export default function ReviewWritePageContainer({
 
                 <div className="flex items-baseline gap-2">
                   <dt className="w-12 shrink-0 text-sm text-muted dark:text-dark-muted">
-                    수량
+                    {t('summary.quantity')}
                   </dt>
                   <dd className="text-sm font-medium text-ink dark:text-surface">
-                    {orderItem.quantity}개
+                    {t('format.quantity', {
+                      count: format.number(orderItem.quantity),
+                    })}
                   </dd>
                 </div>
 
                 <div className="flex items-baseline gap-2">
                   <dt className="w-12 shrink-0 text-sm text-muted dark:text-dark-muted">
-                    배송일
+                    {t('summary.deliveryDate')}
                   </dt>
                   <dd className="text-sm font-medium text-ink dark:text-surface">
-                    {formatDate(order.deliveryDate)}
+                    {deliveryDateText}
                   </dd>
                 </div>
               </dl>
@@ -162,8 +181,7 @@ export default function ReviewWritePageContainer({
       </div>
       {isReviewAdminHidden ? (
         <div className="rounded-2xl border border-danger/25 bg-red-50 p-6 text-sm leading-6 text-danger dark:bg-red-950/30">
-          비공개 처리된 상품평은 상품 상세 페이지에 노출되지 않으며, 작성자가
-          수정하거나 다시 작성할 수 없습니다. 필요하면 고객센터에 문의해 주세요.
+          {t('page.hiddenNotice')}
         </div>
       ) : (
         <ReviewForm

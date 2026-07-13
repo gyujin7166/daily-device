@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 type ReviewFormActionsProps = {
@@ -13,6 +15,8 @@ export default function ReviewFormActions({
   isUploading,
   onCancel,
 }: ReviewFormActionsProps) {
+  const t = useTranslations('ReviewWrite.form');
+
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel">
       <div className="flex gap-3">
@@ -21,7 +25,7 @@ export default function ReviewFormActions({
           onClick={onCancel}
           className="flex-1 rounded-xl border border-primary bg-transparent px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft dark:border-primary dark:text-primary dark:hover:bg-primary/15"
         >
-          취소
+          {t('cancel')}
         </button>
         <button
           type="submit"
@@ -31,17 +35,17 @@ export default function ReviewFormActions({
           {isUploading ? (
             <>
               <Spinner size="sm" variant="inverse" />
-              이미지 업로드 중
+              {t('uploadingImage')}
             </>
           ) : isPending ? (
             <>
               <Spinner size="sm" variant="inverse" />
-              {isEditing ? '수정 중' : '등록 중'}
+              {isEditing ? t('updating') : t('submitting')}
             </>
           ) : isEditing ? (
-            '상품평 수정'
+            t('editSubmit')
           ) : (
-            '상품평 등록'
+            t('writeSubmit')
           )}
         </button>
       </div>

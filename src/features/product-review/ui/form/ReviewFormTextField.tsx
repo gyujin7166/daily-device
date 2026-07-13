@@ -1,5 +1,7 @@
 import type { ChangeEvent, FocusEvent } from 'react';
 
+import { useFormatter, useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 
 import ReviewFormSection from './ReviewFormSection';
@@ -31,6 +33,8 @@ export default function ReviewFormTextField({
   onChange,
   onBlur,
 }: ReviewFormTextFieldProps) {
+  const t = useTranslations('ReviewWrite.form');
+  const format = useFormatter();
   const hasError = isBlurred && !!error;
   const fieldClassName = cn(
     'w-full appearance-none rounded-xl border border-line bg-canvas px-4 py-3 text-sm text-ink placeholder:text-disabled-text focus:border-primary focus:outline-hidden focus:ring-2 focus:ring-primary/20 dark:border-dark-border dark:bg-dark-bg dark:text-surface dark:placeholder:text-dark-muted dark:focus:border-primary',
@@ -71,7 +75,10 @@ export default function ReviewFormTextField({
           <span />
         )}
         <span className="text-[11px] text-disabled-text dark:text-dark-muted">
-          {value.length} / {maxLength}자
+          {t('characterCount', {
+            count: format.number(value.length),
+            max: format.number(maxLength),
+          })}
         </span>
       </div>
     </ReviewFormSection>
