@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 import { useRecommendedProducts } from '@entities/product/queries/useRecommendedProducts';
 
 import ProductDetailCarousel from '@widgets/product-recommendation/ui/ProductDetailCarousel';
@@ -14,9 +16,11 @@ type MyPageEmptyRecommendedProductsProps = {
 const pulseClassName = 'animate-pulse bg-line dark:bg-dark-bg-hover';
 
 export default function MyPageEmptyRecommendedProducts({
-  title = '이런 상품은 어떠세요?',
+  title,
   context = 'orders-empty',
 }: MyPageEmptyRecommendedProductsProps) {
+  const t = useTranslations('Products.detail.carousel');
+  const sectionTitle = title ?? t('forYou');
   const { data: recommendedItems = [], isPending } = useRecommendedProducts({
     limit: 10,
     context,
@@ -36,7 +40,7 @@ export default function MyPageEmptyRecommendedProducts({
                 FOR YOU
               </p>
               <h2 className="text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-ink sm:text-2xl dark:text-surface">
-                {title}
+                {sectionTitle}
               </h2>
             </div>
 
@@ -126,7 +130,7 @@ export default function MyPageEmptyRecommendedProducts({
       <ProductDetailCarousel
         items={recommendedItems}
         eyebrow="FOR YOU"
-        title={title}
+        title={sectionTitle}
         density="compact"
         className="pb-0"
         productBackgroundClassName="border border-line bg-canvas dark:border-dark-border dark:bg-dark-bg"

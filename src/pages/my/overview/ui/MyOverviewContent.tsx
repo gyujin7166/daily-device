@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { MyPageScrollArea, MyPageSectionHeader } from '@features/my/ui';
 
 import { useSuspenseUserAddresses } from '@entities/address/queries/useUserAddresses';
@@ -24,6 +26,7 @@ type MyOverviewContentProps = {
 };
 
 export default function MyOverviewContent({ session }: MyOverviewContentProps) {
+  const t = useTranslations('MyOverview');
   const { data: ordersPage } = useSuspenseOrdersPaged({
     mode: 'all',
     page: 1,
@@ -40,10 +43,10 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
     provider === 'demo-login' || normalizedEmail === 'demo@daily-device.local';
   // 로그인 제공자별로 누락될 수 있는 프로필 정보를 사용자에게 보여줄 문구로 정규화한다.
   const profileEmail = isDemoAccount
-    ? '데모 계정'
+    ? t('account.demoAccount')
     : provider === 'kakao' && !normalizedEmail
-      ? '카카오 로그인 계정 (이메일 미제공)'
-      : normalizedEmail || '이메일 정보 없음';
+      ? t('account.kakaoEmailMissing')
+      : normalizedEmail || t('account.emailMissing');
   const shouldShowAvatarImage = avatarSrc.length > 0 && !isAvatarLoadFailed;
   const profileInitial = getUserInitial(session.user);
 
@@ -58,8 +61,8 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
     <div className="w-full rounded-2xl lg:pl-4">
       <MyPageSectionHeader
         label="SUMMARY"
-        title="요약"
-        description={`${displayName}님, 최근 활동과 주문 상태를 확인하세요.`}
+        title={t('page.title')}
+        description={t('page.description', { name: displayName })}
       />
 
       <MyPageScrollArea className="grid auto-rows-max content-start gap-6">

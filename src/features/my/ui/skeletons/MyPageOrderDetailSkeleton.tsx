@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 type MyPageOrderDetailSkeletonProps = {
   pageClassName?: string;
   menuButton?: ReactNode;
@@ -9,6 +11,8 @@ export default function MyPageOrderDetailSkeleton({
   pageClassName = 'w-full lg:pl-4',
   menuButton,
 }: MyPageOrderDetailSkeletonProps) {
+  const t = useTranslations('MyOrderDetail.header');
+
   return (
     <section className={pageClassName}>
       <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -18,7 +22,7 @@ export default function MyPageOrderDetailSkeleton({
               ORDER
             </p>
             <h1 className="mt-2 text-4xl font-extrabold leading-[1.08] tracking-[-0.02em] text-ink dark:text-surface">
-              주문 상세
+              {t('title')}
             </h1>
           </div>
           {menuButton}

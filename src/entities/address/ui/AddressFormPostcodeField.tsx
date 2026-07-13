@@ -1,4 +1,5 @@
 import { IconArrowLeft } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import KakaoPostcodeEmbed from 'react-daum-postcode';
 
 import type { Address } from 'react-daum-postcode';
@@ -16,6 +17,7 @@ export default function AddressFormPostcodeField({
   onShowPostcodeChange,
   onAddressComplete,
 }: AddressFormPostcodeFieldProps) {
+  const t = useTranslations('MyAddress.createModal');
   const postCodeEmbedStyle = { width: '100%', height: '100%' };
 
   return (
@@ -33,7 +35,7 @@ export default function AddressFormPostcodeField({
             type="button"
             onClick={() => onShowPostcodeChange(false)}
             className="absolute right-2 top-2 z-1 inline-flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-muted transition hover:bg-canvas hover:text-ink sm:h-8 sm:w-8 dark:bg-dark-panel/90 dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
-            aria-label="주소 입력으로 돌아가기"
+            aria-label={t('backToAddressInput')}
           >
             <IconArrowLeft size={20} />
           </button>

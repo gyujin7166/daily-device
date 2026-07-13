@@ -1,4 +1,5 @@
 import { IconAlertCircle, IconMapSearch } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { AddressFieldName } from '@entities/address/model/form';
 
@@ -37,31 +38,32 @@ export default function ShippingFormInput({
   address,
   containerClassName = '',
 }: CheckoutInputFieldProps) {
+  const t = useTranslations('MyAddress.createModal');
   const validMessages: Record<AddressFieldName, string | null> = {
     name: null,
-    phone_number: '배송을 위해서만 사용됩니다.',
+    phone_number: t('helper.phone_number'),
     address_1: null,
     address_2: null,
   };
 
   const inValidMessages: Record<AddressFieldName, string | null> = {
-    name: '이름 형식이 올바르지 않습니다. (한글/영문, 공백만 가능)',
-    phone_number: '휴대폰 번호 형식이 올바르지 않습니다. (예: 01012345678)',
-    address_1: '주소를 입력해주세요.',
+    name: t('errors.name'),
+    phone_number: t('errors.phone_number'),
+    address_1: t('errors.address_1'),
     address_2: null,
   };
 
   const defaultPlaceholders: Record<AddressFieldName, string> = {
-    name: '수령인 이름을 입력하세요',
-    phone_number: "'-' 없이 숫자만 입력하세요",
-    address_1: '주소를 검색하세요',
-    address_2: '상세주소를 입력하세요',
+    name: t('defaultPlaceholders.name'),
+    phone_number: t('defaultPlaceholders.phone_number'),
+    address_1: t('defaultPlaceholders.address_1'),
+    address_2: t('defaultPlaceholders.address_2'),
   };
   const inputPlaceholder = placeholder || defaultPlaceholders[name];
   const hasInvalidState = required && hasBlurred && !isValid;
   const validMessage = isValid ? validMessages[name] : null;
   const invalidMessage = hasInvalidState
-    ? inValidMessages[name] || `${label} 형식이 올바르지 않습니다.`
+    ? inValidMessages[name] || t('errors.generic', { label })
     : '';
 
   return (

@@ -1,33 +1,35 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 import { clearWishlist } from '@entities/wishlist/api/wishlist';
 import type { WishlistItem } from '@entities/wishlist/model/types';
 import { wishlistQueryKeys } from '@entities/wishlist/queries/queryKeys';
 
 export const useClearWishlist = () => {
+  const locale = useLocale();
   const queryClient = useQueryClient();
+  const listQueryKey = wishlistQueryKeys.list(locale);
 
   return useMutation({
     mutationKey: wishlistQueryKeys.clearMutation(),
     mutationFn: clearWishlist,
     onMutate: async () => {
       await queryClient.cancelQueries({
-        queryKey: wishlistQueryKeys.list(),
+        queryKey: listQueryKey,
       });
       const previousItems =
-        queryClient.getQueryData<WishlistItem[]>(wishlistQueryKeys.list()) ??
-        [];
-      queryClient.setQueryData<WishlistItem[]>(wishlistQueryKeys.list(), []);
+        queryClient.getQueryData<WishlistItem[]>(listQueryKey) ?? [];
+      queryClient.setQueryData<WishlistItem[]>(listQueryKey, []);
       return { previousItems };
     },
     onError: (_error, _variables, context) => {
       if (!context) {
         return;
       }
-      queryClient.setQueryData(wishlistQueryKeys.list(), context.previousItems);
+      queryClient.setQueryData(listQueryKey, context.previousItems);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: wishlistQueryKeys.list() });
+      queryClient.invalidateQueries({ queryKey: listQueryKey });
     },
   });
 };

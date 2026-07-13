@@ -2,9 +2,10 @@
 import type { MouseEvent } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
+
 
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MY_TAB_PATHS } from '@shared/constants/myRoutes';
 import type { MyTab } from '@shared/constants/myRoutes';
@@ -12,6 +13,7 @@ import {
   getUserDisplayName,
   getUserInitial,
 } from '@shared/lib/auth/userDisplay';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 import { MY_PAGE_MENU_ITEMS } from '../model/myPageMenu';
@@ -27,6 +29,7 @@ export default function MyPageTabNavigation({
   variant,
   onTabLinkClick,
 }: MyPageTabNavigationProps) {
+  const t = useTranslations('MyPage.menu');
   const { data: session, status } = useSession();
   const isSessionLoading = status === 'loading';
   const userName = getUserDisplayName(session?.user);
@@ -57,7 +60,7 @@ export default function MyPageTabNavigation({
                   )}
                 >
                   <Icon size={17} />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               );
             })}
@@ -123,7 +126,7 @@ export default function MyPageTabNavigation({
                 )}
               >
                 <Icon size={19} />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             );
           })}

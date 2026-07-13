@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import MyPageSectionHeaderSkeleton from './MyPageSectionHeaderSkeleton';
 
 type MyAddressSkeletonProps = {
@@ -11,11 +13,13 @@ export default function MyAddressSkeleton({
   menuButton,
   itemCount = 2,
 }: MyAddressSkeletonProps) {
+  const t = useTranslations('MyAddress.page');
+
   return (
     <div className="w-full rounded-2xl lg:pl-4">
       <MyPageSectionHeaderSkeleton
         label="ADDRESSES"
-        title="배송지 관리"
+        title={t('title')}
         descriptionClassName="w-32"
         actionClassName="w-28"
         menuButton={menuButton}

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MyPageMobileMenuButton } from '@features/my/ui';
 import MyPageOrdersSkeleton from '@features/my/ui/skeletons/MyPageOrdersSkeleton';
@@ -20,25 +21,26 @@ export function MyOrdersContainer({
   embedded = false,
   mode = 'all',
 }: MyOrdersContainerProps) {
+  const t = useTranslations('MyOrders');
   const { status } = useSession();
 
   const isReviewWriteMode = mode === 'review';
   const isReviewWrittenMode = mode === 'review-written';
   const pageLabel = isReviewWriteMode
-    ? 'WRITE REVIEW'
+    ? t('meta.reviewWrite.label')
     : isReviewWrittenMode
-      ? 'REVIEWS'
-      : 'ORDERS';
+      ? t('meta.reviewWritten.label')
+      : t('meta.all.label');
   const pageTitle = isReviewWriteMode
-    ? '상품평 작성'
+    ? t('meta.reviewWrite.title')
     : isReviewWrittenMode
-      ? '작성한 상품평'
-      : '주문 목록';
+      ? t('meta.reviewWritten.title')
+      : t('meta.all.title');
   const pageDescription = isReviewWriteMode
-    ? '배송 완료된 주문 중 아직 상품평을 작성하지 않은 항목입니다.'
+    ? t('meta.reviewWrite.description')
     : isReviewWrittenMode
-      ? '이미 작성한 상품평을 이곳에서 수정할 수 있습니다.'
-      : '최근 주문 내역을 확인하세요.';
+      ? t('meta.reviewWritten.description')
+      : t('meta.all.description');
   const pageClassName = embedded
     ? 'w-full rounded-2xl lg:pl-4'
     : 'mx-auto w-full max-w-7xl px-4 pb-16 pt-27.5 sm:px-6';
@@ -59,7 +61,7 @@ export function MyOrdersContainer({
   if (status !== 'authenticated') {
     return (
       <div className="rounded-2xl border border-line bg-surface p-6 text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted">
-        로그인 후 주문 정보를 확인할 수 있습니다.
+        {t('authRequired')}
       </div>
     );
   }
@@ -71,7 +73,7 @@ export function MyOrdersContainer({
           onReset={reset}
           fallback={({ reset: resetErrorBoundary }) => (
             <QueryErrorFallback
-              title={`${pageTitle} 정보를 불러오지 못했습니다.`}
+              title={t('loadFailed', { title: pageTitle })}
               onRetry={resetErrorBoundary}
             />
           )}

@@ -4,32 +4,24 @@ import type { Address } from 'react-daum-postcode';
 
 export const FIELD_CONFIGS = [
   {
-    label: '이름',
     type: 'text',
     name: 'name',
     required: true,
-    placeholder: '수령인 이름을 입력하세요',
   },
   {
-    label: '연락처',
     type: 'tel',
     name: 'phone_number',
     required: true,
-    placeholder: "'-' 없이 숫자만 입력하세요",
   },
   {
-    label: '주소',
     type: 'text',
     name: 'address_1',
     required: true,
-    placeholder: '주소를 검색하세요',
   },
   {
-    label: '상세주소',
     type: 'text',
     name: 'address_2',
     required: false,
-    placeholder: '상세주소를 입력하세요',
   },
 ] as const;
 

@@ -1,4 +1,5 @@
-import Link from 'next/link';
+
+import { useTranslations } from 'next-intl';
 
 import {
   buildReviewWriteHref,
@@ -9,6 +10,8 @@ import type { MyOrdersMode } from '@features/my/model/orderList';
 
 import type { OrderResponse } from '@entities/order/model/types';
 import type { OrderItem } from '@entities/order/model/types';
+
+import { Link } from '@shared/lib/i18n/navigation';
 
 type MyOrdersItemActionProps = {
   mode: MyOrdersMode;
@@ -23,17 +26,18 @@ export default function MyOrdersItemAction({
   item,
   orderDetailHref,
 }: MyOrdersItemActionProps) {
+  const t = useTranslations('MyOrders');
   const reviewHref = buildReviewWriteHref(order, item);
   const reviewHiddenNotice = item.reviewAdminHiddenAt ? (
     <span className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md border border-line bg-canvas px-4 text-base font-semibold text-muted dark:border-dark-border dark:bg-dark-bg-hover dark:text-dark-muted sm:w-auto">
-      상품평 비공개
+      {t('actions.hiddenReview')}
     </span>
   ) : null;
 
   if (mode === 'review') {
     return (
       <Link href={reviewHref} className={myOrdersActionButtonClassName}>
-        상품평 작성
+        {t('actions.writeReview')}
       </Link>
     );
   }
@@ -45,7 +49,7 @@ export default function MyOrdersItemAction({
 
     return (
       <Link href={reviewHref} className={myOrdersReviewEditButtonClassName}>
-        상품평 수정
+        {t('actions.editReview')}
       </Link>
     );
   }
@@ -64,7 +68,9 @@ export default function MyOrdersItemAction({
             : myOrdersActionButtonClassName
         }
       >
-        {item.reviewWritten ? '상품평 수정' : '상품평 작성'}
+        {item.reviewWritten
+          ? t('actions.editReview')
+          : t('actions.writeReview')}
       </Link>
     );
   }
@@ -72,7 +78,7 @@ export default function MyOrdersItemAction({
   if (order.status === 'SHIPPED') {
     return (
       <Link href={orderDetailHref} className={myOrdersActionButtonClassName}>
-        배송 조회
+        {t('actions.trackDelivery')}
       </Link>
     );
   }

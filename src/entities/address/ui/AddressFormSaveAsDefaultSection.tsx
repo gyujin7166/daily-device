@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 
 type AddressFormSaveAsDefaultSectionProps = {
@@ -11,14 +13,16 @@ export default function AddressFormSaveAsDefaultSection({
   isSaving,
   onSaveAsDefaultChange,
 }: AddressFormSaveAsDefaultSectionProps) {
+  const t = useTranslations('MyAddress.createModal');
+
   return (
     <div className="mt-7 flex items-center justify-between gap-4">
       <div>
         <p className="text-xl font-semibold leading-7 text-ink sm:text-lg sm:leading-6 dark:text-surface">
-          기본 배송지로 설정
+          {t('saveAsDefault')}
         </p>
         <p className="text-sm text-muted sm:text-sm dark:text-dark-muted">
-          이 주소를 기본 배송지로 사용합니다.
+          {t('saveAsDefaultDescription')}
         </p>
       </div>
       <button

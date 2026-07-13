@@ -2,6 +2,8 @@
 import { Suspense } from 'react';
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import type { MyTab } from '@shared/constants/myRoutes';
 import { useRequireAuth } from '@shared/hooks/auth/useRequireAuth';
 import { cn } from '@shared/lib/utils/style';
@@ -21,6 +23,7 @@ type MyPageShellProps = {
 };
 
 export default function MyPageShell({ activeTab, children }: MyPageShellProps) {
+  const t = useTranslations('MyPage.shell');
   useRequireAuth();
   const {
     isMobileMenuOpen,
@@ -70,7 +73,7 @@ export default function MyPageShell({ activeTab, children }: MyPageShellProps) {
                     <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
                       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface/95 shadow-xs dark:border-dark-border dark:bg-dark-panel/95">
                         <Spinner size="sm" />
-                        <span className="sr-only">마이페이지 탭 불러오는 중</span>
+                        <span className="sr-only">{t('loadingTab')}</span>
                       </div>
                     </div>
                   ) : null}

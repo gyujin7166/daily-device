@@ -1,5 +1,7 @@
 import type { ChangeEvent, FocusEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { FIELD_CONFIGS } from '@entities/address/model/form';
 import type { AddressFieldName } from '@entities/address/model/form';
 
@@ -9,20 +11,6 @@ import AddressFormPostcodeField from './AddressFormPostcodeField';
 import ShippingFormInput from './ShippingFormInput';
 
 import type { Address } from 'react-daum-postcode';
-
-const ADDRESS_MODAL_FIELD_LABELS: Record<AddressFieldName, string> = {
-  name: '수령인 이름',
-  phone_number: '연락처',
-  address_1: '주소',
-  address_2: '상세 주소',
-};
-
-const ADDRESS_MODAL_FIELD_PLACEHOLDERS: Record<AddressFieldName, string> = {
-  name: '예: 홍길동',
-  phone_number: '01012345678',
-  address_1: '도로명 또는 지번 주소를 검색하세요',
-  address_2: '동/호수 등 상세 주소를 입력하세요',
-};
 
 type AddressFormModalFieldsGridProps = {
   showPostcode: boolean;
@@ -47,6 +35,7 @@ export default function AddressFormModalFieldsGrid({
   onFieldChange,
   onFieldBlur,
 }: AddressFormModalFieldsGridProps) {
+  const t = useTranslations('MyAddress.createModal');
   const visibleAddressModalFields = FIELD_CONFIGS.filter((field) => {
     if (showPostcode) {
       return field.name === 'address_1';
@@ -61,7 +50,7 @@ export default function AddressFormModalFieldsGrid({
           return (
             <AddressFormPostcodeField
               key={field.name}
-              label={ADDRESS_MODAL_FIELD_LABELS[field.name]}
+              label={t(`fields.${field.name}`)}
               required={field.required}
               onShowPostcodeChange={onShowPostcodeChange}
               onAddressComplete={onAddressComplete}
@@ -72,7 +61,7 @@ export default function AddressFormModalFieldsGrid({
         return (
           <ShippingFormInput
             key={field.name}
-            label={ADDRESS_MODAL_FIELD_LABELS[field.name]}
+            label={t(`fields.${field.name}`)}
             type={field.type}
             name={field.name}
             required={field.required}
@@ -83,7 +72,7 @@ export default function AddressFormModalFieldsGrid({
             onBlur={onFieldBlur}
             onClick={() => onShowPostcodeChange(true)}
             address={address}
-            placeholder={ADDRESS_MODAL_FIELD_PLACEHOLDERS[field.name]}
+            placeholder={t(`placeholders.${field.name}`)}
           />
         );
       })}

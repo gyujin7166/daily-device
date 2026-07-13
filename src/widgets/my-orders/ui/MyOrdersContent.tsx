@@ -1,9 +1,9 @@
 'use client';
+import { useFormatter, useTranslations } from 'next-intl';
+
 import useMyOrdersContentState from '@features/my/model/hooks/useMyOrdersContentState';
 import {
-  formatOrderPlacedDate,
   getMyOrdersStatusBadgeClass,
-  getMyOrdersStatusText,
   getOrderRecipientName,
   getOrderTotal,
   myOrdersActionButtonClassName,
@@ -33,6 +33,8 @@ export default function MyOrdersContent({
   embedded = false,
   mode = 'all',
 }: MyOrdersContentProps) {
+  const t = useTranslations('MyOrders');
+  const format = useFormatter();
   const {
     confirmingOrderNumber,
     currentPage,
@@ -45,7 +47,6 @@ export default function MyOrdersContent({
     isReviewWriteMode,
     isReviewWrittenMode,
     listTopRef,
-    pageMeta,
     pageNumbers,
     totalItems,
     totalPages,
@@ -53,6 +54,36 @@ export default function MyOrdersContent({
   const pageClassName = embedded
     ? 'w-full rounded-2xl lg:pl-4'
     : 'mx-auto w-full max-w-7xl px-4 pb-16 pt-27.5 sm:px-6';
+  const pageMeta = isReviewWriteMode
+    ? {
+        pageLabel: t('meta.reviewWrite.label'),
+        pageTitle: t('meta.reviewWrite.title'),
+        pageDescription: t('meta.reviewWrite.description'),
+      }
+    : isReviewWrittenMode
+      ? {
+          pageLabel: t('meta.reviewWritten.label'),
+          pageTitle: t('meta.reviewWritten.title'),
+          pageDescription: t('meta.reviewWritten.description'),
+        }
+      : {
+          pageLabel: t('meta.all.label'),
+          pageTitle: t('meta.all.title'),
+          pageDescription: t('meta.all.description'),
+        };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+      return '-';
+    }
+
+    return format.dateTime(date, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+  };
 
   if (isPending) {
     return (
@@ -111,8 +142,8 @@ export default function MyOrdersContent({
                 order={order}
                 orderDetailHref={orderDetailHref}
                 statusBadgeClassName={getMyOrdersStatusBadgeClass(order.status)}
-                statusText={getMyOrdersStatusText(order.status)}
-                orderPlacedDateText={formatOrderPlacedDate(order.createdAt)}
+                statusText={t(`status.${order.status}`)}
+                orderPlacedDateText={formatDate(order.createdAt)}
                 orderTotal={getOrderTotal(order)}
                 recipientName={getOrderRecipientName(order)}
                 isConfirmableOrder={isConfirmableOrder}
@@ -136,7 +167,7 @@ export default function MyOrdersContent({
         {isFetching ? (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
             <Spinner size="md" />
-            <span className="sr-only">주문 목록 불러오는 중</span>
+            <span className="sr-only">{t('loading')}</span>
           </div>
         ) : null}
       </MyPageScrollArea>

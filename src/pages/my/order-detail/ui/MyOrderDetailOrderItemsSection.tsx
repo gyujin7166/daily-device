@@ -1,4 +1,5 @@
 import { IconPackage } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { OrderItem } from '@entities/order/model/types';
 
@@ -11,11 +12,13 @@ type MyOrderDetailOrderItemsSectionProps = {
 export default function MyOrderDetailOrderItemsSection({
   orderItems,
 }: MyOrderDetailOrderItemsSectionProps) {
+  const t = useTranslations('MyOrderDetail.labels');
+
   return (
     <section>
       <h2 className="mb-4 inline-flex items-center gap-2 text-lg font-semibold text-ink dark:text-surface">
         <IconPackage size={18} className="text-primary" />
-        주문 상품
+        {t('orderItems')}
       </h2>
       <div className="space-y-5">
         {orderItems.map((item, index) => (

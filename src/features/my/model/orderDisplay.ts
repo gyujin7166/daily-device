@@ -1,4 +1,3 @@
-import { ORDER_STATUS } from '@entities/order/model/orderStatus';
 import type { OrderResponse } from '@entities/order/model/types';
 import type { OrderItem } from '@entities/order/model/types';
 
@@ -29,9 +28,6 @@ export const getMyOrdersStatusBadgeClass = (status: OrderStatus) => {
 
   return 'border border-line bg-surface text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted';
 };
-
-export const getMyOrdersStatusText = (status: OrderStatus) =>
-  ORDER_STATUS[status] ?? status;
 
 export const buildReviewWriteHref = (order: OrderResponse, item: OrderItem) => {
   const deliveryDate = (order.deliveryDate ?? '').split('T')[0] || '';

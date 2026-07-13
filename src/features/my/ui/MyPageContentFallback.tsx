@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import type { MyTab } from '@shared/constants/myRoutes';
 
 import MyPageMobileMenuButton from './MyPageMobileMenuButton';
@@ -13,6 +15,7 @@ type MyPageContentFallbackProps = {
 export default function MyPageContentFallback({
   tab,
 }: MyPageContentFallbackProps) {
+  const t = useTranslations('MyPage.fallback');
   const menuButton = <MyPageMobileMenuButton />;
 
   if (tab === 'overview') {
@@ -32,8 +35,8 @@ export default function MyPageContentFallback({
       <MyPageOrdersSkeleton
         pageClassName="w-full rounded-2xl lg:pl-4"
         pageLabel="REVIEWS"
-        pageTitle="작성한 상품평"
-        pageDescription="작성한 상품평 내역을 확인해 보세요."
+        pageTitle={t('reviews.title')}
+        pageDescription={t('reviews.description')}
         menuButton={menuButton}
         itemCount={4}
       />
@@ -45,8 +48,8 @@ export default function MyPageContentFallback({
       <MyPageOrdersSkeleton
         pageClassName="w-full rounded-2xl lg:pl-4"
         pageLabel="WRITE REVIEW"
-        pageTitle="상품평 작성"
-        pageDescription="상품평을 작성할 주문을 선택해 보세요."
+        pageTitle={t('writeReview.title')}
+        pageDescription={t('writeReview.description')}
         menuButton={menuButton}
       />
     );
@@ -56,8 +59,8 @@ export default function MyPageContentFallback({
     <MyPageOrdersSkeleton
       pageClassName="w-full rounded-2xl lg:pl-4"
       pageLabel="ORDERS"
-      pageTitle="주문 목록"
-      pageDescription="주문 내역을 확인해 보세요."
+      pageTitle={t('orders.title')}
+      pageDescription={t('orders.description')}
       menuButton={menuButton}
     />
   );

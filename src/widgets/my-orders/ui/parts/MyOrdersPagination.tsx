@@ -1,4 +1,5 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -17,6 +18,8 @@ export default function MyOrdersPagination({
   isFetching,
   onPageChange,
 }: MyOrdersPaginationProps) {
+  const t = useTranslations('MyOrders.labels');
+
   if (totalPages <= 1) {
     return null;
   }
@@ -28,7 +31,7 @@ export default function MyOrdersPagination({
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1 || isFetching}
         className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover"
-        aria-label="이전 페이지"
+        aria-label={t('previousPage')}
       >
         <IconChevronLeft size={18} />
       </button>
@@ -56,7 +59,7 @@ export default function MyOrdersPagination({
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages || isFetching}
         className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover"
-        aria-label="다음 페이지"
+        aria-label={t('nextPage')}
       >
         <IconChevronRight size={18} />
       </button>

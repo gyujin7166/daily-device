@@ -1,9 +1,12 @@
 'use client';
 
-import Link from 'next/link';
+
+import { useTranslations } from 'next-intl';
 
 import MyPageEmptyRecommendedProducts from '@widgets/my-page-empty/ui/MyPageEmptyRecommendedProducts';
 import MyPageEmptyStatePanel from '@widgets/my-page-empty/ui/MyPageEmptyStatePanel';
+
+import { Link } from '@shared/lib/i18n/navigation';
 
 type MyOrdersEmptyStateProps = {
   isReviewWriteMode: boolean;
@@ -17,15 +20,17 @@ export default function MyOrdersEmptyState({
   isReviewWriteMode,
   isReviewWrittenMode,
 }: MyOrdersEmptyStateProps) {
+  const t = useTranslations('MyOrders.empty');
+
   if (isReviewWriteMode) {
     return (
       <MyPageEmptyStatePanel
-        title="아직 남길 후기가 없어요"
-        description="구매한 상품이 배송 완료되면 이곳에서 후기를 작성할 수 있습니다."
+        title={t('reviewWrite.title')}
+        description={t('reviewWrite.description')}
         iconVariant="write-review"
         action={
           <Link href="/my/orders" className={emptyActionClassName}>
-            구매 내역 보기
+            {t('reviewWrite.action')}
           </Link>
         }
       />
@@ -35,12 +40,12 @@ export default function MyOrdersEmptyState({
   if (isReviewWrittenMode) {
     return (
       <MyPageEmptyStatePanel
-        title="작성한 상품평이 없어요"
-        description="구매한 상품의 사용 경험을 남기면 이곳에서 다시 확인할 수 있습니다."
+        title={t('reviewWritten.title')}
+        description={t('reviewWritten.description')}
         iconVariant="reviews"
         action={
           <Link href="/products" className={emptyActionClassName}>
-            추천 상품 보기
+            {t('reviewWritten.action')}
           </Link>
         }
       />
@@ -50,13 +55,13 @@ export default function MyOrdersEmptyState({
   return (
     <>
       <MyPageEmptyStatePanel
-        title="아직 주문이 없어요"
-        description="마음에 드는 상품을 찾고 첫 주문을 시작해보세요."
+        title={t('all.title')}
+        description={t('all.description')}
         iconVariant="orders"
         layout="horizontal"
         action={
           <Link href="/products/discounts" className={emptyActionClassName}>
-            오늘의 특가 보기
+            {t('all.action')}
           </Link>
         }
       />
