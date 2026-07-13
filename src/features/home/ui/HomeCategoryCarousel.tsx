@@ -1,4 +1,7 @@
+import { useTranslations } from 'next-intl';
+
 import type { HomeSection } from '@entities/home/model/types';
+
 
 import {
   CATEGORY_CAROUSEL_LAYOUTS,
@@ -62,6 +65,7 @@ const toCategoryLayoutGroups = (
 export default function HomeCategoryCarousel({
   section,
 }: HomeCategoryCarouselProps) {
+  const t = useTranslations('Home.category');
   const slides = toCategoryLayoutGroups(section);
   const {
     emblaRef,
@@ -84,12 +88,9 @@ export default function HomeCategoryCarousel({
     <section className="overflow-x-hidden bg-canvas py-14 text-ink sm:py-16 lg:py-20 dark:bg-dark-bg dark:text-surface">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10">
         <HomeSectionHeader
-          eyebrow={section?.eyebrow ?? 'Categories'}
-          title={section?.title ?? '원하는 환경에 맞는 제품군'}
-          subtitle={
-            section?.subtitle ??
-            '원하는 환경과 사용 흐름에 맞는 제품군을 빠르게 둘러보세요.'
-          }
+          eyebrow={section?.eyebrow ?? t('eyebrow')}
+          title={section?.title ?? t('title')}
+          subtitle={section?.subtitle ?? t('subtitle')}
           subtitleClassName="max-w-2xl sm:whitespace-nowrap"
         />
 

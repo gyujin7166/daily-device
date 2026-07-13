@@ -1,5 +1,6 @@
 export type HomeCategoryCarouselItem = {
   label: string;
+  labelKey?: string;
   cta?: string;
   imageSrc: string;
   imageAlt: string;
@@ -52,26 +53,30 @@ export const HOME_CATEGORY_CAROUSEL_SLIDES: HomeCategoryCarouselSlide[] = [
     gridAreaClassName: CATEGORY_CAROUSEL_LAYOUTS[0].gridAreaClassName,
     items: [
       {
-        label: '마우스 & 키보드',
+        label: 'Mice & Keyboards',
+        labelKey: 'fallbackItems.miceAndKeyboards',
         imageSrc: '/images/carousel/desktop_grey-mice-and-keyboards.png',
         imageAlt: 'desktop_grey-mice-and-keyboards',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[0].areaClassNames[0],
       },
       {
-        label: '스트리밍',
+        label: 'Streaming',
+        labelKey: 'fallbackItems.streaming',
         imageSrc: '/images/carousel/desktop_grey-streaming.png',
         imageAlt: 'desktop_grey-streaming',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[0].areaClassNames[1],
         labelPosition: 'top',
       },
       {
-        label: 'IPAD 키보드',
+        label: 'iPad Keyboards',
+        labelKey: 'fallbackItems.ipadKeyboards',
         imageSrc: '/images/carousel/desktop-grey-mobile-devices-4.png',
         imageAlt: 'desktop-grey-mobile-devices-4',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[0].areaClassNames[2],
       },
       {
-        label: '헤드셋 및 이어폰',
+        label: 'Headsets & Earbuds',
+        labelKey: 'fallbackItems.headsetsAndEarbuds',
         imageSrc: '/images/carousel/desktop_grey-headsets.png',
         imageAlt: 'desktop_grey-headsets',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[0].areaClassNames[3],
@@ -83,26 +88,30 @@ export const HOME_CATEGORY_CAROUSEL_SLIDES: HomeCategoryCarouselSlide[] = [
     gridAreaClassName: CATEGORY_CAROUSEL_LAYOUTS[1].gridAreaClassName,
     items: [
       {
-        label: '홈 시큐리티',
+        label: 'Home Security',
+        labelKey: 'fallbackItems.homeSecurity',
         imageSrc: '/images/carousel/desktop_home-security-cameras-gray.png',
         imageAlt: 'desktop_home-security-cameras-gray',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[1].areaClassNames[0],
       },
       {
-        label: '프레젠테이션 리모컨',
+        label: 'Presentation Remotes',
+        labelKey: 'fallbackItems.presentationRemotes',
         imageSrc: '/images/carousel/desktop_grey-presentation-remotes.png',
         imageAlt: 'desktop_grey-presentation-remotes',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[1].areaClassNames[1],
         labelPosition: 'top',
       },
       {
-        label: '스피커',
+        label: 'Speakers',
+        labelKey: 'fallbackItems.speakers',
         imageSrc: '/images/carousel/desktop-speakers-z407-gray.png',
         imageAlt: 'desktop-speakers-z407-gray',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[1].areaClassNames[2],
       },
       {
-        label: '화상 회의',
+        label: 'Video Conferencing',
+        labelKey: 'fallbackItems.videoConferencing',
         imageSrc: '/images/carousel/desktop_grey-video-conferencing.png',
         imageAlt: 'desktop_grey-video-conferencing',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[1].areaClassNames[3],
@@ -114,20 +123,23 @@ export const HOME_CATEGORY_CAROUSEL_SLIDES: HomeCategoryCarouselSlide[] = [
     gridAreaClassName: CATEGORY_CAROUSEL_LAYOUTS[2].gridAreaClassName,
     items: [
       {
-        label: '홈 시큐리티',
+        label: 'Home Security',
+        labelKey: 'fallbackItems.homeSecurity',
         imageSrc: '/images/carousel/desktop-daily-device-bkg.jpg',
         imageAlt: 'desktop-daily-device-bkg',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[2].areaClassNames[0],
       },
       {
-        label: '프레젠테이션 리모컨',
+        label: 'Presentation Remotes',
+        labelKey: 'fallbackItems.presentationRemotes',
         imageSrc: '/images/carousel/desktop-jaybird-bkg.jpg',
         imageAlt: 'desktop-jaybird-bkg',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[2].areaClassNames[1],
         labelPosition: 'top',
       },
       {
-        label: '스피커',
+        label: 'Speakers',
+        labelKey: 'fallbackItems.speakers',
         imageSrc: '/images/carousel/desktop-ultimate-ears-bkg.jpg',
         imageAlt: 'desktop-ultimate-ears-bkg',
         areaClassName: CATEGORY_CAROUSEL_LAYOUTS[2].areaClassNames[2],
