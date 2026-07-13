@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+import { useFormatter, useTranslations } from 'next-intl';
+
 import type { OrderItem } from '@entities/order/model/types';
 
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
@@ -14,6 +16,9 @@ export default function OrderCompleteItemCard({
   item,
   isLast,
 }: OrderCompleteItemCardProps) {
+  const format = useFormatter();
+  const t = useTranslations('Checkout.complete');
+
   return (
     <div
       className={cn(
@@ -43,19 +48,18 @@ export default function OrderCompleteItemCard({
           </h4>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted dark:text-dark-muted">
             <span className="font-medium">
-              {item.price.toLocaleString('ko-KR')}원
+              {t('currency', { amount: format.number(item.price) })}
             </span>
             <span>×</span>
             <span className="rounded-sm bg-canvas px-2 py-1 text-xs font-medium text-ink dark:bg-dark-bg-hover dark:text-surface">
-              {item.quantity}개
+              {t('quantity', { count: item.quantity })}
             </span>
           </div>
         </div>
         <div className="mt-4 text-xl font-bold text-ink dark:text-surface">
-          {(item.price * item.quantity).toLocaleString('ko-KR')}
-          <span className="ml-1 text-base font-medium text-muted dark:text-dark-muted">
-            원
-          </span>
+          {t('currency', {
+            amount: format.number(item.price * item.quantity),
+          })}
         </div>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import type { MouseEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import type { UserAddress } from '@entities/address/model/types';
 
 import SavedAddressCard from './SavedAddressCard';
@@ -27,6 +29,7 @@ export default function CheckoutSavedAddressListSection({
   state,
   actions,
 }: CheckoutSavedAddressListSectionProps) {
+  const t = useTranslations('Checkout.shipping.savedAddress');
   const {
     hasSavedAddresses,
     orderedAddresses,
@@ -40,7 +43,7 @@ export default function CheckoutSavedAddressListSection({
   if (!hasSavedAddresses) {
     return (
       <p className="px-1 text-sm text-muted dark:text-dark-muted">
-        저장된 배송지가 없습니다.
+        {t('empty')}
       </p>
     );
   }

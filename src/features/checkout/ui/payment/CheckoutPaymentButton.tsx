@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import CheckoutPaymentMethodCard from './CheckoutPaymentMethodCard';
 
 import type { CheckoutPaymentMethod } from '../../model/payment';
@@ -13,6 +15,7 @@ export default function CheckoutPaymentButton({
   onSelectMethod,
   disabled,
 }: CheckoutPaymentButtonProps) {
+  const t = useTranslations('Checkout.payment.methods');
   const paymentMethodOptions: Array<{
     method: CheckoutPaymentMethod;
     title: string;
@@ -20,13 +23,13 @@ export default function CheckoutPaymentButton({
   }> = [
     {
       method: 'test',
-      title: '테스트 결제',
-      description: '토스 테스트 결제창으로 이동하며 실제 청구는 없습니다.',
+      title: t('test.title'),
+      description: t('test.description'),
     },
     {
       method: 'demo',
-      title: '데모 결제',
-      description: '결제 승인 없이 주문을 확정하는 데모 흐름입니다.',
+      title: t('demo.title'),
+      description: t('demo.description'),
     },
   ];
 

@@ -11,7 +11,9 @@ declare global {
   }
 }
 
-export const loadTossPayments = () =>
+export const loadTossPayments = (
+  loadFailedMessage = 'Could not load TossPayments SDK.',
+) =>
   new Promise<TossPayments>((resolve, reject) => {
     if (typeof window === 'undefined') {
       reject(new Error('TossPayments is not available on the server.'));
@@ -30,10 +32,10 @@ export const loadTossPayments = () =>
       if (window.TossPayments) {
         resolve(window.TossPayments);
       } else {
-        reject(new Error('TossPayments SDK를 불러오지 못했습니다.'));
+        reject(new Error(loadFailedMessage));
       }
     };
     script.onerror = () =>
-      reject(new Error('TossPayments SDK를 불러오지 못했습니다.'));
+      reject(new Error(loadFailedMessage));
     document.head.appendChild(script);
   });

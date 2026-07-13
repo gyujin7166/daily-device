@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import type { UserCartItem } from '@entities/cart/model/types';
 
 import CheckoutSection from '../common/CheckoutSection';
@@ -17,13 +19,15 @@ export default function CheckoutFlowOrderItemsSection({
   checkoutTotalPrice,
   isBuyNowRequested,
 }: CheckoutFlowOrderItemsSectionProps) {
+  const t = useTranslations('Checkout');
+
   return (
-    <CheckoutSection title={`주문 상품 (${totalQuantity})`}>
+    <CheckoutSection title={t('sections.orderItems', { count: totalQuantity })}>
       <div className="grid gap-6">
         <CheckoutOrderItems items={checkoutItems} />
         <div className="border-t border-line pt-6 dark:border-dark-border">
           <h3 className="text-sm font-bold leading-4.5 uppercase lg:text-base lg:leading-5">
-            주문 요약
+            {t('sections.summary')}
           </h3>
           <div className="mt-4">
             <CheckoutSummary

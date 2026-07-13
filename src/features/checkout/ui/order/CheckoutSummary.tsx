@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
@@ -22,8 +22,10 @@ export default function CheckoutSummary({
   totalPrice: overrideTotalPrice,
   disableCartSyncEffects = false,
 }: CheckoutSummaryProps) {
-  const queryClient = useQueryClient();
   const locale = useLocale();
+  const t = useTranslations('Checkout.summary');
+  const queryClient = useQueryClient();
+  const cartQueryKey = cartQueryKeys.cart(locale);
   const { userCartItems, userTotalPrice } = useCartContext();
   const prevTotalQuantityRef = useRef(0);
   const refetchDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -54,13 +56,13 @@ export default function CheckoutSummary({
 
     const timer = setTimeout(() => {
       if (totalQuantity !== prevTotalQuantityRef.current) {
-        toast.info('장바구니 정보가 변경되었습니다.');
+        toast.info(t('cartChanged'));
         prevTotalQuantityRef.current = totalQuantity;
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [disableCartSyncEffects, totalQuantity]);
+  }, [disableCartSyncEffects, t, totalQuantity]);
 
   useEffect(() => {
     if (disableCartSyncEffects) {
@@ -75,14 +77,14 @@ export default function CheckoutSummary({
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart(locale) });
+      queryClient.invalidateQueries({ queryKey: cartQueryKey });
 
       if (refetchDelayRef.current) {
         clearTimeout(refetchDelayRef.current);
       }
 
       refetchDelayRef.current = setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: cartQueryKeys.cart(locale) });
+        queryClient.invalidateQueries({ queryKey: cartQueryKey });
       }, 600);
     };
 
@@ -107,7 +109,7 @@ export default function CheckoutSummary({
         clearTimeout(refetchDelayRef.current);
       }
     };
-  }, [disableCartSyncEffects, locale, queryClient]);
+  }, [cartQueryKey, disableCartSyncEffects, queryClient]);
 
   return <OrderSummaryPriceTable totalPrice={checkoutTotalPrice} />;
 }

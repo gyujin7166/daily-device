@@ -1,4 +1,6 @@
-import Link from 'next/link';
+import { useFormatter, useTranslations } from 'next-intl';
+
+import { Link } from '@shared/lib/i18n/navigation';
 
 type CheckoutOrderCompleteFooterProps = {
   orderNumber: string;
@@ -14,17 +16,17 @@ export default function CheckoutOrderCompleteFooter({
   orderNumber,
   totalPrice,
 }: CheckoutOrderCompleteFooterProps) {
+  const format = useFormatter();
+  const t = useTranslations('Checkout.complete');
+
   return (
     <>
       <div className="mt-8 flex items-center justify-between border-t border-line pt-6 dark:border-dark-border">
         <span className="text-base text-muted dark:text-dark-muted">
-          총 결제금액
+          {t('total')}
         </span>
         <span className="text-2xl font-bold text-ink dark:text-surface">
-          {totalPrice.toLocaleString('ko-KR')}
-          <span className="ml-1 text-base font-medium text-muted dark:text-dark-muted">
-            원
-          </span>
+          {t('currency', { amount: format.number(totalPrice) })}
         </span>
       </div>
 
@@ -33,10 +35,10 @@ export default function CheckoutOrderCompleteFooter({
           href={`/my/orders/${orderNumber}`}
           className={SECONDARY_ACTION_LINK_CLASS}
         >
-          주문 상세 보기
+          {t('viewOrderDetail')}
         </Link>
         <Link href="/products" className={PRIMARY_ACTION_LINK_CLASS}>
-          쇼핑 계속하기
+          {t('continueShopping')}
         </Link>
       </div>
     </>

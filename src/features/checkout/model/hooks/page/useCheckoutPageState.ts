@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
@@ -11,6 +12,7 @@ import {
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
 import type { CheckoutEntrySource } from '@shared/constants/checkout';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
 import { parseBuyNowCartItems } from '../../buyNowCartItem';

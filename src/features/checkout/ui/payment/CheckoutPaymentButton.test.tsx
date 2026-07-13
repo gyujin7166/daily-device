@@ -1,20 +1,48 @@
+import type React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
 import CheckoutPaymentButton from './CheckoutPaymentButton';
+
+const messages = {
+  Checkout: {
+    payment: {
+      methods: {
+        test: {
+          title: '테스트 결제',
+          description: '토스 테스트 결제창으로 이동합니다.',
+        },
+        demo: {
+          title: '데모 결제',
+          description: '결제 승인 없이 주문을 확정합니다.',
+        },
+      },
+    },
+  },
+};
+
+function renderCheckoutPaymentButton(
+  props: React.ComponentProps<typeof CheckoutPaymentButton>,
+) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={messages}>
+      <CheckoutPaymentButton {...props} />
+    </NextIntlClientProvider>,
+  );
+}
 
 describe('CheckoutPaymentButton', () => {
   it('선택된 결제 수단을 표시하고 다른 결제 수단을 선택한다', async () => {
     const user = userEvent.setup();
     const handleSelectMethod = vi.fn();
 
-    render(
-      <CheckoutPaymentButton
-        selectedMethod="test"
-        onSelectMethod={handleSelectMethod}
-      />,
-    );
+    renderCheckoutPaymentButton({
+      selectedMethod: 'test',
+      onSelectMethod: handleSelectMethod,
+    });
 
     const testPaymentButton = screen.getByRole('button', {
       name: /테스트 결제/,
@@ -36,13 +64,11 @@ describe('CheckoutPaymentButton', () => {
     const user = userEvent.setup();
     const handleSelectMethod = vi.fn();
 
-    render(
-      <CheckoutPaymentButton
-        selectedMethod="test"
-        onSelectMethod={handleSelectMethod}
-        disabled
-      />,
-    );
+    renderCheckoutPaymentButton({
+      selectedMethod: 'test',
+      onSelectMethod: handleSelectMethod,
+      disabled: true,
+    });
 
     const paymentMethodButtons = screen.getAllByRole('button');
     paymentMethodButtons.forEach((button) => {

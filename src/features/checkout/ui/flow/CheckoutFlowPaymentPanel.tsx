@@ -1,9 +1,10 @@
 import type { Dispatch, SetStateAction } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import Button from '@shared/ui/Button/Button';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
-import { CHECKOUT_SECTION_TITLES } from '../../model/constants';
 import CheckoutSection from '../common/CheckoutSection';
 import CheckoutPaymentForm from '../payment/CheckoutPaymentForm';
 
@@ -30,9 +31,11 @@ export default function CheckoutFlowPaymentPanel({
   onPay,
   className,
 }: CheckoutFlowPaymentPanelProps) {
+  const t = useTranslations('Checkout');
+
   return (
     <div className={className}>
-      <CheckoutSection title={CHECKOUT_SECTION_TITLES.PAYMENT}>
+      <CheckoutSection title={t('sections.payment')}>
         <CheckoutPaymentForm
           selectedMethod={selectedMethod}
           onSelectMethod={onSelectMethod}
@@ -52,7 +55,7 @@ export default function CheckoutFlowPaymentPanel({
           {isCartSyncPending ? (
             <>
               <Spinner size="sm" variant="inverse" className="size-5" />
-              <span className="sr-only">장바구니 반영 중</span>
+              <span className="sr-only">{t('payment.actions.cartSyncing')}</span>
             </>
           ) : (
             actionLabel

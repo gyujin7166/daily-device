@@ -1,4 +1,5 @@
 import { IconDeviceMobile, IconMapPin, IconUser } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { UserAddress } from '@entities/address/model/types';
 
@@ -27,6 +28,7 @@ type SummaryContentProps = {
 export default function AddressSummarySection({
   summary,
 }: AddressSummarySectionProps) {
+  const t = useTranslations('Checkout.shipping.summary');
   const { isLoading, selectedAddress, formState } = summary;
 
   if (isLoading) {
@@ -53,6 +55,11 @@ export default function AddressSummarySection({
   if (selectedAddress) {
     return (
       <SummaryContent
+        labels={{
+          address: t('address'),
+          recipient: t('recipient'),
+          phone: t('phone'),
+        }}
         address1={selectedAddress.address1}
         address2={selectedAddress.address2 ?? undefined}
         recipientName={selectedAddress.recipientName}
@@ -64,6 +71,11 @@ export default function AddressSummarySection({
   if (formState.address_1) {
     return (
       <SummaryContent
+        labels={{
+          address: t('address'),
+          recipient: t('recipient'),
+          phone: t('phone'),
+        }}
         address1={formState.address_1}
         address2={formState.address_2}
         recipientName={formState.name ?? ''}
@@ -74,17 +86,24 @@ export default function AddressSummarySection({
 
   return (
     <p className="mt-4 text-xs text-muted dark:text-dark-muted">
-      선택된 배송지가 없습니다.
+      {t('empty')}
     </p>
   );
 }
 
 function SummaryContent({
+  labels,
   address1,
   address2,
   recipientName,
   recipientPhone,
-}: SummaryContentProps) {
+}: SummaryContentProps & {
+  labels: {
+    address: string;
+    recipient: string;
+    phone: string;
+  };
+}) {
   return (
     <div className="mt-4 rounded-xl bg-canvas px-4 py-2 text-sm leading-6 dark:bg-dark-bg-hover">
       <div className="divide-y divide-line dark:divide-dark-border">
@@ -94,7 +113,7 @@ function SummaryContent({
           </span>
           <div className="flex-1">
             <p className="text-xs font-semibold text-muted dark:text-dark-muted">
-              배송지
+              {labels.address}
             </p>
             <div className="mt-2 break-all text-ink dark:text-surface">
               {address1}
@@ -112,7 +131,7 @@ function SummaryContent({
           </span>
           <div className="flex-1">
             <p className="text-xs font-semibold text-muted dark:text-dark-muted">
-              수령인
+              {labels.recipient}
             </p>
             <div className="mt-2 font-semibold text-ink dark:text-surface">
               {recipientName}
@@ -125,7 +144,7 @@ function SummaryContent({
           </span>
           <div className="flex-1">
             <p className="text-xs font-semibold text-muted dark:text-dark-muted">
-              연락처
+              {labels.phone}
             </p>
             <div className="mt-2 break-all text-ink dark:text-surface">
               {recipientPhone}

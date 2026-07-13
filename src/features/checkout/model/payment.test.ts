@@ -91,7 +91,7 @@ describe('validateCheckoutBeforePay', () => {
         isFormValid: false,
         isCartReady: false,
       },
-      expected: '배송지 정보를 입력해주세요.',
+      expected: 'SHIPPING_REQUIRED',
     },
     {
       params: {
@@ -100,7 +100,7 @@ describe('validateCheckoutBeforePay', () => {
         isFormValid: false,
         isCartReady: true,
       },
-      expected: '배송지 정보를 확인해주세요.',
+      expected: 'SHIPPING_INVALID',
     },
     {
       params: {
@@ -109,7 +109,7 @@ describe('validateCheckoutBeforePay', () => {
         isFormValid: false,
         isCartReady: false,
       },
-      expected: '장바구니가 비어있습니다.',
+      expected: 'EMPTY_CART',
     },
     {
       params: {
@@ -128,7 +128,13 @@ describe('validateCheckoutBeforePay', () => {
 describe('checkout order', () => {
   it('상품 수에 맞는 주문명을 만든다', () => {
     expect(getCheckoutOrderName([checkoutItems[0]])).toBe('MX MASTER');
-    expect(getCheckoutOrderName(checkoutItems)).toBe('MX MASTER 외 1건');
+    expect(getCheckoutOrderName(checkoutItems)).toBe('MX MASTER + 1');
+    expect(
+      getCheckoutOrderName(
+        checkoutItems,
+        (primaryName, count) => `${primaryName} 외 ${count}건`,
+      ),
+    ).toBe('MX MASTER 외 1건');
   });
 
   it('저장 배송지를 선택하면 일회성 배송지를 payload에서 제외한다', () => {
@@ -179,7 +185,7 @@ describe('getCheckoutPaymentActionLabel', () => {
         isRequestingPayment: true,
         isDemoProcessing: false,
       },
-      expected: '장바구니 반영 중...',
+      expected: 'Syncing cart...',
     },
     {
       params: {
@@ -188,7 +194,7 @@ describe('getCheckoutPaymentActionLabel', () => {
         isRequestingPayment: true,
         isDemoProcessing: false,
       },
-      expected: '결제 요청 중...',
+      expected: 'Requesting payment...',
     },
     {
       params: {
@@ -197,7 +203,7 @@ describe('getCheckoutPaymentActionLabel', () => {
         isRequestingPayment: false,
         isDemoProcessing: true,
       },
-      expected: '처리 중...',
+      expected: 'Processing...',
     },
     {
       params: {
@@ -206,7 +212,7 @@ describe('getCheckoutPaymentActionLabel', () => {
         isRequestingPayment: false,
         isDemoProcessing: false,
       },
-      expected: '데모 결제',
+      expected: 'Demo payment',
     },
   ])('$expected', ({ params, expected }) => {
     expect(getCheckoutPaymentActionLabel(params)).toBe(expected);
