@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { ProductReviewEditItem } from '@entities/review/model/types';
 
+import { PRODUCT_REVIEW_ERROR_CODE } from '@shared/constants/productReviewErrorCode';
 import { ForbiddenError } from '@shared/lib/errors/httpError';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -37,6 +38,7 @@ export async function getProductReviewByOrderItem(
   if (review?.adminHiddenAt) {
     throw new ForbiddenError(
       '관리자에 의해 비공개 처리된 상품평은 수정할 수 없습니다.',
+      PRODUCT_REVIEW_ERROR_CODE.HIDDEN_REVIEW_EDIT_FORBIDDEN,
     );
   }
 

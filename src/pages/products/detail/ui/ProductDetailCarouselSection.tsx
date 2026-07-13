@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import ProductDetailCarousel from '@widgets/product-recommendation/ui/ProductDetailCarousel';
 
 type ProductDetailCarouselItems = React.ComponentProps<
@@ -15,6 +17,8 @@ export default function ProductDetailCarouselSection({
   recentlyViewedItems,
   recommendedItems,
 }: ProductDetailCarouselSectionProps) {
+  const t = useTranslations('Products.detail.carousel');
+
   return (
     <>
       {recommendedItems.length > 0 ? (
@@ -22,7 +26,7 @@ export default function ProductDetailCarouselSection({
           <ProductDetailCarousel
             items={recommendedItems}
             eyebrow="RECOMMENDED"
-            title="추천 상품"
+            title={t('recommended')}
           />
         </section>
       ) : null}
@@ -32,7 +36,7 @@ export default function ProductDetailCarouselSection({
           <ProductDetailCarousel
             items={recentlyViewedItems}
             eyebrow="RECENTLY VIEWED"
-            title="최근 본 상품"
+            title={t('recentlyViewed')}
           />
         </section>
       ) : null}

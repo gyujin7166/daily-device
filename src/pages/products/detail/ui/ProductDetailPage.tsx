@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import { getProductReviewGalleryBySlug } from '@app/api-routes/product-reviews/gallery/service';
 import { getProductReviewsBySlug } from '@app/api-routes/product-reviews/service';
@@ -40,12 +41,13 @@ export default async function ProductDetailPage({
     productSlug: detail,
   });
   const queryClient = new QueryClient();
+  const locale = await getLocale();
   const slug = decodeURIComponent(detail);
   const normalizedCategory = decodeURIComponent(category).trim();
 
   const productDetail = await queryClient.fetchQuery({
-    queryKey: productQueryKeys.detail(slug),
-    queryFn: () => getProductDetailBySlug(slug),
+    queryKey: productQueryKeys.detail(slug, locale),
+    queryFn: () => getProductDetailBySlug(slug, locale),
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -64,19 +66,35 @@ export default async function ProductDetailPage({
     gcTime: 60 * 60 * 1000,
   });
 
-  await queryClient.prefetchQuery({
-    queryKey: productReviewQueryKeys.reviews(slug, 1, 'latest', 'all', 'guest'),
+  void queryClient.prefetchQuery({
+    queryKey: productReviewQueryKeys.reviews(
+      slug,
+      1,
+      'latest',
+      'all',
+      'guest',
+      locale,
+    ),
     queryFn: () =>
-      getProductReviewsBySlug(slug, 1, PRODUCT_REVIEW_PER_PAGE, 'latest'),
+      getProductReviewsBySlug(
+        slug,
+        1,
+        PRODUCT_REVIEW_PER_PAGE,
+        'latest',
+        'all',
+        undefined,
+        locale,
+      ),
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
-  await queryClient.prefetchInfiniteQuery({
+  void queryClient.prefetchInfiniteQuery({
     queryKey: productReviewQueryKeys.gallery(
       slug,
       PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
       'guest',
+      locale,
     ),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
@@ -84,6 +102,8 @@ export default async function ProductDetailPage({
         slug,
         Number(pageParam),
         PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
+        undefined,
+        locale,
       ),
     getNextPageParam: (lastPage: ProductReviewGalleryPageResponse) =>
       lastPage.hasMore ? lastPage.page + 1 : undefined,
@@ -93,13 +113,20 @@ export default async function ProductDetailPage({
 
   const excludeId = productDetail?.product?.id;
   if (excludeId) {
-    queryClient.prefetchQuery({
-      queryKey: productQueryKeys.recommended(normalizedCategory, excludeId, 10),
+    void queryClient.prefetchQuery({
+      queryKey: productQueryKeys.recommended(
+        normalizedCategory,
+        excludeId,
+        10,
+        'default',
+        locale,
+      ),
       queryFn: () =>
         getRecommendedProductsList({
           category: normalizedCategory,
           excludeId,
           limit: 10,
+          locale,
         }),
       staleTime: 5 * 60 * 1000,
       gcTime: 30 * 60 * 1000,

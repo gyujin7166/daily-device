@@ -26,6 +26,7 @@ const getProductReviewGalleryQuerySchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
   ),
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 type Data = ApiResponse<
@@ -45,12 +46,14 @@ export async function GET(request: Request) {
       slug,
       page: normalizedPage,
       limit: normalizedLimit,
+      locale,
     } = parseWithSchema(
       getProductReviewGalleryQuerySchema,
       {
         slug: url.searchParams.get('slug') ?? url.searchParams.get('name_en'),
         page: url.searchParams.get('page'),
         limit: url.searchParams.get('limit'),
+        locale: url.searchParams.get('locale'),
       },
       'slug query parameter is required',
     );
@@ -63,6 +66,7 @@ export async function GET(request: Request) {
       usePagination ? normalizedPage : undefined,
       usePagination ? normalizedLimit : undefined,
       session?.user?.id ?? undefined,
+      locale,
     );
 
     const response: Data = {

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import ErrorBoundary from '@shared/ui/ErrorBoundary';
 import QueryErrorFallback from '@shared/ui/QueryErrorFallback';
@@ -23,6 +24,7 @@ export default function ProductDetail({
   detail,
   onSelectedColorChange,
 }: ProductDetailProps) {
+  const t = useTranslations('ProductDetail.errors');
   const {
     contentHeights,
     contentRefs,
@@ -36,7 +38,6 @@ export default function ProductDetail({
     increaseQuantity,
     isAddToCartDisabled,
     isInWishlist,
-    isPending,
     product,
     productDetails,
     quantity,
@@ -46,7 +47,7 @@ export default function ProductDetail({
     wishlistItem,
   } = useProductDetailState({ detail, onSelectedColorChange });
 
-  if (isPending || !product) {
+  if (!product) {
     return <ProductDetailSkeleton />;
   }
 
@@ -66,7 +67,7 @@ export default function ProductDetail({
             onReset={reset}
             fallback={({ reset: resetErrorBoundary }) => (
               <QueryErrorFallback
-                title="평점 정보를 불러오지 못했습니다."
+                title={t('ratingLoadFailed')}
                 onRetry={resetErrorBoundary}
                 className="mt-5 px-4 py-5"
               />

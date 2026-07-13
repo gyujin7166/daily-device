@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useTranslations } from 'next-intl';
 
 import { ProductItem } from '@features/product/ui';
 
@@ -54,6 +55,7 @@ export default function ProductDetailCarousel({
   className,
   productBackgroundClassName,
 }: ProductDetailCarouselProps) {
+  const t = useTranslations('Products.detail.carousel');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -68,7 +70,7 @@ export default function ProductDetailCarousel({
 
   const hasControls = scrollSnaps.length > 1;
   const sectionEyebrow = eyebrow ?? 'RECOMMENDED';
-  const sectionTitle = title ?? '추천 상품';
+  const sectionTitle = title ?? t('recommended');
   const isCompact = density === 'compact';
 
   const scrollPrev = () => emblaApi?.scrollPrev();
@@ -128,7 +130,7 @@ export default function ProductDetailCarousel({
               onClick={scrollPrev}
               disabled={!canScrollPrev}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:border-line/70 disabled:bg-canvas disabled:text-disabled-text dark:border-dark-border dark:bg-dark-bg dark:text-surface dark:hover:bg-dark-bg-hover dark:disabled:border-dark-border/70 dark:disabled:bg-dark-elevated"
-              aria-label="이전 상품"
+              aria-label={t('previous')}
             >
               <IconChevronLeft size={20} stroke={1.8} />
             </button>
@@ -137,7 +139,7 @@ export default function ProductDetailCarousel({
               onClick={scrollNext}
               disabled={!canScrollNext}
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:border-line/70 disabled:bg-canvas disabled:text-disabled-text dark:border-dark-border dark:bg-dark-bg dark:text-surface dark:hover:bg-dark-bg-hover dark:disabled:border-dark-border/70 dark:disabled:bg-dark-elevated"
-              aria-label="다음 상품"
+              aria-label={t('next')}
             >
               <IconChevronRight size={20} stroke={1.8} />
             </button>
@@ -194,7 +196,7 @@ export default function ProductDetailCarousel({
               key={index}
               type="button"
               onClick={() => scrollTo(index)}
-              aria-label={`${index + 1}번 페이지로 이동`}
+              aria-label={t('goToPage', { page: index + 1 })}
               aria-current={index === selectedIndex}
               className={cn(
                 'rounded-full transition-all duration-200',

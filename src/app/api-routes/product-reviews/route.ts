@@ -11,6 +11,7 @@ import type { ProductReviewSortOption } from '@entities/review/model/sort';
 import type { ProductReviewsPayload } from '@entities/review/model/types';
 
 import { API_MESSAGE } from '@shared/constants/apiMessage';
+import { PRODUCT_REVIEW_ERROR_CODE } from '@shared/constants/productReviewErrorCode';
 import { getRequiredUserId } from '@shared/lib/api/getRequiredUserId';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
@@ -33,6 +34,7 @@ const getProductReviewsQuerySchema = z.object({
     .enum(['latest', 'oldest', 'rating_desc', 'rating_asc'])
     .default('latest'),
   filter: z.enum(['all', 'with_images']).default('all'),
+  locale: z.string().trim().optional(),
 });
 
 const upsertReviewImageSchema = z.object({
@@ -60,6 +62,7 @@ export async function GET(request: Request) {
       page: pageNum,
       sort,
       filter,
+      locale,
     } = parseWithSchema(
       getProductReviewsQuerySchema,
       {
@@ -67,6 +70,7 @@ export async function GET(request: Request) {
         page: url.searchParams.get('page') ?? '1',
         sort: url.searchParams.get('sort') ?? 'latest',
         filter: url.searchParams.get('filter') ?? 'all',
+        locale: url.searchParams.get('locale') ?? undefined,
       },
       'slug query parameter is required',
     );
@@ -81,6 +85,7 @@ export async function GET(request: Request) {
       sortOption,
       reviewFilter,
       session?.user?.id ?? undefined,
+      locale,
     );
     const response: GetData = { items: result, message: API_MESSAGE.SUCCESS };
     return NextResponse.json(response, { status: 200 });
@@ -107,6 +112,7 @@ export async function POST(request: Request) {
     if (orderItem.hiddenReviewId) {
       throw new ConflictError(
         '관리자에 의해 비공개 처리된 상품평은 수정할 수 없습니다.',
+        PRODUCT_REVIEW_ERROR_CODE.HIDDEN_REVIEW_EDIT_FORBIDDEN,
       );
     }
 

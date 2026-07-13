@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import useEmblaCarousel from 'embla-carousel-react';
+import { useTranslations } from 'next-intl';
 
 import { getProductImagesBySelectedColor } from '@entities/product/model/productImages';
 import type { ProductImageItem } from '@entities/product/model/types';
@@ -93,6 +94,7 @@ export default function ProductImageCarousel({
   detail,
   selectedColorId,
 }: ProductImageCarouselProps) {
+  const t = useTranslations('ProductDetail.media');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedIndexRef = useRef(0);
   const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
@@ -318,7 +320,7 @@ export default function ProductImageCarousel({
         <picture className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[28px]">
           <Image
             src={IMAGE_FALLBACK_URL}
-            alt="상품 이미지 준비 중"
+            alt={t('fallbackAlt')}
             fill
             sizes="(max-width: 1024px) 100vw, 760px"
             className="select-none object-contain opacity-80"
@@ -353,7 +355,7 @@ export default function ProductImageCarousel({
                         item.image_url,
                         'productDetail',
                       )}
-                      alt={`상품_${index + 1}`}
+                      alt={t('imageAlt', { index: index + 1 })}
                       width={760}
                       height={760}
                       sizes="(max-width: 1024px) 100vw, 760px"
@@ -392,7 +394,7 @@ export default function ProductImageCarousel({
                       item.image_url,
                       'productThumbnail',
                     )}
-                    alt={`썸네일_${index + 1}`}
+                    alt={t('thumbnailAlt', { index: index + 1 })}
                     width={104}
                     height={104}
                     sizes="(min-width: 640px) 104px, 88px"

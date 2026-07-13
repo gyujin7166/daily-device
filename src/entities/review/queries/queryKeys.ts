@@ -12,6 +12,7 @@ export const productReviewQueryKeys = {
     sort: ProductReviewSortOption,
     filter: ProductReviewFilter,
     viewerKey: string,
+    locale?: string,
   ) =>
     [
       ...productReviewQueryKeys.reviewsAll(),
@@ -20,14 +21,21 @@ export const productReviewQueryKeys = {
       sort,
       filter,
       viewerKey,
+      locale,
     ] as const,
   galleryAll: () => [...productReviewQueryKeys.all, 'gallery'] as const,
-  gallery: (slug: string, pageSize: number, viewerKey: string) =>
+  gallery: (
+    slug: string,
+    pageSize: number,
+    viewerKey: string,
+    locale?: string,
+  ) =>
     [
       ...productReviewQueryKeys.galleryAll(),
       slug,
       pageSize,
       viewerKey,
+      locale,
     ] as const,
   upsertReviewMutation: () =>
     [...productReviewQueryKeys.all, 'upsertReviewMutation'] as const,

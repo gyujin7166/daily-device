@@ -1,4 +1,5 @@
 import { IconStarFilled } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 type ProductDetailRatingSectionProps = {
   reviewCount: number;
@@ -11,6 +12,9 @@ export default function ProductDetailRatingSection({
   averageRating,
   isReviewSummaryLoading,
 }: ProductDetailRatingSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations('ProductDetail.rating');
+
   if (isReviewSummaryLoading) {
     return (
       <div className="mt-1 flex items-center gap-3">
@@ -31,7 +35,10 @@ export default function ProductDetailRatingSection({
     <div className="mt-1 flex items-center gap-3">
       <div
         className="flex items-center"
-        aria-label={`평점 ${roundedAverageRating}점, 리뷰 ${safeReviewCount}개`}
+        aria-label={t('ariaLabel', {
+          rating: roundedAverageRating,
+          count: safeReviewCount,
+        })}
       >
         {Array.from({ length: fullStarCount }).map((_, idx) => (
           <IconStarFilled
@@ -63,7 +70,11 @@ export default function ProductDetailRatingSection({
         ))}
       </div>
       <span className="text-sm font-semibold text-primary dark:text-primary">
-        리뷰 {safeReviewCount.toLocaleString('ko-KR')}개
+        {t('reviewCount', {
+          count: safeReviewCount.toLocaleString(
+            locale === 'ko' ? 'ko-KR' : 'en-US',
+          ),
+        })}
       </span>
     </div>
   );

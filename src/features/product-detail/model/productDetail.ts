@@ -15,14 +15,24 @@ type BuildBuyNowItemParams = {
   quantity?: number;
 };
 
-export const formatProductDetailPrice = (price?: number) => {
+export const formatProductDetailPrice = (price?: number, locale?: string) => {
   if (price === undefined) {
     return '-';
   }
 
-  return price >= 1000
-    ? `${price.toLocaleString('ko-KR')}원`
-    : `$${price.toFixed(2)}`;
+  if (locale === 'en') {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'KRW',
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
+
+  return new Intl.NumberFormat('ko-KR', {
+    style: 'currency',
+    currency: 'KRW',
+    maximumFractionDigits: 0,
+  }).format(price);
 };
 
 export const getProductDetailSectionIds = (

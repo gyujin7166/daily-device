@@ -1,9 +1,9 @@
-import Link from 'next/link';
 
 import { IconChevronRight } from '@tabler/icons-react';
 
 import { useProductDescription } from '@entities/product/queries/useProductDescription';
 
+import { Link } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 
 type ProductDetailBreadcrumbProps = {
@@ -41,7 +41,7 @@ export default function ProductDetailBreadcrumb({
             href={getCategoryHref(category.slug)}
             className="transition-colors hover:text-ink dark:hover:text-surface"
           >
-            {category.name_ko}
+            {category.name_en}
           </Link>
         </li>
         <IconChevronRight
