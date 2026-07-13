@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import type { MyTab } from '@shared/constants/myRoutes';
 
 import { MY_PAGE_MENU_ITEMS } from '../myPageMenu';
 
 export const useMyPageShellState = (activeTab: MyTab) => {
+  const t = useTranslations('MyPage.menu');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [pendingTab, setPendingTab] = useState<MyTab | null>(null);
   const visualActiveTab = pendingTab ?? activeTab;
@@ -54,9 +57,9 @@ export const useMyPageShellState = (activeTab: MyTab) => {
   const mobileMenuContextValue = useMemo(
     () => ({
       openMobileMenu: handleOpenMobileMenu,
-      activeLabel: activeMenuItem.label,
+      activeLabel: t(activeMenuItem.labelKey),
     }),
-    [activeMenuItem.label, handleOpenMobileMenu],
+    [activeMenuItem.labelKey, handleOpenMobileMenu, t],
   );
 
   useEffect(() => {

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import MyPageSectionHeaderSkeleton from './MyPageSectionHeaderSkeleton';
 
 type MyPageOverviewSkeletonProps = {
@@ -9,11 +11,13 @@ type MyPageOverviewSkeletonProps = {
 export default function MyPageOverviewSkeleton({
   menuButton,
 }: MyPageOverviewSkeletonProps) {
+  const t = useTranslations('MyOverview.page');
+
   return (
     <div className="w-full rounded-2xl lg:pl-4">
       <MyPageSectionHeaderSkeleton
         label="SUMMARY"
-        title="요약"
+        title={t('title')}
         descriptionClassName="w-72"
         menuButton={menuButton}
       />

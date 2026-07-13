@@ -1,6 +1,8 @@
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import type { UserAddress } from '@entities/address/model/types';
+
+import { Link } from '@shared/lib/i18n/navigation';
 
 type MyOverviewDefaultAddressCardProps = {
   defaultAddress: UserAddress | null;
@@ -11,18 +13,20 @@ export default function MyOverviewDefaultAddressCard({
   defaultAddress,
   manageAddressHref,
 }: MyOverviewDefaultAddressCardProps) {
+  const t = useTranslations('MyOverview.defaultAddress');
+
   return (
     <section className="rounded-2xl border border-line bg-surface p-6 shadow-xs dark:border-dark-border dark:bg-dark-panel">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-ink dark:text-surface">
-          기본 배송지
+          {t('title')}
         </h2>
         <Link
           href={manageAddressHref}
           scroll={false}
           className="text-sm font-semibold text-primary hover:underline"
         >
-          배송지 관리
+          {t('manage')}
         </Link>
       </div>
       {defaultAddress ? (
@@ -40,7 +44,7 @@ export default function MyOverviewDefaultAddressCard({
         </div>
       ) : (
         <p className="rounded-xl border border-line bg-canvas px-4 py-4 text-sm text-muted dark:border-dark-border dark:bg-dark-bg-hover dark:text-dark-muted">
-          기본 배송지가 설정되어 있지 않습니다.
+          {t('empty')}
         </p>
       )}
     </section>

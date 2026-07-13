@@ -37,6 +37,8 @@ const secondWishlistItem: WishlistItem = {
   href: '/products/keyboards/keyboard',
 };
 
+const TEST_LOCALE = 'ko';
+
 const renderWishlistHook = <T,>(hook: () => T) => {
   const queryClient = createTestQueryClient();
   const result = renderHook(hook, {
@@ -50,7 +52,7 @@ const setWishlistItems = (
   queryClient: ReturnType<typeof createTestQueryClient>,
   items: WishlistItem[],
 ) => {
-  queryClient.setQueryData(wishlistQueryKeys.list(), items);
+  queryClient.setQueryData(wishlistQueryKeys.list(TEST_LOCALE), items);
 };
 
 describe('useWishlist', () => {
@@ -154,7 +156,7 @@ describe('wishlist mutations', () => {
     });
 
     expect(receivedProductId).toBe(secondWishlistItem.id);
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual([
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
       secondWishlistItem,
       wishlistItemFixture,
     ]);
@@ -176,7 +178,7 @@ describe('wishlist mutations', () => {
       ).rejects.toThrow('추가 실패');
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual([
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
       wishlistItemFixture,
     ]);
   });
@@ -189,7 +191,7 @@ describe('wishlist mutations', () => {
       await result.current.mutateAsync(secondWishlistItem.id);
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual([
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
       wishlistItemFixture,
     ]);
   });
@@ -211,7 +213,7 @@ describe('wishlist mutations', () => {
       ).rejects.toThrow('삭제 실패');
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual(
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual(
       previousItems,
     );
   });
@@ -224,7 +226,7 @@ describe('wishlist mutations', () => {
       await result.current.mutateAsync();
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual([]);
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([]);
   });
 
   it('전체 삭제 실패 시 이전 목록으로 되돌린다', async () => {
@@ -244,7 +246,7 @@ describe('wishlist mutations', () => {
       );
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list())).toEqual(
+    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual(
       previousItems,
     );
   });

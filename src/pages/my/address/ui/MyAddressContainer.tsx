@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MyPageMobileMenuButton } from '@features/my/ui';
 import MyAddressSkeleton from '@features/my/ui/skeletons/MyAddressSkeleton';
@@ -13,6 +14,7 @@ import QueryErrorFallback from '@shared/ui/QueryErrorFallback';
 import MyAddressContent from './MyAddressContent';
 
 export default function MyAddressContainer() {
+  const t = useTranslations('MyAddress.page');
   const { status } = useSession();
   const addressFallback = (
     <MyAddressSkeleton menuButton={<MyPageMobileMenuButton />} />
@@ -25,7 +27,7 @@ export default function MyAddressContainer() {
   if (status !== 'authenticated') {
     return (
       <div className="rounded-2xl border border-line bg-surface p-6 text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted">
-        로그인 후 배송지 정보를 확인할 수 있습니다.
+        {t('authRequired')}
       </div>
     );
   }
@@ -37,7 +39,7 @@ export default function MyAddressContainer() {
           onReset={reset}
           fallback={({ reset: resetErrorBoundary }) => (
             <QueryErrorFallback
-              title="배송지 정보를 불러오지 못했습니다."
+              title={t('loadFailed')}
               onRetry={resetErrorBoundary}
             />
           )}

@@ -9,8 +9,17 @@ type WishlistActionResponse = {
   message?: string;
 };
 
-export const getWishlist = (): Promise<WishlistItem[]> =>
-  fetchApi('/api/wishlist');
+export const getWishlist = (locale?: string): Promise<WishlistItem[]> => {
+  const params = new URLSearchParams();
+
+  if (locale) {
+    params.set('locale', locale);
+  }
+
+  const query = params.toString();
+
+  return fetchApi(`/api/wishlist${query ? `?${query}` : ''}`);
+};
 
 export const upsertWishlist = (
   productId: number,

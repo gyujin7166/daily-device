@@ -1,12 +1,15 @@
 import type { ReactNode } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
+
+
+import { useFormatter, useTranslations } from 'next-intl';
 
 import type { OrderItem } from '@entities/order/model/types';
 import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 
@@ -23,6 +26,8 @@ export default function MyOrdersItemRow({
   itemTotal,
   action,
 }: MyOrdersItemRowProps) {
+  const t = useTranslations('MyOrders');
+  const format = useFormatter();
   const imageUrl =
     getProductThumbnailUrlBySelectedColor(
       item.product.ProductImage,
@@ -32,6 +37,12 @@ export default function MyOrdersItemRow({
   const productHref = getProductHref({
     categorySlug: item.product.category.slug,
     productSlug: item.product.slug,
+  });
+  const formattedItemTotal = t('format.currency', {
+    amount: format.number(itemTotal),
+  });
+  const formattedQuantity = t('format.quantity', {
+    count: format.number(item.quantity),
   });
 
   return (
@@ -60,7 +71,9 @@ export default function MyOrdersItemRow({
 
             <div className="space-y-1.5 text-xs text-muted dark:text-dark-muted sm:text-base">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="min-w-6.5 font-medium">색상</span>
+                <span className="min-w-6.5 font-medium">
+                  {t('labels.color')}
+                </span>
                 {item.colorName ? (
                   <>
                     <span
@@ -71,20 +84,22 @@ export default function MyOrdersItemRow({
                   </>
                 ) : (
                   <span className="text-muted dark:text-dark-muted">
-                    옵션 없음
+                    {t('labels.noOption')}
                   </span>
                 )}
               </p>
 
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span className="min-w-6.5 font-medium">수량</span>
+                <span className="min-w-6.5 font-medium">
+                  {t('labels.quantity')}
+                </span>
                 <span className="inline-flex h-7 items-center rounded-full bg-canvas px-2.5 text-xs font-semibold text-ink dark:bg-dark-bg-hover dark:text-surface">
-                  {item.quantity}개
+                  {formattedQuantity}
                 </span>
               </p>
 
               <p className="pt-1 text-base font-semibold text-ink dark:text-surface sm:text-lg">
-                {itemTotal.toLocaleString('ko-KR')}원
+                {formattedItemTotal}
               </p>
             </div>
           </div>
@@ -130,7 +145,9 @@ export default function MyOrdersItemRow({
               <span className="truncate">{item.colorName}</span>
             </>
           ) : (
-            <span className="text-muted dark:text-dark-muted">옵션 없음</span>
+            <span className="text-muted dark:text-dark-muted">
+              {t('labels.noOption')}
+            </span>
           )}
         </div>
 
@@ -142,7 +159,7 @@ export default function MyOrdersItemRow({
 
         <div className="flex w-full justify-end">
           <span className="whitespace-nowrap text-base font-semibold leading-none tracking-[-0.01em] tabular-nums text-ink dark:text-surface">
-            {itemTotal.toLocaleString('ko-KR')}원
+            {formattedItemTotal}
           </span>
         </div>
 

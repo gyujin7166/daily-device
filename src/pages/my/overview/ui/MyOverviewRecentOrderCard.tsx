@@ -1,8 +1,8 @@
-import Link from 'next/link';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 
-import { ORDER_STATUS } from '@entities/order/model/orderStatus';
 import type { OrderResponse } from '@entities/order/model/types';
 
+import { Link } from '@shared/lib/i18n/navigation';
 import { formatDate } from '@shared/lib/utils/formatDate';
 import { cn } from '@shared/lib/utils/style';
 
@@ -33,25 +33,30 @@ export default function MyOverviewRecentOrderCard({
   latestOrder,
   ordersHref,
 }: MyOverviewRecentOrderCardProps) {
+  const format = useFormatter();
+  const locale = useLocale();
+  const t = useTranslations('MyOverview.recentOrder');
+  const tOrderStatus = useTranslations('MyOrders.status');
+
   return (
     <section className="rounded-2xl border border-line bg-surface p-6 shadow-xs dark:border-dark-border dark:bg-dark-panel">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-ink dark:text-surface">
-          최근 주문
+          {t('title')}
         </h2>
         <Link
           href={ordersHref}
           scroll={false}
           className="text-sm font-semibold text-primary hover:underline"
         >
-          주문 목록 보기
+          {t('viewOrders')}
         </Link>
       </div>
       {latestOrder ? (
         <div className="rounded-xl border border-line bg-canvas px-4 py-4 dark:border-dark-border dark:bg-dark-bg-hover">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted dark:text-dark-muted">
-              주문번호{' '}
+              {t('orderNumber')}{' '}
               <span className="font-semibold text-primary">
                 #{latestOrder.orderNumber}
               </span>
@@ -62,29 +67,38 @@ export default function MyOverviewRecentOrderCard({
                 getStatusBadgeClass(latestOrder.status),
               )}
             >
-              {ORDER_STATUS[latestOrder.status] ?? latestOrder.status}
+              {tOrderStatus(latestOrder.status)}
             </span>
           </div>
           <p className="mt-2 text-sm text-muted dark:text-dark-muted">
-            주문일: {formatDate(latestOrder.createdAt)}
+            {t('orderDate', {
+              date: formatDate(latestOrder.createdAt, locale),
+            })}
           </p>
           <p className="mt-2 text-sm text-ink dark:text-surface">
-            상품: {latestOrder.orderItems[0]?.productName ?? '-'}
+            {t('product', {
+              name: latestOrder.orderItems[0]?.productName ?? '-',
+            })}
             {latestOrder.orderItems.length > 1
-              ? ` 외 ${latestOrder.orderItems.length - 1}건`
+              ? t('extraItems', {
+                  count: latestOrder.orderItems.length - 1,
+                })
               : ''}
           </p>
           <p className="mt-2 text-lg font-semibold text-ink dark:text-surface">
-            총액:{' '}
-            {latestOrder.orderItems
-              .reduce((sum, item) => sum + item.price * item.quantity, 0)
-              .toLocaleString('ko-KR')}
-            원
+            {t('total', {
+              amount: format.number(
+                latestOrder.orderItems.reduce(
+                  (sum, item) => sum + item.price * item.quantity,
+                  0,
+                ),
+              ),
+            })}
           </p>
         </div>
       ) : (
         <p className="rounded-xl border border-line bg-canvas px-4 py-4 text-sm text-muted dark:border-dark-border dark:bg-dark-bg-hover dark:text-dark-muted">
-          최근 주문 내역이 없습니다.
+          {t('empty')}
         </p>
       )}
     </section>

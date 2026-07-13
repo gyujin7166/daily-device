@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import Link from 'next/link';
 
 import { IconTrash } from '@tabler/icons-react';
 import { useIsMutating } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import { MyPageScrollArea, MyPageSectionHeader } from '@features/my/ui';
 import { ProductItem } from '@features/product/ui';
@@ -17,6 +17,8 @@ import { useSuspenseWishlist } from '@entities/wishlist/queries/useWishlist';
 
 import MyPageEmptyRecommendedProducts from '@widgets/my-page-empty/ui/MyPageEmptyRecommendedProducts';
 import MyPageEmptyStatePanel from '@widgets/my-page-empty/ui/MyPageEmptyStatePanel';
+
+import { Link } from '@shared/lib/i18n/navigation';
 
 import MyWishlistPagination from './MyWishlistPagination';
 
@@ -62,6 +64,7 @@ const getWishlistPaginationPages = (
 };
 
 export default function MyWishlistContent() {
+  const t = useTranslations('MyWishlist');
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const { data: wishlistItems = [] } = useSuspenseWishlist();
   const upsertingWishlistCount = useIsMutating({
@@ -128,8 +131,8 @@ export default function MyWishlistContent() {
     <div className="w-full rounded-2xl lg:pl-4 dark:border-dark-border dark:bg-dark-bg">
       <MyPageSectionHeader
         label="WISHLIST"
-        title="찜한 상품"
-        description={`총 ${wishlistItems.length}개의 상품을 찜했습니다.`}
+        title={t('page.title')}
+        description={t('page.description', { count: wishlistItems.length })}
         action={
           wishlistItems.length > 0 ? (
             <button
@@ -139,7 +142,7 @@ export default function MyWishlistContent() {
               className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-muted transition-colors hover:bg-canvas dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover"
             >
               <IconTrash size={16} />
-              전체 삭제
+              {t('page.clearAll')}
             </button>
           ) : null
         }
@@ -149,8 +152,8 @@ export default function MyWishlistContent() {
         {shouldShowEmptyState ? (
           <>
             <MyPageEmptyStatePanel
-              title="찜한 상품이 없어요"
-              description="관심 있는 상품을 모아두면 나중에 빠르게 다시 확인할 수 있습니다."
+              title={t('empty.title')}
+              description={t('empty.description')}
               iconVariant="wishlist"
               layout="horizontal"
               action={
@@ -158,13 +161,13 @@ export default function MyWishlistContent() {
                   href="/products"
                   className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover"
                 >
-                  추천 상품 보기
+                  {t('empty.action')}
                 </Link>
               }
             />
             <div className="mt-4">
               <MyPageEmptyRecommendedProducts
-                title="찜하기 좋은 상품"
+                title={t('recommended.title')}
                 context="wishlist-empty"
               />
             </div>

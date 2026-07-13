@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+import { useFormatter, useTranslations } from 'next-intl';
+
 import type { OrderItem } from '@entities/order/model/types';
 import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 
@@ -13,13 +15,15 @@ type MyOrderDetailOrderItemCardProps = {
   isLastItem: boolean;
 };
 
-const toWon = (price: number) => `${price.toLocaleString('ko-KR')}원`;
-
 export default function MyOrderDetailOrderItemCard({
   item,
   isLastItem,
 }: MyOrderDetailOrderItemCardProps) {
+  const t = useTranslations('MyOrderDetail');
+  const format = useFormatter();
   const itemTotal = item.price * item.quantity;
+  const formatCurrency = (price: number) =>
+    t('format.currency', { amount: format.number(price) });
   const imageUrl =
     getProductThumbnailUrlBySelectedColor(
       item.product.ProductImage,
@@ -50,7 +54,7 @@ export default function MyOrderDetailOrderItemCard({
           <div className="mt-2 space-y-1.5 text-sm text-muted dark:text-dark-muted">
             {item.colorName ? (
               <div className="flex flex-wrap items-center gap-2">
-                <span>색상:</span>
+                <span>{t('labels.color')}</span>
                 <span className="inline-flex items-center gap-1.5 text-ink dark:text-surface">
                   <span
                     className="h-3.5 w-3.5 rounded-full border border-line bg-(--color) dark:border-dark-border"
@@ -62,23 +66,22 @@ export default function MyOrderDetailOrderItemCard({
             ) : null}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <span>
-                가격:{' '}
+                {t('labels.price')}{' '}
                 <span className="font-medium text-ink dark:text-surface">
-                  {toWon(item.price)}
+                  {formatCurrency(item.price)}
                 </span>
               </span>
               <span className="inline-flex items-center gap-1.5">
-                수량:
+                {t('labels.quantity')}
                 <span className="rounded-full bg-line px-2 py-0.5 text-xs font-medium text-ink dark:bg-dark-bg-hover dark:text-surface">
-                  {item.quantity}개
+                  {t('format.quantity', { count: format.number(item.quantity) })}
                 </span>
               </span>
             </div>
           </div>
 
           <p className="mt-3 text-base font-semibold leading-none tracking-[-0.01em] text-ink dark:text-surface">
-            {itemTotal.toLocaleString('ko-KR')}{' '}
-            <span className="text-sm">원</span>
+            {formatCurrency(itemTotal)}
           </p>
         </div>
       </div>

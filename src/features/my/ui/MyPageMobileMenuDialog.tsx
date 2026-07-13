@@ -1,11 +1,12 @@
 import type { MouseEvent } from 'react';
 
-import Link from 'next/link';
 
 import { IconChevronDown, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { MY_TAB_PATHS } from '@shared/constants/myRoutes';
 import type { MyTab } from '@shared/constants/myRoutes';
+import { Link } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
 import { MY_PAGE_MENU_ITEMS } from '../model/myPageMenu';
@@ -27,6 +28,8 @@ export default function MyPageMobileMenuDialog({
   onClose,
   onTabLinkClick,
 }: MyPageMobileMenuDialogProps) {
+  const t = useTranslations('MyPage.menu');
+
   return (
     <div
       className={cn(
@@ -39,7 +42,7 @@ export default function MyPageMobileMenuDialog({
     >
       <button
         type="button"
-        aria-label="마이페이지 메뉴 닫기"
+        aria-label={t('closeMenu')}
         className={cn(
           'absolute inset-0 bg-ink/45 transition-opacity duration-200',
           isOpen ? 'opacity-100' : 'opacity-0',
@@ -55,13 +58,13 @@ export default function MyPageMobileMenuDialog({
       >
         <div className="mb-3 flex items-center justify-between">
           <p className="text-base font-semibold text-ink dark:text-surface">
-            메뉴 선택
+            {t('selectMenu')}
           </p>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-canvas hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
-            aria-label="닫기"
+            aria-label={t('close')}
           >
             <IconX size={18} />
           </button>
@@ -87,7 +90,9 @@ export default function MyPageMobileMenuDialog({
               >
                 <span className="flex items-center gap-3">
                   <Icon size={18} />
-                  <span className="text-base font-semibold">{item.label}</span>
+                  <span className="text-base font-semibold">
+                    {t(item.labelKey)}
+                  </span>
                 </span>
                 <IconChevronDown size={16} className="-rotate-90 opacity-70" />
               </Link>

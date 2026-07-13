@@ -13,18 +13,29 @@ import { clearWishlist, getWishlistList, upsertWishlistItem } from './service';
 
 import type { Prisma } from '@prisma/client';
 
+const emptyToUndefined = (value: unknown) =>
+  value === '' || value === null ? undefined : value;
+
 const upsertWishlistBodySchema = z.object({
   productId: z.coerce.number().int().positive(),
+});
+
+const wishlistQuerySchema = z.object({
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
 });
 
 type GetData = ApiResponse<Awaited<ReturnType<typeof getWishlistList>>>;
 type PostData = ApiResponse<Awaited<ReturnType<typeof upsertWishlistItem>>>;
 type DeleteData = ApiResponse<Prisma.BatchPayload>;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const url = new URL(request.url);
+    const query = parseWithSchema(wishlistQuerySchema, {
+      locale: url.searchParams.get('locale'),
+    });
     const userId = await getRequiredUserId();
-    const wishlist = await getWishlistList(userId);
+    const wishlist = await getWishlistList(userId, query.locale);
     const response: GetData = { items: wishlist, message: API_MESSAGE.SUCCESS };
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

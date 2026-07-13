@@ -1,5 +1,6 @@
 'use client';
 import { IconPlus } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { useMyAddressManagement } from '@features/my/model/hooks/useMyAddressManagement';
 import { MyPageScrollArea, MyPageSectionHeader } from '@features/my/ui';
@@ -12,6 +13,8 @@ import MyAddressListSection from './MyAddressListSection';
 import MyAddressPagination from './MyAddressPagination';
 
 export default function MyAddressContent() {
+  const t = useTranslations('MyAddress.page');
+  const format = useFormatter();
   const {
     addresses,
     displayAddresses,
@@ -41,9 +44,11 @@ export default function MyAddressContent() {
   return (
     <div className="w-full rounded-2xl lg:pl-4 dark:border-dark-border dark:bg-dark-bg">
       <MyPageSectionHeader
-        label="ADDRESSES"
-        title="배송지 관리"
-        description={`저장된 배송지 ${addresses.length}개`}
+        label={t('label')}
+        title={t('title')}
+        description={t('description', {
+          count: format.number(addresses.length),
+        })}
         action={
           addresses.length > 0 ? (
             <button
@@ -52,7 +57,7 @@ export default function MyAddressContent() {
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
             >
               <IconPlus size={16} />
-              배송지 추가
+              {t('add')}
             </button>
           ) : null
         }

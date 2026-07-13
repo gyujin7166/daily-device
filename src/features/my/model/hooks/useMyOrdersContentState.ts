@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { useConfirmDelivery } from '@entities/order/queries/useConfirmDelivery';
 import { useOrdersPaged } from '@entities/order/queries/useOrdersPaged';
 
 import { toast } from '@shared/lib/toast';
 
 import {
-  getMyOrdersPageMeta,
   getMyOrdersPaginationPages,
   getMyOrdersQueryMode,
   MY_ORDERS_PER_PAGE,
@@ -21,6 +22,7 @@ type UseMyOrdersContentStateParams = {
 export default function useMyOrdersContentState({
   mode,
 }: UseMyOrdersContentStateParams) {
+  const t = useTranslations('MyOrders');
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const [confirmingOrderNumber, setConfirmingOrderNumber] = useState<
     string | null
@@ -34,7 +36,6 @@ export default function useMyOrdersContentState({
   const isReviewWrittenMode = mode === 'review-written';
   const isReviewMode = isReviewWriteMode || isReviewWrittenMode;
   const queryMode = getMyOrdersQueryMode(mode);
-  const pageMeta = getMyOrdersPageMeta(isReviewWriteMode, isReviewWrittenMode);
   const confirmDeliveryMutation = useConfirmDelivery();
 
   const {
@@ -59,10 +60,10 @@ export default function useMyOrdersContentState({
     setConfirmingOrderNumber(orderNumber);
     try {
       await confirmDeliveryMutation.mutateAsync(orderNumber);
-      toast.success('수취확인이 완료되었습니다.');
+      toast.success(t('confirmSuccess'));
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : '수취확인에 실패했습니다.';
+        error instanceof Error ? error.message : t('confirmFailed');
       toast.error(errorMessage);
     } finally {
       setConfirmingOrderNumber(null);
@@ -123,7 +124,6 @@ export default function useMyOrdersContentState({
     isReviewWriteMode,
     isReviewWrittenMode,
     listTopRef,
-    pageMeta,
     pageNumbers,
     totalItems,
     totalPages,

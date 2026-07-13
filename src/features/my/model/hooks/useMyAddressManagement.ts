@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, SubmitEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import {
   formatAddressPhone,
   normalizePhoneNumber,
@@ -35,6 +37,7 @@ const createEmptyEditForm = (): AddressEditForm => ({
 });
 
 export const useMyAddressManagement = () => {
+  const t = useTranslations('MyAddress');
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const { data: addresses = [] } = useSuspenseUserAddresses();
   const { mutateAsync: upsertAddress } = useUpsertAddress();
@@ -122,12 +125,12 @@ export const useMyAddressManagement = () => {
         isDefault: true,
       });
       triggerDefaultAnimation(address.id);
-      toast.success('기본 배송지로 설정되었습니다.');
+      toast.success(t('toast.defaultSuccess'));
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : '기본 배송지 설정에 실패했습니다.';
+          : t('toast.defaultFailed');
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -140,7 +143,7 @@ export const useMyAddressManagement = () => {
       return;
     }
 
-    const confirmed = window.confirm('이 배송지를 삭제하시겠습니까?');
+    const confirmed = window.confirm(t('toast.deleteConfirm'));
     if (!confirmed) {
       return;
     }
@@ -149,10 +152,10 @@ export const useMyAddressManagement = () => {
     setProcessingAction('delete');
     try {
       await deleteAddress({ id: addressId });
-      toast.success('배송지가 삭제되었습니다.');
+      toast.success(t('toast.deleteSuccess'));
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '배송지 삭제에 실패했습니다.';
+        error instanceof Error ? error.message : t('toast.deleteFailed');
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -204,12 +207,12 @@ export const useMyAddressManagement = () => {
     const address2 = editForm.address2.trim();
 
     if (!recipientName || !recipientPhone || !address1) {
-      toast.error('수령인, 연락처, 주소를 입력해주세요.');
+      toast.error(t('toast.required'));
       return;
     }
 
     if (!validateAddressField(recipientPhone, 'phone_number')) {
-      toast.error('연락처는 010으로 시작하는 11자리여야 합니다.');
+      toast.error(t('toast.invalidPhone'));
       return;
     }
 
@@ -224,11 +227,11 @@ export const useMyAddressManagement = () => {
         address2: address2 || undefined,
         isDefault: editingAddress.isDefault,
       });
-      toast.success('배송지가 수정되었습니다.');
+      toast.success(t('toast.editSuccess'));
       setEditingAddress(null);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '배송지 수정에 실패했습니다.';
+        error instanceof Error ? error.message : t('toast.editFailed');
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -258,19 +261,19 @@ export const useMyAddressManagement = () => {
     const payload = createFormActions.getValidatedPayload();
 
     if (!payload) {
-      toast.error('배송지 정보를 확인해주세요.');
+      toast.error(t('toast.createInvalid'));
       return;
     }
 
     try {
       setIsCreatingAddress(true);
       await upsertAddress(payload);
-      toast.success('배송지가 저장되었습니다.');
+      toast.success(t('toast.createSuccess'));
       setIsCreateModalOpen(false);
       createFormActions.reset();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '배송지 저장에 실패했습니다.';
+        error instanceof Error ? error.message : t('toast.createFailed');
       toast.error(message);
     } finally {
       setIsCreatingAddress(false);
@@ -306,7 +309,8 @@ export const useMyAddressManagement = () => {
     animatedAddressId,
     isDefaultUpdatePending,
     createAddressModalState: {
-      title: '새 배송지 추가',
+      title: t('createModal.title'),
+      description: t('createModal.description'),
       isSaving: isCreatingAddress,
       showPostcode: createFormState.showPostcode,
       formState: createFormState.formState,

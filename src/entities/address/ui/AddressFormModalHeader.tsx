@@ -1,4 +1,5 @@
 import { IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 type AddressFormModalHeaderProps = {
   title: string;
@@ -13,6 +14,8 @@ export default function AddressFormModalHeader({
   isSaving,
   onClose,
 }: AddressFormModalHeaderProps) {
+  const t = useTranslations('MyAddress.createModal');
+
   return (
     <div className="flex items-center justify-between px-5 py-4 sm:px-6 sm:py-5">
       <div>
@@ -27,7 +30,7 @@ export default function AddressFormModalHeader({
         type="button"
         onClick={onClose}
         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-canvas hover:text-ink sm:h-9 sm:w-9 dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
-        aria-label="배송지 모달 닫기"
+        aria-label={t('close')}
         disabled={isSaving}
       >
         <IconX size={24} />

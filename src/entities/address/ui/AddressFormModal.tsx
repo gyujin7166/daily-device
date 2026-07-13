@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import type { AddressFieldName } from '@entities/address/model/form';
 
 import AddressFormModalContentSection from './AddressFormModalContentSection';
@@ -37,9 +39,10 @@ export default function AddressFormModal({
   state,
   actions,
 }: AddressFormModalProps) {
+  const t = useTranslations('MyAddress.createModal');
   const {
     title,
-    description = '배송 정보를 입력해주세요.',
+    description = t('description'),
     isSaving,
     showPostcode,
     formState,

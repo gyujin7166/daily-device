@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import { getWishlistList } from '@app/api-routes/wishlist/service';
 
@@ -21,12 +22,13 @@ export default async function MyWishlistPage() {
     redirect(getLoginRedirectPath('/my/wishlist'));
   }
   const userId = session.user.id;
+  const locale = await getLocale();
 
   const queryClient = new QueryClient();
 
   queryClient.prefetchQuery({
-    queryKey: wishlistQueryKeys.list(),
-    queryFn: () => getWishlistList(userId),
+    queryKey: wishlistQueryKeys.list(locale),
+    queryFn: () => getWishlistList(userId, locale),
     staleTime: 0,
   });
 

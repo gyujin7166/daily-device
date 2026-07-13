@@ -8,6 +8,10 @@ import type {
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { NotFoundError } from '@shared/lib/errors/httpError';
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
 
@@ -15,7 +19,11 @@ import prisma from 'prisma/prismaClientSingleton';
 
 import type { Prisma } from '@prisma/client';
 
-export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
+export async function getWishlistList(
+  userId: string,
+  localeValue?: string,
+): Promise<WishlistItem[]> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const wishlist = await prisma.wishlist.findUnique({
     where: { userId },
     select: {
@@ -29,6 +37,14 @@ export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
               slug: true,
               productLine: true,
               description: true,
+              translations: {
+                where: { locale: { in: localeFallbacks } },
+                select: {
+                  locale: true,
+                  name: true,
+                  description: true,
+                },
+              },
               price: true,
               discountRate: true,
               ProductImage: {
@@ -61,6 +77,13 @@ export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
                     select: {
                       name: true,
                       hex: true,
+                      translations: {
+                        where: { locale: { in: localeFallbacks } },
+                        select: {
+                          locale: true,
+                          name: true,
+                        },
+                      },
                     },
                   },
                 },
@@ -69,6 +92,13 @@ export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
                 select: {
                   name_en: true,
                   slug: true,
+                  translations: {
+                    where: { locale: { in: localeFallbacks } },
+                    select: {
+                      locale: true,
+                      name: true,
+                    },
+                  },
                 },
               },
             },
@@ -84,10 +114,16 @@ export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
 
   return wishlist.wishlistItem.map(({ product }): WishlistItem => {
     const normalizedProductLine = product.productLine ?? undefined;
+    const translation = pickTranslation(product.translations, locale);
+    const categoryTranslation = pickTranslation(
+      product.category.translations,
+      locale,
+    );
     const parsedPrice = Number(product.price);
     const priceInfo = getProductPriceInfo(
       Number.isFinite(parsedPrice) ? parsedPrice : 0,
       product.discountRate,
+      locale,
     );
 
     const defaultColorId =
@@ -103,18 +139,32 @@ export async function getWishlistList(userId: string): Promise<WishlistItem[]> {
           defaultColorId,
         ) ?? IMAGE_FALLBACK_URL,
       ProductImage: product.ProductImage,
-      alt: product.name_en,
+      alt: translation?.name ?? product.name_en,
       ...(normalizedProductLine ? { productLine: normalizedProductLine } : {}),
-      name: product.name_en.toUpperCase(),
-      description: product.description,
+      name: (translation?.name ?? product.name_en).toUpperCase(),
+      description: translation?.description ?? product.description,
       ...priceInfo,
       href: getProductHref({
         categorySlug: product.category.slug,
         productSlug: product.slug,
       }),
-      productColor: product.productColor,
+      productColor: product.productColor.map((item) => {
+        const colorTranslation = pickTranslation(
+          item.color.translations,
+          locale,
+        );
+
+        return {
+          id: item.id,
+          isDefault: item.isDefault,
+          color: {
+            name: colorTranslation?.name ?? item.color.name,
+            hex: item.color.hex,
+          },
+        };
+      }),
       category: {
-        name_en: product.category.name_en,
+        name_en: categoryTranslation?.name ?? product.category.name_en,
         slug: product.category.slug,
       },
     };

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MyPageMobileMenuButton } from '@features/my/ui';
 import MyWishlistSkeleton from '@features/my/ui/skeletons/MyWishlistSkeleton';
@@ -13,6 +14,7 @@ import QueryErrorFallback from '@shared/ui/QueryErrorFallback';
 import MyWishlistContent from './MyWishlistContent';
 
 export default function MyWishlistContainer() {
+  const t = useTranslations('MyWishlist.page');
   const { status } = useSession();
   const wishlistFallback = (
     <MyWishlistSkeleton menuButton={<MyPageMobileMenuButton />} />
@@ -25,7 +27,7 @@ export default function MyWishlistContainer() {
   if (status !== 'authenticated') {
     return (
       <div className="rounded-2xl border border-line bg-surface p-6 text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted">
-        로그인 후 찜 목록을 확인할 수 있습니다.
+        {t('authRequired')}
       </div>
     );
   }
@@ -37,7 +39,7 @@ export default function MyWishlistContainer() {
           onReset={reset}
           fallback={({ reset: resetErrorBoundary }) => (
             <QueryErrorFallback
-              title="찜 목록을 불러오지 못했습니다."
+              title={t('loadFailed')}
               onRetry={resetErrorBoundary}
             />
           )}

@@ -1,5 +1,7 @@
 import Image from 'next/image';
 
+import { useTranslations } from 'next-intl';
+
 type MyOverviewAccountCardProps = {
   avatarSrc: string;
   displayName: string;
@@ -17,6 +19,8 @@ export default function MyOverviewAccountCard({
   shouldShowAvatarImage,
   onAvatarError,
 }: MyOverviewAccountCardProps) {
+  const t = useTranslations('MyOverview.account');
+
   return (
     <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xs dark:border-dark-border dark:bg-dark-panel">
       <div className="p-6">
@@ -25,7 +29,7 @@ export default function MyOverviewAccountCard({
             {shouldShowAvatarImage ? (
               <Image
                 src={avatarSrc}
-                alt={`${displayName} 프로필 이미지`}
+                alt={t('profileImageAlt', { name: displayName })}
                 width={80}
                 height={80}
                 className="h-full w-full object-cover"
@@ -37,7 +41,7 @@ export default function MyOverviewAccountCard({
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              계정 정보
+              {t('title')}
             </p>
             <h2 className="mt-2 truncate text-2xl font-semibold text-ink dark:text-surface">
               {displayName}

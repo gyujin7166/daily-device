@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 import { MyPageMobileMenuButton } from '@features/my/ui';
 import { MyPageOverviewSkeleton } from '@features/my/ui/skeletons';
@@ -13,6 +14,7 @@ import QueryErrorFallback from '@shared/ui/QueryErrorFallback';
 import MyOverviewContent from './MyOverviewContent';
 
 export default function MyOverviewPageContainer() {
+  const t = useTranslations('MyOverview.page');
   const { data: session, status } = useSession();
   const overviewFallback = (
     <MyPageOverviewSkeleton menuButton={<MyPageMobileMenuButton />} />
@@ -25,7 +27,7 @@ export default function MyOverviewPageContainer() {
   if (status !== 'authenticated' || !session) {
     return (
       <div className="rounded-2xl border border-line bg-surface p-6 text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted">
-        로그인 후 요약 정보를 확인할 수 있습니다.
+        {t('authRequired')}
       </div>
     );
   }
@@ -38,7 +40,7 @@ export default function MyOverviewPageContainer() {
           onReset={reset}
           fallback={({ reset: resetErrorBoundary }) => (
             <QueryErrorFallback
-              title="요약 정보를 불러오지 못했습니다."
+              title={t('loadFailed')}
               onRetry={resetErrorBoundary}
             />
           )}

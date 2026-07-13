@@ -1,4 +1,5 @@
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -17,6 +18,8 @@ export default function MyAddressPagination({
   disabled,
   onPageChange,
 }: MyAddressPaginationProps) {
+  const t = useTranslations('MyAddress.pagination');
+
   if (totalPages <= 1) {
     return null;
   }
@@ -24,14 +27,14 @@ export default function MyAddressPagination({
   return (
     <nav
       className="mt-8 flex shrink-0 items-center justify-center gap-2 pb-1"
-      aria-label="배송지 페이지네이션"
+      aria-label={t('label')}
     >
       <button
         type="button"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1 || disabled}
         className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover"
-        aria-label="이전 페이지"
+        aria-label={t('previous')}
       >
         <IconChevronLeft size={18} />
       </button>
@@ -43,7 +46,7 @@ export default function MyAddressPagination({
           onClick={() => onPageChange(page)}
           disabled={disabled}
           aria-current={currentPage === page ? 'page' : undefined}
-          aria-label={`${page} 페이지로 이동`}
+          aria-label={t('goToPage', { page })}
           className={cn(
             'inline-flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors',
             currentPage === page
@@ -61,7 +64,7 @@ export default function MyAddressPagination({
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages || disabled}
         className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover"
-        aria-label="다음 페이지"
+        aria-label={t('next')}
       >
         <IconChevronRight size={18} />
       </button>

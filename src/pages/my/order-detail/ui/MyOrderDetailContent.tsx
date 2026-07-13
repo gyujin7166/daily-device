@@ -1,7 +1,7 @@
-import { ORDER_STATUS } from '@entities/order/model/orderStatus';
+import { useFormatter, useTranslations } from 'next-intl';
+
 import type { OrderResponse } from '@entities/order/model/types';
 
-import { formatDate } from '@shared/lib/utils/formatDate';
 import { cn } from '@shared/lib/utils/style';
 
 import MyOrderDetailHeaderSection from './MyOrderDetailHeaderSection';
@@ -38,10 +38,6 @@ const getStatusBadgeClass = (status: OrderStatus) => {
   return 'border border-line bg-surface text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted';
 };
 
-const getStatusText = (status: OrderStatus) => {
-  return ORDER_STATUS[status] ?? status;
-};
-
 export default function MyOrderDetailContent({
   order,
   totalPrice,
@@ -52,8 +48,18 @@ export default function MyOrderDetailContent({
   onDeleteOrder,
   onCancelOrder,
 }: MyOrderDetailContentProps) {
+  const t = useTranslations('MyOrderDetail');
+  const format = useFormatter();
   const statusBadgeClassName = getStatusBadgeClass(order.status);
-  const statusText = getStatusText(order.status);
+  const statusText = t(`status.${order.status}`);
+  const orderCreatedAt = new Date(order.createdAt);
+  const orderCreatedAtText = Number.isNaN(orderCreatedAt.getTime())
+    ? '-'
+    : format.dateTime(orderCreatedAt, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+      });
 
   return (
     <section className="w-full lg:pl-4">
@@ -71,7 +77,7 @@ export default function MyOrderDetailContent({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex items-center gap-2 text-sm text-muted dark:text-dark-muted">
               <span className="font-semibold text-ink dark:text-surface">
-                주문번호
+                {t('labels.orderNumber')}
               </span>
               <span className="truncate font-semibold text-primary dark:text-blue-300">
                 #{order.orderNumber}
@@ -87,7 +93,7 @@ export default function MyOrderDetailContent({
             </span>
           </div>
           <p className="mt-2 text-sm text-muted dark:text-dark-muted">
-            {formatDate(order.createdAt)}
+            {orderCreatedAtText}
           </p>
         </header>
 

@@ -6,6 +6,7 @@ import {
   IconPhoneCall,
   IconTrash,
 } from '@tabler/icons-react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 import { formatAddressPhone } from '@entities/address/model/form';
 import type { UserAddress } from '@entities/address/model/types';
@@ -21,18 +22,27 @@ type MyAddressCardProps = {
   onSetDefault: (address: UserAddress) => void;
 };
 
-const formatAddressUpdatedAt = (updatedAt?: string) => {
+const useAddressUpdatedAtText = (updatedAt?: string) => {
+  const t = useTranslations('MyAddress.card');
+  const format = useFormatter();
+
   if (!updatedAt) {
-    return '최근 수정일 정보 없음';
+    return t('updatedUnknown');
   }
 
   const date = new Date(updatedAt);
 
   if (Number.isNaN(date.getTime())) {
-    return '최근 수정일 정보 없음';
+    return t('updatedUnknown');
   }
 
-  return `최근 수정: ${date.getFullYear()}.${`${date.getMonth() + 1}`.padStart(2, '0')}.${`${date.getDate()}`.padStart(2, '0')}`;
+  return t('updatedAt', {
+    date: format.dateTime(date, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    }),
+  });
 };
 
 const getAddressIcon = (address: UserAddress) => {
@@ -47,7 +57,9 @@ export default function MyAddressCard({
   onDelete,
   onSetDefault,
 }: MyAddressCardProps) {
+  const t = useTranslations('MyAddress.card');
   const AddressIcon = getAddressIcon(address);
+  const updatedAtText = useAddressUpdatedAtText(address.updatedAt);
   const addressIconClassName = address.isDefault
     ? 'bg-primary text-surface'
     : 'border border-line bg-info-soft text-primary dark:border-dark-border dark:bg-dark-panel-hover dark:text-primary';
@@ -94,12 +106,12 @@ export default function MyAddressCard({
                   )}
                 >
                   <IconDiscountCheckFilled size={12} />
-                  기본 배송지
+                  {t('defaultBadge')}
                 </span>
               ) : null}
             </div>
             <p className="mt-1 text-sm text-muted dark:text-dark-muted">
-              {formatAddressUpdatedAt(address.updatedAt)}
+              {updatedAtText}
             </p>
           </div>
         </div>
@@ -110,7 +122,7 @@ export default function MyAddressCard({
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-canvas text-muted transition-colors hover:bg-primary-soft hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-border dark:bg-dark-bg-hover dark:text-dark-muted dark:hover:bg-dark-panel-hover dark:hover:text-surface"
             onClick={() => onEdit(address)}
             disabled={isProcessing}
-            aria-label="배송지 수정"
+            aria-label={t('edit')}
           >
             <IconPencil size={18} />
           </button>
@@ -119,7 +131,7 @@ export default function MyAddressCard({
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-canvas text-muted transition-colors hover:bg-primary-soft hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-dark-border dark:bg-dark-bg-hover dark:text-dark-muted dark:hover:bg-dark-panel-hover dark:hover:text-surface"
             onClick={() => onDelete(address.id)}
             disabled={isProcessing}
-            aria-label="배송지 삭제"
+            aria-label={t('delete')}
           >
             <IconTrash size={18} />
           </button>
@@ -134,7 +146,7 @@ export default function MyAddressCard({
           />
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted/80 dark:text-dark-muted">
-              주소
+              {t('address')}
             </p>
             <p className="mt-1 keep-all text-sm leading-6 text-ink dark:text-surface">
               {address.address1}
@@ -154,7 +166,7 @@ export default function MyAddressCard({
           />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted/80 dark:text-dark-muted">
-              연락처
+              {t('phone')}
             </p>
             <p className="mt-1 text-sm font-semibold tracking-[0.01em] text-ink dark:text-surface">
               {formatAddressPhone(address.recipientPhone)}
@@ -170,10 +182,12 @@ export default function MyAddressCard({
           onClick={() => onSetDefault(address)}
           disabled={isProcessing}
         >
-          {isProcessing ? '설정 중...' : '기본 배송지로 설정'}
+          {isProcessing ? t('setting') : t('setDefault')}
         </button>
       ) : (
-        <p className="mt-5 text-sm font-semibold text-primary">기본 배송지</p>
+        <p className="mt-5 text-sm font-semibold text-primary">
+          {t('defaultAddress')}
+        </p>
       )}
     </article>
   );
