@@ -50,14 +50,22 @@ const deleteCartBodySchema = z.object({
   ),
 });
 
+const cartQuerySchema = z.object({
+  locale: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+});
+
 type GetData = ApiResponse<CartResponse>;
 type PostData = ApiResponse<CartResponse>;
 type DeleteData = ApiResponse<Prisma.BatchPayload>;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const url = new URL(request.url);
+    const query = parseWithSchema(cartQuerySchema, {
+      locale: url.searchParams.get('locale'),
+    });
     const userId = await getRequiredUserId();
-    const cart = await getCartByUserId(userId);
+    const cart = await getCartByUserId(userId, query.locale);
     const response: GetData = { items: cart, message: API_MESSAGE.SUCCESS };
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
@@ -69,6 +77,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const url = new URL(request.url);
+    const query = parseWithSchema(cartQuerySchema, {
+      locale: url.searchParams.get('locale'),
+    });
     const userId = await getRequiredUserId();
     const body = await readJsonBody(request);
     const { productId, quantity, productColorId, colorName } = parseWithSchema(
@@ -83,7 +95,7 @@ export async function POST(request: Request) {
       productColorId,
       colorName,
     });
-    const cart = await getCartByUserId(userId);
+    const cart = await getCartByUserId(userId, query.locale);
 
     const response: PostData = { items: cart, message: API_MESSAGE.SUCCESS };
     return NextResponse.json(response, { status: 200 });

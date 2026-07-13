@@ -4,7 +4,7 @@ import { fetchApi } from '@shared/api/fetchApi';
 
 import type { Prisma } from '@prisma/client';
 
-type AddToCartVariables = {
+export type AddToCartVariables = {
   productId: number;
   quantity: number;
   cartItemId?: number;
@@ -22,7 +22,17 @@ type DeleteCartItemVariables = {
 
 type DeleteCartItemResponse = Prisma.BatchPayload;
 
-export const getCart = (): Promise<CartResponse> => fetchApi('/api/cart');
+export const getCart = (locale?: string): Promise<CartResponse> => {
+  const params = new URLSearchParams();
+
+  if (locale) {
+    params.set('locale', locale);
+  }
+
+  const query = params.toString();
+
+  return fetchApi(`/api/cart${query ? `?${query}` : ''}`);
+};
 
 export const addToCart = ({
   productId,
@@ -30,8 +40,17 @@ export const addToCart = ({
   cartItemId,
   productColorId,
   colorName,
-}: AddToCartVariables): Promise<CartResponse> =>
-  fetchApi('/api/cart', {
+  locale,
+}: AddToCartVariables & { locale?: string }): Promise<CartResponse> => {
+  const params = new URLSearchParams();
+
+  if (locale) {
+    params.set('locale', locale);
+  }
+
+  const query = params.toString();
+
+  return fetchApi(`/api/cart${query ? `?${query}` : ''}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -42,6 +61,7 @@ export const addToCart = ({
       colorName,
     }),
   });
+};
 
 export const deleteCartItem = ({
   cartItemId,

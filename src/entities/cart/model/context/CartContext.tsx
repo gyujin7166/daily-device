@@ -9,7 +9,6 @@ import {
   useState,
 } from 'react';
 
-import { usePathname } from 'next/navigation';
 
 import { useSession } from 'next-auth/react';
 
@@ -19,6 +18,7 @@ import type { CartResponse } from '@entities/cart/model/types';
 import { useCart } from '@entities/cart/queries/useCart';
 
 import { useScrollLock } from '@shared/hooks/useScrollLock';
+import { usePathname } from '@shared/lib/i18n/navigation';
 
 import useMergeLocalCart from '../hooks/useMergeLocalCart';
 
