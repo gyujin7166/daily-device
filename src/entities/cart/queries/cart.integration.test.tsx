@@ -23,6 +23,8 @@ import { useAddToCart } from './useAddToCart';
 import { useCart } from './useCart';
 import { useDeleteCartItem } from './useDeleteCartItem';
 
+const CART_LOCALE = 'ko';
+
 vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: { user: { id: 'test-user' } },
@@ -43,7 +45,7 @@ const setCart = (
   queryClient: ReturnType<typeof createTestQueryClient>,
   cart: CartResponse,
 ) => {
-  queryClient.setQueryData(cartQueryKeys.cart(), cart);
+  queryClient.setQueryData(cartQueryKeys.cart(CART_LOCALE), cart);
 };
 
 describe('useCart', () => {
@@ -139,7 +141,7 @@ describe('useAddToCart', () => {
       productColorId: cartItemFixture.productColorId,
       colorName: cartItemFixture.colorName,
     });
-    expect(queryClient.getQueryData(cartQueryKeys.cart())).toEqual({
+    expect(queryClient.getQueryData(cartQueryKeys.cart(CART_LOCALE))).toEqual({
       ...initialCart,
       items: [{ ...cartItemFixture, quantity: 5 }],
       totalPrice: 500_000,
@@ -173,7 +175,9 @@ describe('useAddToCart', () => {
       ).rejects.toThrow('수량 변경 실패');
     });
 
-    expect(queryClient.getQueryData(cartQueryKeys.cart())).toEqual(initialCart);
+    expect(queryClient.getQueryData(cartQueryKeys.cart(CART_LOCALE))).toEqual(
+      initialCart,
+    );
   });
 });
 
@@ -189,7 +193,7 @@ describe('useDeleteCartItem', () => {
       });
     });
 
-    expect(queryClient.getQueryData(cartQueryKeys.cart())).toEqual({
+    expect(queryClient.getQueryData(cartQueryKeys.cart(CART_LOCALE))).toEqual({
       ...cartResponseFixture,
       items: [cartItemFixture],
       totalPrice: 200_000,
@@ -215,7 +219,7 @@ describe('useDeleteCartItem', () => {
       ).rejects.toThrow('상품 삭제 실패');
     });
 
-    expect(queryClient.getQueryData(cartQueryKeys.cart())).toEqual(
+    expect(queryClient.getQueryData(cartQueryKeys.cart(CART_LOCALE))).toEqual(
       cartResponseFixture,
     );
   });

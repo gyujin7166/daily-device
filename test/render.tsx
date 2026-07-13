@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { NextIntlClientProvider } from 'next-intl';
 
 export const createTestQueryClient = () =>
   new QueryClient({
@@ -19,7 +20,11 @@ export const createTestQueryClient = () =>
 export const createQueryWrapper = (queryClient: QueryClient) => {
   function QueryWrapper({ children }: PropsWithChildren) {
     return (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <NextIntlClientProvider locale="ko" messages={{}}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </NextIntlClientProvider>
     );
   }
 

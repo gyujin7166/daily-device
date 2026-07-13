@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { getLocale } from 'next-intl/server';
 
 import { getAddresses } from '@app/api-routes/addresses/service';
 import { getCartByUserId } from '@app/api-routes/cart/service';
@@ -22,13 +23,14 @@ export default async function CheckoutPage() {
     redirect(getLoginRedirectPath('/checkout'));
   }
   const userId = session.user.id;
+  const locale = await getLocale();
 
   const queryClient = new QueryClient();
 
   await Promise.all([
     queryClient.prefetchQuery({
-      queryKey: cartQueryKeys.cart(),
-      queryFn: () => getCartByUserId(userId),
+      queryKey: cartQueryKeys.cart(locale),
+      queryFn: () => getCartByUserId(userId, locale),
       staleTime: 0,
     }),
     queryClient.prefetchQuery({

@@ -25,7 +25,7 @@ const mocks = vi.hoisted(() => ({
   mergeLocalCart: vi.fn(),
 }));
 
-vi.mock('next/navigation', () => ({
+vi.mock('@shared/lib/i18n/navigation', () => ({
   usePathname: () => mocks.pathname,
 }));
 
