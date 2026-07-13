@@ -13,14 +13,14 @@ import ProductImageCarousel from './ProductImageCarousel';
 
 type ProductDetailTopSectionProps = {
   detail: string;
-  isPending: boolean;
+  isDetailInitialLoading: boolean;
   carouselColumnRef: React.RefObject<HTMLDivElement | null>;
   carouselBaseHeight: number;
 };
 
 export default function ProductDetailTopSection({
   detail,
-  isPending,
+  isDetailInitialLoading,
   carouselColumnRef,
   carouselBaseHeight,
 }: ProductDetailTopSectionProps) {
@@ -28,7 +28,7 @@ export default function ProductDetailTopSection({
   return (
     <PageWrapper>
       <section className="py-4 sm:py-6 lg:py-8">
-        {isPending ? (
+        {isDetailInitialLoading ? (
           <BreadCrumbSkeleton />
         ) : (
           <ProductDetailBreadCrumb detail={detail} />
@@ -38,7 +38,7 @@ export default function ProductDetailTopSection({
             ref={carouselColumnRef}
             className="min-w-0 w-full lg:sticky lg:top-27 lg:self-start"
           >
-            {isPending ? (
+            {isDetailInitialLoading ? (
               <ProductCarouselSkeleton />
             ) : (
               <ProductImageCarousel

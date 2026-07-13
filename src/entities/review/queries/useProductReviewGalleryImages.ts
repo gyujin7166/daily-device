@@ -2,6 +2,7 @@ import { useParams } from 'next/navigation';
 
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { useLocale } from 'next-intl';
 
 import {
   getProductReviewGalleryPage,
@@ -23,6 +24,7 @@ const getEmptyGalleryPage = (page: number) => ({
 export const useProductReviewGalleryImages = (detailInput?: string) => {
   const params = useParams<{ detail?: string }>();
   const { data: session } = useSession();
+  const locale = useLocale();
   const detail = detailInput ?? params?.detail ?? '';
   const slug = decodeURIComponent(detail);
   // 갤러리 카드의 helpful 상태도 viewer에 따라 달라지므로 목록 캐시와 동일하게 분리한다.
@@ -33,6 +35,7 @@ export const useProductReviewGalleryImages = (detailInput?: string) => {
       slug,
       PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
       viewerKey,
+      locale,
     ),
     initialPageParam: 1,
     queryFn: ({ pageParam }) => {
@@ -46,6 +49,7 @@ export const useProductReviewGalleryImages = (detailInput?: string) => {
         slug,
         page,
         PRODUCT_REVIEW_GALLERY_PAGE_SIZE,
+        locale,
       );
     },
     getNextPageParam: (lastPage) =>

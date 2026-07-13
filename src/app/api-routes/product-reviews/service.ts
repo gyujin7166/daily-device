@@ -10,7 +10,12 @@ import type {
   ProductReviewsPayload,
 } from '@entities/review/model/types';
 
+import { PRODUCT_REVIEW_ERROR_CODE } from '@shared/constants/productReviewErrorCode';
 import { ConflictError } from '@shared/lib/errors/httpError';
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { createBlurDataUrl } from '@shared/lib/image/createBlurDataUrl';
 import { maskEmail, maskName } from '@shared/lib/utils/mask';
 
@@ -47,7 +52,9 @@ export async function getProductReviewsBySlug(
   sort: ProductReviewSortOption,
   filter: ProductReviewFilter = 'all',
   currentUserId?: string,
+  localeValue?: string,
 ): Promise<ProductReviewsPayload> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const skip = (page - 1) * perPage;
   const orderBy = getProductReviewOrderBy(sort);
 
@@ -124,6 +131,13 @@ export async function getProductReviewsBySlug(
                   select: {
                     name: true,
                     hex: true,
+                    translations: {
+                      where: { locale: { in: localeFallbacks } },
+                      select: {
+                        locale: true,
+                        name: true,
+                      },
+                    },
                   },
                 },
               },
@@ -185,6 +199,30 @@ export async function getProductReviewsBySlug(
         : Promise.resolve([]),
     ]);
   }
+  const colors = await prisma.color.findMany({
+    select: {
+      name: true,
+      translations: {
+        where: { locale: { in: localeFallbacks } },
+        select: {
+          locale: true,
+          name: true,
+        },
+      },
+    },
+  });
+  const translatedColorNameByBaseName = colors.reduce<Record<string, string>>(
+    (acc, color) => {
+      const translation = pickTranslation(color.translations, locale);
+
+      if (translation?.name) {
+        acc[color.name] = translation.name;
+      }
+
+      return acc;
+    },
+    {},
+  );
 
   const helpfulCountByReviewId = feedbackGroups.reduce<Record<number, number>>(
     (acc, group) => {
@@ -202,6 +240,9 @@ export async function getProductReviewsBySlug(
 
   const maskedReview: ProductReviewListItem[] = productReview.map((review) => {
     const { orderItem, ...reviewData } = review;
+    const colorTranslation = orderItem.productColor
+      ? pickTranslation(orderItem.productColor.color.translations, locale)
+      : undefined;
     const email = review.user.email || '';
     const name = review.user.name || '';
     const helpfulCount = helpfulCountByReviewId[review.id] ?? 0;
@@ -211,7 +252,7 @@ export async function getProductReviewsBySlug(
         ? maskEmail(email)
         : name && name.trim() !== ''
           ? maskName(name)
-          : '익명';
+          : '';
 
     return {
       ...reviewData,
@@ -221,7 +262,13 @@ export async function getProductReviewsBySlug(
       },
       orderItem: {
         colorName:
-          orderItem.colorName ?? orderItem.productColor?.color.name ?? null,
+          colorTranslation?.name ??
+          (orderItem.colorName
+            ? translatedColorNameByBaseName[orderItem.colorName]
+            : undefined) ??
+          orderItem.colorName ??
+          orderItem.productColor?.color.name ??
+          null,
         colorHex: orderItem.productColor?.color.hex ?? null,
       },
       helpfulCount,
@@ -427,7 +474,8 @@ export async function upsertReviewForUser(
 
     if (hiddenReview) {
       throw new ConflictError(
-        '관리자에 의해 비공개 처리된 상품평은 수정할 수 없습니다.',
+        'This review was hidden by an administrator and cannot be edited.',
+        PRODUCT_REVIEW_ERROR_CODE.HIDDEN_REVIEW_EDIT_FORBIDDEN,
       );
     }
 

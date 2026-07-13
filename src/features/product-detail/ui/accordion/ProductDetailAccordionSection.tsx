@@ -7,6 +7,7 @@ import {
   IconPackage,
   IconPlugConnected,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { ProductDetailResponse } from '@entities/product/model/types';
 
@@ -53,6 +54,7 @@ export default function ProductDetailAccordionSection(
     contentRefs,
     onUpdateContentHeight,
   } = props;
+  const t = useTranslations('ProductDetail.accordion.sections');
 
   const transitionNodeRefs = useMemo(() => {
     const refs: Record<string, RefObject<HTMLDivElement | null>> = {};
@@ -82,7 +84,7 @@ export default function ProductDetailAccordionSection(
             key={sectionId}
             sectionKey={sectionKey}
             titleId={sectionId}
-            label={PRODUCT_DETAIL_LABEL[sectionKey] ?? '상세 정보'}
+            label={t(PRODUCT_DETAIL_LABEL[sectionKey] ?? 'fallback')}
             Icon={SECTION_ICON_MAP[sectionKey]}
             isOpen={!!toggleState[sectionKey]}
             expandedHeight={contentHeights[sectionKey] ?? 0}
@@ -99,7 +101,7 @@ export default function ProductDetailAccordionSection(
       <ProductDetailAccordionItem
         sectionKey="4"
         titleId={4}
-        label={PRODUCT_DETAIL_LABEL['4']}
+        label={t(PRODUCT_DETAIL_LABEL['4'])}
         Icon={SupportSectionIcon}
         isOpen={!!toggleState['4']}
         expandedHeight={contentHeights['4'] ?? 0}

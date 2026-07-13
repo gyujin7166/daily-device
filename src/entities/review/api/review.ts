@@ -71,6 +71,7 @@ export const getProductReviews = (
   page: number,
   sort: ProductReviewSortOption,
   filter: ProductReviewFilter = 'all',
+  locale?: string,
 ): Promise<ProductReviewsPayload> => {
   const params = new URLSearchParams({
     slug,
@@ -79,6 +80,9 @@ export const getProductReviews = (
     sort,
     filter,
   });
+  if (locale) {
+    params.set('locale', locale);
+  }
 
   return fetchApi(`/api/product-reviews?${params.toString()}`);
 };
@@ -87,12 +91,16 @@ export const getProductReviewGalleryPage = (
   slug: string,
   page: number,
   limit: number,
+  locale?: string,
 ): Promise<ProductReviewGalleryPageResponse> => {
   const params = new URLSearchParams({
     slug,
     page: `${page}`,
     limit: `${limit}`,
   });
+  if (locale) {
+    params.set('locale', locale);
+  }
 
   return fetchApiResponse(`/api/product-reviews/gallery?${params.toString()}`);
 };

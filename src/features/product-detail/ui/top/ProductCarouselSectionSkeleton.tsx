@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 type ProductCarouselSectionSkeletonProps = {
@@ -7,8 +9,11 @@ type ProductCarouselSectionSkeletonProps = {
 
 export default function ProductCarouselSectionSkeleton({
   eyebrow = 'RECOMMENDED',
-  title = '추천 상품',
+  title,
 }: ProductCarouselSectionSkeletonProps) {
+  const t = useTranslations('Products.detail.carousel');
+  const resolvedTitle = title ?? t('recommended');
+
   return (
     <PageWrapper as="section" padding="wide" className="pb-16">
       <header className="mb-6 flex items-end justify-between gap-4">
@@ -17,7 +22,7 @@ export default function ProductCarouselSectionSkeleton({
             {eyebrow}
           </p>
           <h2 className="text-4xl font-semibold leading-[1.2] tracking-[-0.01em] text-ink dark:text-surface">
-            {title}
+            {resolvedTitle}
           </h2>
         </div>
 

@@ -1,13 +1,10 @@
 'use client';
-import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import useProductDetailPageState from '@features/product-detail/model/hooks/useProductDetailPageState';
-import {
-  ProductCarouselSectionSkeleton,
-  ProductDetailTopSection,
-} from '@features/product-detail/ui';
+import { ProductDetailTopSection } from '@features/product-detail/ui';
 import { ProductDetailReviewSection } from '@features/product-review/ui';
 
 import { useProductDescription } from '@entities/product/queries/useProductDescription';
@@ -29,7 +26,9 @@ export default function ProductDetailPageContainer({
   detail,
   currentPath,
 }: ProductDetailPageContainerProps) {
+  const t = useTranslations('Products.detail');
   const { data: productDetailData, isPending } = useProductDescription(detail);
+  const isDetailInitialLoading = isPending && !productDetailData;
   const { data: productImages } = useProductImages(detail);
   const {
     carouselColumnRef,
@@ -54,7 +53,7 @@ export default function ProductDetailPageContainer({
       <div className="pt-18 sm:pt-22.5">
         <ProductDetailTopSection
           detail={detail}
-          isPending={isPending}
+          isDetailInitialLoading={isDetailInitialLoading}
           carouselColumnRef={carouselColumnRef}
           carouselBaseHeight={carouselBaseHeight}
         />
@@ -76,32 +75,22 @@ export default function ProductDetailPageContainer({
               fallback={({ reset: resetErrorBoundary }) => (
                 <section className="px-4 pt-2 sm:px-6 lg:px-10">
                   <QueryErrorFallback
-                    title="추천 상품을 불러오지 못했습니다."
+                    title={t('recommendedLoadFailed')}
                     onRetry={resetErrorBoundary}
                     className="mx-auto max-w-7xl"
                   />
                 </section>
               )}
             >
-              <Suspense fallback={<ProductDetailRecommendedSectionFallback />}>
-                <ProductDetailRecommendedSectionSuspense
-                  category={category}
-                  excludeId={productDetailData?.product?.id}
-                  recentlyViewedItems={visibleRecentlyViewed}
-                />
-              </Suspense>
+              <ProductDetailRecommendedSectionSuspense
+                category={category}
+                excludeId={productDetailData?.product?.id}
+                recentlyViewedItems={visibleRecentlyViewed}
+              />
             </ErrorBoundary>
           )}
         </QueryErrorResetBoundary>
       </div>
     </div>
-  );
-}
-
-function ProductDetailRecommendedSectionFallback() {
-  return (
-    <section className="pt-2">
-      <ProductCarouselSectionSkeleton eyebrow="RECOMMENDED" title="추천 상품" />
-    </section>
   );
 }

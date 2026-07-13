@@ -1,0 +1,6 @@
+export const PRODUCT_REVIEW_ERROR_CODE = {
+  HIDDEN_REVIEW_EDIT_FORBIDDEN: 'PRODUCT_REVIEW_HIDDEN_EDIT_FORBIDDEN',
+} as const;
+
+export type ProductReviewErrorCode =
+  (typeof PRODUCT_REVIEW_ERROR_CODE)[keyof typeof PRODUCT_REVIEW_ERROR_CODE];

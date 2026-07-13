@@ -1,16 +1,16 @@
 import type { ProductDetailResponse } from '@entities/product/model/types';
 
 export const PRODUCT_DETAIL_LABEL: { [key: string]: string } = {
-  '1': '사양 및 세부정보',
-  '2': '호환성',
-  '3': '구성품',
-  '4': '지원',
+  '1': 'details',
+  '2': 'compatibility',
+  '3': 'included',
+  '4': 'support',
 };
 
 export const SUPPORT_LINKS = [
-  { id: 1, href: '#', text: '제품 설명서' },
-  { id: 2, href: '#', text: '자주 묻는 질문' },
-  { id: 3, href: '#', text: '제품 등록' },
+  { id: 1, href: '#', labelKey: 'manual' },
+  { id: 2, href: '#', labelKey: 'faq' },
+  { id: 3, href: '#', labelKey: 'register' },
 ];
 
 type ProductDetailItem = ProductDetailResponse['productDetails'][number];

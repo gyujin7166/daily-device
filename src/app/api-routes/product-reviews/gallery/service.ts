@@ -5,6 +5,10 @@ import type {
   ProductReviewGalleryPageResponse,
 } from '@entities/review/model/types';
 
+import {
+  getTranslationContext,
+  pickTranslation,
+} from '@shared/lib/i18n/translation';
 import { maskEmail, maskName } from '@shared/lib/utils/mask';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -14,7 +18,9 @@ export async function getProductReviewGalleryBySlug(
   page?: number,
   limit?: number,
   currentUserId?: string,
+  localeValue?: string,
 ): Promise<ProductReviewGalleryPageResponse> {
+  const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const safePage = page && page > 0 ? Math.floor(page) : 1;
   const safeLimit = limit && limit > 0 ? Math.floor(limit) : 20;
   const where = {
@@ -69,6 +75,13 @@ export async function getProductReviewGalleryBySlug(
                       select: {
                         name: true,
                         hex: true,
+                        translations: {
+                          where: { locale: { in: localeFallbacks } },
+                          select: {
+                            locale: true,
+                            name: true,
+                          },
+                        },
                       },
                     },
                   },
@@ -131,6 +144,30 @@ export async function getProductReviewGalleryBySlug(
         : Promise.resolve([]),
     ]);
   }
+  const colors = await prisma.color.findMany({
+    select: {
+      name: true,
+      translations: {
+        where: { locale: { in: localeFallbacks } },
+        select: {
+          locale: true,
+          name: true,
+        },
+      },
+    },
+  });
+  const translatedColorNameByBaseName = colors.reduce<Record<string, string>>(
+    (acc, color) => {
+      const translation = pickTranslation(color.translations, locale);
+
+      if (translation?.name) {
+        acc[color.name] = translation.name;
+      }
+
+      return acc;
+    },
+    {},
+  );
 
   const helpfulCountByReviewId = feedbackGroups.reduce<Record<number, number>>(
     (acc, group) => {
@@ -147,6 +184,12 @@ export async function getProductReviewGalleryBySlug(
   }, {});
 
   const items: ProductReviewGalleryImage[] = rawItems.map((item) => {
+    const colorTranslation = item.productReview.orderItem.productColor
+      ? pickTranslation(
+          item.productReview.orderItem.productColor.color.translations,
+          locale,
+        )
+      : undefined;
     const email = item.productReview.user.email || '';
     const name = item.productReview.user.name || '';
     const helpfulCount = helpfulCountByReviewId[item.productReview.id] ?? 0;
@@ -155,7 +198,7 @@ export async function getProductReviewGalleryBySlug(
         ? maskEmail(email)
         : name && name.trim() !== ''
           ? maskName(name)
-          : '익명';
+          : '';
 
     return {
       id: item.id,
@@ -175,6 +218,12 @@ export async function getProductReviewGalleryBySlug(
           : null,
         orderItem: {
           colorName:
+            colorTranslation?.name ??
+            (item.productReview.orderItem.colorName
+              ? translatedColorNameByBaseName[
+                  item.productReview.orderItem.colorName
+                ]
+              : undefined) ??
             item.productReview.orderItem.colorName ??
             item.productReview.orderItem.productColor?.color.name ??
             null,

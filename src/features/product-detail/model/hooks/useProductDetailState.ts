@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
 
 import { useSession } from 'next-auth/react';
+import { useLocale } from 'next-intl';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import { useCartContext } from '@entities/cart/model/context/CartContext';
@@ -22,6 +24,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { createCurrentPath } from '@shared/lib/router/currentPath';
 
 import {
@@ -41,6 +44,7 @@ export default function useProductDetailState({
   detail,
   onSelectedColorChange,
 }: UseProductDetailStateParams) {
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,7 +74,7 @@ export default function useProductDetailState({
   const currentPath = createCurrentPath(pathname, searchParams, '/products');
   const sectionIds = getProductDetailSectionIds(productDetails);
   const displayPrice =
-    product?.priceLabel ?? formatProductDetailPrice(product?.price);
+    product?.priceLabel ?? formatProductDetailPrice(product?.price, locale);
   const cartVariantKey = product
     ? getCartVariantKey({
         productId: product.id,

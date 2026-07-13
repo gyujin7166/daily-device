@@ -1,4 +1,5 @@
 import { IconMinus, IconPlus, IconShoppingBag } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { ProductColorOption } from '@entities/product/model/types';
 import { ProductColorPalette } from '@entities/product/ui';
@@ -36,6 +37,8 @@ export default function ProductDetailPurchaseSection({
   isAddToCartDisabled = false,
   onBuyNow,
 }: ProductDetailPurchaseSectionProps) {
+  const t = useTranslations('ProductDetail.purchase');
+
   return (
     <>
       <div className="mt-4">
@@ -63,7 +66,7 @@ export default function ProductDetailPurchaseSection({
       {colors.length > 0 ? (
         <div className="mt-5">
           <p className="text-base font-semibold text-ink dark:text-surface">
-            색상
+            {t('color')}
           </p>
           <ProductColorPalette colors={colors} onColorChange={onColorChange} />
         </div>
@@ -71,14 +74,14 @@ export default function ProductDetailPurchaseSection({
 
       <div className="mt-6">
         <p className="text-base font-semibold text-ink dark:text-surface">
-          수량
+          {t('quantity')}
         </p>
         <div className="mt-2 flex items-center gap-2">
           <button
             type="button"
             onClick={onDecreaseQuantity}
             disabled={quantity <= 1}
-            aria-label="수량 줄이기"
+            aria-label={t('decreaseQuantity')}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink text-surface transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text dark:bg-surface dark:text-dark-bg dark:hover:bg-surface/85"
           >
             <IconMinus size={17} stroke={2.4} />
@@ -90,7 +93,7 @@ export default function ProductDetailPurchaseSection({
             type="button"
             onClick={onIncreaseQuantity}
             disabled={quantity >= 10}
-            aria-label="수량 늘리기"
+            aria-label={t('increaseQuantity')}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-ink text-surface transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text dark:bg-surface dark:text-dark-bg dark:hover:bg-surface/85"
           >
             <IconPlus size={18} stroke={2.5} />
@@ -106,14 +109,14 @@ export default function ProductDetailPurchaseSection({
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-lg font-semibold text-surface transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text"
         >
           <IconShoppingBag size={18} />
-          장바구니에 추가
+          {t('addToCart')}
         </button>
         <button
           type="button"
           onClick={onBuyNow}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary bg-surface px-6 py-3.5 text-lg font-semibold text-primary transition-colors hover:bg-primary-soft dark:bg-transparent dark:text-primary dark:hover:bg-dark-panel"
         >
-          바로 구매하기
+          {t('buyNow')}
         </button>
       </div>
     </>

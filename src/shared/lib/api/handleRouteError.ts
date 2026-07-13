@@ -24,7 +24,7 @@ export function handleRouteError(
   if (error instanceof HttpError) {
     const response: RouteErrorResponse = options.getHttpErrorResponse
       ? options.getHttpErrorResponse(error)
-      : { message: error.message };
+      : { message: error.message, code: error.code };
     return NextResponse.json(response, { status: error.status });
   }
 
