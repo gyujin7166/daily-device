@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { AddressFormModal } from '@entities/address/ui';
 
 import useCheckoutShippingFormState from '../../model/hooks/address/useCheckoutShippingFormState';
@@ -6,6 +8,7 @@ import AddressSummarySection from './AddressSummarySection';
 import CheckoutSavedAddressModal from './CheckoutSavedAddressModal';
 
 export default function CheckoutShippingForm() {
+  const t = useTranslations('Checkout.shipping.form');
   const {
     formState,
     validationState,
@@ -63,7 +66,7 @@ export default function CheckoutShippingForm() {
     onDeleteAddress: handleDeleteAddress,
   };
   const addressFormModalState = {
-    title: isEditingAddressMode ? '배송지 수정' : '새 배송지 추가',
+    title: isEditingAddressMode ? t('editTitle') : t('createTitle'),
     isSaving: isSavingAddress,
     showPostcode,
     formState,

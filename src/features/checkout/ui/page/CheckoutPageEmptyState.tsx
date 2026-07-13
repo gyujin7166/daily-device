@@ -1,4 +1,5 @@
 import { IconArrowLeft, IconShoppingCartQuestion } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import Button from '@shared/ui/Button/Button';
 
@@ -9,6 +10,8 @@ type CheckoutPageEmptyStateProps = {
 export default function CheckoutPageEmptyState({
   onGoHome,
 }: CheckoutPageEmptyStateProps) {
+  const t = useTranslations('Checkout.empty');
+
   return (
     <div className="flex min-h-[calc(100vh-58px)] items-center justify-center md:min-h-[calc(100vh-88px)] lg:min-h-[calc(100vh-104px)]">
       <section className="-translate-y-14.5 text-center md:-translate-y-22 lg:-translate-y-26">
@@ -18,12 +21,12 @@ export default function CheckoutPageEmptyState({
           </div>
           <div className="grid gap-2">
             <h3 className="text-2xl font-medium text-ink dark:text-surface">
-              장바구니가 비어있습니다
+              {t('title')}
             </h3>
             <p className="text-base text-muted dark:text-dark-muted">
-              아직 장바구니에 담긴 상품이 없습니다.
+              {t('descriptionLine1')}
               <br />
-              마음에 드는 상품을 찾아보세요.
+              {t('descriptionLine2')}
             </p>
           </div>
           <div className="flex justify-center">
@@ -38,7 +41,7 @@ export default function CheckoutPageEmptyState({
               <span>
                 <IconArrowLeft size={20} />
               </span>
-              홈으로 돌아가기
+              {t('goHome')}
             </Button>
           </div>
         </div>

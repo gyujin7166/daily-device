@@ -1,5 +1,7 @@
 import type { Dispatch, MouseEvent, SetStateAction } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import type {
   AddressBlurState,
   AddressFormState,
@@ -42,6 +44,7 @@ export default function useCheckoutAddressBookActions({
   setAddressModalMode,
   resetAddressFormState,
 }: UseCheckoutAddressBookActionsParams) {
+  const t = useTranslations('Checkout.shipping.toast');
   const { mutateAsync: upsertAddress, isPending: isSavingAddress } =
     useUpsertAddress();
   const { mutateAsync: deleteAddress, isPending: isDeletingAddress } =
@@ -58,7 +61,7 @@ export default function useCheckoutAddressBookActions({
 
     try {
       const result = await deleteAddress({ id: addressId });
-      toast.success('배송지가 삭제되었습니다.');
+      toast.success(t('deleteSuccess'));
 
       const shouldApplyFallback =
         selectedAddressId === null || selectedAddressId === addressId;
@@ -73,7 +76,7 @@ export default function useCheckoutAddressBookActions({
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '배송지 삭제에 실패했습니다.';
+        error instanceof Error ? error.message : t('deleteFailed');
       toast.error(message);
     }
   };
@@ -86,7 +89,7 @@ export default function useCheckoutAddressBookActions({
         phone_number: true,
         address_1: true,
       }));
-      toast.error('배송지 정보를 확인해주세요.');
+      toast.error(t('invalidAddress'));
       return;
     }
 
@@ -99,13 +102,13 @@ export default function useCheckoutAddressBookActions({
         setSelectedAddressId(result.id);
       }
 
-      toast.success('배송지가 저장되었습니다.');
+      toast.success(t('saveSuccess'));
       setSaveAsDefault(false);
       setEditingAddressId(null);
       setAddressModalMode('saved');
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '배송지 저장에 실패했습니다.';
+        error instanceof Error ? error.message : t('saveFailed');
       toast.error(message);
     }
   };

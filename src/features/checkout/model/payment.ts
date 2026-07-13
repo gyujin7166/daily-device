@@ -25,6 +25,11 @@ type ValidateCheckoutBeforePayParams = {
   isCartReady: boolean;
 };
 
+export type CheckoutValidationErrorCode =
+  | 'SHIPPING_REQUIRED'
+  | 'SHIPPING_INVALID'
+  | 'EMPTY_CART';
+
 type BuildCheckoutOrderPayloadParams = {
   checkoutItems: UserCartItem[];
   selectedAddressId: number | null;
@@ -38,6 +43,13 @@ type GetCheckoutPaymentActionLabelParams = {
   selectedMethod: CheckoutPaymentMethod;
   isRequestingPayment: boolean;
   isDemoProcessing: boolean;
+  labels?: {
+    cartSyncing: string;
+    requestingPayment: string;
+    testPayment: string;
+    processing: string;
+    demoPayment: string;
+  };
 };
 
 export const buildCheckoutShipping = ({
@@ -52,13 +64,19 @@ export const buildCheckoutShipping = ({
   address2: address2?.trim() || undefined,
 });
 
-export const getCheckoutOrderName = (checkoutItems: UserCartItem[]) => {
+export const getCheckoutOrderName = (
+  checkoutItems: UserCartItem[],
+  formatMultipleItems?: (primaryName: string, extraCount: number) => string,
+) => {
   const totalCheckoutItemCount = checkoutItems.length;
   const primaryCheckoutItemName = checkoutItems[0]?.product?.name_en || 'Order';
 
   return totalCheckoutItemCount === 1
     ? primaryCheckoutItemName
-    : `${primaryCheckoutItemName} 외 ${totalCheckoutItemCount - 1}건`;
+    : (formatMultipleItems?.(
+        primaryCheckoutItemName,
+        totalCheckoutItemCount - 1,
+      ) ?? `${primaryCheckoutItemName} + ${totalCheckoutItemCount - 1}`);
 };
 
 export const isCheckoutShippingReady = (
@@ -79,17 +97,17 @@ export const validateCheckoutBeforePay = ({
   isUsingSavedAddress,
   isFormValid,
   isCartReady,
-}: ValidateCheckoutBeforePayParams) => {
+}: ValidateCheckoutBeforePayParams): CheckoutValidationErrorCode | null => {
   if (!isShippingReady) {
-    return '배송지 정보를 입력해주세요.';
+    return 'SHIPPING_REQUIRED';
   }
 
   if (!isUsingSavedAddress && !isFormValid) {
-    return '배송지 정보를 확인해주세요.';
+    return 'SHIPPING_INVALID';
   }
 
   if (!isCartReady) {
-    return '장바구니가 비어있습니다.';
+    return 'EMPTY_CART';
   }
 
   return null;
@@ -134,14 +152,25 @@ export const getCheckoutPaymentActionLabel = ({
   selectedMethod,
   isRequestingPayment,
   isDemoProcessing,
+  labels,
 }: GetCheckoutPaymentActionLabelParams) => {
+  const resolvedLabels = labels ?? {
+    cartSyncing: 'Syncing cart...',
+    requestingPayment: 'Requesting payment...',
+    testPayment: 'Test payment',
+    processing: 'Processing...',
+    demoPayment: 'Demo payment',
+  };
+
   if (isCartMutating) {
-    return '장바구니 반영 중...';
+    return resolvedLabels.cartSyncing;
   }
 
   if (selectedMethod === 'test') {
-    return isRequestingPayment ? '결제 요청 중...' : '테스트 결제';
+    return isRequestingPayment
+      ? resolvedLabels.requestingPayment
+      : resolvedLabels.testPayment;
   }
 
-  return isDemoProcessing ? '처리 중...' : '데모 결제';
+  return isDemoProcessing ? resolvedLabels.processing : resolvedLabels.demoPayment;
 };

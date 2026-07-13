@@ -1,4 +1,6 @@
 'use client';
+import { useTranslations } from 'next-intl';
+
 import PageHeader from '@shared/ui/Header/PageHeader';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
@@ -9,18 +11,20 @@ import CheckoutFlowSection from '../flow/CheckoutFlowSection';
 import CheckoutPageEmptyState from './CheckoutPageEmptyState';
 
 function CheckoutDemoNotice() {
+  const t = useTranslations('Checkout.page.demoNotice');
+
   return (
     <div className="mb-6 rounded-2xl border border-primary/20 bg-primary-soft px-5 py-4 text-sm leading-6 text-primary dark:border-primary/35 dark:bg-blue-950/35 dark:text-blue-100">
-      <p className="font-semibold">포트폴리오 데모 안내</p>
+      <p className="font-semibold">{t('title')}</p>
       <p className="mt-1 text-muted dark:text-dark-muted">
-        이 주문/결제 화면은 기능 시연용입니다. 테스트 결제와 데모 결제 모두
-        실제 비용 청구나 상품 배송이 발생하지 않습니다.
+        {t('description')}
       </p>
     </div>
   );
 }
 
 export default function CheckoutPageContent() {
+  const t = useTranslations('Checkout.page');
   const {
     isAddressModalOpen,
     orderNumber,
@@ -53,7 +57,7 @@ export default function CheckoutPageContent() {
         </div>
       ) : (
         <div className={containerClassName}>
-          {!isEmpty && <PageHeader title="주문/결제" />}
+          {!isEmpty && <PageHeader title={t('title')} />}
           <PageWrapper className="md:px-10">
             {isEmpty ? (
               <CheckoutPageEmptyState onGoHome={handleGoHome} />

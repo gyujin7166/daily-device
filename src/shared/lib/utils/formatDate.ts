@@ -1,4 +1,7 @@
-export const formatDate = (dateString?: string | null) => {
+export const formatDate = (
+  dateString?: string | null,
+  locale: string = 'ko',
+) => {
   if (!dateString) {
     return '-';
   }
@@ -6,6 +9,19 @@ export const formatDate = (dateString?: string | null) => {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) {
     return '-';
+  }
+
+  if (locale.toLowerCase().startsWith('en')) {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      weekday: 'short',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hourCycle: 'h12',
+    }).format(date);
   }
 
   const parts = new Intl.DateTimeFormat('ko-KR', {

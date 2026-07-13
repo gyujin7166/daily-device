@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { useIsMutating } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
@@ -13,6 +12,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
 import { useCheckoutContext } from '../../context/CheckoutContext';
@@ -34,6 +34,7 @@ type UseCheckoutPaymentOptions = {
 };
 
 export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
+  const t = useTranslations('Checkout.payment');
   const router = useRouter();
   const { userCartItems, isCartSyncPending } = useCartContext();
   const { formState, isFormValid, selectedAddressId } = useCheckoutContext();
@@ -54,7 +55,9 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
     address1: formState.address_1,
     address2: formState.address_2,
   });
-  const orderName = getCheckoutOrderName(checkoutItems);
+  const orderName = getCheckoutOrderName(checkoutItems, (primaryName, count) =>
+    t('orderName.multiple', { primaryName, count }),
+  );
   const isShippingReady = isCheckoutShippingReady(
     isUsingSavedAddress,
     shipping,
@@ -71,7 +74,23 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       isUsingSavedAddress,
       isFormValid,
       isCartReady,
-    });
+    }) ?? null;
+
+  const getLocalizedInvalidCheckoutMessage = () => {
+    const invalidCode = getInvalidCheckoutMessage();
+
+    if (!invalidCode) {
+      return null;
+    }
+
+    const validationMessageByCode = {
+      SHIPPING_REQUIRED: t('validation.shippingRequired'),
+      SHIPPING_INVALID: t('validation.shippingInvalid'),
+      EMPTY_CART: t('validation.emptyCart'),
+    } satisfies Record<NonNullable<typeof invalidCode>, string>;
+
+    return validationMessageByCode[invalidCode];
+  };
 
   /**
    * Toss 결제창에서 돌아온 뒤 checkout 흐름을 복구하기 위해 entry 정보를 남긴다.
@@ -104,7 +123,7 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
     });
 
   const handleTossPayment = async () => {
-    const invalidCheckoutMessage = getInvalidCheckoutMessage();
+    const invalidCheckoutMessage = getLocalizedInvalidCheckoutMessage();
     if (invalidCheckoutMessage) {
       toast.error(invalidCheckoutMessage);
       return;
@@ -122,10 +141,12 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       const order = await mutateAsync(buildOrderPayload('PENDING'));
 
       if (!order?.orderNumber) {
-        throw new Error('주문 생성에 실패했습니다.');
+        throw new Error(t('errors.createOrderFailed'));
       }
 
-      const TossPaymentsSDK = await loadTossPayments();
+      const TossPaymentsSDK = await loadTossPayments(
+        t('errors.tossSdkLoadFailed'),
+      );
       const tossPayments = TossPaymentsSDK(clientKey);
 
       persistCheckoutEntryForPaymentRecovery();
@@ -143,13 +164,13 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       const errorMessage =
         event instanceof Error
           ? event.message
-          : '결제 요청 중 오류가 발생했습니다.';
+          : t('errors.paymentRequestFailed');
       toast.error(errorMessage);
     }
   };
 
   const handleDemoPayment = async () => {
-    const invalidCheckoutMessage = getInvalidCheckoutMessage();
+    const invalidCheckoutMessage = getLocalizedInvalidCheckoutMessage();
     if (invalidCheckoutMessage) {
       toast.error(invalidCheckoutMessage);
       return;
@@ -161,13 +182,13 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       await mutateAsync(buildOrderPayload('CONFIRMED'));
       window.sessionStorage.removeItem(CHECKOUT_ENTRY_STORAGE_KEY);
       window.sessionStorage.removeItem(BUY_NOW_CHECKOUT_STORAGE_KEY);
-      toast.success('데모 주문이 완료되었습니다.');
+      toast.success(t('toast.demoCompleted'));
       router.replace('/my/orders');
     } catch (event) {
       const errorMessage =
         event instanceof Error
           ? event.message
-          : '데모 주문 처리 중 오류가 발생했습니다.';
+          : t('errors.demoOrderFailed');
       toast.error(errorMessage);
     } finally {
       setIsDemoProcessing(false);
@@ -188,6 +209,13 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
     selectedMethod,
     isRequestingPayment,
     isDemoProcessing,
+    labels: {
+      cartSyncing: t('actions.cartSyncing'),
+      requestingPayment: t('actions.requestingPayment'),
+      testPayment: t('methods.test.title'),
+      processing: t('actions.processing'),
+      demoPayment: t('methods.demo.title'),
+    },
   });
 
   return {

@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 
 import { IconCheck, IconDiscountCheckFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import type { UserAddress } from '@entities/address/model/types';
 
@@ -27,6 +28,7 @@ export default function SavedAddressCard({
   state,
   actions,
 }: SavedAddressCardProps) {
+  const t = useTranslations('Checkout.shipping.savedAddress');
   const { item, isSelected, isRecentBadgeTarget, isAddressActionBusy } = state;
   const { onSelectSavedAddress, onEditSavedAddress, onDeleteAddress } = actions;
 
@@ -46,7 +48,7 @@ export default function SavedAddressCard({
     >
       <button
         type="button"
-        aria-label={`${item.recipientName} 배송지 선택`}
+        aria-label={t('selectAria', { name: item.recipientName })}
         aria-pressed={isSelected}
         onClick={() => onSelectSavedAddress(item)}
         className="absolute inset-0 rounded-3xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:rounded-2xl dark:focus-visible:ring-offset-dark-bg"
@@ -67,12 +69,12 @@ export default function SavedAddressCard({
             {item.isDefault ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary dark:bg-primary/20 dark:text-primary">
                 <IconDiscountCheckFilled size={14} />
-                기본 배송지
+                {t('defaultBadge')}
               </span>
             ) : null}
             {!item.isDefault && isRecentBadgeTarget ? (
               <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary-soft px-2.5 py-1 text-xs font-semibold leading-4 text-primary sm:rounded-md sm:px-2 sm:py-0.5 sm:text-xs dark:bg-primary/20 dark:text-primary">
-                최근배송지
+                {t('recentBadge')}
               </span>
             ) : null}
           </div>
@@ -94,7 +96,7 @@ export default function SavedAddressCard({
             className="text-base font-semibold leading-6 text-muted transition hover:text-primary disabled:cursor-not-allowed disabled:text-disabled-text dark:text-dark-muted sm:text-sm sm:text-primary dark:hover:text-primary dark:sm:text-primary"
             disabled={isAddressActionBusy}
           >
-            수정
+            {t('edit')}
           </button>
           <button
             type="button"
@@ -102,7 +104,7 @@ export default function SavedAddressCard({
             className="text-base font-semibold leading-6 text-muted transition hover:text-ink disabled:cursor-not-allowed disabled:text-disabled-text dark:text-dark-muted sm:text-sm dark:hover:text-surface"
             disabled={isAddressActionBusy}
           >
-            삭제
+            {t('delete')}
           </button>
         </div>
       </div>
