@@ -7,6 +7,7 @@ import {
   IconInfoCircle,
   IconX,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { toast as baseToast } from 'react-toastify';
 import { twMerge } from 'tailwind-merge';
 
@@ -67,6 +68,7 @@ const TOAST_THEME: Record<
 };
 
 function AppToastCard({ closeToast, content, type }: AppToastCardProps) {
+  const t = useTranslations('Common');
   const { iconWrapperClassName, iconClassName, Icon } = TOAST_THEME[type];
   const resolvedContent =
     typeof content === 'string' || typeof content === 'number'
@@ -95,7 +97,7 @@ function AppToastCard({ closeToast, content, type }: AppToastCardProps) {
         <button
           type="button"
           onClick={closeToast}
-          aria-label="토스트 메시지 닫기"
+          aria-label={t('toast.close')}
           className="-mr-2 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-line hover:text-ink focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/35 dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
         >
           <IconX size={17} stroke={2.2} />

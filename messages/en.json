@@ -44,6 +44,9 @@
   "Common": {
     "homeAriaLabel": "Go to home",
     "userFallback": "User",
+    "toast": {
+      "close": "Close notification"
+    },
     "queryError": {
       "description": "Check your network connection and try again.",
       "retry": "Try again"
