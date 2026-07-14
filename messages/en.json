@@ -43,6 +43,7 @@
   },
   "Common": {
     "homeAriaLabel": "Go to home",
+    "userFallback": "User",
     "queryError": {
       "description": "Check your network connection and try again.",
       "retry": "Try again"
