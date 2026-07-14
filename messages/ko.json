@@ -44,6 +44,9 @@
   "Common": {
     "homeAriaLabel": "홈으로 이동",
     "userFallback": "사용자",
+    "toast": {
+      "close": "토스트 메시지 닫기"
+    },
     "queryError": {
       "description": "네트워크 상태를 확인한 뒤 다시 시도해 주세요.",
       "retry": "다시 시도"
