@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@shared/lib/i18n/navigation';
 
 export const useDropdown = () => {
   const pathname = usePathname();

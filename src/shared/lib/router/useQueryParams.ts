@@ -1,4 +1,6 @@
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+
+import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 
 type QueryParamValue = string | null | undefined;
 type NavigationStrategy = 'history' | 'router';
