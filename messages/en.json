@@ -35,6 +35,12 @@
     "title": "Could not load the page.",
     "description": "A temporary problem occurred. Please try again."
   },
+  "NotFound": {
+    "title": "Page not found.",
+    "descriptionLine1": "The page you requested does not exist or has moved.",
+    "descriptionLine2": "Return to the homepage and try again.",
+    "home": "← Back to home"
+  },
   "Common": {
     "homeAriaLabel": "Go to home",
     "queryError": {
