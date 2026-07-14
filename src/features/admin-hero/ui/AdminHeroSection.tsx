@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { SubmitEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { useAdminHeroForm } from '../model/useAdminHeroForm';
 import {
   useDeleteAdminHeroMutation,
@@ -24,18 +26,12 @@ const EMPTY_HEROES: AdminHero[] = [];
 const getHeroDisplayName = (hero: AdminHero) =>
   hero.name_ko || hero.name_en || hero.targetCategory?.name_ko || '-';
 
-const getHeroSavedMessage = (hero: AdminHero, action: '추가' | '수정') =>
-  `Hero ${action} 완료: ID ${hero.id} / 이름 ${getHeroDisplayName(hero)}`;
-
-const getHeroDeletedMessage = (hero: AdminHero) =>
-  `Hero 삭제 완료: ID ${hero.id} / 이름 ${getHeroDisplayName(hero)}`;
-
 type AdminHeroSectionProps = {
   data?: AdminHeroPayload;
   isPending: boolean;
   canWriteAdmin: boolean;
   onMessage: (message: string) => void;
-  onError: (message: string) => void;
+  onError: (error: unknown) => void;
   onReadOnlyAction: () => void;
 };
 
@@ -47,6 +43,7 @@ export default function AdminHeroSection({
   onError,
   onReadOnlyAction,
 }: AdminHeroSectionProps) {
+  const t = useTranslations('AdminHero.feedback');
   const saveHeroMutation = useSaveAdminHeroMutation();
   const deleteHeroMutation = useDeleteAdminHeroMutation();
   const heroTypes = data?.heroTypes ?? EMPTY_HERO_TYPES;
@@ -109,14 +106,20 @@ export default function AdminHeroSection({
     }
 
     try {
-      const action = form.id ? '수정' : '추가';
+      const action = form.id ? t('editAction') : t('createAction');
       const savedHero = await saveHeroMutation.mutateAsync(form);
       editHero(savedHero);
       setSelectedHeroId(savedHero.id);
       setIsCreatingHero(false);
-      onMessage(getHeroSavedMessage(savedHero, action));
+      onMessage(
+        t('saveCompleted', {
+          action,
+          id: savedHero.id,
+          name: getHeroDisplayName(savedHero),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Hero 저장 실패');
+      onError(error instanceof Error ? error : t('saveFailed'));
     }
   };
 
@@ -126,7 +129,7 @@ export default function AdminHeroSection({
       return;
     }
 
-    if (!window.confirm('Hero를 삭제하시겠습니까?')) {
+    if (!window.confirm(t('deleteConfirm'))) {
       return;
     }
 
@@ -145,9 +148,14 @@ export default function AdminHeroSection({
 
         setIsCreatingHero(false);
       }
-      onMessage(getHeroDeletedMessage(hero));
+      onMessage(
+        t('deleteCompleted', {
+          id: hero.id,
+          name: getHeroDisplayName(hero),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : 'Hero 삭제 실패');
+      onError(error instanceof Error ? error : t('deleteFailed'));
     }
   };
 
@@ -185,9 +193,11 @@ export default function AdminHeroSection({
 }
 
 function AdminHeroLoading() {
+  const t = useTranslations('AdminHero.feedback');
+
   return (
     <div className="py-20 text-center text-sm font-semibold text-muted dark:text-dark-muted">
-      Hero 데이터를 불러오고 있습니다.
+      {t('loading')}
     </div>
   );
 }

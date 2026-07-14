@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { IconCheck } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 import {
@@ -10,11 +11,14 @@ import {
   TableHeader,
 } from '@shared/ui/AdminControls';
 
-import { getAdminHeroTypeLabel } from '../model/types';
-
 import type { AdminHero } from '../model/types';
 
 const ADMIN_HERO_LIST_PAGE_SIZE = 10;
+
+const getLocalizedName = (
+  item: { name_en: string; name_ko?: string | null },
+  locale: string,
+) => (locale === 'en' ? item.name_en : item.name_ko) || item.name_en;
 
 type AdminHeroListSectionProps = {
   heroes: AdminHero[];
@@ -31,6 +35,8 @@ export default function AdminHeroListSection({
   onEdit,
   onDelete,
 }: AdminHeroListSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations('AdminHero');
   const [page, setPage] = useState(1);
   const totalPages = Math.max(
     1,
@@ -57,7 +63,7 @@ export default function AdminHeroListSection({
 
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
-      <TableHeader title="Hero 목록" count={heroes.length} />
+      <TableHeader title={t('list.title')} count={heroes.length} />
       <div className="overflow-x-auto">
         <table className="w-full table-fixed text-left text-sm">
           <colgroup>
@@ -71,11 +77,13 @@ export default function AdminHeroListSection({
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
               <th className="px-3 py-3">ID</th>
-              <th className="px-3 py-3">타입</th>
-              <th className="px-3 py-3 text-center">대표 이미지</th>
-              <th className="px-3 py-3">이름</th>
-              <th className="px-3 py-3">이미지</th>
-              <th className="px-3 py-3">관리</th>
+              <th className="px-3 py-3">{t('list.type')}</th>
+              <th className="px-3 py-3 text-center">
+                {t('list.mainImage')}
+              </th>
+              <th className="px-3 py-3">{t('list.name')}</th>
+              <th className="px-3 py-3">{t('list.image')}</th>
+              <th className="px-3 py-3">{t('list.manage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -92,7 +100,7 @@ export default function AdminHeroListSection({
                   {hero.id}
                 </td>
                 <td className="px-3 py-3 align-middle">
-                  {getAdminHeroTypeLabel(hero.heroType.name)}
+                  {t(`types.${hero.heroType.name}`)}
                 </td>
                 <td className="px-3 py-3 text-center align-middle">
                   {hero.isDefault ? (
@@ -100,7 +108,7 @@ export default function AdminHeroListSection({
                       size={18}
                       stroke={2.4}
                       className="inline-block text-primary dark:text-blue-300"
-                      aria-label="대표 이미지"
+                      aria-label={t('list.mainImage')}
                     />
                   ) : (
                     '-'
@@ -108,10 +116,12 @@ export default function AdminHeroListSection({
                 </td>
                 <td className="px-3 py-3 align-middle">
                   <div className="flex min-h-12 flex-col justify-center">
-                    <p className="font-semibold leading-snug">{hero.name_ko}</p>
+                    <p className="font-semibold leading-snug">
+                      {getLocalizedName(hero, locale)}
+                    </p>
                     <p className="mt-0.5 text-xs leading-snug text-muted dark:text-dark-muted">
                       {hero.targetCategory
-                        ? `${hero.targetCategory.name_ko} (${hero.targetCategory.name_en})`
+                        ? `${getLocalizedName(hero.targetCategory, locale)} (${hero.targetCategory.slug})`
                         : hero.name_en}
                     </p>
                   </div>

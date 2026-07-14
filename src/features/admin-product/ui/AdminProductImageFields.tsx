@@ -2,8 +2,13 @@ import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 
 import { IconPhotoPlus, IconTrash, IconUpload } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
-import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
+import {
+  CloudinaryUploadError,
+  cloudinaryUploadErrorKeyByCode,
+  uploadCloudinaryImage,
+} from '@shared/lib/cloudinary/uploadImage';
 import { TextInput, inputClass, labelClass } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
@@ -16,10 +21,28 @@ type AdminProductImageFieldsProps = {
   categoryId: string;
   productSlug: string;
   selectedFormColors: AdminColor[];
+  locale: string;
   onAddImage: () => void;
   onUpdateImage: (index: number, patch: Partial<ProductImageFormItem>) => void;
   onUpdateImageOrder: (index: number, value: string) => void;
   onRemoveImage: (index: number) => void;
+};
+
+const getLocalizedColorName = (color: AdminColor, locale: string) =>
+  color.translations.find((translation) => translation.locale === locale)
+    ?.name ?? color.name;
+
+const getUploadErrorMessage = (
+  error: unknown,
+  t: ReturnType<typeof useTranslations<'AdminProduct.images'>>,
+) => {
+  if (error instanceof CloudinaryUploadError) {
+    const key = cloudinaryUploadErrorKeyByCode[error.code];
+
+    return t(`uploadErrors.${key}`, { maxSize: error.details ?? '' });
+  }
+
+  return error instanceof Error ? error.message : t('uploadFailed');
 };
 
 export default function AdminProductImageFields({
@@ -27,11 +50,13 @@ export default function AdminProductImageFields({
   categoryId,
   productSlug,
   selectedFormColors,
+  locale,
   onAddImage,
   onUpdateImage,
   onUpdateImageOrder,
   onRemoveImage,
 }: AdminProductImageFieldsProps) {
+  const t = useTranslations('AdminProduct.images');
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const handleFileChange =
@@ -48,19 +73,17 @@ export default function AdminProductImageFields({
       const parsedColorId = image.colorId ? Number(image.colorId) : null;
 
       if (!Number.isInteger(parsedCategoryId) || parsedCategoryId <= 0) {
-        setUploadError('상품 카테고리를 먼저 선택해주세요.');
+        setUploadError(t('categoryRequired'));
         return;
       }
 
       if (!productSlug.trim()) {
-        setUploadError('상품 슬러그를 먼저 입력해주세요.');
+        setUploadError(t('slugRequired'));
         return;
       }
 
       if (selectedFormColors.length > 0 && !image.colorId) {
-        setUploadError(
-          '색상이 있는 상품 이미지는 연결 색상을 먼저 선택해주세요.',
-        );
+        setUploadError(t('colorRequired'));
         return;
       }
 
@@ -83,11 +106,7 @@ export default function AdminProductImageFields({
 
         onUpdateImage(index, { image_url: uploaded.image_url });
       } catch (error) {
-        setUploadError(
-          error instanceof Error
-            ? error.message
-            : '상품 이미지 업로드에 실패했습니다.',
-        );
+        setUploadError(getUploadErrorMessage(error, t));
       } finally {
         setUploadingIndex(null);
       }
@@ -97,7 +116,7 @@ export default function AdminProductImageFields({
     <fieldset className="grid gap-3 rounded-md border border-line p-3 dark:border-dark-border">
       <div className="flex items-center justify-between gap-3">
         <legend className="text-sm font-medium text-ink dark:text-surface">
-          상품 이미지
+          {t('title')}
         </legend>
         <button
           type="button"
@@ -105,12 +124,11 @@ export default function AdminProductImageFields({
           className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary dark:border-dark-border"
         >
           <IconPhotoPlus size={16} />
-          이미지 추가
+          {t('add')}
         </button>
       </div>
       <p className="text-xs leading-5 text-muted dark:text-dark-muted">
-        색상이 있는 상품은 이미지마다 연결 색상을 선택합니다. 색상이 없는 상품만
-        공통 이미지로 등록됩니다.
+        {t('guide')}
       </p>
       {uploadError ? (
         <p className="text-xs font-semibold text-danger">{uploadError}</p>
@@ -118,7 +136,7 @@ export default function AdminProductImageFields({
 
       {images.length === 0 ? (
         <div className="rounded-md border border-dashed border-line px-3 py-6 text-center text-sm text-muted dark:border-dark-border dark:text-dark-muted">
-          등록된 상품 이미지가 없습니다.
+          {t('empty')}
         </div>
       ) : (
         <div className="grid gap-3">
@@ -128,7 +146,7 @@ export default function AdminProductImageFields({
               className="grid gap-3 rounded-md border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
             >
               <TextInput
-                label={`이미지 URL ${index + 1}`}
+                label={t('urlLabel', { index: index + 1 })}
                 value={image.image_url}
                 onChange={(value) => onUpdateImage(index, { image_url: value })}
               />
@@ -145,11 +163,11 @@ export default function AdminProductImageFields({
                 ) : (
                   <IconUpload size={16} />
                 )}
-                {uploadingIndex === index ? '업로드 중' : '파일 업로드'}
+                {uploadingIndex === index ? t('uploading') : t('upload')}
               </label>
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_90px]">
                 <label className={labelClass}>
-                  연결 색상
+                  {t('linkedColor')}
                   <select
                     className={inputClass}
                     value={image.colorId}
@@ -161,15 +179,15 @@ export default function AdminProductImageFields({
                     }
                   >
                     {selectedFormColors.length === 0 ? (
-                      <option value="">공통 이미지</option>
+                      <option value="">{t('commonImage')}</option>
                     ) : (
                       <>
                         <option value="" disabled>
-                          색상 선택
+                          {t('selectColor')}
                         </option>
                         {selectedFormColors.map((color) => (
                           <option key={color.id} value={color.id}>
-                            {color.name}
+                            {getLocalizedColorName(color, locale)}
                           </option>
                         ))}
                       </>
@@ -177,7 +195,7 @@ export default function AdminProductImageFields({
                   </select>
                 </label>
                 <TextInput
-                  label="순서"
+                  label={t('order')}
                   type="number"
                   value={image.order}
                   min={0}
@@ -196,7 +214,7 @@ export default function AdminProductImageFields({
                       })
                     }
                   />
-                  대표 이미지
+                  {t('main')}
                 </label>
                 <button
                   type="button"
@@ -204,7 +222,7 @@ export default function AdminProductImageFields({
                   className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold text-danger transition hover:border-danger dark:border-dark-border"
                 >
                   <IconTrash size={16} />
-                  삭제
+                  {t('delete')}
                 </button>
               </div>
             </div>

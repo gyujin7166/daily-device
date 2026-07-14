@@ -94,6 +94,17 @@ export const useAdminHeroForm = ({
         targetCategoryId: nextCategory ? String(nextCategory.id) : '',
         name_en: prev.name_en || nextCategory?.name_en || '',
         name_ko: prev.name_ko || nextCategory?.name_ko || '',
+        translations: {
+          ...prev.translations,
+          en: {
+            ...prev.translations.en,
+            name: prev.translations.en.name || nextCategory?.name_en || '',
+          },
+          ko: {
+            ...prev.translations.ko,
+            name: prev.translations.ko.name || nextCategory?.name_ko || '',
+          },
+        },
       };
     });
   }, [
@@ -123,6 +134,24 @@ export const useAdminHeroForm = ({
         defaultHeroType?.name === 'product' && defaultCategory
           ? defaultCategory.name_ko
           : '',
+      translations: {
+        ko: {
+          name:
+            defaultHeroType?.name === 'product' && defaultCategory
+              ? defaultCategory.name_ko
+              : '',
+          description: '',
+          detailed_description: '',
+        },
+        en: {
+          name:
+            defaultHeroType?.name === 'product' && defaultCategory
+              ? defaultCategory.name_en
+              : '',
+          description: '',
+          detailed_description: '',
+        },
+      },
     });
   }, [getFirstAvailableCategory, getFirstAvailableHeroType]);
 
@@ -148,6 +177,17 @@ export const useAdminHeroForm = ({
           targetCategoryId: defaultCategory ? String(defaultCategory.id) : '',
           name_en: defaultCategory?.name_en ?? prev.name_en,
           name_ko: defaultCategory?.name_ko ?? prev.name_ko,
+          translations: {
+            ...prev.translations,
+            en: {
+              ...prev.translations.en,
+              name: defaultCategory?.name_en ?? prev.translations.en.name,
+            },
+            ko: {
+              ...prev.translations.ko,
+              name: defaultCategory?.name_ko ?? prev.translations.ko.name,
+            },
+          },
         };
       });
     },
@@ -165,6 +205,17 @@ export const useAdminHeroForm = ({
         targetCategoryId,
         name_en: category?.name_en ?? prev.name_en,
         name_ko: category?.name_ko ?? prev.name_ko,
+        translations: {
+          ...prev.translations,
+          en: {
+            ...prev.translations.en,
+            name: category?.name_en ?? prev.translations.en.name,
+          },
+          ko: {
+            ...prev.translations.ko,
+            name: category?.name_ko ?? prev.translations.ko.name,
+          },
+        },
       }));
     },
     [categories],

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { cn } from '@shared/lib/utils/style';
 
 import type { AdminTab } from '../../model/types';
@@ -13,31 +15,33 @@ export default function AdminTabSection({
   activeTab,
   onTabChange,
 }: AdminTabSectionProps) {
+  const t = useTranslations('Admin.tabs');
+
   return (
     <nav className="flex flex-wrap gap-2 border-b border-line dark:border-dark-border">
       <TabButton
         active={activeTab === 'heroes'}
         onClick={() => onTabChange('heroes')}
       >
-        Hero
+        {t('heroes')}
       </TabButton>
       <TabButton
         active={activeTab === 'home'}
         onClick={() => onTabChange('home')}
       >
-        홈
+        {t('home')}
       </TabButton>
       <TabButton
         active={activeTab === 'products'}
         onClick={() => onTabChange('products')}
       >
-        상품
+        {t('products')}
       </TabButton>
       <TabButton
         active={activeTab === 'reviews'}
         onClick={() => onTabChange('reviews')}
       >
-        상품평
+        {t('reviews')}
       </TabButton>
     </nav>
   );

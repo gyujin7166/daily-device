@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { CLOUDINARY_UPLOAD_ERROR_CODE } from '@shared/constants/cloudinaryUploadErrorCode';
 import { ForbiddenError, NotFoundError } from '@shared/lib/errors/httpError';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -21,7 +22,10 @@ export async function getProductUploadFolderData(
   });
 
   if (!category) {
-    throw new NotFoundError('상품 카테고리를 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Product category not found.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.PRODUCT_CATEGORY_NOT_FOUND,
+    );
   }
 
   if (!colorId) {
@@ -37,7 +41,10 @@ export async function getProductUploadFolderData(
   });
 
   if (!color) {
-    throw new NotFoundError('상품 색상을 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Product color not found.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.PRODUCT_COLOR_NOT_FOUND,
+    );
   }
 
   return {
@@ -53,11 +60,17 @@ export async function getHeroUploadFolderData(heroTypeId: number) {
   });
 
   if (!heroType) {
-    throw new NotFoundError('Hero 타입을 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Hero type not found.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.HERO_TYPE_NOT_FOUND,
+    );
   }
 
   if (!supportedHeroTypes.has(heroType.name)) {
-    throw new ForbiddenError('지원하지 않는 Hero 타입입니다.');
+    throw new ForbiddenError(
+      'This Hero type is not supported.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.HERO_TYPE_UNSUPPORTED,
+    );
   }
 
   return {
@@ -85,7 +98,10 @@ export async function getReviewUploadFolderData(
   });
 
   if (!orderItem) {
-    throw new NotFoundError('상품평을 작성할 주문 상품을 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Order item for this review was not found.',
+      CLOUDINARY_UPLOAD_ERROR_CODE.REVIEW_ORDER_ITEM_NOT_FOUND,
+    );
   }
 
   return {

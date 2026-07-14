@@ -15,10 +15,18 @@ export type AdminReview = {
     name_ko: string | null;
     name_en: string;
     slug: string;
+    translations: Array<{
+      locale: string;
+      name: string;
+    }>;
   };
   orderItem: {
     colorName: string | null;
     colorHex: string | null;
+    colorTranslations: Array<{
+      locale: string;
+      name: string;
+    }>;
   };
   user: {
     name: string | null;

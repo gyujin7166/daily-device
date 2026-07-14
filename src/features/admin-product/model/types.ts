@@ -12,6 +12,12 @@ export type AdminColor = {
   id: number;
   name: string;
   hex: string;
+  translations: ColorTranslation[];
+};
+
+export type ColorTranslation = {
+  locale: ProductTranslationLocale;
+  name: string;
 };
 
 type AdminProductColor = {
@@ -48,7 +54,30 @@ export type AdminProduct = {
   productColor: AdminProductColor[];
   images: AdminProductImage[];
   mainImageUrl: string;
+  translations: ProductTranslation[];
 };
+
+export type ProductTranslationLocale = 'ko' | 'en';
+
+export type ProductTranslation = {
+  locale: ProductTranslationLocale;
+  name: string;
+  description: string;
+  detailed_description: string | null;
+  note: string | null;
+};
+
+export type ProductTranslationFormState = {
+  name: string;
+  description: string;
+  detailed_description: string;
+  note: string;
+};
+
+export type ProductTranslationFormMap = Record<
+  ProductTranslationLocale,
+  ProductTranslationFormState
+>;
 
 export type AdminProductPayload = {
   categories: ProductCategory[];
@@ -79,6 +108,7 @@ export type ProductFormState = {
   colorIds: string[];
   defaultColorId: string;
   images: ProductImageFormState[];
+  translations: ProductTranslationFormMap;
 };
 
 type ProductImageFormState = {
@@ -105,6 +135,27 @@ export const emptyProductForm: ProductFormState = {
   colorIds: [],
   defaultColorId: '',
   images: [],
+  translations: {
+    ko: { name: '', description: '', detailed_description: '', note: '' },
+    en: { name: '', description: '', detailed_description: '', note: '' },
+  },
+};
+
+const getProductTranslationForm = (
+  product: AdminProduct,
+  locale: ProductTranslationLocale,
+): ProductTranslationFormState => {
+  const translation = product.translations.find(
+    (item) => item.locale === locale,
+  );
+
+  return {
+    name: translation?.name ?? (locale === 'en' ? product.name_en : product.name_ko ?? ''),
+    description: translation?.description ?? product.description,
+    detailed_description:
+      translation?.detailed_description ?? product.detailed_description ?? '',
+    note: translation?.note ?? product.note ?? '',
+  };
 };
 
 export const createProductFormFromItem = (
@@ -134,4 +185,8 @@ export const createProductFormFromItem = (
     order: String(image.order),
     isMain: image.isMain,
   })),
+  translations: {
+    ko: getProductTranslationForm(product, 'ko'),
+    en: getProductTranslationForm(product, 'en'),
+  },
 });

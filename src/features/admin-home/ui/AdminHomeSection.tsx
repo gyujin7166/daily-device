@@ -7,6 +7,7 @@ import {
   IconPlus,
   IconRefresh,
 } from '@tabler/icons-react';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 
 import {
   getCategoryHref,
@@ -40,6 +41,7 @@ import type {
   AdminHomeProduct,
   AdminHomeSection as AdminHomeSectionType,
   AdminHomeSectionItem,
+  HomeTranslationLocale,
   HomeSectionFormState,
   HomeSectionItemFormState,
 } from '../model/types';
@@ -49,30 +51,56 @@ const EMPTY_CATEGORIES: AdminHomeCategory[] = [];
 const EMPTY_PRODUCTS: AdminHomeProduct[] = [];
 const ADMIN_HOME_LIST_PAGE_SIZE = 10;
 const HOME_LAYOUT_DISABLED_PRESET = {
-  label: '사용 안 함',
+  labelKey: 'disabled',
   layoutGroupClassName: '',
-  areaOptions: [{ label: '기본', value: '' }],
+  areaOptions: [{ labelKey: 'default', value: '' }],
 } as const;
 const HOME_LAYOUT_PRESETS = [
   {
-    label: '3열 균등형',
+    labelKey: 'threeColumn',
     layoutGroupClassName: 'lg:grid-areas-home-3',
     areaOptions: [
-      { label: '왼쪽 카드', value: 'lg:grid-in-j' },
-      { label: '가운데 카드', value: 'lg:grid-in-k' },
-      { label: '오른쪽 카드', value: 'lg:grid-in-l' },
+      { labelKey: 'leftCard', value: 'lg:grid-in-j' },
+      { labelKey: 'centerCard', value: 'lg:grid-in-k' },
+      { labelKey: 'rightCard', value: 'lg:grid-in-l' },
     ],
   },
-];
+] as const;
 const HOME_LAYOUT_OPTIONS = [
   HOME_LAYOUT_DISABLED_PRESET,
   ...HOME_LAYOUT_PRESETS,
 ];
 const IMAGE_FIT_OPTIONS = [
-  { label: '기본', value: '' },
-  { label: '영역을 꽉 채움', value: 'object-cover' },
-  { label: '이미지 전체 표시', value: 'object-contain' },
-];
+  { labelKey: 'default', value: '' },
+  { labelKey: 'fitCover', value: 'object-cover' },
+  { labelKey: 'fitContain', value: 'object-contain' },
+] as const;
+
+const getLocalizedName = (
+  item: { name_en: string; name_ko?: string | null },
+  locale: string,
+) => (locale === 'en' ? item.name_en : item.name_ko) || item.name_en;
+
+const getHomeLocale = (locale: string): HomeTranslationLocale =>
+  locale === 'en' ? 'en' : 'ko';
+
+const getLocalizedSectionTitle = (
+  section: AdminHomeSectionType,
+  locale: string,
+) =>
+  section.translations.find(
+    (translation) => translation.locale === getHomeLocale(locale),
+  )?.title ?? section.title;
+
+const getLocalizedItemTitle = (item: AdminHomeSectionItem, locale: string) =>
+  item.translations.find(
+    (translation) => translation.locale === getHomeLocale(locale),
+  )?.title ?? item.title;
+
+const getLocalizedItemLabel = (item: AdminHomeSectionItem, locale: string) =>
+  item.translations.find(
+    (translation) => translation.locale === getHomeLocale(locale),
+  )?.label ?? item.label;
 
 const getLayoutTemplateLimit = (
   template: (typeof HOME_LAYOUT_OPTIONS)[number],
@@ -88,7 +116,7 @@ type AdminHomeSectionProps = {
   isPending: boolean;
   canWriteAdmin: boolean;
   onMessage: (message: string) => void;
-  onError: (message: string) => void;
+  onError: (error: unknown) => void;
   onReadOnlyAction: () => void;
 };
 
@@ -100,6 +128,8 @@ export default function AdminHomeSection({
   onError,
   onReadOnlyAction,
 }: AdminHomeSectionProps) {
+  const t = useTranslations('AdminHome.feedback');
+  const locale = useLocale();
   const sections = data?.sections ?? EMPTY_SECTIONS;
   const categories = data?.categories ?? EMPTY_CATEGORIES;
   const products = data?.products ?? EMPTY_PRODUCTS;
@@ -165,9 +195,13 @@ export default function AdminHomeSection({
 
     try {
       const savedSection = await updateSectionMutation.mutateAsync(sectionForm);
-      onMessage(`홈 섹션 수정 완료: ${savedSection.title}`);
+      onMessage(
+        t('sectionSaved', {
+          title: getLocalizedSectionTitle(savedSection, locale),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : '홈 섹션 수정 실패');
+      onError(error instanceof Error ? error : t('sectionSaveFailed'));
     }
   };
 
@@ -184,12 +218,17 @@ export default function AdminHomeSection({
     }
 
     try {
-      const action = itemForm.id ? '수정' : '추가';
+      const action = itemForm.id ? t('editAction') : t('createAction');
       const savedItem = await saveItemMutation.mutateAsync(itemForm);
       setItemForm(createHomeSectionItemForm(savedItem));
-      onMessage(`홈 카드 ${action} 완료: ${savedItem.title}`);
+      onMessage(
+        t('cardSaved', {
+          action,
+          title: getLocalizedItemTitle(savedItem, locale),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : '홈 카드 저장 실패');
+      onError(error instanceof Error ? error : t('cardSaveFailed'));
     }
   };
 
@@ -212,7 +251,7 @@ export default function AdminHomeSection({
   if (isPending) {
     return (
       <div className="py-20 text-center text-sm font-semibold text-muted dark:text-dark-muted">
-        홈 섹션 데이터를 불러오고 있습니다.
+        {t('loading')}
       </div>
     );
   }
@@ -220,7 +259,7 @@ export default function AdminHomeSection({
   if (!selectedSection || !sectionForm) {
     return (
       <div className="rounded-md border border-line bg-surface p-8 text-center text-sm font-semibold text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted">
-        등록된 홈 섹션이 없습니다.
+        {t('emptySections')}
       </div>
     );
   }
@@ -297,6 +336,9 @@ function HomeSectionList({
   selectedSectionId: number;
   onSelect: (section: AdminHomeSectionType) => void;
 }) {
+  const t = useTranslations('AdminHome.sectionList');
+  const locale = useLocale();
+  const format = useFormatter();
   const [page, setPage] = useState(1);
   const totalPages = Math.max(
     1,
@@ -323,7 +365,7 @@ function HomeSectionList({
 
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
-      <TableHeader title="홈 섹션" count={sections.length} />
+      <TableHeader title={t('title')} count={sections.length} />
       <div className="grid gap-2 p-3">
         {paginatedSections.map((section) => (
           <button
@@ -337,9 +379,14 @@ function HomeSectionList({
                 : 'border-line hover:border-primary dark:border-dark-border',
             )}
           >
-            <p className="text-sm font-bold">{section.title}</p>
+            <p className="text-sm font-bold">
+              {getLocalizedSectionTitle(section, locale)}
+            </p>
             <p className="mt-1 text-xs text-muted dark:text-dark-muted">
-              {section.key} / 카드 {section.items.length.toLocaleString()}개
+              {t('cardCount', {
+                key: section.key,
+                count: format.number(section.items.length),
+              })}
             </p>
           </button>
         ))}
@@ -368,13 +415,39 @@ function HomeSectionForm({
   onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
   onReset: () => void;
 }) {
+  const locale = useLocale();
+  const t = useTranslations('AdminHome.sectionForm');
+  const activeTranslationLocale: HomeTranslationLocale =
+    locale === 'en' ? 'en' : 'ko';
+  const activeTranslation = form.translations[activeTranslationLocale];
+  const updateTranslationField = (
+    field: 'eyebrow' | 'title' | 'subtitle',
+    value: string,
+  ) => {
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            ...(activeTranslationLocale === 'ko' ? { [field]: value } : {}),
+            translations: {
+              ...prev.translations,
+              [activeTranslationLocale]: {
+                ...prev.translations[activeTranslationLocale],
+                [field]: value,
+              },
+            },
+          }
+        : prev,
+    );
+  };
+
   return (
     <form
       onSubmit={onSubmit}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
       <SectionTitle
-        title="섹션 수정"
+        title={t('title')}
         action={
           <button
             type="button"
@@ -383,35 +456,29 @@ function HomeSectionForm({
             className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold dark:border-dark-border"
           >
             <IconRefresh size={16} />
-            새로고침
+            {t('refresh')}
           </button>
         }
       />
       <div className="mt-5 grid gap-4">
         <TextInput
-          label="섹션 라벨"
-          value={form.eyebrow}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, eyebrow: value } : prev))
-          }
+          label={t('eyebrow')}
+          value={activeTranslation.eyebrow}
+          onChange={(value) => updateTranslationField('eyebrow', value)}
         />
         <TextInput
-          label="제목"
-          value={form.title}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, title: value } : prev))
-          }
+          label={t('sectionTitle')}
+          value={activeTranslation.title}
+          onChange={(value) => updateTranslationField('title', value)}
           required
         />
         <TextArea
-          label="부제"
-          value={form.subtitle}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, subtitle: value } : prev))
-          }
+          label={t('subtitle')}
+          value={activeTranslation.subtitle}
+          onChange={(value) => updateTranslationField('subtitle', value)}
         />
         <TextInput
-          label="노출 순서"
+          label={t('displayOrder')}
           type="number"
           min={0}
           value={form.displayOrder}
@@ -429,7 +496,7 @@ function HomeSectionForm({
               )
             }
           />
-          홈에 노출
+          {t('visible')}
         </label>
         <button
           type="submit"
@@ -437,7 +504,7 @@ function HomeSectionForm({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
-          섹션 저장
+          {t('save')}
         </button>
       </div>
     </form>
@@ -457,6 +524,9 @@ function HomeSectionItemList({
   onCreate: () => void;
   onEdit: (item: AdminHomeSectionItem) => void;
 }) {
+  const t = useTranslations('AdminHome.cardList');
+  const locale = useLocale();
+  const format = useFormatter();
   const [page, setPage] = useState(1);
   const totalPages = Math.max(
     1,
@@ -483,9 +553,9 @@ function HomeSectionItemList({
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
       <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 dark:border-dark-border">
         <div className="flex items-center gap-2">
-          <h2 className="font-bold">홈 카드</h2>
+          <h2 className="font-bold">{t('title')}</h2>
           <span className="text-sm font-semibold text-muted dark:text-dark-muted">
-            {items.length.toLocaleString()}
+            {format.number(items.length)}
           </span>
         </div>
         <button
@@ -495,7 +565,7 @@ function HomeSectionItemList({
           className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:opacity-60 dark:border-dark-border"
         >
           <IconPlus size={16} />
-          카드 추가
+          {t('add')}
         </button>
       </div>
       <div className="overflow-x-auto">
@@ -509,11 +579,11 @@ function HomeSectionItemList({
           </colgroup>
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
-              <th className="px-3 py-3">순서</th>
-              <th className="px-3 py-3">제목</th>
-              <th className="px-3 py-3">연결</th>
-              <th className="px-3 py-3">이미지</th>
-              <th className="px-3 py-3">관리</th>
+              <th className="px-3 py-3">{t('order')}</th>
+              <th className="px-3 py-3">{t('cardTitle')}</th>
+              <th className="px-3 py-3">{t('target')}</th>
+              <th className="px-3 py-3">{t('image')}</th>
+              <th className="px-3 py-3">{t('manage')}</th>
             </tr>
           </thead>
           <tbody>
@@ -528,9 +598,12 @@ function HomeSectionItemList({
               >
                 <td className="px-3 py-3 font-semibold">{item.displayOrder}</td>
                 <td className="px-3 py-3">
-                  <p className="font-semibold">{item.title}</p>
+                  <p className="font-semibold">
+                    {getLocalizedItemTitle(item, locale)}
+                  </p>
                   <p className="text-xs text-muted dark:text-dark-muted">
-                    {item.isVisible ? '노출' : '숨김'} / {item.label ?? '-'}
+                    {item.isVisible ? t('visible') : t('hidden')} /{' '}
+                    {getLocalizedItemLabel(item, locale) ?? '-'}
                   </p>
                 </td>
                 <td className="px-3 py-3 text-xs text-muted dark:text-dark-muted">
@@ -549,7 +622,7 @@ function HomeSectionItemList({
                     className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:opacity-60 dark:border-dark-border"
                   >
                     <IconPencil size={16} />
-                    수정
+                    {t('edit')}
                   </button>
                 </td>
               </tr>
@@ -589,6 +662,10 @@ function HomeSectionItemForm({
   onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
   onReset: () => void;
 }) {
+  const t = useTranslations('AdminHome');
+  const locale = useLocale();
+  const activeTranslationLocale: HomeTranslationLocale =
+    locale === 'en' ? 'en' : 'ko';
   const selectedLayoutTemplate = getLayoutTemplate(form);
   const selectedLayoutGroup = Number(form.layoutGroup || 0);
   const selectedLayoutLimit = getLayoutTemplateLimit(selectedLayoutTemplate);
@@ -627,8 +704,34 @@ function HomeSectionItemForm({
     existingLayoutClassNameInSelectedGroup !== form.layoutGroupClassName;
   const layoutHelperText =
     selectedLayoutGroup === 0
-      ? '사용 안 함은 데이터를 저장하지만 categories 캐러셀에는 표시하지 않습니다.'
-      : `캐러셀 ${selectedLayoutGroup}페이지 / ${selectedLayoutTemplate.label}: ${visibleItemsInSelectedGroup.length}/${selectedLayoutLimit}개 사용 중`;
+      ? t('cardForm.disabledHelper')
+      : t('cardForm.usageHelper', {
+          page: selectedLayoutGroup,
+          preset: t(`layout.${selectedLayoutTemplate.labelKey}`),
+          used: visibleItemsInSelectedGroup.length,
+          limit: selectedLayoutLimit,
+        });
+  const activeTranslation = form.translations[activeTranslationLocale];
+  const updateTranslationField = (
+    field: 'label' | 'title' | 'description' | 'cta' | 'imageAlt',
+    value: string,
+  ) => {
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            ...(activeTranslationLocale === 'ko' ? { [field]: value } : {}),
+            translations: {
+              ...prev.translations,
+              [activeTranslationLocale]: {
+                ...prev.translations[activeTranslationLocale],
+                [field]: value,
+              },
+            },
+          }
+        : prev,
+    );
+  };
 
   return (
     <form
@@ -636,7 +739,7 @@ function HomeSectionItemForm({
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
       <SectionTitle
-        title={form.id ? '카드 수정' : '카드 추가'}
+        title={form.id ? t('cardForm.editTitle') : t('cardForm.createTitle')}
         action={
           <button
             type="button"
@@ -645,21 +748,19 @@ function HomeSectionItemForm({
             className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold dark:border-dark-border"
           >
             <IconRefresh size={16} />
-            새로고침
+            {t('cardForm.refresh')}
           </button>
         }
       />
       <div className="mt-5 grid gap-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <TextInput
-            label="라벨"
-            value={form.label}
-            onChange={(value) =>
-              setForm((prev) => (prev ? { ...prev, label: value } : prev))
-            }
+            label={t('cardForm.label')}
+            value={activeTranslation.label}
+            onChange={(value) => updateTranslationField('label', value)}
           />
           <TextInput
-            label="노출 순서"
+            label={t('cardForm.displayOrder')}
             type="number"
             min={0}
             value={form.displayOrder}
@@ -671,29 +772,23 @@ function HomeSectionItemForm({
           />
         </div>
         <TextInput
-          label="제목"
-          value={form.title}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, title: value } : prev))
-          }
+          label={t('cardForm.title')}
+          value={activeTranslation.title}
+          onChange={(value) => updateTranslationField('title', value)}
           required
         />
         <TextArea
-          label="설명"
-          value={form.description}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, description: value } : prev))
-          }
+          label={t('cardForm.description')}
+          value={activeTranslation.description}
+          onChange={(value) => updateTranslationField('description', value)}
         />
         <TextInput
           label="CTA"
-          value={form.cta}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, cta: value } : prev))
-          }
+          value={activeTranslation.cta}
+          onChange={(value) => updateTranslationField('cta', value)}
         />
         <TextInput
-          label="이미지 URL"
+          label={t('cardForm.imageUrl')}
           value={form.image_url}
           onChange={(value) =>
             setForm((prev) => (prev ? { ...prev, image_url: value } : prev))
@@ -701,11 +796,9 @@ function HomeSectionItemForm({
           required
         />
         <TextInput
-          label="이미지 대체 텍스트"
-          value={form.imageAlt}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, imageAlt: value } : prev))
-          }
+          label={t('cardForm.imageAlt')}
+          value={activeTranslation.imageAlt}
+          onChange={(value) => updateTranslationField('imageAlt', value)}
         />
         <TargetFields
           form={form}
@@ -715,12 +808,12 @@ function HomeSectionItemForm({
         />
         <details className="rounded-md border border-line p-3 dark:border-dark-border">
           <summary className="cursor-pointer text-sm font-bold">
-            레이아웃 옵션
+            {t('cardForm.layoutOptions')}
           </summary>
           <div className="mt-4 grid gap-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelClass}>
-                캐러셀 페이지 번호
+                {t('cardForm.carouselPage')}
                 <input
                   type="number"
                   min={0}
@@ -784,7 +877,7 @@ function HomeSectionItemForm({
                 />
               </label>
               <label className={labelClass}>
-                레이아웃 프리셋
+                {t('cardForm.layoutPreset')}
                 <select
                   className={inputClass}
                   value={selectedLayoutTemplate.layoutGroupClassName}
@@ -832,7 +925,7 @@ function HomeSectionItemForm({
                       key={template.layoutGroupClassName || 'none'}
                       value={template.layoutGroupClassName}
                     >
-                      {template.label}
+                      {t(`layout.${template.labelKey}`)}
                     </option>
                   ))}
                 </select>
@@ -840,7 +933,7 @@ function HomeSectionItemForm({
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelClass}>
-                카드 위치
+                {t('cardForm.cardPosition')}
                 <select
                   className={inputClass}
                   value={form.layoutAreaClassName}
@@ -862,7 +955,7 @@ function HomeSectionItemForm({
                         usedLayoutAreas.has(option.value)
                       }
                     >
-                      {option.label}
+                      {t(`layout.${option.labelKey}`)}
                     </option>
                   ))}
                 </select>
@@ -879,16 +972,18 @@ function HomeSectionItemForm({
               )}
             >
               {isSelectedLayoutPresetConflict
-                ? '같은 캐러셀 페이지에는 하나의 레이아웃 프리셋만 사용할 수 있습니다.'
+                ? t('cardForm.presetConflict')
                 : isSelectedLayoutAreaUsed
-                  ? '이미 사용 중인 카드 위치입니다. 다른 위치를 선택해주세요.'
+                  ? t('cardForm.areaUsed')
                   : isSelectedLayoutFull
-                    ? `${selectedLayoutTemplate.label}에 더 이상 카드를 추가할 수 없습니다.`
+                    ? t('cardForm.layoutFull', {
+                        preset: t(`layout.${selectedLayoutTemplate.labelKey}`),
+                      })
                     : layoutHelperText}
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelClass}>
-                이미지 맞춤
+                {t('cardForm.imageFit')}
                 <select
                   className={inputClass}
                   value={form.imageClassName}
@@ -905,13 +1000,13 @@ function HomeSectionItemForm({
                       key={option.value || 'default'}
                       value={option.value}
                     >
-                      {option.label}
+                      {t(`layout.${option.labelKey}`)}
                     </option>
                   ))}
                 </select>
               </label>
               <label className={labelClass}>
-                라벨 위치
+                {t('cardForm.labelPosition')}
                 <select
                   className={inputClass}
                   value={form.labelPosition}
@@ -923,9 +1018,9 @@ function HomeSectionItemForm({
                     )
                   }
                 >
-                  <option value="">기본</option>
-                  <option value="top">상단</option>
-                  <option value="bottom">하단</option>
+                  <option value="">{t('layout.default')}</option>
+                  <option value="top">{t('layout.labelTop')}</option>
+                  <option value="bottom">{t('layout.labelBottom')}</option>
                 </select>
               </label>
             </div>
@@ -941,7 +1036,7 @@ function HomeSectionItemForm({
               )
             }
           />
-          홈에 노출
+          {t('cardForm.visible')}
         </label>
         <button
           type="submit"
@@ -949,7 +1044,7 @@ function HomeSectionItemForm({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
-          {form.id ? '카드 저장' : '카드 추가'}
+          {form.id ? t('cardForm.save') : t('cardForm.add')}
         </button>
       </div>
     </form>
@@ -967,6 +1062,8 @@ function TargetFields({
   products: AdminHomeProduct[];
   setForm: Dispatch<SetStateAction<HomeSectionItemFormState | null>>;
 }) {
+  const locale = useLocale();
+  const t = useTranslations('AdminHome.target');
   const selectedCategory = categories.find(
     (category) => String(category.id) === form.targetCategoryId,
   );
@@ -988,7 +1085,7 @@ function TargetFields({
   return (
     <div className="grid gap-4 rounded-md border border-line p-3 dark:border-dark-border">
       <label className={labelClass}>
-        연결 대상
+        {t('title')}
         <select
           className={inputClass}
           value={form.targetType}
@@ -1006,15 +1103,15 @@ function TargetFields({
             )
           }
         >
-          <option value="category">카테고리</option>
-          <option value="product">상품</option>
-          <option value="custom">직접 입력 URL</option>
-          <option value="none">없음</option>
+          <option value="category">{t('category')}</option>
+          <option value="product">{t('product')}</option>
+          <option value="custom">{t('custom')}</option>
+          <option value="none">{t('none')}</option>
         </select>
       </label>
       {form.targetType === 'category' ? (
         <label className={labelClass}>
-          카테고리
+          {t('category')}
           <select
             className={inputClass}
             value={form.targetCategoryId}
@@ -1024,10 +1121,10 @@ function TargetFields({
               )
             }
           >
-            <option value="">카테고리 선택</option>
+            <option value="">{t('selectCategory')}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name_ko} ({category.slug})
+                {getLocalizedName(category, locale)} ({category.slug})
               </option>
             ))}
           </select>
@@ -1035,7 +1132,7 @@ function TargetFields({
       ) : null}
       {form.targetType === 'product' ? (
         <label className={labelClass}>
-          상품
+          {t('product')}
           <select
             className={inputClass}
             value={form.targetProductId}
@@ -1045,10 +1142,10 @@ function TargetFields({
               )
             }
           >
-            <option value="">상품 선택</option>
+            <option value="">{t('selectProduct')}</option>
             {products.map((product) => (
               <option key={product.id} value={product.id}>
-                {product.name_ko ?? product.name_en} ({product.slug})
+                {getLocalizedName(product, locale)} ({product.slug})
               </option>
             ))}
           </select>
@@ -1056,7 +1153,7 @@ function TargetFields({
       ) : null}
       {form.targetType === 'custom' ? (
         <TextInput
-          label="직접 입력 URL"
+          label={t('customUrl')}
           value={form.href}
           onChange={(value) =>
             setForm((prev) => (prev ? { ...prev, href: value } : prev))
@@ -1065,7 +1162,7 @@ function TargetFields({
       ) : null}
       {hrefPreview ? (
         <p className="text-xs font-semibold text-muted dark:text-dark-muted">
-          적용 경로: {hrefPreview}
+          {t('pathPreview', { path: hrefPreview })}
         </p>
       ) : null}
     </div>

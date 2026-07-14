@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { assertAdminWriteAccess } from '@app/api-routes/admin/service';
 
+import { CLOUDINARY_UPLOAD_ERROR_CODE } from '@shared/constants/cloudinaryUploadErrorCode';
 import { getRequiredUserId } from '@shared/lib/api/getRequiredUserId';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
@@ -262,12 +263,14 @@ export async function POST(request: Request) {
     if (!apiSecret || !apiKey) {
       throw new InternalServerError(
         'Cloudinary API key/secret is not configured',
+        CLOUDINARY_UPLOAD_ERROR_CODE.CLOUDINARY_CONFIG_MISSING,
       );
     }
 
     if (!uploadPreset) {
       throw new InternalServerError(
         'Cloudinary upload preset is not configured',
+        CLOUDINARY_UPLOAD_ERROR_CODE.CLOUDINARY_UPLOAD_PRESET_MISSING,
       );
     }
 

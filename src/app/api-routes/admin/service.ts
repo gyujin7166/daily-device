@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Prisma, UserRole } from '@prisma/client';
 
+import { ADMIN_ERROR_CODE } from '@shared/constants/adminErrorCode';
 import {
   ConflictError,
   ForbiddenError,
@@ -19,7 +20,10 @@ export async function assertAdminReadAccess() {
   const userId = session?.user?.id;
 
   if (!userId) {
-    throw new UnauthorizedError('관리자 로그인이 필요합니다.');
+    throw new UnauthorizedError(
+      'Admin login is required.',
+      ADMIN_ERROR_CODE.ADMIN_LOGIN_REQUIRED,
+    );
   }
 
   return { userId };
@@ -41,7 +45,10 @@ export async function assertAdminWriteAccess() {
   const { canWriteAdmin } = await getAdminPermission();
 
   if (!canWriteAdmin) {
-    throw new ForbiddenError('관리자 권한이 없습니다.');
+    throw new ForbiddenError(
+      'You do not have admin permission.',
+      ADMIN_ERROR_CODE.ADMIN_WRITE_FORBIDDEN,
+    );
   }
 }
 
@@ -55,19 +62,37 @@ const toOptionalString = (value?: string | null) => {
   return trimmed ? trimmed : undefined;
 };
 
-const getPrismaConflictMessage = (error: unknown, fallback: string) => {
+const getPrismaConflictErrorCode = (error: unknown, fallback: string) => {
   if (
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === 'P2002'
   ) {
-    return '이미 사용 중인 고유 값이 있습니다.';
+    return ADMIN_ERROR_CODE.UNIQUE_CONSTRAINT;
   }
 
   if (
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === 'P2003'
   ) {
-    return '연결된 데이터가 있어 삭제할 수 없습니다.';
+    return ADMIN_ERROR_CODE.RELATION_CONSTRAINT;
+  }
+
+  return fallback;
+};
+
+const getPrismaConflictMessage = (error: unknown, fallback: string) => {
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === 'P2002'
+  ) {
+    return 'This unique value is already in use.';
+  }
+
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === 'P2003'
+  ) {
+    return 'This item cannot be deleted because related data exists.';
   }
 
   return fallback;
@@ -88,6 +113,14 @@ export type AdminHeroInput = {
   textTone: string;
   navTone: string;
   overlayTone: string;
+  translations: AdminHeroTranslationInput[];
+};
+
+export type AdminHeroTranslationInput = {
+  locale: 'ko' | 'en';
+  name: string;
+  description?: string | null;
+  detailed_description?: string | null;
 };
 
 export type AdminProductInput = {
@@ -105,6 +138,15 @@ export type AdminProductInput = {
   colorIds: number[];
   defaultColorId?: number | null;
   images: AdminProductImageInput[];
+  translations: AdminProductTranslationInput[];
+};
+
+export type AdminProductTranslationInput = {
+  locale: 'ko' | 'en';
+  name: string;
+  description: string;
+  detailed_description?: string | null;
+  note?: string | null;
 };
 
 export type AdminProductImageInput = {
@@ -121,6 +163,14 @@ export type AdminHomeSectionInput = {
   subtitle?: string | null;
   displayOrder: number;
   isVisible: boolean;
+  translations: AdminHomeSectionTranslationInput[];
+};
+
+export type AdminHomeSectionTranslationInput = {
+  locale: 'ko' | 'en';
+  eyebrow?: string | null;
+  title: string;
+  subtitle?: string | null;
 };
 
 export type AdminHomeSectionItemInput = {
@@ -141,6 +191,16 @@ export type AdminHomeSectionItemInput = {
   layoutAreaClassName?: string | null;
   labelPosition?: string | null;
   imageClassName?: string | null;
+  translations: AdminHomeSectionItemTranslationInput[];
+};
+
+export type AdminHomeSectionItemTranslationInput = {
+  locale: 'ko' | 'en';
+  label?: string | null;
+  title: string;
+  description?: string | null;
+  cta?: string | null;
+  imageAlt?: string | null;
 };
 
 export type AdminProductListParams = {
@@ -204,6 +264,15 @@ const adminHeroSelect = {
       slug: true,
     },
   },
+  translations: {
+    select: {
+      locale: true,
+      name: true,
+      description: true,
+      detailed_description: true,
+    },
+    orderBy: { locale: 'asc' },
+  },
 } satisfies Prisma.HeroSelect;
 
 const adminProductSelect = {
@@ -254,9 +323,26 @@ const adminProductSelect = {
           id: true,
           name: true,
           hex: true,
+          translations: {
+            select: {
+              locale: true,
+              name: true,
+            },
+            orderBy: { locale: 'asc' },
+          },
         },
       },
     },
+  },
+  translations: {
+    select: {
+      locale: true,
+      name: true,
+      description: true,
+      detailed_description: true,
+      note: true,
+    },
+    orderBy: { locale: 'asc' },
   },
 } satisfies Prisma.ProductSelect;
 
@@ -274,6 +360,13 @@ const adminReviewSelect = {
       name_ko: true,
       name_en: true,
       slug: true,
+      translations: {
+        select: {
+          locale: true,
+          name: true,
+        },
+        orderBy: { locale: 'asc' },
+      },
     },
   },
   orderItem: {
@@ -285,6 +378,13 @@ const adminReviewSelect = {
             select: {
               name: true,
               hex: true,
+              translations: {
+                select: {
+                  locale: true,
+                  name: true,
+                },
+                orderBy: { locale: 'asc' },
+              },
             },
           },
         },
@@ -311,8 +411,49 @@ type AdminReviewRecord = Prisma.ProductReviewGetPayload<{
   select: typeof adminReviewSelect;
 }>;
 
-const serializeAdminReview = (review: AdminReviewRecord) => {
+type AdminColorTranslationMap = Map<
+  string,
+  Array<{ locale: string; name: string }>
+>;
+
+const getAdminColorTranslationMap = async () => {
+  const colors = await prisma.color.findMany({
+    select: {
+      name: true,
+      translations: {
+        select: {
+          locale: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return new Map(
+    colors.map((color) => [
+      color.name,
+      color.translations.map((translation) => ({
+        locale: translation.locale,
+        name: translation.name,
+      })),
+    ]),
+  );
+};
+
+const serializeAdminReview = (
+  review: AdminReviewRecord,
+  colorTranslationMap?: AdminColorTranslationMap,
+) => {
   const { ProductReviewImage, orderItem, ...reviewData } = review;
+  const linkedColorTranslations =
+    orderItem.productColor?.color.translations.map((translation) => ({
+      locale: translation.locale,
+      name: translation.name,
+    })) ?? [];
+  const legacyColorTranslations =
+    orderItem.colorName && linkedColorTranslations.length === 0
+      ? (colorTranslationMap?.get(orderItem.colorName) ?? [])
+      : [];
 
   return {
     ...reviewData,
@@ -320,6 +461,10 @@ const serializeAdminReview = (review: AdminReviewRecord) => {
       colorName:
         orderItem.colorName ?? orderItem.productColor?.color.name ?? null,
       colorHex: orderItem.productColor?.color.hex ?? null,
+      colorTranslations:
+        linkedColorTranslations.length > 0
+          ? linkedColorTranslations
+          : legacyColorTranslations,
     },
     images: ProductReviewImage,
     createdAt: review.createdAt.toISOString(),
@@ -336,6 +481,15 @@ const adminHomeSectionSelect = {
   subtitle: true,
   displayOrder: true,
   isVisible: true,
+  translations: {
+    select: {
+      locale: true,
+      eyebrow: true,
+      title: true,
+      subtitle: true,
+    },
+    orderBy: { locale: 'asc' },
+  },
   items: {
     orderBy: [{ displayOrder: 'asc' }, { id: 'asc' }],
     select: {
@@ -378,6 +532,17 @@ const adminHomeSectionSelect = {
       layoutAreaClassName: true,
       labelPosition: true,
       imageClassName: true,
+      translations: {
+        select: {
+          locale: true,
+          label: true,
+          title: true,
+          description: true,
+          cta: true,
+          imageAlt: true,
+        },
+        orderBy: { locale: 'asc' },
+      },
     },
   },
 } satisfies Prisma.HomeSectionSelect;
@@ -425,23 +590,117 @@ export async function updateAdminHomeSection(
   input: AdminHomeSectionInput,
 ) {
   try {
-    return await prisma.homeSection.update({
-      where: { id: sectionId },
-      data: {
-        eyebrow: toNullableString(input.eyebrow),
-        title: input.title,
-        subtitle: toNullableString(input.subtitle),
-        displayOrder: input.displayOrder,
-        isVisible: input.isVisible,
-      },
-      select: adminHomeSectionSelect,
+    return await prisma.$transaction(async (tx) => {
+      await tx.homeSection.update({
+        where: { id: sectionId },
+        data: {
+          eyebrow: toNullableString(input.eyebrow),
+          title: input.title,
+          subtitle: toNullableString(input.subtitle),
+          displayOrder: input.displayOrder,
+          isVisible: input.isVisible,
+        },
+      });
+
+      await upsertHomeSectionTranslations(
+        tx,
+        sectionId,
+        input.translations,
+      );
+
+      return tx.homeSection.findUniqueOrThrow({
+        where: { id: sectionId },
+        select: adminHomeSectionSelect,
+      });
     });
   } catch (error) {
     throw new ConflictError(
-      getPrismaConflictMessage(error, '홈 섹션을 수정할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not update the home section.'),
+      getPrismaConflictErrorCode(
+        error,
+        ADMIN_ERROR_CODE.HOME_SECTION_UPDATE_FAILED,
+      ),
     );
   }
 }
+
+const upsertHomeSectionTranslations = async (
+  tx: Prisma.TransactionClient,
+  sectionId: number,
+  translations: AdminHomeSectionTranslationInput[],
+) => {
+  await Promise.all(
+    translations.map((translation) =>
+      tx.homeSectionTranslation.upsert({
+        where: {
+          sectionId_locale: {
+            sectionId,
+            locale: translation.locale,
+          },
+        },
+        create: {
+          sectionId,
+          locale: translation.locale,
+          eyebrow: toNullableString(translation.eyebrow),
+          title: translation.title,
+          subtitle: toNullableString(translation.subtitle),
+        },
+        update: {
+          eyebrow: toNullableString(translation.eyebrow),
+          title: translation.title,
+          subtitle: toNullableString(translation.subtitle),
+        },
+      }),
+    ),
+  );
+};
+
+const getHomeSectionItemTranslationCreateData = (
+  translations: AdminHomeSectionItemTranslationInput[],
+) =>
+  translations.map((translation) => ({
+    locale: translation.locale,
+    label: toNullableString(translation.label),
+    title: translation.title,
+    description: toNullableString(translation.description),
+    cta: toNullableString(translation.cta),
+    imageAlt: toNullableString(translation.imageAlt),
+  }));
+
+const upsertHomeSectionItemTranslations = async (
+  tx: Prisma.TransactionClient,
+  itemId: number,
+  translations: AdminHomeSectionItemTranslationInput[],
+) => {
+  await Promise.all(
+    translations.map((translation) =>
+      tx.homeSectionItemTranslation.upsert({
+        where: {
+          itemId_locale: {
+            itemId,
+            locale: translation.locale,
+          },
+        },
+        create: {
+          itemId,
+          locale: translation.locale,
+          label: toNullableString(translation.label),
+          title: translation.title,
+          description: toNullableString(translation.description),
+          cta: toNullableString(translation.cta),
+          imageAlt: toNullableString(translation.imageAlt),
+        },
+        update: {
+          label: toNullableString(translation.label),
+          title: translation.title,
+          description: toNullableString(translation.description),
+          cta: toNullableString(translation.cta),
+          imageAlt: toNullableString(translation.imageAlt),
+        },
+      }),
+    ),
+  );
+};
 
 const getAdminHomeSectionItemData = (input: AdminHomeSectionItemInput) => ({
   label: toNullableString(input.label),
@@ -477,7 +736,10 @@ const validateAdminHomeSectionItemLayout = async (
   });
 
   if (!section) {
-    throw new NotFoundError('홈 섹션을 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Home section not found.',
+      ADMIN_ERROR_CODE.HOME_SECTION_NOT_FOUND,
+    );
   }
 
   if (section.key !== HOME_CATEGORY_CAROUSEL_SECTION_KEY) {
@@ -493,12 +755,16 @@ const validateAdminHomeSectionItemLayout = async (
 
   if (!layoutGroupClassName || !layoutAreaClassName) {
     throw new ConflictError(
-      'Categories 캐러셀에 노출할 카드는 캐러셀 페이지와 카드 위치를 선택해야 합니다.',
+      'Cards shown in the Categories carousel require a carousel page and card position.',
+      ADMIN_ERROR_CODE.HOME_CARD_CAROUSEL_FIELDS_REQUIRED,
     );
   }
 
   if (!HOME_CAROUSEL_LAYOUT_PRESET_LIMITS.has(layoutGroupClassName)) {
-    throw new ConflictError('지원하지 않는 Categories 캐러셀 레이아웃입니다.');
+    throw new ConflictError(
+      'This Categories carousel layout is not supported.',
+      ADMIN_ERROR_CODE.HOME_CARD_UNSUPPORTED_LAYOUT,
+    );
   }
 
   const baseWhere: Prisma.HomeSectionItemWhereInput = {
@@ -520,7 +786,8 @@ const validateAdminHomeSectionItemLayout = async (
     existingPresetItem.layoutGroupClassName !== layoutGroupClassName
   ) {
     throw new ConflictError(
-      '같은 캐러셀 페이지에는 하나의 레이아웃 프리셋만 사용할 수 있습니다.',
+      'Only one layout preset can be used on the same carousel page.',
+      ADMIN_ERROR_CODE.HOME_CARD_PRESET_CONFLICT,
     );
   }
 
@@ -534,7 +801,8 @@ const validateAdminHomeSectionItemLayout = async (
 
   if (existingAreaItem) {
     throw new ConflictError(
-      '같은 캐러셀 페이지에서 이미 사용 중인 카드 위치입니다.',
+      'This card position is already used on the same carousel page.',
+      ADMIN_ERROR_CODE.HOME_CARD_AREA_CONFLICT,
     );
   }
 
@@ -549,7 +817,8 @@ const validateAdminHomeSectionItemLayout = async (
 
   if (layoutGroupItemCount >= layoutGroupLimit) {
     throw new ConflictError(
-      `선택한 레이아웃 프리셋은 캐러셀 ${input.layoutGroup}페이지에 최대 ${layoutGroupLimit}개까지만 노출할 수 있습니다.`,
+      `The selected layout preset can show up to ${layoutGroupLimit} cards on carousel page ${input.layoutGroup}.`,
+      ADMIN_ERROR_CODE.HOME_CARD_LAYOUT_LIMIT_EXCEEDED,
     );
   }
 };
@@ -568,6 +837,11 @@ export async function createAdminHomeSectionItem(
         data: {
           sectionId: input.sectionId,
           ...getAdminHomeSectionItemData(input),
+          translations: {
+            create: getHomeSectionItemTranslationCreateData(
+              input.translations,
+            ),
+          },
         },
         select: {
           ...adminHomeSectionSelect.items.select,
@@ -580,7 +854,11 @@ export async function createAdminHomeSectionItem(
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, '홈 섹션 아이템을 생성할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not create the home section item.'),
+      getPrismaConflictErrorCode(
+        error,
+        ADMIN_ERROR_CODE.HOME_CARD_CREATE_FAILED,
+      ),
     );
   }
 }
@@ -597,7 +875,10 @@ export async function updateAdminHomeSectionItem(
       });
 
       if (!item) {
-        throw new NotFoundError('홈 카드를 찾을 수 없습니다.');
+        throw new NotFoundError(
+          'Home card not found.',
+          ADMIN_ERROR_CODE.HOME_CARD_NOT_FOUND,
+        );
       }
 
       await validateAdminHomeSectionItemLayout(tx, {
@@ -606,9 +887,19 @@ export async function updateAdminHomeSectionItem(
         excludeItemId: itemId,
       });
 
-      return tx.homeSectionItem.update({
+      await tx.homeSectionItem.update({
         where: { id: itemId },
         data: getAdminHomeSectionItemData(input),
+      });
+
+      await upsertHomeSectionItemTranslations(
+        tx,
+        itemId,
+        input.translations,
+      );
+
+      return tx.homeSectionItem.findUniqueOrThrow({
+        where: { id: itemId },
         select: {
           ...adminHomeSectionSelect.items.select,
         },
@@ -620,7 +911,11 @@ export async function updateAdminHomeSectionItem(
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, '홈 섹션 아이템을 수정할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not update the home section item.'),
+      getPrismaConflictErrorCode(
+        error,
+        ADMIN_ERROR_CODE.HOME_CARD_UPDATE_FAILED,
+      ),
     );
   }
 }
@@ -659,11 +954,17 @@ const resolveHeroTarget = async (
   });
 
   if (!heroType) {
-    throw new NotFoundError('Hero 타입을 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Hero type not found.',
+      ADMIN_ERROR_CODE.HERO_TYPE_NOT_FOUND,
+    );
   }
 
   if (!ADMIN_HERO_TYPE_NAMES.includes(heroType.name)) {
-    throw new ConflictError('지원하지 않는 Hero 타입입니다.');
+    throw new ConflictError(
+      'This Hero type is not supported.',
+      ADMIN_ERROR_CODE.HERO_TYPE_UNSUPPORTED,
+    );
   }
 
   if (heroType.name !== 'product') {
@@ -671,7 +972,10 @@ const resolveHeroTarget = async (
   }
 
   if (!input.targetCategoryId) {
-    throw new ConflictError('상품 Hero는 적용 카테고리를 선택해야 합니다.');
+    throw new ConflictError(
+      'Product Hero requires a target category.',
+      ADMIN_ERROR_CODE.HERO_PRODUCT_CATEGORY_REQUIRED,
+    );
   }
 
   const category = await tx.productCategory.findUnique({
@@ -680,7 +984,10 @@ const resolveHeroTarget = async (
   });
 
   if (!category) {
-    throw new NotFoundError('적용 카테고리를 찾을 수 없습니다.');
+    throw new NotFoundError(
+      'Target category not found.',
+      ADMIN_ERROR_CODE.HERO_TARGET_CATEGORY_NOT_FOUND,
+    );
   }
 
   return { heroTypeName: heroType.name, targetCategoryId: category.id };
@@ -713,6 +1020,51 @@ const clearOtherDefaultHeroes = async (
     },
     data: { isDefault: false },
   });
+};
+
+const getHeroTranslationCreateData = (
+  translations: AdminHeroTranslationInput[],
+) =>
+  translations.map((translation) => ({
+    locale: translation.locale,
+    name: translation.name,
+    description: toNullableString(translation.description),
+    detailed_description: toNullableString(translation.detailed_description),
+  }));
+
+const upsertHeroTranslations = async (
+  tx: Prisma.TransactionClient,
+  heroId: number,
+  translations: AdminHeroTranslationInput[],
+) => {
+  await Promise.all(
+    translations.map((translation) =>
+      tx.heroTranslation.upsert({
+        where: {
+          heroId_locale: {
+            heroId,
+            locale: translation.locale,
+          },
+        },
+        create: {
+          heroId,
+          locale: translation.locale,
+          name: translation.name,
+          description: toNullableString(translation.description),
+          detailed_description: toNullableString(
+            translation.detailed_description,
+          ),
+        },
+        update: {
+          name: translation.name,
+          description: toNullableString(translation.description),
+          detailed_description: toNullableString(
+            translation.detailed_description,
+          ),
+        },
+      }),
+    ),
+  );
 };
 
 export async function createAdminHero(input: AdminHeroInput) {
@@ -748,6 +1100,9 @@ export async function createAdminHero(input: AdminHeroInput) {
           textTone: input.textTone,
           navTone: input.navTone,
           overlayTone: input.overlayTone,
+          translations: {
+            create: getHeroTranslationCreateData(input.translations),
+          },
         },
         select: adminHeroSelect,
       });
@@ -758,7 +1113,8 @@ export async function createAdminHero(input: AdminHeroInput) {
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, 'Hero를 생성할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not create the Hero.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.HERO_CREATE_FAILED),
     );
   }
 }
@@ -781,7 +1137,7 @@ export async function updateAdminHero(heroId: number, input: AdminHeroInput) {
         );
       }
 
-      return tx.hero.update({
+      await tx.hero.update({
         where: { id: heroId },
         data: {
           name_en: input.name_en,
@@ -799,6 +1155,12 @@ export async function updateAdminHero(heroId: number, input: AdminHeroInput) {
           navTone: input.navTone,
           overlayTone: input.overlayTone,
         },
+      });
+
+      await upsertHeroTranslations(tx, heroId, input.translations);
+
+      return tx.hero.findUniqueOrThrow({
+        where: { id: heroId },
         select: adminHeroSelect,
       });
     });
@@ -808,7 +1170,8 @@ export async function updateAdminHero(heroId: number, input: AdminHeroInput) {
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, 'Hero를 수정할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not update the Hero.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.HERO_UPDATE_FAILED),
     );
   }
 }
@@ -818,7 +1181,8 @@ export async function deleteAdminHero(heroId: number) {
     await prisma.hero.delete({ where: { id: heroId } });
   } catch (error) {
     throw new ConflictError(
-      getPrismaConflictMessage(error, 'Hero를 삭제할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not delete the Hero.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.HERO_DELETE_FAILED),
     );
   }
 }
@@ -935,13 +1299,15 @@ const syncProductImages = async (
 
   if (hasProductColors && normalizedImages.some((image) => !image.colorId)) {
     throw new ConflictError(
-      '색상이 있는 상품 이미지는 연결 색상을 선택해야 합니다.',
+      'Product images with colors require a linked color.',
+      ADMIN_ERROR_CODE.PRODUCT_IMAGE_COLOR_REQUIRED,
     );
   }
 
   if (!hasProductColors && normalizedImages.some((image) => image.colorId)) {
     throw new ConflictError(
-      '색상이 없는 상품 이미지는 공통 이미지로만 등록할 수 있습니다.',
+      'Products without colors can only use common images.',
+      ADMIN_ERROR_CODE.PRODUCT_IMAGE_COMMON_ONLY,
     );
   }
 
@@ -962,7 +1328,10 @@ const syncProductImages = async (
 
   targetColorIds.forEach((colorId) => {
     if (!productColorIdByColorId.has(colorId)) {
-      throw new NotFoundError('이미지에 연결할 상품 색상을 찾을 수 없습니다.');
+      throw new NotFoundError(
+        'Product color linked to the image was not found.',
+        ADMIN_ERROR_CODE.PRODUCT_IMAGE_COLOR_NOT_FOUND,
+      );
     }
   });
 
@@ -1022,7 +1391,10 @@ const syncProductColors = async (
     });
 
     if (colorCount !== uniqueColorIds.length) {
-      throw new NotFoundError('존재하지 않는 색상이 포함되어 있습니다.');
+      throw new NotFoundError(
+        'One or more selected colors do not exist.',
+        ADMIN_ERROR_CODE.PRODUCT_COLOR_NOT_FOUND,
+      );
     }
   }
 
@@ -1041,7 +1413,8 @@ const syncProductColors = async (
 
     if (orderItemCount > 0) {
       throw new ConflictError(
-        '주문 이력이 있는 상품 색상은 제거할 수 없습니다.',
+        'Product colors with order history cannot be removed.',
+        ADMIN_ERROR_CODE.PRODUCT_COLOR_DELETE_BLOCKED,
       );
     }
 
@@ -1081,6 +1454,54 @@ const syncProductColors = async (
   }
 };
 
+const getProductTranslationCreateData = (
+  translations: AdminProductTranslationInput[],
+) =>
+  translations.map((translation) => ({
+    locale: translation.locale,
+    name: translation.name,
+    description: translation.description,
+    detailed_description: toNullableString(translation.detailed_description),
+    note: toNullableString(translation.note),
+  }));
+
+const upsertProductTranslations = async (
+  tx: Prisma.TransactionClient,
+  productId: number,
+  translations: AdminProductTranslationInput[],
+) => {
+  await Promise.all(
+    translations.map((translation) =>
+      tx.productTranslation.upsert({
+        where: {
+          productId_locale: {
+            productId,
+            locale: translation.locale,
+          },
+        },
+        create: {
+          productId,
+          locale: translation.locale,
+          name: translation.name,
+          description: translation.description,
+          detailed_description: toNullableString(
+            translation.detailed_description,
+          ),
+          note: toNullableString(translation.note),
+        },
+        update: {
+          name: translation.name,
+          description: translation.description,
+          detailed_description: toNullableString(
+            translation.detailed_description,
+          ),
+          note: toNullableString(translation.note),
+        },
+      }),
+    ),
+  );
+};
+
 export async function createAdminProduct(input: AdminProductInput) {
   try {
     return await prisma.$transaction(async (tx) => {
@@ -1097,6 +1518,9 @@ export async function createAdminProduct(input: AdminProductInput) {
           discountRate: input.discountRate,
           productLine: input.productLine ?? null,
           categoryId: input.categoryId,
+          translations: {
+            create: getProductTranslationCreateData(input.translations),
+          },
         },
         select: adminProductSelect,
       });
@@ -1115,7 +1539,10 @@ export async function createAdminProduct(input: AdminProductInput) {
       });
 
       if (!refreshed) {
-        throw new NotFoundError('상품을 찾을 수 없습니다.');
+        throw new NotFoundError(
+          'Product not found.',
+          ADMIN_ERROR_CODE.PRODUCT_NOT_FOUND,
+        );
       }
 
       return toAdminProductResponse(refreshed);
@@ -1126,7 +1553,8 @@ export async function createAdminProduct(input: AdminProductInput) {
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, '상품을 생성할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not create the product.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.PRODUCT_CREATE_FAILED),
     );
   }
 }
@@ -1161,6 +1589,7 @@ export async function updateAdminProduct(
         input.defaultColorId,
       );
       await syncProductImages(tx, productId, input.images);
+      await upsertProductTranslations(tx, productId, input.translations);
 
       const product = await tx.product.findUnique({
         where: { id: productId },
@@ -1168,7 +1597,10 @@ export async function updateAdminProduct(
       });
 
       if (!product) {
-        throw new NotFoundError('상품을 찾을 수 없습니다.');
+        throw new NotFoundError(
+          'Product not found.',
+          ADMIN_ERROR_CODE.PRODUCT_NOT_FOUND,
+        );
       }
 
       return toAdminProductResponse(product);
@@ -1179,7 +1611,8 @@ export async function updateAdminProduct(
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, '상품을 수정할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not update the product.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.PRODUCT_UPDATE_FAILED),
     );
   }
 }
@@ -1193,7 +1626,8 @@ export async function deleteAdminProduct(productId: number) {
 
   if (orderItemCount > 0 || reviewCount > 0 || cartItemCount > 0) {
     throw new ConflictError(
-      '주문, 장바구니, 상품평에 연결된 상품은 삭제할 수 없습니다.',
+      'Products linked to orders, carts, or reviews cannot be deleted.',
+      ADMIN_ERROR_CODE.PRODUCT_DELETE_BLOCKED,
     );
   }
 
@@ -1208,7 +1642,8 @@ export async function deleteAdminProduct(productId: number) {
     ]);
   } catch (error) {
     throw new ConflictError(
-      getPrismaConflictMessage(error, '상품을 삭제할 수 없습니다.'),
+      getPrismaConflictMessage(error, 'Could not delete the product.'),
+      getPrismaConflictErrorCode(error, ADMIN_ERROR_CODE.PRODUCT_DELETE_FAILED),
     );
   }
 }
@@ -1237,7 +1672,7 @@ export async function getAdminReviews(params: AdminReviewListParams) {
         }
       : {}),
   };
-  const [total, reviews] = await prisma.$transaction([
+  const [total, reviews, colorTranslationMap] = await Promise.all([
     prisma.productReview.count({ where }),
     prisma.productReview.findMany({
       where,
@@ -1246,10 +1681,11 @@ export async function getAdminReviews(params: AdminReviewListParams) {
       take: safeLimit,
       select: adminReviewSelect,
     }),
+    getAdminColorTranslationMap(),
   ]);
 
   return createPageResult(
-    reviews.map(serializeAdminReview),
+    reviews.map((review) => serializeAdminReview(review, colorTranslationMap)),
     total,
     safePage,
     safeLimit,
@@ -1267,25 +1703,31 @@ export async function getAdminReviewSummary() {
 }
 
 export async function hideAdminReview(reviewId: number) {
-  const review = await prisma.productReview.update({
-    where: { id: reviewId },
-    data: {
-      adminHiddenAt: new Date(),
-    },
-    select: adminReviewSelect,
-  });
+  const [review, colorTranslationMap] = await Promise.all([
+    prisma.productReview.update({
+      where: { id: reviewId },
+      data: {
+        adminHiddenAt: new Date(),
+      },
+      select: adminReviewSelect,
+    }),
+    getAdminColorTranslationMap(),
+  ]);
 
-  return serializeAdminReview(review);
+  return serializeAdminReview(review, colorTranslationMap);
 }
 
 export async function restoreAdminReview(reviewId: number) {
-  const review = await prisma.productReview.update({
-    where: { id: reviewId },
-    data: {
-      adminHiddenAt: null,
-    },
-    select: adminReviewSelect,
-  });
+  const [review, colorTranslationMap] = await Promise.all([
+    prisma.productReview.update({
+      where: { id: reviewId },
+      data: {
+        adminHiddenAt: null,
+      },
+      select: adminReviewSelect,
+    }),
+    getAdminColorTranslationMap(),
+  ]);
 
-  return serializeAdminReview(review);
+  return serializeAdminReview(review, colorTranslationMap);
 }

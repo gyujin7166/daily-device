@@ -2,8 +2,12 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { SubmitEvent } from 'react';
 
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
-import { PRODUCT_LINE_OPTIONS } from '@shared/constants/productLine';
+import {
+  PRODUCT_LINE_VALUES,
+  isProductLineValue,
+} from '@shared/constants/productLine';
 import type { ProductLineValue } from '@shared/constants/productLine';
 import {
   SectionTitle,
@@ -20,7 +24,13 @@ import type {
   AdminColor,
   ProductCategory,
   ProductFormState,
+  ProductTranslationLocale,
 } from '../model/types';
+
+const getLocalizedCategoryName = (
+  category: Pick<ProductCategory, 'name_en' | 'name_ko'>,
+  locale: string,
+) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
 
 type AdminProductFormSectionProps = {
   form: ProductFormState;
@@ -56,13 +66,50 @@ export default function AdminProductFormSection({
   onUpdateImageOrder,
   onRemoveImage,
 }: AdminProductFormSectionProps) {
+  const locale = useLocale();
+  const activeTranslationLocale: ProductTranslationLocale =
+    locale === 'en' ? 'en' : 'ko';
+  const t = useTranslations('AdminProduct.form');
+  const commonT = useTranslations('Common');
+  const activeTranslation = form.translations[activeTranslationLocale];
+  const updateTranslationField = (
+    field: 'name' | 'description' | 'detailed_description' | 'note',
+    value: string,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      ...(field === 'name' && activeTranslationLocale === 'en'
+        ? { name_en: value }
+        : {}),
+      ...(field === 'name' && activeTranslationLocale === 'ko'
+        ? { name_ko: value }
+        : {}),
+      ...(field === 'description' && activeTranslationLocale === 'ko'
+        ? { description: value }
+        : {}),
+      ...(field === 'detailed_description' && activeTranslationLocale === 'ko'
+        ? { detailed_description: value }
+        : {}),
+      ...(field === 'note' && activeTranslationLocale === 'ko'
+        ? { note: value }
+        : {}),
+      translations: {
+        ...prev.translations,
+        [activeTranslationLocale]: {
+          ...prev.translations[activeTranslationLocale],
+          [field]: value,
+        },
+      },
+    }));
+  };
+
   return (
     <form
       onSubmit={onSubmit}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
       <SectionTitle
-        title={form.id ? '상품 수정' : '상품 추가'}
+        title={form.id ? t('editTitle') : t('createTitle')}
         action={
           <button
             type="button"
@@ -70,45 +117,44 @@ export default function AdminProductFormSection({
             className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold dark:border-dark-border"
           >
             <IconPlus size={16} />
-            신규
+            {t('new')}
           </button>
         }
       />
       <div className="mt-5 grid gap-4">
         <TextInput
-          label="영문 이름"
-          value={form.name_en}
-          onChange={(value) => setForm((prev) => ({ ...prev, name_en: value }))}
+          label={
+            activeTranslationLocale === 'en' ? t('nameEn') : t('nameKo')
+          }
+          value={activeTranslation.name}
+          onChange={(value) => updateTranslationField('name', value)}
           required
         />
         <TextInput
-          label="슬러그"
+          label={t('slug')}
           value={form.slug}
           onChange={(value) => setForm((prev) => ({ ...prev, slug: value }))}
           required
         />
+        {activeTranslationLocale === 'ko' ? (
+          <TextInput
+            label={t('searchKeyword')}
+            value={form.search_keyword}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, search_keyword: value }))
+            }
+            required
+          />
+        ) : null}
         <TextInput
-          label="한글 이름"
-          value={form.name_ko}
-          onChange={(value) => setForm((prev) => ({ ...prev, name_ko: value }))}
-        />
-        <TextInput
-          label="검색 키워드"
-          value={form.search_keyword}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, search_keyword: value }))
-          }
-          required
-        />
-        <TextInput
-          label="가격"
+          label={t('price')}
           type="number"
           value={form.price}
           onChange={(value) => setForm((prev) => ({ ...prev, price: value }))}
           required
         />
         <TextInput
-          label="할인율(%)"
+          label={t('discountRate')}
           type="number"
           value={form.discountRate}
           onChange={(value) =>
@@ -116,7 +162,7 @@ export default function AdminProductFormSection({
           }
         />
         <label className={labelClass}>
-          카테고리
+          {t('category')}
           <select
             className={inputClass}
             value={form.categoryId}
@@ -130,13 +176,13 @@ export default function AdminProductFormSection({
           >
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name_ko}
+                {getLocalizedCategoryName(category, locale)}
               </option>
             ))}
           </select>
         </label>
         <label className={labelClass}>
-          제품 라인
+          {t('productLine')}
           <select
             className={inputClass}
             value={form.productLine}
@@ -147,10 +193,12 @@ export default function AdminProductFormSection({
               }))
             }
           >
-            <option value="">선택 안 함</option>
-            {PRODUCT_LINE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            <option value="">{t('none')}</option>
+            {PRODUCT_LINE_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {isProductLineValue(value)
+                  ? commonT(`productLines.${value}`)
+                  : value}
               </option>
             ))}
           </select>
@@ -159,6 +207,7 @@ export default function AdminProductFormSection({
           form={form}
           colors={colors}
           selectedFormColors={selectedFormColors}
+          locale={locale}
           setForm={setForm}
           onToggleColor={onToggleColor}
         />
@@ -167,30 +216,29 @@ export default function AdminProductFormSection({
           categoryId={form.categoryId}
           productSlug={form.slug}
           selectedFormColors={selectedFormColors}
+          locale={locale}
           onAddImage={onAddImage}
           onUpdateImage={onUpdateImage}
           onUpdateImageOrder={onUpdateImageOrder}
           onRemoveImage={onRemoveImage}
         />
         <TextArea
-          label="설명"
-          value={form.description}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, description: value }))
-          }
+          label={t('description')}
+          value={activeTranslation.description}
+          onChange={(value) => updateTranslationField('description', value)}
           required
         />
         <TextArea
-          label="상세 설명"
-          value={form.detailed_description}
+          label={t('detailedDescription')}
+          value={activeTranslation.detailed_description}
           onChange={(value) =>
-            setForm((prev) => ({ ...prev, detailed_description: value }))
+            updateTranslationField('detailed_description', value)
           }
         />
         <TextArea
-          label="비고"
-          value={form.note}
-          onChange={(value) => setForm((prev) => ({ ...prev, note: value }))}
+          label={t('note')}
+          value={activeTranslation.note}
+          onChange={(value) => updateTranslationField('note', value)}
         />
         <button
           type="submit"
@@ -198,7 +246,7 @@ export default function AdminProductFormSection({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
-          저장
+          {t('save')}
         </button>
       </div>
     </form>

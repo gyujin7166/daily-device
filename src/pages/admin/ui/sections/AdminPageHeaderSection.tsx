@@ -1,4 +1,5 @@
 import { IconMoon, IconRefresh, IconSun } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { useThemeMode } from '@shared/hooks/useThemeMode';
 import { cn } from '@shared/lib/utils/style';
@@ -10,6 +11,7 @@ type AdminPageHeaderSectionProps = {
 export default function AdminPageHeaderSection({
   onRefresh,
 }: AdminPageHeaderSectionProps) {
+  const t = useTranslations('Admin.header');
   const { mounted, theme, toggleTheme } = useThemeMode();
   const isDarkMode = mounted && theme === 'dark';
 
@@ -17,15 +19,15 @@ export default function AdminPageHeaderSection({
     <header className="flex flex-col gap-4 border-b border-line pb-6 dark:border-dark-border md:flex-row md:items-end md:justify-between">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-          Admin
+          {t('eyebrow')}
         </p>
-        <h1 className="mt-2 text-3xl font-bold">콘텐츠 관리</h1>
+        <h1 className="mt-2 text-3xl font-bold">{t('title')}</h1>
       </div>
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={toggleTheme}
-          aria-label="테마 전환"
+          aria-label={t('toggleTheme')}
           aria-pressed={isDarkMode}
           className={cn(
             'inline-flex h-10 w-10 items-center justify-center rounded-md border border-line bg-surface text-ink transition hover:border-primary hover:text-primary dark:border-dark-border dark:bg-dark-panel dark:text-surface',
@@ -41,7 +43,7 @@ export default function AdminPageHeaderSection({
           className="inline-flex h-10 items-center gap-2 rounded-md border border-line bg-surface px-4 text-sm font-semibold transition hover:border-primary hover:text-primary dark:border-dark-border dark:bg-dark-panel"
         >
           <IconRefresh size={18} />
-          새로고침
+          {t('refresh')}
         </button>
       </div>
     </header>
