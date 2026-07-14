@@ -1,23 +1,26 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 import {
   IconAlertCircleFilled,
   IconCircleCheckFilled,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { fetchApi } from '@shared/api/fetchApi';
 import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { useRouter } from '@shared/lib/i18n/navigation';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 type Status = 'idle' | 'confirming' | 'done' | 'error';
 
 export default function TossSuccessContainer() {
+  const t = useTranslations('Payment.tossSuccess');
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
@@ -29,24 +32,23 @@ export default function TossSuccessContainer() {
   const content =
     status === 'confirming' || status === 'idle'
       ? {
-          title: '결제를 확인하고 있습니다',
-          description:
-            '결제 정보와 주문 정보를 동기화하는 중입니다. 잠시만 기다려주세요.',
+          title: t('confirming.title'),
+          description: t('confirming.description'),
         }
       : status === 'done'
         ? {
-            title: '결제가 완료되었습니다',
-            description: '주문 목록 탭으로 이동하고 있습니다.',
+            title: t('done.title'),
+            description: t('done.description'),
           }
         : {
-            title: '결제 확인에 실패했습니다',
-            description: message || '결제 처리 중 문제가 발생했습니다.',
+            title: t('error.title'),
+            description: message || t('error.description'),
           };
 
   useEffect(() => {
     if (!paymentKey || !orderId || !amount) {
       setStatus('error');
-      setMessage('유효하지 않은 결제 응답입니다.');
+      setMessage(t('error.invalidResponse'));
       return;
     }
 
@@ -68,13 +70,13 @@ export default function TossSuccessContainer() {
         setMessage(
           error instanceof Error
             ? error.message
-            : '결제 처리 중 오류가 발생했습니다.',
+            : t('error.processFailed'),
         );
       }
     };
 
     void confirmPayment();
-  }, [amount, orderId, paymentKey, router]);
+  }, [amount, orderId, paymentKey, router, t]);
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-canvas px-6 py-16 dark:bg-dark-bg">
@@ -115,7 +117,7 @@ export default function TossSuccessContainer() {
             className="mt-7 inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
             onClick={() => router.replace('/checkout')}
           >
-            결제 화면으로 돌아가기
+            {t('backToCheckout')}
           </button>
         )}
       </div>

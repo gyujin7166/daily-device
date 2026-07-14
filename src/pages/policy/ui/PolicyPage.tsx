@@ -1,7 +1,4 @@
-type PolicySection = {
-  title: string;
-  items: string[];
-};
+import type { PolicySection } from '../model/policies';
 
 type PolicyPageProps = {
   title: string;

@@ -1,7 +1,9 @@
-import { TERMS_POLICY } from '../model/policies';
+import { getPolicy } from '../model/policies';
 
 import PolicyPage from './PolicyPage';
 
-export default function TermsPolicyPage() {
-  return <PolicyPage {...TERMS_POLICY} />;
+export default async function TermsPolicyPage() {
+  const policy = await getPolicy('terms');
+
+  return <PolicyPage {...policy} />;
 }
