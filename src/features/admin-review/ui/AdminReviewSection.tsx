@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import { useToggleAdminReviewHiddenMutation } from '../queries/useAdminReview';
 
 import AdminReviewListSection from './AdminReviewListSection';
@@ -12,9 +14,6 @@ import type {
 const getReviewProductName = (review: AdminReview) =>
   review.product.name_ko || review.product.name_en || review.product.slug;
 
-const getReviewStatusMessage = (review: AdminReview, hidden: boolean) =>
-  `상품평 ${hidden ? '숨김 처리' : '복원'} 완료: ID ${review.id} / 상품명 ${getReviewProductName(review)}`;
-
 type AdminReviewSectionProps = {
   data?: AdminReviewPayload;
   isPending: boolean;
@@ -25,7 +24,7 @@ type AdminReviewSectionProps = {
   onStatusChange: (status: AdminReviewStatus) => void;
   onPageChange: (page: number) => void;
   onMessage: (message: string) => void;
-  onError: (message: string) => void;
+  onError: (error: unknown) => void;
   onReadOnlyAction: () => void;
 };
 
@@ -42,6 +41,7 @@ export default function AdminReviewSection({
   onError,
   onReadOnlyAction,
 }: AdminReviewSectionProps) {
+  const t = useTranslations('AdminReview.feedback');
   const toggleReviewHiddenMutation = useToggleAdminReviewHiddenMutation();
   const reviewPage = data?.reviews;
   const reviews = reviewPage?.items ?? [];
@@ -57,20 +57,23 @@ export default function AdminReviewSection({
       const updatedReview =
         await toggleReviewHiddenMutation.mutateAsync(review);
       onMessage(
-        getReviewStatusMessage(
-          updatedReview,
-          Boolean(updatedReview.adminHiddenAt),
-        ),
+        t('statusChanged', {
+          action: updatedReview.adminHiddenAt
+            ? t('hideAction')
+            : t('restoreAction'),
+          id: updatedReview.id,
+          productName: getReviewProductName(updatedReview),
+        }),
       );
     } catch (error) {
-      onError(error instanceof Error ? error.message : '상품평 상태 변경 실패');
+      onError(error instanceof Error ? error : t('statusChangeFailed'));
     }
   };
 
   if (isPending) {
     return (
       <div className="py-20 text-center text-sm font-semibold text-muted dark:text-dark-muted">
-        상품평 데이터를 불러오고 있습니다.
+        {t('loading')}
       </div>
     );
   }

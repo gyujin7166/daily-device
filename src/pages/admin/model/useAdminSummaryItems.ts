@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import type { AdminHeroPayload } from '@features/admin-hero/model/types';
 import type { AdminHomePayload } from '@features/admin-home/model/types';
 import type { AdminProductPayload } from '@features/admin-product/model/types';
@@ -20,6 +22,7 @@ export const useAdminSummaryItems = ({
   productData,
   reviewData,
 }: UseAdminSummaryItemsParams): AdminSummaryItem[] => {
+  const t = useTranslations('Admin.summary');
   const heroItems = heroData?.heroes ?? [];
   const productHeroCount = heroItems.filter(
     (hero) => hero.heroType.name === 'product',
@@ -27,9 +30,9 @@ export const useAdminSummaryItems = ({
 
   if (activeTab === 'heroes') {
     return [
-      { label: '관리 영역', value: 'HERO' },
-      { label: 'Hero 전체', value: heroItems.length || '-' },
-      { label: '상품 Hero', value: productHeroCount || '-' },
+      { label: t('scope'), value: t('heroesScope') },
+      { label: t('heroTotal'), value: heroItems.length || '-' },
+      { label: t('productHero'), value: productHeroCount || '-' },
     ];
   }
 
@@ -41,34 +44,34 @@ export const useAdminSummaryItems = ({
     );
 
     return [
-      { label: '관리 영역', value: '홈' },
-      { label: '홈 섹션', value: sections.length || '-' },
-      { label: '홈 카드', value: itemCount || '-' },
+      { label: t('scope'), value: t('homeScope') },
+      { label: t('homeSections'), value: sections.length || '-' },
+      { label: t('homeCards'), value: itemCount || '-' },
     ];
   }
 
   if (activeTab === 'products') {
     return [
-      { label: '관리 영역', value: '상품' },
+      { label: t('scope'), value: t('productsScope') },
       {
-        label: '상품 전체',
+        label: t('productTotal'),
         value: productData?.products.total ?? '-',
       },
       {
-        label: '카테고리',
+        label: t('categories'),
         value: productData?.categories.length ?? '-',
       },
     ];
   }
 
   return [
-    { label: '관리 영역', value: '상품평' },
+    { label: t('scope'), value: t('reviewsScope') },
     {
-      label: '상품평 공개',
+      label: t('visibleReviews'),
       value: reviewData?.summary.visible ?? '-',
     },
     {
-      label: '상품평 전체',
+      label: t('totalReviews'),
       value: reviewData?.summary.total ?? '-',
     },
   ];

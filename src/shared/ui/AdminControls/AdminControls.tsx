@@ -6,6 +6,7 @@ import {
   IconPencil,
   IconTrash,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -178,6 +179,8 @@ export function RowActions({
   disabled?: boolean;
   className?: string;
 }) {
+  const t = useTranslations('Admin.common');
+
   return (
     <div className={cn('flex flex-wrap gap-2', className)}>
       <button
@@ -187,7 +190,7 @@ export function RowActions({
         className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:opacity-60 dark:border-dark-border"
       >
         <IconPencil size={16} />
-        수정
+        {t('edit')}
       </button>
       <button
         type="button"
@@ -196,7 +199,7 @@ export function RowActions({
         className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold text-danger transition hover:border-danger disabled:opacity-60 dark:border-dark-border"
       >
         <IconTrash size={16} />
-        삭제
+        {t('delete')}
       </button>
     </div>
   );
@@ -211,6 +214,7 @@ export function PaginationControls({
   totalPages: number;
   onPageChange: (page: number) => void;
 }) {
+  const t = useTranslations('Admin.common');
   const safeTotalPages = Math.max(1, totalPages);
   const pages = Array.from({ length: safeTotalPages }, (_, index) => index + 1)
     .filter(
@@ -230,7 +234,7 @@ export function PaginationControls({
         className="inline-flex h-9 items-center gap-1 rounded-md border border-line px-3 text-sm font-semibold disabled:opacity-50 dark:border-dark-border"
       >
         <IconChevronLeft size={16} />
-        이전
+        {t('previous')}
       </button>
       {pages.map((pageNumber) => (
         <button
@@ -253,7 +257,7 @@ export function PaginationControls({
         disabled={page >= safeTotalPages}
         className="inline-flex h-9 items-center gap-1 rounded-md border border-line px-3 text-sm font-semibold disabled:opacity-50 dark:border-dark-border"
       >
-        다음
+        {t('next')}
         <IconChevronRight size={16} />
       </button>
     </div>

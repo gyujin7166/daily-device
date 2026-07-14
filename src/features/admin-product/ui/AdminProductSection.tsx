@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { SubmitEvent } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 import { useAdminProductForm } from '../model/useAdminProductForm';
 import {
   useDeleteAdminProductMutation,
@@ -28,7 +30,7 @@ type AdminProductSectionProps = {
   onCategoryChange: (categoryId: string) => void;
   onPageChange: (page: number) => void;
   onMessage: (message: string) => void;
-  onError: (message: string) => void;
+  onError: (error: unknown) => void;
   onReadOnlyAction: () => void;
 };
 
@@ -38,15 +40,6 @@ const EMPTY_PRODUCTS: AdminProduct[] = [];
 
 const getProductDisplayName = (product: AdminProduct) =>
   product.name_ko || product.name_en || product.slug || '-';
-
-const getProductSavedMessage = (
-  product: AdminProduct,
-  action: '추가' | '수정',
-) =>
-  `상품 ${action} 완료: ID ${product.id} / 상품명: ${getProductDisplayName(product)}`;
-
-const getProductDeletedMessage = (product: AdminProduct) =>
-  `상품 삭제 완료: ID ${product.id} / 상품명: ${getProductDisplayName(product)}`;
 
 export default function AdminProductSection({
   data,
@@ -61,6 +54,7 @@ export default function AdminProductSection({
   onError,
   onReadOnlyAction,
 }: AdminProductSectionProps) {
+  const t = useTranslations('AdminProduct.feedback');
   const saveProductMutation = useSaveAdminProductMutation();
   const deleteProductMutation = useDeleteAdminProductMutation();
   const categories = data?.categories ?? EMPTY_CATEGORIES;
@@ -127,14 +121,20 @@ export default function AdminProductSection({
     }
 
     try {
-      const action = form.id ? '수정' : '추가';
+      const action = form.id ? t('editAction') : t('createAction');
       const savedProduct = await saveProductMutation.mutateAsync(form);
       editProduct(savedProduct);
       setSelectedProductId(savedProduct.id);
       setIsCreatingProduct(false);
-      onMessage(getProductSavedMessage(savedProduct, action));
+      onMessage(
+        t('saveCompleted', {
+          action,
+          id: savedProduct.id,
+          name: getProductDisplayName(savedProduct),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : '상품 저장 실패');
+      onError(error instanceof Error ? error : t('saveFailed'));
     }
   };
 
@@ -144,7 +144,7 @@ export default function AdminProductSection({
       return;
     }
 
-    if (!window.confirm('상품을 삭제하시겠습니까?')) {
+    if (!window.confirm(t('deleteConfirm'))) {
       return;
     }
 
@@ -163,16 +163,21 @@ export default function AdminProductSection({
 
         setIsCreatingProduct(false);
       }
-      onMessage(getProductDeletedMessage(product));
+      onMessage(
+        t('deleteCompleted', {
+          id: product.id,
+          name: getProductDisplayName(product),
+        }),
+      );
     } catch (error) {
-      onError(error instanceof Error ? error.message : '상품 삭제 실패');
+      onError(error instanceof Error ? error : t('deleteFailed'));
     }
   };
 
   if (isPending) {
     return (
       <div className="py-20 text-center text-sm font-semibold text-muted dark:text-dark-muted">
-        상품 데이터를 불러오고 있습니다.
+        {t('loading')}
       </div>
     );
   }

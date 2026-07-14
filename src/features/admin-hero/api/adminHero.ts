@@ -23,6 +23,10 @@ const createHeroPayload = (form: HeroFormState) => ({
   textTone: form.textTone,
   navTone: form.navTone,
   overlayTone: form.overlayTone,
+  translations: [
+    { locale: 'ko' as const, ...form.translations.ko },
+    { locale: 'en' as const, ...form.translations.en },
+  ],
 });
 
 export const getAdminHeroes = () =>

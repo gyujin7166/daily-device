@@ -36,6 +36,7 @@ export type AdminHomeSectionItem = {
   layoutAreaClassName: string | null;
   labelPosition: string | null;
   imageClassName: string | null;
+  translations: HomeSectionItemTranslation[];
 };
 
 export type AdminHomeSection = {
@@ -47,7 +48,50 @@ export type AdminHomeSection = {
   displayOrder: number;
   isVisible: boolean;
   items: AdminHomeSectionItem[];
+  translations: HomeSectionTranslation[];
 };
+
+export type HomeTranslationLocale = 'ko' | 'en';
+
+export type HomeSectionTranslation = {
+  locale: HomeTranslationLocale;
+  eyebrow: string | null;
+  title: string;
+  subtitle: string | null;
+};
+
+export type HomeSectionItemTranslation = {
+  locale: HomeTranslationLocale;
+  label: string | null;
+  title: string;
+  description: string | null;
+  cta: string | null;
+  imageAlt: string | null;
+};
+
+export type HomeSectionTranslationFormState = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+};
+
+export type HomeSectionItemTranslationFormState = {
+  label: string;
+  title: string;
+  description: string;
+  cta: string;
+  imageAlt: string;
+};
+
+export type HomeSectionTranslationFormMap = Record<
+  HomeTranslationLocale,
+  HomeSectionTranslationFormState
+>;
+
+export type HomeSectionItemTranslationFormMap = Record<
+  HomeTranslationLocale,
+  HomeSectionItemTranslationFormState
+>;
 
 export type AdminHomePayload = {
   sections: AdminHomeSection[];
@@ -62,6 +106,7 @@ export type HomeSectionFormState = {
   subtitle: string;
   displayOrder: string;
   isVisible: boolean;
+  translations: HomeSectionTranslationFormMap;
 };
 
 export type HomeSectionItemTargetType =
@@ -90,6 +135,51 @@ export type HomeSectionItemFormState = {
   layoutAreaClassName: string;
   labelPosition: string;
   imageClassName: string;
+  translations: HomeSectionItemTranslationFormMap;
+};
+
+const createEmptySectionTranslations =
+  (): HomeSectionTranslationFormMap => ({
+    ko: { eyebrow: '', title: '', subtitle: '' },
+    en: { eyebrow: '', title: '', subtitle: '' },
+  });
+
+const createEmptyItemTranslations =
+  (): HomeSectionItemTranslationFormMap => ({
+    ko: { label: '', title: '', description: '', cta: '', imageAlt: '' },
+    en: { label: '', title: '', description: '', cta: '', imageAlt: '' },
+  });
+
+const getSectionTranslationForm = (
+  section: AdminHomeSection,
+  locale: HomeTranslationLocale,
+): HomeSectionTranslationFormState => {
+  const translation = section.translations.find(
+    (item) => item.locale === locale,
+  );
+
+  return {
+    eyebrow: translation?.eyebrow ?? section.eyebrow ?? '',
+    title: translation?.title ?? section.title,
+    subtitle: translation?.subtitle ?? section.subtitle ?? '',
+  };
+};
+
+const getItemTranslationForm = (
+  item: AdminHomeSectionItem,
+  locale: HomeTranslationLocale,
+): HomeSectionItemTranslationFormState => {
+  const translation = item.translations.find(
+    (entry) => entry.locale === locale,
+  );
+
+  return {
+    label: translation?.label ?? item.label ?? '',
+    title: translation?.title ?? item.title,
+    description: translation?.description ?? item.description ?? '',
+    cta: translation?.cta ?? item.cta ?? '',
+    imageAlt: translation?.imageAlt ?? item.imageAlt ?? '',
+  };
 };
 
 export const createHomeSectionForm = (
@@ -101,6 +191,10 @@ export const createHomeSectionForm = (
   subtitle: section.subtitle ?? '',
   displayOrder: String(section.displayOrder),
   isVisible: section.isVisible,
+  translations: {
+    ko: getSectionTranslationForm(section, 'ko'),
+    en: getSectionTranslationForm(section, 'en'),
+  },
 });
 
 const getItemTargetType = (
@@ -143,6 +237,10 @@ export const createHomeSectionItemForm = (
   layoutAreaClassName: item.layoutAreaClassName ?? '',
   labelPosition: item.labelPosition ?? '',
   imageClassName: item.imageClassName ?? '',
+  translations: {
+    ko: getItemTranslationForm(item, 'ko'),
+    en: getItemTranslationForm(item, 'en'),
+  },
 });
 
 export const createEmptyHomeSectionItemForm = (
@@ -168,4 +266,8 @@ export const createEmptyHomeSectionItemForm = (
   layoutAreaClassName: '',
   labelPosition: '',
   imageClassName: '',
+  translations: createEmptyItemTranslations(),
 });
+
+export const createEmptyHomeSectionTranslations =
+  createEmptySectionTranslations;

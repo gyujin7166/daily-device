@@ -1,4 +1,5 @@
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { maskEmail, maskName } from '@shared/lib/utils/mask';
 import { cn } from '@shared/lib/utils/style';
@@ -15,6 +16,18 @@ import type {
   AdminReviewPayload,
   AdminReviewStatus,
 } from '../model/types';
+
+const getLocalizedProductName = (review: AdminReview, locale: string) =>
+  review.product.translations.find(
+    (translation) => translation.locale === locale,
+  )?.name ??
+  (locale === 'en' ? review.product.name_en : review.product.name_ko) ??
+  review.product.name_en;
+
+const getLocalizedColorName = (review: AdminReview, locale: string) =>
+  review.orderItem.colorTranslations.find(
+    (translation) => translation.locale === locale,
+  )?.name ?? review.orderItem.colorName?.trim();
 
 type AdminReviewListSectionProps = {
   params: AdminReviewListParams;
@@ -41,15 +54,18 @@ export default function AdminReviewListSection({
   onPageChange,
   onToggleHidden,
 }: AdminReviewListSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations('AdminReview.list');
+
   return (
     <section className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
-      <TableHeader title="상품평 목록" count={reviewPage?.total ?? 0} />
+      <TableHeader title={t('title')} count={reviewPage?.total ?? 0} />
       <div className="grid gap-3 border-b border-line p-4 dark:border-dark-border md:grid-cols-[1fr_160px]">
         <input
           className={inputClass}
           value={params.keyword}
           onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder="상품명, 작성자, 제목, 내용"
+          placeholder={t('searchPlaceholder')}
         />
         <select
           className={inputClass}
@@ -58,9 +74,9 @@ export default function AdminReviewListSection({
             onStatusChange(event.target.value as AdminReviewStatus)
           }
         >
-          <option value="all">전체 상태</option>
-          <option value="visible">공개</option>
-          <option value="hidden">숨김</option>
+          <option value="all">{t('allStatus')}</option>
+          <option value="visible">{t('visibleFilter')}</option>
+          <option value="hidden">{t('hiddenFilter')}</option>
         </select>
       </div>
       <div className="overflow-x-auto">
@@ -78,18 +94,18 @@ export default function AdminReviewListSection({
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
               <th className="px-3 py-3">ID</th>
-              <th className="px-3 py-3">상태</th>
-              <th className="px-3 py-3">상품</th>
-              <th className="px-2 py-3">평점</th>
-              <th className="px-3 py-3">내용</th>
-              <th className="px-3 py-3">이미지 URL</th>
-              <th className="px-3 py-3">작성자</th>
-              <th className="px-3 py-3">관리</th>
+              <th className="px-3 py-3">{t('status')}</th>
+              <th className="px-3 py-3">{t('product')}</th>
+              <th className="px-2 py-3">{t('rating')}</th>
+              <th className="px-3 py-3">{t('content')}</th>
+              <th className="px-3 py-3">{t('imageUrl')}</th>
+              <th className="px-3 py-3">{t('author')}</th>
+              <th className="px-3 py-3">{t('manage')}</th>
             </tr>
           </thead>
           <tbody className={isFetching ? 'opacity-60' : undefined}>
             {reviews.map((review) => {
-              const reviewColorName = review.orderItem.colorName?.trim();
+              const reviewColorName = getLocalizedColorName(review, locale);
               const reviewColorHex = review.orderItem.colorHex;
               const authorName = review.user.name?.trim();
               const authorEmail = review.user.email?.trim();
@@ -120,12 +136,12 @@ export default function AdminReviewListSection({
                           : 'bg-success-soft text-success',
                       )}
                     >
-                      {review.adminHiddenAt ? '숨김' : '공개'}
+                      {review.adminHiddenAt ? t('hidden') : t('visible')}
                     </span>
                   </td>
                   <td className="px-3 py-3">
                     <p className="font-semibold">
-                      {review.product.name_ko || review.product.name_en}
+                      {getLocalizedProductName(review, locale)}
                     </p>
                     <p className="text-xs text-muted dark:text-dark-mute">
                       {review.product.slug}
@@ -177,7 +193,7 @@ export default function AdminReviewListSection({
                       ) : (
                         <IconEyeOff size={16} />
                       )}
-                      {review.adminHiddenAt ? '복원' : '숨김'}
+                      {review.adminHiddenAt ? t('restore') : t('hidden')}
                     </button>
                   </td>
                 </tr>

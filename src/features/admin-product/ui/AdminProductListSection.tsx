@@ -1,4 +1,6 @@
-import { getProductLineLabel } from '@shared/constants/productLine';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
+
+import { isProductLineValue } from '@shared/constants/productLine';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { cn } from '@shared/lib/utils/style';
 import {
@@ -15,6 +17,27 @@ import type {
   AdminProductPayload,
   ProductCategory,
 } from '../model/types';
+
+const getLocalizedCategoryName = (
+  category: Pick<ProductCategory, 'name_en' | 'name_ko'>,
+  locale: string,
+) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
+
+const getLocalizedProductName = (
+  product: Pick<AdminProduct, 'name_en' | 'name_ko' | 'translations'>,
+  locale: string,
+) =>
+  product.translations.find((translation) => translation.locale === locale)
+    ?.name ??
+  (locale === 'en' ? product.name_en : product.name_ko) ??
+  product.name_en;
+
+const getLocalizedColorName = (
+  color: AdminProduct['productColor'][number]['color'],
+  locale: string,
+) =>
+  color.translations.find((translation) => translation.locale === locale)
+    ?.name ?? color.name;
 
 type AdminProductListSectionProps = {
   params: AdminProductListParams;
@@ -45,25 +68,30 @@ export default function AdminProductListSection({
   onEdit,
   onDelete,
 }: AdminProductListSectionProps) {
+  const locale = useLocale();
+  const t = useTranslations('AdminProduct.list');
+  const commonT = useTranslations('Common');
+  const format = useFormatter();
+
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
-      <TableHeader title="상품 목록" count={productPage?.total ?? 0} />
+      <TableHeader title={t('title')} count={productPage?.total ?? 0} />
       <div className="grid gap-3 border-b border-line p-4 dark:border-dark-border md:grid-cols-[1fr_180px]">
         <input
           className={inputClass}
           value={params.keyword}
           onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder="상품명, slug, 검색 키워드"
+          placeholder={t('searchPlaceholder')}
         />
         <select
           className={inputClass}
           value={params.categoryId}
           onChange={(event) => onCategoryChange(event.target.value)}
         >
-          <option value="">전체 카테고리</option>
+          <option value="">{t('allCategories')}</option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.name_ko}
+              {getLocalizedCategoryName(category, locale)}
             </option>
           ))}
         </select>
@@ -82,12 +110,12 @@ export default function AdminProductListSection({
           <thead className="bg-canvas text-xs uppercase text-muted dark:bg-dark-bg dark:text-dark-muted">
             <tr>
               <th className="px-3 py-3">ID</th>
-              <th className="px-3 py-3">상품</th>
-              <th className="px-3 py-3">이미지 URL</th>
-              <th className="px-3 py-3">카테고리</th>
-              <th className="px-3 py-3">색상</th>
-              <th className="px-3 py-3 text-right">가격</th>
-              <th className="px-3 py-3 text-center">관리</th>
+              <th className="px-3 py-3">{t('product')}</th>
+              <th className="px-3 py-3">{t('imageUrl')}</th>
+              <th className="px-3 py-3">{t('category')}</th>
+              <th className="px-3 py-3">{t('color')}</th>
+              <th className="px-3 py-3 text-right">{t('price')}</th>
+              <th className="px-3 py-3 text-center">{t('manage')}</th>
             </tr>
           </thead>
           <tbody className={isFetching ? 'opacity-60' : undefined}>
@@ -109,15 +137,19 @@ export default function AdminProductListSection({
                   <td className=" px-3 py-3 font-semibold">{product.id}</td>
                   <td className="px-3 py-3">
                     <p className="truncate font-semibold">
-                      {product.name_ko || product.name_en}
+                      {getLocalizedProductName(product, locale)}
                     </p>
                     <p className="truncate text-xs text-muted dark:text-dark-muted">
                       {product.productLine
-                        ? getProductLineLabel(product.productLine)
+                        ? isProductLineValue(product.productLine)
+                          ? commonT(`productLines.${product.productLine}`)
+                          : product.productLine
                         : product.slug}
                     </p>
                     <p className="mt-1 text-xs text-muted dark:text-dark-muted">
-                      이미지 {product.images.length.toLocaleString()}개
+                      {t('imageCount', {
+                        count: format.number(product.images.length),
+                      })}
                     </p>
                   </td>
                   <td className="px-3 py-3">
@@ -125,11 +157,13 @@ export default function AdminProductListSection({
                       items={product.images.map((image) => ({
                         id: image.id,
                         url: image.image_url,
-                        label: image.isMain ? '대표' : undefined,
+                        label: image.isMain ? t('mainImage') : undefined,
                       }))}
                     />
                   </td>
-                  <td className=" px-3 py-3">{product.category.name_ko}</td>
+                  <td className=" px-3 py-3">
+                    {getLocalizedCategoryName(product.category, locale)}
+                  </td>
                   <td className="px-3 py-3">
                     {product.productColor.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
@@ -142,8 +176,8 @@ export default function AdminProductListSection({
                               className="h-3 w-3 rounded-full border border-line dark:border-dark-border"
                               style={{ backgroundColor: item.color.hex }}
                             />
-                            {item.color.name}
-                            {item.isDefault ? ' · 기본' : ''}
+                            {getLocalizedColorName(item.color, locale)}
+                            {item.isDefault ? t('defaultColorSuffix') : ''}
                           </span>
                         ))}
                       </div>
@@ -161,7 +195,7 @@ export default function AdminProductListSection({
                           {priceInfo.discountedPriceLabel}
                         </p>
                         <p className="text-xs font-semibold text-danger">
-                          {priceInfo.discountRate}% 할인
+                          {t('discount', { rate: priceInfo.discountRate })}
                         </p>
                       </div>
                     ) : (

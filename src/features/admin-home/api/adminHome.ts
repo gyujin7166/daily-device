@@ -14,6 +14,10 @@ const createSectionPayload = (form: HomeSectionFormState) => ({
   subtitle: form.subtitle,
   displayOrder: Number(form.displayOrder || 0),
   isVisible: form.isVisible,
+  translations: [
+    { locale: 'ko' as const, ...form.translations.ko },
+    { locale: 'en' as const, ...form.translations.en },
+  ],
 });
 
 const createItemPayload = (form: HomeSectionItemFormState) => ({
@@ -40,6 +44,10 @@ const createItemPayload = (form: HomeSectionItemFormState) => ({
   layoutAreaClassName: form.layoutAreaClassName,
   labelPosition: form.labelPosition || null,
   imageClassName: form.imageClassName,
+  translations: [
+    { locale: 'ko' as const, ...form.translations.ko },
+    { locale: 'en' as const, ...form.translations.en },
+  ],
 });
 
 export const getAdminHomeSections = () =>

@@ -3,26 +3,6 @@ export type AdminHeroType = {
   name: string;
 };
 
-export const getAdminHeroTypeLabel = (typeName: string) => {
-  if (typeName === 'main') {
-    return '메인 Hero';
-  }
-
-  if (typeName === 'product') {
-    return '상품 카테고리 Hero';
-  }
-
-  if (typeName === 'product-all') {
-    return '전체 상품 Hero';
-  }
-
-  if (typeName === 'product-discounts') {
-    return '특가 상품 Hero';
-  }
-
-  return typeName;
-};
-
 export type AdminHeroCategory = {
   id: number;
   name_en: string;
@@ -48,11 +28,31 @@ export type AdminHero = {
   heroType: AdminHeroType;
   targetCategoryId: number | null;
   targetCategory: AdminHeroCategory | null;
+  translations: HeroTranslation[];
 };
 
 export type HeroTone = 'light' | 'dark';
 export type HeroOverlayTone = 'none' | 'dark' | 'light';
 export type HeroPosition = 'start' | 'center' | 'end';
+export type HeroTranslationLocale = 'ko' | 'en';
+
+export type HeroTranslation = {
+  locale: HeroTranslationLocale;
+  name: string;
+  description: string | null;
+  detailed_description: string | null;
+};
+
+export type HeroTranslationFormState = {
+  name: string;
+  description: string;
+  detailed_description: string;
+};
+
+export type HeroTranslationFormMap = Record<
+  HeroTranslationLocale,
+  HeroTranslationFormState
+>;
 
 export type AdminHeroPayload = {
   heroTypes: AdminHeroType[];
@@ -76,7 +76,21 @@ export type HeroFormState = {
   textTone: HeroTone;
   navTone: HeroTone;
   overlayTone: HeroOverlayTone;
+  translations: HeroTranslationFormMap;
 };
+
+const createEmptyTranslations = (): HeroTranslationFormMap => ({
+  ko: {
+    name: '',
+    description: '',
+    detailed_description: '',
+  },
+  en: {
+    name: '',
+    description: '',
+    detailed_description: '',
+  },
+});
 
 export const emptyHeroForm: HeroFormState = {
   id: null,
@@ -94,6 +108,28 @@ export const emptyHeroForm: HeroFormState = {
   textTone: 'light',
   navTone: 'light',
   overlayTone: 'none',
+  translations: createEmptyTranslations(),
+};
+
+const getHeroTranslationForm = (
+  hero: AdminHero,
+  locale: HeroTranslationLocale,
+): HeroTranslationFormState => {
+  const translation = hero.translations.find((item) => item.locale === locale);
+
+  if (translation) {
+    return {
+      name: translation.name,
+      description: translation.description ?? '',
+      detailed_description: translation.detailed_description ?? '',
+    };
+  }
+
+  return {
+    name: locale === 'en' ? hero.name_en : hero.name_ko,
+    description: hero.description ?? '',
+    detailed_description: hero.detailed_description ?? '',
+  };
 };
 
 export const createHeroFormFromItem = (hero: AdminHero): HeroFormState => ({
@@ -117,4 +153,8 @@ export const createHeroFormFromItem = (hero: AdminHero): HeroFormState => ({
   textTone: hero.textTone,
   navTone: hero.navTone,
   overlayTone: hero.overlayTone,
+  translations: {
+    ko: getHeroTranslationForm(hero, 'ko'),
+    en: getHeroTranslationForm(hero, 'en'),
+  },
 });

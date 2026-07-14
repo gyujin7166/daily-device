@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 type AdminFeedbackSectionProps = {
   canWriteAdmin: boolean;
   message: string;
@@ -9,12 +11,13 @@ export default function AdminFeedbackSection({
   message,
   error,
 }: AdminFeedbackSectionProps) {
+  const t = useTranslations('Admin.feedback');
+
   return (
     <>
       {!canWriteAdmin ? (
         <p className="rounded-md border border-primary/20 bg-primary-soft px-4 py-3 text-sm font-semibold text-primary dark:border-primary/30 dark:bg-dark-bg-hover">
-          일반 계정은 관리자 데이터를 조회할 수 있지만, 추가/수정/삭제는
-          제한됩니다.
+          {t('readOnly')}
         </p>
       ) : null}
 

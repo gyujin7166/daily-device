@@ -1,6 +1,9 @@
+import { HttpError } from '@shared/lib/errors/httpError';
+
 export type AdminApiResponse<T> = {
   items: T;
   message?: string;
+  code?: string;
 };
 
 export type AdminPageResult<T> = {
@@ -24,15 +27,19 @@ export async function adminFetch<T>(
   });
   const data = (await response.json().catch(() => null)) as
     | AdminApiResponse<T>
-    | { message?: string }
+    | { code?: string; message?: string }
     | null;
 
   if (!response.ok) {
-    throw new Error(data?.message ?? '요청을 처리할 수 없습니다.');
+    throw new HttpError(
+      response.status,
+      data?.message ?? 'Could not process the request.',
+      data?.code,
+    );
   }
 
   if (!data || !('items' in data)) {
-    throw new Error('응답 형식이 올바르지 않습니다.');
+    throw new Error('Invalid response format.');
   }
 
   return data.items;

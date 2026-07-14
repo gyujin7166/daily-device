@@ -4,8 +4,13 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { SubmitEvent } from 'react';
 
 import { IconDeviceFloppy, IconPlus, IconUpload } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 
-import { uploadCloudinaryImage } from '@shared/lib/cloudinary/uploadImage';
+import {
+  CloudinaryUploadError,
+  cloudinaryUploadErrorKeyByCode,
+  uploadCloudinaryImage,
+} from '@shared/lib/cloudinary/uploadImage';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 import {
   SectionTitle,
@@ -16,36 +21,59 @@ import {
 } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
-import { getAdminHeroTypeLabel } from '../model/types';
-
 import type {
   AdminHeroCategory,
   AdminHeroType,
   HeroOverlayTone,
   HeroPosition,
+  HeroTranslationLocale,
   HeroTone,
   HeroFormState,
 } from '../model/types';
 
-const HERO_POSITION_OPTIONS: Array<{ label: string; value: HeroPosition }> = [
-  { label: '왼쪽', value: 'start' },
-  { label: '가운데', value: 'center' },
-  { label: '오른쪽', value: 'end' },
+const HERO_POSITION_OPTIONS: Array<{
+  labelKey: 'start' | 'center' | 'end';
+  value: HeroPosition;
+}> = [
+  { labelKey: 'start', value: 'start' },
+  { labelKey: 'center', value: 'center' },
+  { labelKey: 'end', value: 'end' },
 ];
 
-const HERO_TONE_OPTIONS: Array<{ label: string; value: HeroTone }> = [
-  { label: '밝은 글자', value: 'light' },
-  { label: '어두운 글자', value: 'dark' },
+const HERO_TONE_OPTIONS: Array<{
+  labelKey: 'light' | 'dark';
+  value: HeroTone;
+}> = [
+  { labelKey: 'light', value: 'light' },
+  { labelKey: 'dark', value: 'dark' },
 ];
 
 const HERO_OVERLAY_TONE_OPTIONS: Array<{
-  label: string;
+  labelKey: 'none' | 'dark' | 'light';
   value: HeroOverlayTone;
 }> = [
-  { label: '사용 안 함', value: 'none' },
-  { label: '어둡게', value: 'dark' },
-  { label: '밝게', value: 'light' },
+  { labelKey: 'none', value: 'none' },
+  { labelKey: 'dark', value: 'dark' },
+  { labelKey: 'light', value: 'light' },
 ];
+
+const getLocalizedCategoryName = (
+  category: Pick<AdminHeroCategory, 'name_en' | 'name_ko'>,
+  locale: string,
+) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
+
+const getUploadErrorMessage = (
+  error: unknown,
+  t: ReturnType<typeof useTranslations<'AdminHero'>>,
+) => {
+  if (error instanceof CloudinaryUploadError) {
+    const key = cloudinaryUploadErrorKeyByCode[error.code];
+
+    return t(`form.uploadErrors.${key}`, { maxSize: error.details ?? '' });
+  }
+
+  return error instanceof Error ? error.message : t('form.uploadFailed');
+};
 
 type AdminHeroFormSectionProps = {
   form: HeroFormState;
@@ -78,6 +106,10 @@ export default function AdminHeroFormSection({
   onTargetCategoryChange,
   isHeroTypeDisabled,
 }: AdminHeroFormSectionProps) {
+  const locale = useLocale();
+  const activeTranslationLocale: HeroTranslationLocale =
+    locale === 'en' ? 'en' : 'ko';
+  const t = useTranslations('AdminHero');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const selectedHeroPath =
@@ -98,7 +130,7 @@ export default function AdminHeroFormSection({
 
     const parsedHeroTypeId = Number(form.heroTypeId);
     if (!Number.isInteger(parsedHeroTypeId) || parsedHeroTypeId <= 0) {
-      setUploadError('Hero 타입을 먼저 선택해주세요.');
+      setUploadError(t('form.typeRequired'));
       return;
     }
 
@@ -116,15 +148,39 @@ export default function AdminHeroFormSection({
 
       setForm((prev) => ({ ...prev, image_url: uploaded.image_url }));
     } catch (error) {
-      setUploadError(
-        error instanceof Error
-          ? error.message
-          : 'Hero 이미지 업로드에 실패했습니다.',
-      );
+      setUploadError(getUploadErrorMessage(error, t));
     } finally {
       setIsUploading(false);
     }
   };
+  const updateTranslationField = (
+    field: 'name' | 'description' | 'detailed_description',
+    value: string,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      ...(field === 'name' && activeTranslationLocale === 'en'
+        ? { name_en: value }
+        : {}),
+      ...(field === 'name' && activeTranslationLocale === 'ko'
+        ? { name_ko: value }
+        : {}),
+      ...(field === 'description' && activeTranslationLocale === 'ko'
+        ? { description: value }
+        : {}),
+      ...(field === 'detailed_description' && activeTranslationLocale === 'ko'
+        ? { detailed_description: value }
+        : {}),
+      translations: {
+        ...prev.translations,
+        [activeTranslationLocale]: {
+          ...prev.translations[activeTranslationLocale],
+          [field]: value,
+        },
+      },
+    }));
+  };
+  const activeTranslation = form.translations[activeTranslationLocale];
 
   return (
     <form
@@ -132,7 +188,7 @@ export default function AdminHeroFormSection({
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
       <SectionTitle
-        title={form.id ? 'Hero 수정' : 'Hero 추가'}
+        title={form.id ? t('form.editTitle') : t('form.createTitle')}
         action={
           <button
             type="button"
@@ -140,19 +196,13 @@ export default function AdminHeroFormSection({
             className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold dark:border-dark-border"
           >
             <IconPlus size={16} />
-            신규
+            {t('form.new')}
           </button>
         }
       />
       <div className="mt-5 grid gap-4">
-        <TextInput
-          label="한글 이름"
-          value={form.name_ko}
-          onChange={(value) => setForm((prev) => ({ ...prev, name_ko: value }))}
-          required
-        />
         <label className={labelClass}>
-          타입
+          {t('form.type')}
           <select
             className={inputClass}
             value={form.heroTypeId}
@@ -165,51 +215,54 @@ export default function AdminHeroFormSection({
                 value={type.id}
                 disabled={isHeroTypeDisabled(type)}
               >
-                {getAdminHeroTypeLabel(type.name)}
-                {isHeroTypeDisabled(type) ? ' (선택 불가)' : ''}
+                {t(`types.${type.name}`)}
+                {isHeroTypeDisabled(type) ? t('form.disabledSuffix') : ''}
               </option>
             ))}
           </select>
           {selectedHeroPath ? (
             <span className="text-xs font-normal text-muted dark:text-dark-muted">
-              적용 경로: {selectedHeroPath}
+              {t('form.pathPreview', { path: selectedHeroPath })}
             </span>
           ) : null}
         </label>
         {isProductHero ? (
           <label className={labelClass}>
-            적용 카테고리
+            {t('form.targetCategory')}
             <select
               className={inputClass}
               value={form.targetCategoryId}
               onChange={(event) => onTargetCategoryChange(event.target.value)}
               required
             >
-              <option value="">카테고리 선택</option>
+              <option value="">{t('form.selectCategory')}</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name_ko} ({category.name_en})
+                  {getLocalizedCategoryName(category, locale)} ({category.slug})
                 </option>
               ))}
             </select>
             {selectedTargetCategory ? (
               <span className="text-xs font-normal text-muted dark:text-dark-muted">
-                적용 경로: {getCategoryHref(selectedTargetCategory.slug)}
+                {t('form.pathPreview', {
+                  path: getCategoryHref(selectedTargetCategory.slug),
+                })}
               </span>
             ) : null}
           </label>
-        ) : (
-          <TextInput
-            label="영문 이름"
-            value={form.name_en}
-            onChange={(value) =>
-              setForm((prev) => ({ ...prev, name_en: value }))
-            }
-            required
-          />
-        )}
+        ) : null}
         <TextInput
-          label="이미지 URL"
+          label={
+            activeTranslationLocale === 'en'
+              ? t('form.nameEn')
+              : t('form.nameKo')
+          }
+          value={activeTranslation.name}
+          onChange={(value) => updateTranslationField('name', value)}
+          required
+        />
+        <TextInput
+          label={t('form.imageUrl')}
           value={form.image_url}
           onChange={(value) =>
             setForm((prev) => ({ ...prev, image_url: value }))
@@ -229,7 +282,7 @@ export default function AdminHeroFormSection({
             ) : (
               <IconUpload size={16} />
             )}
-            {isUploading ? '업로드 중' : 'Hero 이미지 업로드'}
+            {isUploading ? t('form.uploading') : t('form.upload')}
           </label>
           {uploadError ? (
             <p className="text-xs font-semibold text-danger">{uploadError}</p>
@@ -237,7 +290,7 @@ export default function AdminHeroFormSection({
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <TextInput
-            label="이미지 너비"
+            label={t('form.imageWidth')}
             type="number"
             value={form.image_width}
             onChange={(value) =>
@@ -245,7 +298,7 @@ export default function AdminHeroFormSection({
             }
           />
           <TextInput
-            label="이미지 높이"
+            label={t('form.imageHeight')}
             type="number"
             value={form.image_height}
             onChange={(value) =>
@@ -254,7 +307,7 @@ export default function AdminHeroFormSection({
           />
         </div>
         <label className={labelClass}>
-          위치
+          {t('form.position')}
           <select
             className={inputClass}
             value={form.position}
@@ -267,7 +320,7 @@ export default function AdminHeroFormSection({
           >
             {HERO_POSITION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(`options.position.${option.labelKey}`)}
               </option>
             ))}
           </select>
@@ -284,11 +337,11 @@ export default function AdminHeroFormSection({
             }
             className="h-4 w-4 rounded border-line text-primary focus:ring-primary dark:border-dark-border"
           />
-          기본 Hero 이미지로 사용
+          {t('form.defaultImage')}
         </label>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className={labelClass}>
-            문구 색상
+            {t('form.textTone')}
             <select
               className={inputClass}
               value={form.textTone}
@@ -301,13 +354,13 @@ export default function AdminHeroFormSection({
             >
               {HERO_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(`options.tone.${option.labelKey}`)}
                 </option>
               ))}
             </select>
           </label>
           <label className={labelClass}>
-            네비바 색상
+            {t('form.navTone')}
             <select
               className={inputClass}
               value={form.navTone}
@@ -320,13 +373,13 @@ export default function AdminHeroFormSection({
             >
               {HERO_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(`options.tone.${option.labelKey}`)}
                 </option>
               ))}
             </select>
           </label>
           <label className={labelClass}>
-            오버레이
+            {t('form.overlay')}
             <select
               className={inputClass}
               value={form.overlayTone}
@@ -339,24 +392,22 @@ export default function AdminHeroFormSection({
             >
               {HERO_OVERLAY_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(`options.overlay.${option.labelKey}`)}
                 </option>
               ))}
             </select>
           </label>
         </div>
         <TextArea
-          label="설명"
-          value={form.description}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, description: value }))
-          }
+          label={t('form.description')}
+          value={activeTranslation.description}
+          onChange={(value) => updateTranslationField('description', value)}
         />
         <TextArea
-          label="상세 설명"
-          value={form.detailed_description}
+          label={t('form.detailedDescription')}
+          value={activeTranslation.detailed_description}
           onChange={(value) =>
-            setForm((prev) => ({ ...prev, detailed_description: value }))
+            updateTranslationField('detailed_description', value)
           }
         />
         <button
@@ -370,7 +421,7 @@ export default function AdminHeroFormSection({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
-          저장
+          {t('form.save')}
         </button>
       </div>
     </form>

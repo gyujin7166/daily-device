@@ -38,7 +38,7 @@ type AdminActiveContentSectionProps = {
   onReviewStatusChange: (status: AdminReviewStatus) => void;
   onReviewPageChange: (page: number) => void;
   onMessage: (message: string) => void;
-  onError: (message: string) => void;
+  onError: (error: unknown) => void;
   onReadOnlyAction: () => void;
 };
 

@@ -30,6 +30,10 @@ const createProductPayload = (form: ProductFormState) => ({
       order: Number(image.order || 0),
       isMain: image.isMain,
     })),
+  translations: [
+    { locale: 'ko' as const, ...form.translations.ko },
+    { locale: 'en' as const, ...form.translations.en },
+  ],
 });
 
 export const getAdminProducts = (params: AdminProductListParams) => {

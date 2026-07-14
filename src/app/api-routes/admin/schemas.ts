@@ -5,6 +5,7 @@ import { PRODUCT_LINE_VALUES } from '@shared/constants/productLine';
 const heroToneSchema = z.enum(['light', 'dark']);
 const heroOverlayToneSchema = z.enum(['none', 'dark', 'light']);
 const heroPositionSchema = z.enum(['start', 'center', 'end']);
+const localeSchema = z.enum(['ko', 'en']);
 
 /**
  * 관리자 폼은 선택 해제 값을 빈 문자열로 보내는 경우가 많다.
@@ -46,6 +47,19 @@ export const adminHeroBodySchema = z.object({
   textTone: heroToneSchema.default('dark'),
   navTone: heroToneSchema.default('light'),
   overlayTone: heroOverlayToneSchema.default('none'),
+  translations: z
+    .array(
+      z.object({
+        locale: localeSchema,
+        name: z.string().trim().min(1),
+        description: z.preprocess(emptyToNull, z.string().trim().nullable()),
+        detailed_description: z.preprocess(
+          emptyToNull,
+          z.string().trim().nullable(),
+        ),
+      }),
+    )
+    .default([]),
 });
 
 export const adminProductBodySchema = z.object({
@@ -82,6 +96,20 @@ export const adminProductBodySchema = z.object({
       }),
     )
     .default([]),
+  translations: z
+    .array(
+      z.object({
+        locale: localeSchema,
+        name: z.string().trim().min(1),
+        description: z.string().trim().min(1),
+        detailed_description: z.preprocess(
+          emptyToNull,
+          z.string().trim().nullable(),
+        ),
+        note: z.preprocess(emptyToNull, z.string().trim().nullable()),
+      }),
+    )
+    .default([]),
 });
 
 export const adminHomeSectionBodySchema = z.object({
@@ -90,6 +118,16 @@ export const adminHomeSectionBodySchema = z.object({
   subtitle: z.preprocess(emptyToNull, z.string().trim().nullable()),
   displayOrder: z.coerce.number().int().nonnegative().default(0),
   isVisible: z.boolean().default(true),
+  translations: z
+    .array(
+      z.object({
+        locale: localeSchema,
+        eyebrow: z.preprocess(emptyToNull, z.string().trim().nullable()),
+        title: z.string().trim().min(1),
+        subtitle: z.preprocess(emptyToNull, z.string().trim().nullable()),
+      }),
+    )
+    .default([]),
 });
 
 export const adminHomeSectionItemBodySchema = z.object({
@@ -118,6 +156,18 @@ export const adminHomeSectionItemBodySchema = z.object({
     z.enum(['top', 'bottom']).nullable(),
   ),
   imageClassName: z.preprocess(emptyToNull, z.string().trim().nullable()),
+  translations: z
+    .array(
+      z.object({
+        locale: localeSchema,
+        label: z.preprocess(emptyToNull, z.string().trim().nullable()),
+        title: z.string().trim().min(1),
+        description: z.preprocess(emptyToNull, z.string().trim().nullable()),
+        cta: z.preprocess(emptyToNull, z.string().trim().nullable()),
+        imageAlt: z.preprocess(emptyToNull, z.string().trim().nullable()),
+      }),
+    )
+    .default([]),
 });
 
 export const adminHomeSectionItemCreateBodySchema =
