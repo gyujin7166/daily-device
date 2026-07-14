@@ -1,7 +1,9 @@
-import { COOKIE_POLICY } from '../model/policies';
+import { getPolicy } from '../model/policies';
 
 import PolicyPage from './PolicyPage';
 
-export default function CookiePolicyPage() {
-  return <PolicyPage {...COOKIE_POLICY} />;
+export default async function CookiePolicyPage() {
+  const policy = await getPolicy('cookies');
+
+  return <PolicyPage {...policy} />;
 }

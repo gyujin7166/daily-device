@@ -1,9 +1,13 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 import { IconAlertCircleFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+
+import { useRouter } from '@shared/lib/i18n/navigation';
 
 export default function TossFailContainer() {
+  const t = useTranslations('Payment.tossFail');
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
@@ -20,21 +24,21 @@ export default function TossFailContainer() {
         </div>
 
         <h1 className="text-2xl font-bold text-ink dark:text-surface">
-          결제에 실패했습니다
+          {t('title')}
         </h1>
         <p className="mt-3 text-sm leading-6 text-muted dark:text-dark-muted">
-          결제 처리 중 문제가 발생했습니다. 다시 시도해주세요.
+          {t('description')}
         </p>
 
         <div className="mt-6 rounded-xl border border-line bg-canvas p-4 text-left dark:border-dark-border dark:bg-dark-bg">
           <p className="text-xs text-muted dark:text-dark-muted">
-            오류 코드:{' '}
+            {t('errorCode')}{' '}
             <span className="font-semibold text-ink dark:text-surface">
               {errorCode || 'N/A'}
             </span>
           </p>
           <p className="mt-2 break-words text-xs text-muted dark:text-dark-muted">
-            오류 메시지:{' '}
+            {t('errorMessage')}{' '}
             <span className="font-semibold text-ink dark:text-surface">
               {errorMessage || 'No message'}
             </span>
@@ -47,7 +51,7 @@ export default function TossFailContainer() {
             className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
             onClick={() => router.replace('/checkout')}
           >
-            결제 화면으로 돌아가기
+            {t('backToCheckout')}
           </button>
         </div>
       </div>
