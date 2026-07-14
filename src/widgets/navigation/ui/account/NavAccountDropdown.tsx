@@ -34,7 +34,11 @@ export default function NavAccountDropdown({
   onSignOut,
 }: NavAccountDropdownProps) {
   const t = useTranslations('Navigation.account');
-  const userDisplayName = getUserDisplayName(session?.user);
+  const commonT = useTranslations('Common');
+  const userDisplayName = getUserDisplayName(
+    session?.user,
+    commonT('userFallback'),
+  );
 
   return (
     <div

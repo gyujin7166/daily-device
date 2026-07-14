@@ -30,9 +30,13 @@ export default function MyPageTabNavigation({
   onTabLinkClick,
 }: MyPageTabNavigationProps) {
   const t = useTranslations('MyPage.menu');
+  const commonT = useTranslations('Common');
   const { data: session, status } = useSession();
   const isSessionLoading = status === 'loading';
-  const userName = getUserDisplayName(session?.user);
+  const userName = getUserDisplayName(
+    session?.user,
+    commonT('userFallback'),
+  );
   const userEmail = session?.user?.email ?? '';
   const userImage = session?.user?.image?.trim() ?? '';
   const avatarLabel = getUserInitial(session?.user);
