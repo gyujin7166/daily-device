@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 import ProductDetailSkeleton from './detail/ProductDetailSkeleton';
@@ -6,6 +8,8 @@ import ProductCarouselSectionSkeleton from './top/ProductCarouselSectionSkeleton
 import ProductCarouselSkeleton from './top/ProductCarouselSkeleton';
 
 export default function ProductDetailLoadingState() {
+  const t = useTranslations('Products.detail');
+
   return (
     <div className="bg-canvas dark:bg-dark-bg">
       <div className="pt-18 sm:pt-22.5">
@@ -28,7 +32,7 @@ export default function ProductDetailLoadingState() {
             <div className="pt-10 sm:pt-12">
               <div className="flex items-end justify-between border-b border-line pb-5 dark:border-dark-border">
                 <div className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl dark:text-surface">
-                  상품평
+                  {t('loading.reviews')}
                 </div>
               </div>
 
@@ -53,7 +57,9 @@ export default function ProductDetailLoadingState() {
                       >
                         <span className="w-11 text-sm font-medium text-ink sm:text-base dark:text-surface">
                           <span aria-hidden="true">{star}</span>
-                          <span className="sr-only">{star}점</span>
+                          <span className="sr-only">
+                            {t('loading.starPoint', { star })}
+                          </span>
                         </span>
                         <div className="h-2.5 min-w-0 flex-1 animate-pulse rounded-full bg-line dark:bg-dark-border" />
                         <span className="w-11 text-right text-sm font-medium text-muted sm:text-base dark:text-dark-muted">
@@ -148,7 +154,7 @@ export default function ProductDetailLoadingState() {
         <section className="pt-2">
           <ProductCarouselSectionSkeleton
             eyebrow="RECOMMENDED"
-            title="추천 상품"
+            title={t('carousel.recommended')}
           />
         </section>
       </div>
