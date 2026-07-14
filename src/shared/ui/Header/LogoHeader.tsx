@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 import {
   DAILY_DEVICE_LOGO_SIZE,
@@ -7,16 +7,19 @@ import {
   DAILY_DEVICE_SYMBOL_SIZE,
   DAILY_DEVICE_SYMBOL_SRC,
 } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
 export default function LogoHeader() {
+  const t = useTranslations('Common');
+
   return (
     <header className="z-40 text-center bg-surface dark:bg-dark-panel">
       <PageWrapper padding="comfortable">
         <div className="relative pt-4 pb-3 md:py-6 lg:py-8 leading-0">
           <Link
             href="/"
-            aria-label="홈으로 이동"
+            aria-label={t('homeAriaLabel')}
             draggable={false}
             className="inline-flex h-10 select-none items-center justify-center"
           >

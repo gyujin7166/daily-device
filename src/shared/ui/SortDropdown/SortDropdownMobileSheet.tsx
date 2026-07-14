@@ -9,7 +9,8 @@ type SortDropdownMobileSheetProps<T extends string> = {
   options: ReadonlyArray<SortDropdownOption<T>>;
   isOpen: boolean;
   mobileSheetTitle: string;
-  prefixLabel: string;
+  listLabel: string;
+  closeLabel: string;
   onClose: () => void;
   onSelect: (nextValue: T) => void;
 };
@@ -19,7 +20,8 @@ export default function SortDropdownMobileSheet<T extends string>({
   options,
   isOpen,
   mobileSheetTitle,
-  prefixLabel,
+  listLabel,
+  closeLabel,
   onClose,
   onSelect,
 }: SortDropdownMobileSheetProps<T>) {
@@ -35,7 +37,7 @@ export default function SortDropdownMobileSheet<T extends string>({
     >
       <button
         type="button"
-        aria-label="정렬 바텀시트 닫기"
+        aria-label={closeLabel}
         onClick={onClose}
         className={cn(
           'absolute inset-0 bg-ink/45 transition-opacity duration-200',
@@ -55,7 +57,7 @@ export default function SortDropdownMobileSheet<T extends string>({
           </p>
           <button
             type="button"
-            aria-label="정렬 바텀시트 닫기"
+            aria-label={closeLabel}
             onClick={onClose}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-canvas hover:text-ink dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface"
           >
@@ -66,7 +68,7 @@ export default function SortDropdownMobileSheet<T extends string>({
         <SortDropdownOptionList
           value={value}
           options={options}
-          prefixLabel={prefixLabel}
+          listLabel={listLabel}
           optionSize="md"
           onSelect={onSelect}
         />

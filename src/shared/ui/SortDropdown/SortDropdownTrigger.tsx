@@ -7,6 +7,7 @@ type SortDropdownTriggerProps = {
   isMobileSheetMode: boolean;
   isOpen: boolean;
   prefixLabel: string;
+  triggerLabel: string;
   selectedLabel: string;
   selectedLabelClassName: string;
   triggerClassName: string;
@@ -18,6 +19,7 @@ export default function SortDropdownTrigger({
   isMobileSheetMode,
   isOpen,
   prefixLabel,
+  triggerLabel,
   selectedLabel,
   selectedLabelClassName,
   triggerClassName,
@@ -32,7 +34,7 @@ export default function SortDropdownTrigger({
         'inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover',
         triggerClassName,
       )}
-      aria-label={`${prefixLabel} 변경`}
+      aria-label={triggerLabel}
       aria-expanded={isOpen}
       aria-haspopup={isMobileSheetMode ? 'dialog' : 'listbox'}
     >

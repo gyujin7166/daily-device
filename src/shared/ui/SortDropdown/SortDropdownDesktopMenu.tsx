@@ -7,7 +7,7 @@ type SortDropdownDesktopMenuProps<T extends string> = {
   options: ReadonlyArray<SortDropdownOption<T>>;
   isOpen: boolean;
   menuWidthClassName: string;
-  prefixLabel: string;
+  listLabel: string;
   onSelect: (nextValue: T) => void;
 };
 
@@ -16,7 +16,7 @@ export default function SortDropdownDesktopMenu<T extends string>({
   options,
   isOpen,
   menuWidthClassName,
-  prefixLabel,
+  listLabel,
   onSelect,
 }: SortDropdownDesktopMenuProps<T>) {
   return (
@@ -33,7 +33,7 @@ export default function SortDropdownDesktopMenu<T extends string>({
       <SortDropdownOptionList
         value={value}
         options={options}
-        prefixLabel={prefixLabel}
+        listLabel={listLabel}
         optionSize="sm"
         onSelect={onSelect}
       />

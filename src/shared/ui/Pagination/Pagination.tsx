@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -24,6 +25,7 @@ export default function Pagination({
   setCurrentPage,
   disabled = false,
 }: PaginationProps) {
+  const t = useTranslations('Common.pagination');
   const shouldScrollOnPageChangeRef = useRef(false);
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
@@ -91,7 +93,7 @@ export default function Pagination({
           className="mr-2 flex h-9 w-9 items-center justify-center rounded-full border border-line text-muted transition hover:bg-line disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:text-dark-muted dark:hover:bg-dark-bg-hover"
           onClick={handlePrevious}
           disabled={disabled || safeCurrentPage === 1}
-          aria-label="이전 페이지"
+          aria-label={t('previous')}
         >
           <IconChevronLeft size={22} stroke={1.7} />
         </button>
@@ -111,7 +113,7 @@ export default function Pagination({
                   setCurrentPage(number);
                 }}
                 disabled={disabled}
-                aria-label={`${number} 페이지로 이동`}
+                aria-label={t('goToPage', { page: number })}
                 aria-current={safeCurrentPage === number ? 'page' : undefined}
                 className={cn(
                   'mx-1 flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
@@ -130,7 +132,7 @@ export default function Pagination({
           className="ml-2 flex h-9 w-9 items-center justify-center rounded-full border border-line text-muted transition hover:bg-line disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:text-dark-muted dark:hover:bg-dark-bg-hover"
           onClick={handleNext}
           disabled={disabled || safeCurrentPage === totalPages}
-          aria-label="다음 페이지"
+          aria-label={t('next')}
         >
           <IconChevronRight size={22} stroke={1.7} />
         </button>

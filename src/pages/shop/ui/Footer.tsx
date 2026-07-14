@@ -1,5 +1,7 @@
+'use client';
+
 import Image from 'next/image';
-import Link from 'next/link';
+
 
 import {
   IconBrandFacebook,
@@ -7,22 +9,23 @@ import {
   IconBrandX,
   IconBrandYoutube,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
-import { NOT_IMPLEMENTED_MESSAGE } from '@shared/constants/feedback';
 import {
   DAILY_DEVICE_LOGO_SIZE,
   DAILY_DEVICE_LOGO_SRC,
   DAILY_DEVICE_SYMBOL_SIZE,
   DAILY_DEVICE_SYMBOL_SRC,
 } from '@shared/constants/images';
+import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
-const NAV_LINKS = ['서비스 소개', '주요 기능', '채용 정보', '고객 지원'];
+const NAV_LINK_KEYS = ['about', 'features', 'careers', 'support'] as const;
 const POLICY_LINKS = [
-  { label: '이용 약관', href: '/terms' },
-  { label: '개인정보처리방침', href: '/privacy' },
-  { label: '쿠키 정책', href: '/cookies' },
-];
+  { key: 'terms', href: '/terms' },
+  { key: 'privacy', href: '/privacy' },
+  { key: 'cookies', href: '/cookies' },
+] as const;
 const SOCIAL_LINKS = [
   { label: 'X', icon: IconBrandX },
   { label: 'Instagram', icon: IconBrandInstagram },
@@ -40,9 +43,11 @@ const FOOTER_LOGO_CLASS = 'hidden h-8 w-auto select-none invert sm:block lg:h-9'
 const FOOTER_SYMBOL_CLASS = 'h-8 w-auto select-none invert sm:hidden';
 
 export default function Footer() {
+  const t = useTranslations('Footer');
+  const commonFeedbackT = useTranslations('Common.feedback');
   const currentYear = new Date().getFullYear();
   const handleUnavailableMenuClick = () => {
-    toast.info(NOT_IMPLEMENTED_MESSAGE);
+    toast.info(commonFeedbackT('notImplemented'));
   };
 
   return (
@@ -53,7 +58,7 @@ export default function Footer() {
             <div className="min-w-0">
               <Link
                 href="/"
-                aria-label="홈으로 이동"
+                aria-label={t('homeAriaLabel')}
                 draggable={false}
                 className="inline-block select-none leading-0"
               >
@@ -82,14 +87,14 @@ export default function Footer() {
               <div className="mt-8 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8">
                 <nav aria-label="Footer navigation">
                   <ul className="flex flex-wrap gap-x-7 gap-y-3 lg:flex-nowrap">
-                    {NAV_LINKS.map((item) => (
-                      <li key={item}>
+                    {NAV_LINK_KEYS.map((key) => (
+                      <li key={key}>
                         <button
                           type="button"
                           className={FOOTER_NAV_LINK_CLASS}
                           onClick={handleUnavailableMenuClick}
                         >
-                          {item}
+                          {t(`navigation.${key}`)}
                         </button>
                       </li>
                     ))}
@@ -119,10 +124,10 @@ export default function Footer() {
                 © {currentYear} Daily Device. All rights reserved.
               </p>
               <ul className="flex flex-wrap items-center gap-5">
-                {POLICY_LINKS.map(({ label, href }) => (
-                  <li key={label}>
+                {POLICY_LINKS.map(({ key, href }) => (
+                  <li key={key}>
                     <Link href={href} className={FOOTER_POLICY_LINK_CLASS}>
-                      {label}
+                      {t(`legal.${key}`)}
                     </Link>
                   </li>
                 ))}
