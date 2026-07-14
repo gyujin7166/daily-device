@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl';
+
 import SortDropdownDesktopMenu from '@shared/ui/SortDropdown/SortDropdownDesktopMenu';
 import SortDropdownMobileSheet from '@shared/ui/SortDropdown/SortDropdownMobileSheet';
 import type { SortDropdownOption } from '@shared/ui/SortDropdown/SortDropdownOptionList';
@@ -22,13 +24,14 @@ const SortDropdown = <T extends string>({
   options,
   onChange,
   disabled = false,
-  prefixLabel = '정렬',
+  prefixLabel,
   menuWidthClassName = 'w-50',
   triggerClassName = '',
   selectedLabelClassName = '',
   mobileSheetOnMobile = false,
-  mobileSheetTitle = '정렬 기준 선택',
+  mobileSheetTitle,
 }: SortDropdownProps<T>) => {
+  const t = useTranslations('Common.sortDropdown');
   const { containerRef, isMobileSheetMode, isOpen, setIsOpen } =
     useSortDropdownState({
       disabled,
@@ -36,6 +39,8 @@ const SortDropdown = <T extends string>({
     });
   const selectedLabel =
     options.find((option) => option.value === value)?.label ?? '';
+  const resolvedPrefixLabel = prefixLabel ?? t('prefix');
+  const resolvedMobileSheetTitle = mobileSheetTitle ?? t('mobileSheetTitle');
 
   const handleSelect = (nextValue: T) => {
     onChange(nextValue);
@@ -48,7 +53,8 @@ const SortDropdown = <T extends string>({
         disabled={disabled}
         isMobileSheetMode={isMobileSheetMode}
         isOpen={isOpen}
-        prefixLabel={prefixLabel}
+        prefixLabel={resolvedPrefixLabel}
+        triggerLabel={t('changeLabel', { label: resolvedPrefixLabel })}
         selectedLabel={selectedLabel}
         selectedLabelClassName={selectedLabelClassName}
         triggerClassName={triggerClassName}
@@ -60,8 +66,9 @@ const SortDropdown = <T extends string>({
           value={value}
           options={options}
           isOpen={isOpen}
-          mobileSheetTitle={mobileSheetTitle}
-          prefixLabel={prefixLabel}
+          mobileSheetTitle={resolvedMobileSheetTitle}
+          listLabel={t('optionsLabel', { label: resolvedPrefixLabel })}
+          closeLabel={t('closeSheet')}
           onClose={() => setIsOpen(false)}
           onSelect={handleSelect}
         />
@@ -71,7 +78,7 @@ const SortDropdown = <T extends string>({
           options={options}
           isOpen={isOpen}
           menuWidthClassName={menuWidthClassName}
-          prefixLabel={prefixLabel}
+          listLabel={t('optionsLabel', { label: resolvedPrefixLabel })}
           onSelect={handleSelect}
         />
       )}

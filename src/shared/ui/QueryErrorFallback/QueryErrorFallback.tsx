@@ -1,5 +1,6 @@
 'use client';
 import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 import { cn } from '@shared/lib/utils/style';
 
@@ -13,11 +14,15 @@ type QueryErrorFallbackProps = {
 
 export default function QueryErrorFallback({
   title,
-  description = '네트워크 상태를 확인한 뒤 다시 시도해 주세요.',
-  retryLabel = '다시 시도',
+  description,
+  retryLabel,
   onRetry,
   className = '',
 }: QueryErrorFallbackProps) {
+  const t = useTranslations('Common.queryError');
+  const resolvedDescription = description ?? t('description');
+  const resolvedRetryLabel = retryLabel ?? t('retry');
+
   return (
     <div
       className={cn(
@@ -35,7 +40,7 @@ export default function QueryErrorFallback({
               {title}
             </p>
             <p className="mt-1.5 text-sm leading-6 text-muted dark:text-dark-muted">
-              {description}
+              {resolvedDescription}
             </p>
           </div>
         </div>
@@ -45,7 +50,7 @@ export default function QueryErrorFallback({
           className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-surface transition-colors hover:bg-ink/90 dark:bg-surface dark:text-ink dark:hover:bg-surface/90"
         >
           <IconRefresh size={16} />
-          {retryLabel}
+          {resolvedRetryLabel}
         </button>
       </div>
     </div>

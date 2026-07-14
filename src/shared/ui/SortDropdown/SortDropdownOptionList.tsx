@@ -10,7 +10,7 @@ export type SortDropdownOption<T extends string> = {
 type SortDropdownOptionListProps<T extends string> = {
   value: T;
   options: ReadonlyArray<SortDropdownOption<T>>;
-  prefixLabel: string;
+  listLabel: string;
   optionSize: 'sm' | 'md';
   onSelect: (nextValue: T) => void;
 };
@@ -18,7 +18,7 @@ type SortDropdownOptionListProps<T extends string> = {
 export default function SortDropdownOptionList<T extends string>({
   value,
   options,
-  prefixLabel,
+  listLabel,
   optionSize,
   onSelect,
 }: SortDropdownOptionListProps<T>) {
@@ -27,7 +27,7 @@ export default function SortDropdownOptionList<T extends string>({
   return (
     <div
       role="listbox"
-      aria-label={`${prefixLabel} 옵션`}
+      aria-label={listLabel}
       className="grid gap-1"
     >
       {options.map((option) => {
