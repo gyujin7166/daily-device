@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 
-
 import {
   IconBrandFacebook,
   IconBrandInstagram,
@@ -39,7 +38,8 @@ const FOOTER_NAV_LINK_CLASS = `text-base font-medium ${FOOTER_LINK_BASE_CLASS}`;
 const FOOTER_POLICY_LINK_CLASS = `text-sm ${FOOTER_LINK_BASE_CLASS}`;
 const FOOTER_SOCIAL_BUTTON_CLASS =
   'inline-flex h-11 w-11 items-center justify-center rounded-full bg-dark-bg-hover text-surface transition-colors duration-200 hover:bg-primary';
-const FOOTER_LOGO_CLASS = 'hidden h-8 w-auto select-none invert sm:block lg:h-9';
+const FOOTER_LOGO_CLASS =
+  'hidden h-8 w-auto select-none invert sm:block lg:h-9';
 const FOOTER_SYMBOL_CLASS = 'h-8 w-auto select-none invert sm:hidden';
 
 export default function Footer() {
@@ -85,7 +85,7 @@ export default function Footer() {
               </Link>
 
               <div className="mt-8 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8">
-                <nav aria-label="Footer navigation">
+                <nav aria-label={t('navigationLabel')}>
                   <ul className="flex flex-wrap gap-x-7 gap-y-3 lg:flex-nowrap">
                     {NAV_LINK_KEYS.map((key) => (
                       <li key={key}>

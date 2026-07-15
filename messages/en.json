@@ -380,7 +380,8 @@
         "createOrderFailed": "Could not create the order.",
         "paymentRequestFailed": "An error occurred while requesting payment.",
         "demoOrderFailed": "An error occurred while processing the demo order.",
-        "tossSdkLoadFailed": "Could not load TossPayments SDK."
+        "tossSdkLoadFailed": "Could not load TossPayments SDK.",
+        "tossClientKeyMissing": "Toss client key is missing."
       },
       "toast": {
         "demoCompleted": "Demo order completed."
@@ -1399,6 +1400,7 @@
     }
   },
   "Footer": {
+    "navigationLabel": "Footer navigation",
     "navigation": {
       "about": "About",
       "features": "Features",
