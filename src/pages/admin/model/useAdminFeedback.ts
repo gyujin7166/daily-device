@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { ADMIN_ERROR_CODE } from '@shared/constants/adminErrorCode';
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { HttpError } from '@shared/lib/errors/httpError';
 import { toast } from '@shared/lib/toast';
 
@@ -27,17 +28,16 @@ const adminErrorMessageKeyByCode = {
   [ADMIN_ERROR_CODE.HERO_TYPE_UNSUPPORTED]: 'heroTypeUnsupported',
   [ADMIN_ERROR_CODE.HERO_PRODUCT_CATEGORY_REQUIRED]:
     'heroProductCategoryRequired',
-  [ADMIN_ERROR_CODE.HERO_TARGET_CATEGORY_NOT_FOUND]: 'heroTargetCategoryNotFound',
+  [ADMIN_ERROR_CODE.HERO_TARGET_CATEGORY_NOT_FOUND]:
+    'heroTargetCategoryNotFound',
   [ADMIN_ERROR_CODE.HERO_CREATE_FAILED]: 'heroCreateFailed',
   [ADMIN_ERROR_CODE.HERO_UPDATE_FAILED]: 'heroUpdateFailed',
   [ADMIN_ERROR_CODE.HERO_DELETE_FAILED]: 'heroDeleteFailed',
   [ADMIN_ERROR_CODE.PRODUCT_IMAGE_COLOR_REQUIRED]: 'productImageColorRequired',
   [ADMIN_ERROR_CODE.PRODUCT_IMAGE_COMMON_ONLY]: 'productImageCommonOnly',
-  [ADMIN_ERROR_CODE.PRODUCT_IMAGE_COLOR_NOT_FOUND]:
-    'productImageColorNotFound',
+  [ADMIN_ERROR_CODE.PRODUCT_IMAGE_COLOR_NOT_FOUND]: 'productImageColorNotFound',
   [ADMIN_ERROR_CODE.PRODUCT_COLOR_NOT_FOUND]: 'productColorNotFound',
-  [ADMIN_ERROR_CODE.PRODUCT_COLOR_DELETE_BLOCKED]:
-    'productColorDeleteBlocked',
+  [ADMIN_ERROR_CODE.PRODUCT_COLOR_DELETE_BLOCKED]: 'productColorDeleteBlocked',
   [ADMIN_ERROR_CODE.PRODUCT_NOT_FOUND]: 'productNotFound',
   [ADMIN_ERROR_CODE.PRODUCT_CREATE_FAILED]: 'productCreateFailed',
   [ADMIN_ERROR_CODE.PRODUCT_UPDATE_FAILED]: 'productUpdateFailed',
@@ -48,6 +48,7 @@ const adminErrorMessageKeyByCode = {
 export const useAdminFeedback = () => {
   const t = useTranslations('Admin.feedback');
   const tApiError = useTranslations('Admin.apiErrors');
+  const tCommonApiError = useTranslations('Common.apiErrors');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const showMessage = useCallback((nextMessage: string) => {
@@ -71,9 +72,11 @@ export const useAdminFeedback = () => {
         }
       }
 
-      setError(nextError instanceof Error ? nextError.message : String(nextError));
+      setError(
+        getApiErrorMessage(nextError, tCommonApiError, String(nextError)),
+      );
     },
-    [tApiError],
+    [tApiError, tCommonApiError],
   );
 
   const showReadOnlyNotice = useCallback(() => {

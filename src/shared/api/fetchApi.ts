@@ -1,4 +1,5 @@
-import { HttpError } from '@shared/lib/errors/httpError';
+import { API_ERROR_CODE } from '@shared/constants/apiErrorCode';
+import { ApiError, HttpError } from '@shared/lib/errors/httpError';
 
 type FetchApiConfig = {
   unwrapItems?: boolean;
@@ -20,7 +21,10 @@ export const fetchApi = async <T = unknown>(
   try {
     response = await fetch(url, options);
   } catch {
-    throw new Error('네트워크 요청에 실패했습니다.');
+    throw new ApiError(
+      API_ERROR_CODE.NETWORK_REQUEST_FAILED,
+      'Network request failed.',
+    );
   }
 
   let data: unknown = undefined;
@@ -31,11 +35,19 @@ export const fetchApi = async <T = unknown>(
   }
 
   if (!response.ok) {
-    const message =
-      isRecord(data) && 'message' in data
-        ? String(data.message)
-        : `API 요청 실패: ${response.status}`;
-    throw new HttpError(response.status, message);
+    const responseMessage =
+      isRecord(data) && 'message' in data ? String(data.message) : undefined;
+    const message = responseMessage
+      ? responseMessage
+      : `Request failed with status ${response.status}.`;
+    const code =
+      isRecord(data) && typeof data.code === 'string'
+        ? data.code
+        : responseMessage
+          ? undefined
+          : API_ERROR_CODE.REQUEST_FAILED;
+
+    throw new HttpError(response.status, message, code);
   }
 
   const shouldUnwrapItems = config?.unwrapItems ?? true;

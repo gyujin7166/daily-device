@@ -47,6 +47,11 @@
     "toast": {
       "close": "Close notification"
     },
+    "apiErrors": {
+      "networkRequestFailed": "The network request failed. Check your connection and try again.",
+      "requestFailed": "The request failed. Please try again later.",
+      "invalidResponse": "The server response was invalid. Please try again later."
+    },
     "queryError": {
       "description": "Check your network connection and try again.",
       "retry": "Try again"

@@ -9,6 +9,16 @@ export class HttpError extends Error {
   }
 }
 
+export class ApiError extends Error {
+  constructor(
+    public code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+
 export class BadRequestError extends HttpError {
   constructor(message = 'Bad Request', code?: string) {
     super(400, message, code);

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useConfirmDelivery } from '@entities/order/queries/useConfirmDelivery';
 import { useOrdersPaged } from '@entities/order/queries/useOrdersPaged';
 
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { toast } from '@shared/lib/toast';
 
 import {
@@ -23,6 +24,7 @@ export default function useMyOrdersContentState({
   mode,
 }: UseMyOrdersContentStateParams) {
   const t = useTranslations('MyOrders');
+  const tApiError = useTranslations('Common.apiErrors');
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const [confirmingOrderNumber, setConfirmingOrderNumber] = useState<
     string | null
@@ -62,8 +64,11 @@ export default function useMyOrdersContentState({
       await confirmDeliveryMutation.mutateAsync(orderNumber);
       toast.success(t('confirmSuccess'));
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t('confirmFailed');
+      const errorMessage = getApiErrorMessage(
+        error,
+        tApiError,
+        t('confirmFailed'),
+      );
       toast.error(errorMessage);
     } finally {
       setConfirmingOrderNumber(null);

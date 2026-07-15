@@ -14,6 +14,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
@@ -21,6 +22,7 @@ type Status = 'idle' | 'confirming' | 'done' | 'error';
 
 export default function TossSuccessContainer() {
   const t = useTranslations('Payment.tossSuccess');
+  const tApiError = useTranslations('Common.apiErrors');
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
@@ -68,15 +70,13 @@ export default function TossSuccessContainer() {
       } catch (error) {
         setStatus('error');
         setMessage(
-          error instanceof Error
-            ? error.message
-            : t('error.processFailed'),
+          getApiErrorMessage(error, tApiError, t('error.processFailed')),
         );
       }
     };
 
     void confirmPayment();
-  }, [amount, orderId, paymentKey, router, t]);
+  }, [amount, orderId, paymentKey, router, t, tApiError]);
 
   return (
     <section className="flex min-h-screen items-center justify-center bg-canvas px-6 py-16 dark:bg-dark-bg">
