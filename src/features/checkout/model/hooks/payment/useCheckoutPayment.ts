@@ -133,7 +133,7 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
 
     const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
     if (!clientKey) {
-      toast.error('Toss client key is missing.');
+      toast.error(t('errors.tossClientKeyMissing'));
       return;
     }
 

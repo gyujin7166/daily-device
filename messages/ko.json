@@ -380,7 +380,8 @@
         "createOrderFailed": "주문 생성에 실패했습니다.",
         "paymentRequestFailed": "결제 요청 중 오류가 발생했습니다.",
         "demoOrderFailed": "데모 주문 처리 중 오류가 발생했습니다.",
-        "tossSdkLoadFailed": "TossPayments SDK를 불러오지 못했습니다."
+        "tossSdkLoadFailed": "TossPayments SDK를 불러오지 못했습니다.",
+        "tossClientKeyMissing": "Toss 결제 키가 설정되지 않았습니다."
       },
       "toast": {
         "demoCompleted": "데모 주문이 완료되었습니다."
@@ -1399,6 +1400,7 @@
     }
   },
   "Footer": {
+    "navigationLabel": "푸터 메뉴",
     "navigation": {
       "about": "서비스 소개",
       "features": "주요 기능",
