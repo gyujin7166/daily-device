@@ -9,6 +9,7 @@ import type {
 import { useDeleteAddress } from '@entities/address/queries/useDeleteAddress';
 import { useUpsertAddress } from '@entities/address/queries/useUpsertAddress';
 
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { toast } from '@shared/lib/toast';
 
 import { buildCheckoutAddressPayload } from '../../shippingAddress';
@@ -45,6 +46,7 @@ export default function useCheckoutAddressBookActions({
   resetAddressFormState,
 }: UseCheckoutAddressBookActionsParams) {
   const t = useTranslations('Checkout.shipping.toast');
+  const tApiError = useTranslations('Common.apiErrors');
   const { mutateAsync: upsertAddress, isPending: isSavingAddress } =
     useUpsertAddress();
   const { mutateAsync: deleteAddress, isPending: isDeletingAddress } =
@@ -75,8 +77,7 @@ export default function useCheckoutAddressBookActions({
         resetAddressFormState();
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('deleteFailed');
+      const message = getApiErrorMessage(error, tApiError, t('deleteFailed'));
       toast.error(message);
     }
   };
@@ -107,8 +108,7 @@ export default function useCheckoutAddressBookActions({
       setEditingAddressId(null);
       setAddressModalMode('saved');
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('saveFailed');
+      const message = getApiErrorMessage(error, tApiError, t('saveFailed'));
       toast.error(message);
     }
   };

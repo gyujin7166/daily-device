@@ -12,6 +12,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
@@ -35,6 +36,7 @@ type UseCheckoutPaymentOptions = {
 
 export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
   const t = useTranslations('Checkout.payment');
+  const tApiError = useTranslations('Common.apiErrors');
   const router = useRouter();
   const { userCartItems, isCartSyncPending } = useCartContext();
   const { formState, isFormValid, selectedAddressId } = useCheckoutContext();
@@ -161,10 +163,11 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       });
     } catch (event) {
       setIsRequestingPayment(false);
-      const errorMessage =
-        event instanceof Error
-          ? event.message
-          : t('errors.paymentRequestFailed');
+      const errorMessage = getApiErrorMessage(
+        event,
+        tApiError,
+        t('errors.paymentRequestFailed'),
+      );
       toast.error(errorMessage);
     }
   };
@@ -185,10 +188,11 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
       toast.success(t('toast.demoCompleted'));
       router.replace('/my/orders');
     } catch (event) {
-      const errorMessage =
-        event instanceof Error
-          ? event.message
-          : t('errors.demoOrderFailed');
+      const errorMessage = getApiErrorMessage(
+        event,
+        tApiError,
+        t('errors.demoOrderFailed'),
+      );
       toast.error(errorMessage);
     } finally {
       setIsDemoProcessing(false);

@@ -47,6 +47,11 @@
     "toast": {
       "close": "토스트 메시지 닫기"
     },
+    "apiErrors": {
+      "networkRequestFailed": "네트워크 요청에 실패했습니다. 연결 상태를 확인한 후 다시 시도해주세요.",
+      "requestFailed": "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요.",
+      "invalidResponse": "서버 응답 형식이 올바르지 않습니다. 잠시 후 다시 시도해주세요."
+    },
     "queryError": {
       "description": "네트워크 상태를 확인한 뒤 다시 시도해 주세요.",
       "retry": "다시 시도"

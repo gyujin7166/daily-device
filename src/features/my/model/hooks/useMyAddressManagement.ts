@@ -14,6 +14,7 @@ import { useUpsertAddress } from '@entities/address/queries/useUpsertAddress';
 import { useSuspenseUserAddresses } from '@entities/address/queries/useUserAddresses';
 
 import { useScrollLock } from '@shared/hooks/useScrollLock';
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { toast } from '@shared/lib/toast';
 
 import {
@@ -38,6 +39,7 @@ const createEmptyEditForm = (): AddressEditForm => ({
 
 export const useMyAddressManagement = () => {
   const t = useTranslations('MyAddress');
+  const tApiError = useTranslations('Common.apiErrors');
   const listTopRef = useRef<HTMLDivElement | null>(null);
   const { data: addresses = [] } = useSuspenseUserAddresses();
   const { mutateAsync: upsertAddress } = useUpsertAddress();
@@ -127,10 +129,11 @@ export const useMyAddressManagement = () => {
       triggerDefaultAnimation(address.id);
       toast.success(t('toast.defaultSuccess'));
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : t('toast.defaultFailed');
+      const message = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.defaultFailed'),
+      );
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -154,8 +157,11 @@ export const useMyAddressManagement = () => {
       await deleteAddress({ id: addressId });
       toast.success(t('toast.deleteSuccess'));
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('toast.deleteFailed');
+      const message = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.deleteFailed'),
+      );
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -230,8 +236,11 @@ export const useMyAddressManagement = () => {
       toast.success(t('toast.editSuccess'));
       setEditingAddress(null);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('toast.editFailed');
+      const message = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.editFailed'),
+      );
       toast.error(message);
     } finally {
       setProcessingAddressId(null);
@@ -272,8 +281,11 @@ export const useMyAddressManagement = () => {
       setIsCreateModalOpen(false);
       createFormActions.reset();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : t('toast.createFailed');
+      const message = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.createFailed'),
+      );
       toast.error(message);
     } finally {
       setIsCreatingAddress(false);

@@ -11,6 +11,7 @@ import { useHideOrder } from '@entities/order/queries/useHideOrder';
 import { useOrders } from '@entities/order/queries/useOrders';
 
 import { MY_TAB_PATHS } from '@shared/constants/myRoutes';
+import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
@@ -25,6 +26,7 @@ export default function MyOrderDetailContainer({
   orderNumber,
 }: MyOrderDetailContainerProps) {
   const t = useTranslations('MyOrderDetail');
+  const tApiError = useTranslations('Common.apiErrors');
   const router = useRouter();
   const { data: orders, isPending } = useOrders();
   const hideOrderMutation = useHideOrder();
@@ -63,8 +65,11 @@ export default function MyOrderDetailContainer({
       toast.success(t('toast.deleteSuccess'));
       router.push(MY_TAB_PATHS.orders);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t('toast.deleteFailed');
+      const errorMessage = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.deleteFailed'),
+      );
       toast.error(errorMessage);
     }
   };
@@ -88,8 +93,11 @@ export default function MyOrderDetailContainer({
       await cancelOrderMutation.mutateAsync(orderNumber);
       toast.success(t('toast.cancelSuccess'));
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : t('toast.cancelFailed');
+      const errorMessage = getApiErrorMessage(
+        error,
+        tApiError,
+        t('toast.cancelFailed'),
+      );
       toast.error(errorMessage);
     }
   };
