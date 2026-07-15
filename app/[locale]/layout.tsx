@@ -84,9 +84,9 @@ export default async function LocaleLayout({
       <body
         className={`${pretendard.className} bg-canvas text-ink dark:bg-dark-bg dark:text-surface`}
       >
-        <Providers>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
-        </Providers>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
