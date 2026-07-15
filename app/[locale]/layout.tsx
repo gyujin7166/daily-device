@@ -77,7 +77,7 @@ export default async function LocaleLayout({
       <head>
         <Script
           id="theme-init"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
