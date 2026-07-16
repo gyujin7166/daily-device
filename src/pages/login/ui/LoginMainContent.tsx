@@ -17,12 +17,11 @@ export default function LoginMainContent({
     handleSocialLogin,
     isDemoSigningIn,
     loginContentRenderKey,
-  } =
-    useLoginPageState({
-      callbackUrl,
-      error,
-      reason,
-    });
+  } = useLoginPageState({
+    callbackUrl,
+    error,
+    reason,
+  });
 
   return (
     <div className="min-h-screen bg-surface text-ink dark:bg-dark-bg dark:text-surface">

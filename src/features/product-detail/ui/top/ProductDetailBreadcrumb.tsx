@@ -1,4 +1,3 @@
-
 import { IconChevronRight } from '@tabler/icons-react';
 
 import { useProductDescription } from '@entities/product/queries/useProductDescription';

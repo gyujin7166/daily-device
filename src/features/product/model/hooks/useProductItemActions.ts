@@ -2,7 +2,6 @@ import type { MouseEvent } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-
 import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';

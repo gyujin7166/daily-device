@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ChangeEvent, Dispatch, SetStateAction, SubmitEvent } from 'react';
 
-
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { Transition } from 'react-transition-group';

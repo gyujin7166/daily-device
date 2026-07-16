@@ -37,10 +37,7 @@ export default function MyOverviewContent({ session }: MyOverviewContentProps) {
   const orders = ordersPage?.items ?? [];
   const avatarSrc = session.user?.image?.trim() ?? '';
   const [isAvatarLoadFailed, setIsAvatarLoadFailed] = useState(false);
-  const displayName = getUserDisplayName(
-    session.user,
-    commonT('userFallback'),
-  );
+  const displayName = getUserDisplayName(session.user, commonT('userFallback'));
   const provider = session.user?.provider;
   const normalizedEmail = session.user?.email?.trim() || '';
   const isDemoAccount =

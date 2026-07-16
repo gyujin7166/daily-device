@@ -8,7 +8,14 @@ export default async function TossSuccessPage() {
   const t = await getTranslations('Payment.tossSuccess.confirming');
 
   return (
-    <Suspense fallback={<TossSuccessFallback title={t('title')} description={t('description')} />}>
+    <Suspense
+      fallback={
+        <TossSuccessFallback
+          title={t('title')}
+          description={t('description')}
+        />
+      }
+    >
       <TossSuccessContainer />
     </Suspense>
   );

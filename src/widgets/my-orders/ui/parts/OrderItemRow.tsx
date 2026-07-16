@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 
 import Image from 'next/image';
 
-
 import { useFormatter, useTranslations } from 'next-intl';
 
 import type { OrderItem } from '@entities/order/model/types';

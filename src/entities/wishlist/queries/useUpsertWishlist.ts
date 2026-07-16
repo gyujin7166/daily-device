@@ -35,10 +35,7 @@ export const useUpsertWishlist = () => {
         item,
         ...previousItems.filter((wishlistItem) => wishlistItem.id !== item.id),
       ];
-      queryClient.setQueryData<WishlistItem[]>(
-        listQueryKey,
-        nextItems,
-      );
+      queryClient.setQueryData<WishlistItem[]>(listQueryKey, nextItems);
       return { previousItems };
     },
     onError: (_error, _variables, context) => {

@@ -123,16 +123,12 @@ const showToast = (
 ) => {
   return baseToast(
     ({ closeToast }) => (
-      <AppToastCard
-        type={type}
-        content={content}
-        closeToast={closeToast}
-      />
+      <AppToastCard type={type} content={content} closeToast={closeToast} />
     ),
     {
-    ...BASE_OPTIONS,
-    ...options,
-    type,
+      ...BASE_OPTIONS,
+      ...options,
+      type,
     },
   );
 };

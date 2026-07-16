@@ -74,7 +74,9 @@ export default function MyOrderDetailOrderItemCard({
               <span className="inline-flex items-center gap-1.5">
                 {t('labels.quantity')}
                 <span className="rounded-full bg-line px-2 py-0.5 text-xs font-medium text-ink dark:bg-dark-bg-hover dark:text-surface">
-                  {t('format.quantity', { count: format.number(item.quantity) })}
+                  {t('format.quantity', {
+                    count: format.number(item.quantity),
+                  })}
                 </span>
               </span>
             </div>

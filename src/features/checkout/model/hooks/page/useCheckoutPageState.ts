@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-
 import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
 import { useCart } from '@entities/cart/queries/useCart';

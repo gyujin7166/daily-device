@@ -80,18 +80,18 @@ export default async function ProductCategoryPage({
           ? { page: pageParam, limit: PRODUCT_PAGE_SIZE }
           : pageParam;
 
-        return getProductsPage(
-          normalizedCategory,
-          productPageParam.page,
-          productPageParam.limit,
-          'relevance',
-          [],
-          {},
-          {},
-          {},
-          locale,
-        );
-      },
+      return getProductsPage(
+        normalizedCategory,
+        productPageParam.page,
+        productPageParam.limit,
+        'relevance',
+        [],
+        {},
+        {},
+        {},
+        locale,
+      );
+    },
     staleTime: PRODUCT_LIST_STALE_TIME_MS,
     gcTime: 30 * 60 * 1000,
   });

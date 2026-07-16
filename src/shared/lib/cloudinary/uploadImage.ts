@@ -1,6 +1,4 @@
-import {
-  CLOUDINARY_UPLOAD_ERROR_CODE,
-} from '@shared/constants/cloudinaryUploadErrorCode';
+import { CLOUDINARY_UPLOAD_ERROR_CODE } from '@shared/constants/cloudinaryUploadErrorCode';
 import type { CloudinaryUploadErrorCode } from '@shared/constants/cloudinaryUploadErrorCode';
 
 export type CloudinaryUploadTarget =

@@ -16,9 +16,7 @@ function CheckoutDemoNotice() {
   return (
     <div className="mb-6 rounded-2xl border border-primary/20 bg-primary-soft px-5 py-4 text-sm leading-6 text-primary dark:border-primary/35 dark:bg-blue-950/35 dark:text-blue-100">
       <p className="font-semibold">{t('title')}</p>
-      <p className="mt-1 text-muted dark:text-dark-muted">
-        {t('description')}
-      </p>
+      <p className="mt-1 text-muted dark:text-dark-muted">{t('description')}</p>
     </div>
   );
 }

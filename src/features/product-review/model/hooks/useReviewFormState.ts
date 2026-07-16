@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { ChangeEvent, FocusEvent, SubmitEvent } from 'react';
 
-
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
@@ -155,9 +154,7 @@ export const useReviewFormState = ({
         images: finalImages,
       });
 
-      toast.success(
-        isEditing ? t('toast.updated') : t('toast.created'),
-      );
+      toast.success(isEditing ? t('toast.updated') : t('toast.created'));
       clearSelectedImages();
       router.push(MY_TAB_PATHS.orders);
     } catch (error) {
@@ -183,7 +180,9 @@ export const useReviewFormState = ({
         return;
       }
 
-      toast.error(isEditing ? t('toast.updateFailed') : t('toast.createFailed'));
+      toast.error(
+        isEditing ? t('toast.updateFailed') : t('toast.createFailed'),
+      );
     }
   };
 
@@ -193,9 +192,7 @@ export const useReviewFormState = ({
       return;
     }
 
-    const shouldLeave = window.confirm(
-      t('toast.leaveConfirm'),
-    );
+    const shouldLeave = window.confirm(t('toast.leaveConfirm'));
 
     if (shouldLeave) {
       router.back();

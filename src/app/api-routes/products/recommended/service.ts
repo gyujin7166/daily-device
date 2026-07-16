@@ -126,7 +126,7 @@ const DEFAULT_RECOMMENDED_ORDER_BY = [
 const shouldShuffleRecommendations = (context: RecommendationContext) =>
   context === 'orders-empty' || context === 'wishlist-empty';
 
-const shuffleProducts = <T,>(items: T[]) => {
+const shuffleProducts = <T>(items: T[]) => {
   const shuffledItems = [...items];
 
   for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
@@ -276,8 +276,8 @@ export async function getRecommendedProductsList({
       limit - randomPrimaryProducts.length,
     );
 
-    return [...randomPrimaryProducts, ...randomFallbackProducts].map((product) =>
-      mapRecommendedItem(product, locale),
+    return [...randomPrimaryProducts, ...randomFallbackProducts].map(
+      (product) => mapRecommendedItem(product, locale),
     );
   }
 
@@ -304,7 +304,9 @@ export async function getRecommendedProductsList({
   });
 
   if (!category || primaryProducts.length >= limit) {
-    return primaryProducts.map((product) => mapRecommendedItem(product, locale));
+    return primaryProducts.map((product) =>
+      mapRecommendedItem(product, locale),
+    );
   }
 
   const excludedIds = [

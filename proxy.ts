@@ -33,7 +33,9 @@ const getPreferredLanguage = (acceptLanguage: string | null) => {
       };
     })
     .filter(({ language, quality }) => language && Number.isFinite(quality))
-    .sort((left, right) => right.quality - left.quality || left.order - right.order);
+    .sort(
+      (left, right) => right.quality - left.quality || left.order - right.order,
+    );
 
   return languages[0]?.language;
 };

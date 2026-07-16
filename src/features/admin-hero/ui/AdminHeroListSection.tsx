@@ -78,9 +78,7 @@ export default function AdminHeroListSection({
             <tr>
               <th className="px-3 py-3">ID</th>
               <th className="px-3 py-3">{t('list.type')}</th>
-              <th className="px-3 py-3 text-center">
-                {t('list.mainImage')}
-              </th>
+              <th className="px-3 py-3 text-center">{t('list.mainImage')}</th>
               <th className="px-3 py-3">{t('list.name')}</th>
               <th className="px-3 py-3">{t('list.image')}</th>
               <th className="px-3 py-3">{t('list.manage')}</th>

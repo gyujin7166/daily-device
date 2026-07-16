@@ -89,9 +89,7 @@ export default function ReviewGalleryPreviewSection({
         </div>
       ) : (
         <div className="rounded-xl border border-dashed border-line bg-surface px-5 py-7 text-sm text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted">
-          {totalReviewImageCount > 0
-            ? t('noImagesCurrentPage')
-            : t('noImages')}
+          {totalReviewImageCount > 0 ? t('noImagesCurrentPage') : t('noImages')}
         </div>
       )}
     </section>

@@ -3,7 +3,6 @@ import type { MouseEvent } from 'react';
 
 import Image from 'next/image';
 
-
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
@@ -33,10 +32,7 @@ export default function MyPageTabNavigation({
   const commonT = useTranslations('Common');
   const { data: session, status } = useSession();
   const isSessionLoading = status === 'loading';
-  const userName = getUserDisplayName(
-    session?.user,
-    commonT('userFallback'),
-  );
+  const userName = getUserDisplayName(session?.user, commonT('userFallback'));
   const userEmail = session?.user?.email ?? '';
   const userImage = session?.user?.image?.trim() ?? '';
   const avatarLabel = getUserInitial(session?.user);

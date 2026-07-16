@@ -1,4 +1,3 @@
-
 import { IconShoppingBag } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 

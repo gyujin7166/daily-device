@@ -138,17 +138,15 @@ export type HomeSectionItemFormState = {
   translations: HomeSectionItemTranslationFormMap;
 };
 
-const createEmptySectionTranslations =
-  (): HomeSectionTranslationFormMap => ({
-    ko: { eyebrow: '', title: '', subtitle: '' },
-    en: { eyebrow: '', title: '', subtitle: '' },
-  });
+const createEmptySectionTranslations = (): HomeSectionTranslationFormMap => ({
+  ko: { eyebrow: '', title: '', subtitle: '' },
+  en: { eyebrow: '', title: '', subtitle: '' },
+});
 
-const createEmptyItemTranslations =
-  (): HomeSectionItemTranslationFormMap => ({
-    ko: { label: '', title: '', description: '', cta: '', imageAlt: '' },
-    en: { label: '', title: '', description: '', cta: '', imageAlt: '' },
-  });
+const createEmptyItemTranslations = (): HomeSectionItemTranslationFormMap => ({
+  ko: { label: '', title: '', description: '', cta: '', imageAlt: '' },
+  en: { label: '', title: '', description: '', cta: '', imageAlt: '' },
+});
 
 const getSectionTranslationForm = (
   section: AdminHomeSection,

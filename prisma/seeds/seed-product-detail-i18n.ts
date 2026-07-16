@@ -115,27 +115,25 @@ async function seedProductDetailI18n() {
 
   const detailIds = details.map((detail) => detail.id);
   const translations = details.flatMap((detail) => [
-      {
-        detailId: detail.id,
-        locale: 'ko',
-        title_middle: detail.title_middle,
-        title_sub: detail.title_sub,
-        specification: detail.specification,
-        note: detail.note,
-      },
-      {
-        detailId: detail.id,
-        locale: 'en',
-        title_middle: normalizeEnglishProductDetailTitle(
-          detail.title_middle,
-        ),
-        title_sub: normalizeEnglishProductDetailTitle(detail.title_sub),
-        specification: normalizeEnglishProductDetailSpecification(
-          detail.specification,
-        ),
-        note: detail.note,
-      },
-    ]);
+    {
+      detailId: detail.id,
+      locale: 'ko',
+      title_middle: detail.title_middle,
+      title_sub: detail.title_sub,
+      specification: detail.specification,
+      note: detail.note,
+    },
+    {
+      detailId: detail.id,
+      locale: 'en',
+      title_middle: normalizeEnglishProductDetailTitle(detail.title_middle),
+      title_sub: normalizeEnglishProductDetailTitle(detail.title_sub),
+      specification: normalizeEnglishProductDetailSpecification(
+        detail.specification,
+      ),
+      note: detail.note,
+    },
+  ]);
 
   if (detailIds.length === 0) {
     console.log('No ProductDetail rows found.');

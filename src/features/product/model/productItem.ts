@@ -101,7 +101,9 @@ export const getProductItemViewModel = (
     IMAGE_FALLBACK_URL;
   const price =
     product.priceLabel ??
-    (typeof product.price === 'number' ? formatFallbackPrice(product.price) : null);
+    (typeof product.price === 'number'
+      ? formatFallbackPrice(product.price)
+      : null);
   const originalPrice =
     product.originalPriceLabel ??
     (typeof product.originalPrice === 'number'

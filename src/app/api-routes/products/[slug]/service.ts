@@ -155,11 +155,9 @@ export async function getProductDetailBySlug(
       return {
         id: detail.id,
         titleId: detail.titleId,
-        title_middle:
-          detailTranslation?.title_middle ?? detail.title_middle,
+        title_middle: detailTranslation?.title_middle ?? detail.title_middle,
         title_sub: detailTranslation?.title_sub ?? detail.title_sub,
-        specification:
-          detailTranslation?.specification ?? detail.specification,
+        specification: detailTranslation?.specification ?? detail.specification,
         note: detailTranslation?.note ?? detail.note,
       };
     }),

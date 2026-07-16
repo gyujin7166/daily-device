@@ -55,7 +55,9 @@ export default function CheckoutFlowPaymentPanel({
           {isCartSyncPending ? (
             <>
               <Spinner size="sm" variant="inverse" className="size-5" />
-              <span className="sr-only">{t('payment.actions.cartSyncing')}</span>
+              <span className="sr-only">
+                {t('payment.actions.cartSyncing')}
+              </span>
             </>
           ) : (
             actionLabel

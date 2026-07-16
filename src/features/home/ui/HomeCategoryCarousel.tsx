@@ -2,7 +2,6 @@ import { useTranslations } from 'next-intl';
 
 import type { HomeSection } from '@entities/home/model/types';
 
-
 import {
   CATEGORY_CAROUSEL_LAYOUTS,
   HOME_CATEGORY_CAROUSEL_SLIDES,
@@ -39,7 +38,9 @@ const toCategoryLayoutGroups = (
       const slideIndex = Math.floor(index / CATEGORY_LAYOUT_ITEM_COUNT);
       const itemIndex = index % CATEGORY_LAYOUT_ITEM_COUNT;
       const layout =
-        CATEGORY_CAROUSEL_LAYOUTS[slideIndex % CATEGORY_CAROUSEL_LAYOUTS.length];
+        CATEGORY_CAROUSEL_LAYOUTS[
+          slideIndex % CATEGORY_CAROUSEL_LAYOUTS.length
+        ];
       const slide = slides[slideIndex] ?? {
         gridAreaClassName: layout.gridAreaClassName,
         items: [],

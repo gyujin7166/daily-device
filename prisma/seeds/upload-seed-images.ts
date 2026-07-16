@@ -901,10 +901,7 @@ const uploadSeedImages = async () => {
     const productDirectories = await findProductDirectories(sourceRoot);
 
     for (const product of portfolioProducts) {
-      if (
-        isFilteredProductUpload &&
-        !productSlugs.includes(product.slug)
-      ) {
+      if (isFilteredProductUpload && !productSlugs.includes(product.slug)) {
         continue;
       }
 

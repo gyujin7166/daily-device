@@ -1,4 +1,3 @@
-
 import { IconChevronDown } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 

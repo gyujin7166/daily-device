@@ -27,7 +27,7 @@ const filterEnglishNameByKorean: Record<string, string> = {
   '설치 방식': 'Mounting Style',
   '설치 위치': 'Placement',
   '연결 방식': 'Connection',
-  '용도': 'Use Case',
+  용도: 'Use Case',
   '제품 라인': 'Product Line',
   '제품 유형': 'Product Type',
   '조명 형태': 'Lighting Type',
@@ -89,7 +89,7 @@ const productDetailEnglishTitleByKorean: Record<string, string> = {
 };
 
 const productDetailEnglishSpecByKorean: Record<string, string> = {
-  '구성품': 'Included items',
+  구성품: 'Included items',
   길이: 'Length',
   깊이: 'Depth',
   너비: 'Width',
@@ -105,8 +105,8 @@ const productDetailEnglishSpecByKorean: Record<string, string> = {
   '케이스 너비': 'Case width',
   '케이스 높이': 'Case height',
   '위성 스피커 높이': 'Satellite speaker height',
-  '지원': 'Support',
-  '호환성': 'Compatibility',
+  지원: 'Support',
+  호환성: 'Compatibility',
 };
 
 const titleCaseFromSlug = (value: string) =>
@@ -231,7 +231,10 @@ const getEnglishProductCopy = (params: {
     };
   }
 
-  if (koreanDescription.includes('일상적인') && koreanDescription.includes('균형형')) {
+  if (
+    koreanDescription.includes('일상적인') &&
+    koreanDescription.includes('균형형')
+  ) {
     return {
       description: `${productName} offers balanced ${categoryName} performance for routine work, calls, and daily movement.`,
       detailedDescription: `${productName} is tuned for repeated use with stable handling and a design that fits naturally into different work environments.`,
@@ -349,7 +352,9 @@ async function seedHeroTranslations() {
     ] as const;
 
     for (const translation of generatedTranslations) {
-      if (explicitTranslationKeys.has(`${hero.name_en}:${translation.locale}`)) {
+      if (
+        explicitTranslationKeys.has(`${hero.name_en}:${translation.locale}`)
+      ) {
         continue;
       }
 
@@ -794,27 +799,25 @@ async function seedProductDetailTranslations() {
 
   const detailIds = details.map((detail) => detail.id);
   const translations = details.flatMap((detail) => [
-      {
-        detailId: detail.id,
-        locale: 'ko',
-        title_middle: detail.title_middle,
-        title_sub: detail.title_sub,
-        specification: detail.specification,
-        note: detail.note,
-      },
-      {
-        detailId: detail.id,
-        locale: 'en',
-        title_middle: normalizeEnglishProductDetailTitle(
-          detail.title_middle,
-        ),
-        title_sub: normalizeEnglishProductDetailTitle(detail.title_sub),
-        specification: normalizeEnglishProductDetailSpecification(
-          detail.specification,
-        ),
-        note: detail.note,
-      },
-    ]);
+    {
+      detailId: detail.id,
+      locale: 'ko',
+      title_middle: detail.title_middle,
+      title_sub: detail.title_sub,
+      specification: detail.specification,
+      note: detail.note,
+    },
+    {
+      detailId: detail.id,
+      locale: 'en',
+      title_middle: normalizeEnglishProductDetailTitle(detail.title_middle),
+      title_sub: normalizeEnglishProductDetailTitle(detail.title_sub),
+      specification: normalizeEnglishProductDetailSpecification(
+        detail.specification,
+      ),
+      note: detail.note,
+    },
+  ]);
 
   if (detailIds.length === 0) {
     return;

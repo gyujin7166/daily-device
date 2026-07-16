@@ -9,7 +9,6 @@ import {
   useState,
 } from 'react';
 
-
 import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
@@ -158,7 +157,8 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
     });
   };
   const isCartVariantAdding = useCallback(
-    (variantKey: string) => Boolean(pendingAddingItemKeysRef.current[variantKey]),
+    (variantKey: string) =>
+      Boolean(pendingAddingItemKeysRef.current[variantKey]),
     [],
   );
   const isCartVariantSyncPending = useCallback(
@@ -169,7 +169,7 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
     (variantKey: string) =>
       Boolean(
         pendingAddingItemKeysRef.current[variantKey] ||
-          pendingCartSyncKeysRef.current[variantKey],
+        pendingCartSyncKeysRef.current[variantKey],
       ),
     [],
   );

@@ -172,5 +172,7 @@ export const getCheckoutPaymentActionLabel = ({
       : resolvedLabels.testPayment;
   }
 
-  return isDemoProcessing ? resolvedLabels.processing : resolvedLabels.demoPayment;
+  return isDemoProcessing
+    ? resolvedLabels.processing
+    : resolvedLabels.demoPayment;
 };

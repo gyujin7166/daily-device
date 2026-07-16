@@ -21,9 +21,7 @@ const getRecommendedProductsQuerySchema = z.object({
   category: z.preprocess(emptyToUndefined, z.string().trim().optional()),
   context: z.preprocess(
     emptyToUndefined,
-    z
-      .enum(['default', 'orders-empty', 'wishlist-empty'])
-      .optional(),
+    z.enum(['default', 'orders-empty', 'wishlist-empty']).optional(),
   ),
   excludeId: z.preprocess(
     emptyToUndefined,

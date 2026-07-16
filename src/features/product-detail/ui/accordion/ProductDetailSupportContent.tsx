@@ -2,7 +2,6 @@
 
 import type React from 'react';
 
-
 import { IconChevronRight } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
