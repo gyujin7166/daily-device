@@ -143,10 +143,10 @@
     },
     "results": {
       "fallbackQuery": "상품",
-      "title": "'{query}' 검색 결과",
+      "title": "{query} 검색 결과",
       "total": "전체 {count}개",
       "description": "{query}와 관련된 상품을 모두 확인해보세요.",
-      "emptyTitle": "'{query}'에 대한 검색 결과가 없습니다.",
+      "emptyTitle": "{query}에 대한 검색 결과가 없습니다.",
       "emptyDescription": "다른 용어로 검색해보세요."
     }
   },

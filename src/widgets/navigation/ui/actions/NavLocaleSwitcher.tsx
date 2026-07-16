@@ -10,10 +10,7 @@ import { useDropdown } from '@shared/hooks/useDropdown';
 import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 
-import {
-  NAV_DROPDOWN_ACTION_ITEM_CLASS,
-  NAV_ICON_BUTTON_SURFACE_CLASS,
-} from '../../model/navActions';
+import { NAV_DROPDOWN_ACTION_ITEM_CLASS } from '../../model/navActions';
 
 type NavLocaleSwitcherProps = {
   isOverlayStyle?: boolean;
@@ -97,12 +94,12 @@ export default function NavLocaleSwitcher({
       <button
         type="button"
         className={cn(
-          'flex gap-1.5 text-xs font-bold uppercase tracking-normal',
+          'flex h-10 w-12 items-center justify-center gap-1.5 rounded-xl text-xs font-bold uppercase tracking-normal transition sm:h-11 sm:w-13',
           isOverlayStyle
-            ? 'h-10 w-12 items-center justify-center rounded-xl text-surface transition hover:bg-white/10 sm:h-11 sm:w-13'
+            ? 'text-surface hover:bg-white/10'
             : isDarkOverlayStyle
-              ? 'h-10 w-12 items-center justify-center rounded-xl text-ink transition hover:bg-black/5 sm:h-11 sm:w-13'
-              : NAV_ICON_BUTTON_SURFACE_CLASS,
+              ? 'text-ink hover:bg-black/5'
+              : 'text-ink hover:bg-canvas dark:text-surface dark:hover:bg-dark-bg-hover',
         )}
         onClick={handleToggleDropdown}
         aria-label={label}

@@ -143,10 +143,10 @@
     },
     "results": {
       "fallbackQuery": "products",
-      "title": "Search results for '{query}'",
+      "title": "Search results for {query}",
       "total": "{count} total",
       "description": "Browse all products related to {query}.",
-      "emptyTitle": "No results for '{query}'",
+      "emptyTitle": "No results for {query}",
       "emptyDescription": "Try searching with another term."
     }
   },

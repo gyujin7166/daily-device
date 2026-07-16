@@ -19,7 +19,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
         <div data-shop-chrome>
           <NavBar />
         </div>
-        <main className="flex-1">{children}</main>
+        <main className="flex flex-1 flex-col">{children}</main>
         <div data-shop-chrome>
           <CartDrawer />
           <CartOverlay />
