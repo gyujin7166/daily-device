@@ -186,7 +186,7 @@ export default function SearchPageContainer({
 
   if (showInitialSkeleton) {
     return (
-      <PageWrapper className="mt-22.5 min-h-[50vh]">
+      <PageWrapper className="mt-22.5 flex min-h-[50vh] flex-1 flex-col">
         <SearchHeaderSkeleton />
         <ProductSkeleton
           variant="product"
@@ -200,7 +200,7 @@ export default function SearchPageContainer({
   return (
     <PageWrapper
       className={cn(
-        'mt-22.5 min-h-[50vh]',
+        'mt-22.5 flex min-h-[50vh] flex-1 flex-col',
         shouldApplyBottomPadding ? 'pb-16' : '',
       )}
     >
