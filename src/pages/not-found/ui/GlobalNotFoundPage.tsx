@@ -22,6 +22,7 @@ export default function GlobalNotFoundPage() {
       descriptionLine2={messages.descriptionLine2}
       homeLabel={messages.home}
       homeHref={`/${locale}`}
+      forceDocumentNavigation
     />
   );
 }

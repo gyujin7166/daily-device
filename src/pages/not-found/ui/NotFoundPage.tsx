@@ -6,6 +6,7 @@ type NotFoundPageProps = {
   descriptionLine2: string;
   homeLabel: string;
   homeHref: string;
+  forceDocumentNavigation?: boolean;
 };
 
 export default function NotFoundPage({
@@ -14,7 +15,17 @@ export default function NotFoundPage({
   descriptionLine2,
   homeLabel,
   homeHref,
+  forceDocumentNavigation = false,
 }: NotFoundPageProps) {
+  const homeButtonClassName =
+    'group relative inline-flex animate-not-found-button items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#1e3a8a,#1d4ed8)] px-11 py-3.5 text-sm font-semibold tracking-normal text-white shadow-[0_0_30px_rgba(29,78,216,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_50px_rgba(59,130,246,0.5)]';
+  const homeButtonContent = (
+    <>
+      <span className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,#1d4ed8,#3b82f6)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <span className="relative z-10">{homeLabel}</span>
+    </>
+  );
+
   return (
     <main
       data-not-found-page
@@ -45,13 +56,15 @@ export default function NotFoundPage({
           {descriptionLine2}
         </p>
 
-        <Link
-          href={homeHref}
-          className="group relative inline-flex animate-not-found-button items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#1e3a8a,#1d4ed8)] px-11 py-3.5 text-sm font-semibold tracking-normal text-white shadow-[0_0_30px_rgba(29,78,216,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_50px_rgba(59,130,246,0.5)]"
-        >
-          <span className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,#1d4ed8,#3b82f6)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <span className="relative z-10">{homeLabel}</span>
-        </Link>
+        {forceDocumentNavigation ? (
+          <a href={homeHref} className={homeButtonClassName}>
+            {homeButtonContent}
+          </a>
+        ) : (
+          <Link href={homeHref} className={homeButtonClassName}>
+            {homeButtonContent}
+          </Link>
+        )}
       </section>
     </main>
   );
