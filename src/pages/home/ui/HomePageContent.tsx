@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-
 import { HomeCategoryCarousel, MainProductItem } from '@features/home/ui';
 
 import { useHomeSections } from '@entities/home/queries/useHomeSections';

@@ -21,7 +21,8 @@ import type {
 const getLocalizedCategoryName = (
   category: Pick<ProductCategory, 'name_en' | 'name_ko'>,
   locale: string,
-) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
+) =>
+  (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
 
 const getLocalizedProductName = (
   product: Pick<AdminProduct, 'name_en' | 'name_ko' | 'translations'>,

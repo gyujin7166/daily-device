@@ -35,7 +35,6 @@ export const loadTossPayments = (
         reject(new Error(loadFailedMessage));
       }
     };
-    script.onerror = () =>
-      reject(new Error(loadFailedMessage));
+    script.onerror = () => reject(new Error(loadFailedMessage));
     document.head.appendChild(script);
   });

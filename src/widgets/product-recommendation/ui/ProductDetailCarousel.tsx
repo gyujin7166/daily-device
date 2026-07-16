@@ -148,10 +148,7 @@ export default function ProductDetailCarousel({
       </header>
 
       <div
-        className={cn(
-          'overflow-hidden',
-          isCompact ? '-m-2 p-2' : '-m-3 p-3',
-        )}
+        className={cn('overflow-hidden', isCompact ? '-m-2 p-2' : '-m-3 p-3')}
         ref={emblaRef}
       >
         <div className={cn('flex', isCompact ? 'gap-3' : 'gap-3.5 sm:gap-4')}>

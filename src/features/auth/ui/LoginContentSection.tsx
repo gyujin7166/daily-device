@@ -8,7 +8,6 @@ import {
 } from '@shared/constants/images';
 import { Link } from '@shared/lib/i18n/navigation';
 
-
 import SocialLoginButton from './SocialLoginButton';
 
 import type { SocialProvider } from '../model/login';

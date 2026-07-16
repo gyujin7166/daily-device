@@ -150,7 +150,9 @@ const getProductTranslationForm = (
   );
 
   return {
-    name: translation?.name ?? (locale === 'en' ? product.name_en : product.name_ko ?? ''),
+    name:
+      translation?.name ??
+      (locale === 'en' ? product.name_en : (product.name_ko ?? '')),
     description: translation?.description ?? product.description,
     detailed_description:
       translation?.detailed_description ?? product.detailed_description ?? '',

@@ -156,10 +156,9 @@ describe('wishlist mutations', () => {
     });
 
     expect(receivedProductId).toBe(secondWishlistItem.id);
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
-      secondWishlistItem,
-      wishlistItemFixture,
-    ]);
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual([secondWishlistItem, wishlistItemFixture]);
   });
 
   it('찜 추가 실패 시 이전 목록으로 되돌린다', async () => {
@@ -178,9 +177,9 @@ describe('wishlist mutations', () => {
       ).rejects.toThrow('추가 실패');
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
-      wishlistItemFixture,
-    ]);
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual([wishlistItemFixture]);
   });
 
   it('찜 상품을 삭제한다', async () => {
@@ -191,9 +190,9 @@ describe('wishlist mutations', () => {
       await result.current.mutateAsync(secondWishlistItem.id);
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([
-      wishlistItemFixture,
-    ]);
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual([wishlistItemFixture]);
   });
 
   it('찜 삭제 실패 시 이전 목록으로 되돌린다', async () => {
@@ -213,9 +212,9 @@ describe('wishlist mutations', () => {
       ).rejects.toThrow('삭제 실패');
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual(
-      previousItems,
-    );
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual(previousItems);
   });
 
   it('찜 목록을 전체 삭제한다', async () => {
@@ -226,7 +225,9 @@ describe('wishlist mutations', () => {
       await result.current.mutateAsync();
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual([]);
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual([]);
   });
 
   it('전체 삭제 실패 시 이전 목록으로 되돌린다', async () => {
@@ -246,8 +247,8 @@ describe('wishlist mutations', () => {
       );
     });
 
-    expect(queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE))).toEqual(
-      previousItems,
-    );
+    expect(
+      queryClient.getQueryData(wishlistQueryKeys.list(TEST_LOCALE)),
+    ).toEqual(previousItems);
   });
 });

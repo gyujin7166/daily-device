@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useTranslations } from 'next-intl';
 
 import MyPageEmptyRecommendedProducts from '@widgets/my-page-empty/ui/MyPageEmptyRecommendedProducts';

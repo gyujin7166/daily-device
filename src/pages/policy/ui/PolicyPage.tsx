@@ -32,7 +32,10 @@ export default function PolicyPage({
               <h2 className="text-xl font-semibold">{section.title}</h2>
               <ul className="mt-4 space-y-3 text-base leading-7 text-muted dark:text-dark-muted">
                 {section.items.map((item) => (
-                  <li key={item} className="pl-4 before:mr-3 before:content-['-']">
+                  <li
+                    key={item}
+                    className="pl-4 before:mr-3 before:content-['-']"
+                  >
                     {item}
                   </li>
                 ))}

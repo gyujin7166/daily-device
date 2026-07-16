@@ -135,7 +135,11 @@ export default function ReviewWritePageContainer({
                   <dd className="text-sm font-medium text-ink dark:text-surface">
                     {formatCurrency(totalPrice)}
                     <span className="ml-1 text-disabled-text dark:text-dark-muted">
-                      ({t('summary.unitPrice', { price: formatCurrency(unitPrice) })})
+                      (
+                      {t('summary.unitPrice', {
+                        price: formatCurrency(unitPrice),
+                      })}
+                      )
                     </span>
                   </dd>
                 </div>

@@ -60,7 +60,8 @@ const HERO_OVERLAY_TONE_OPTIONS: Array<{
 const getLocalizedCategoryName = (
   category: Pick<AdminHeroCategory, 'name_en' | 'name_ko'>,
   locale: string,
-) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
+) =>
+  (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
 
 const getUploadErrorMessage = (
   error: unknown,

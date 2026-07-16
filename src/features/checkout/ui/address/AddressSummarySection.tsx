@@ -85,9 +85,7 @@ export default function AddressSummarySection({
   }
 
   return (
-    <p className="mt-4 text-xs text-muted dark:text-dark-muted">
-      {t('empty')}
-    </p>
+    <p className="mt-4 text-xs text-muted dark:text-dark-muted">{t('empty')}</p>
   );
 }
 

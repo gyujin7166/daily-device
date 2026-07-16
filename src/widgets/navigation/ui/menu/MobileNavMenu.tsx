@@ -1,4 +1,3 @@
-
 import { IconChevronDown } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
@@ -77,10 +76,7 @@ export default function MobileNavMenu({
                 </button>
                 {isShopOpen && (
                   <div id="mobile-product-category-menu" className="mt-2">
-                    <NavBarDropdown
-                      variant="mobile"
-                      onNavigate={onCloseMenu}
-                    />
+                    <NavBarDropdown variant="mobile" onNavigate={onCloseMenu} />
                   </div>
                 )}
               </>

@@ -8,7 +8,9 @@ export default async function TossFailPage() {
   const t = await getTranslations('Payment.tossFail');
 
   return (
-    <Suspense fallback={<TossFailFallback title={t('title')} loading={t('loading')} />}>
+    <Suspense
+      fallback={<TossFailFallback title={t('title')} loading={t('loading')} />}
+    >
       <TossFailContainer />
     </Suspense>
   );

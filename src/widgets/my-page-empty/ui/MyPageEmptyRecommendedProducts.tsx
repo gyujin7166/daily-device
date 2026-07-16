@@ -72,7 +72,9 @@ export default function MyPageEmptyRecommendedProducts({
                     </div>
 
                     <div className="mt-3 flex flex-1 flex-col px-1 pb-1 sm:mt-2">
-                      <div className={`h-3 w-20 rounded-sm ${pulseClassName}`} />
+                      <div
+                        className={`h-3 w-20 rounded-sm ${pulseClassName}`}
+                      />
                       <div
                         className={`mt-1 h-5 w-[72%] rounded-sm sm:h-6 ${pulseClassName}`}
                       />

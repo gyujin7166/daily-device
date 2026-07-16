@@ -206,8 +206,7 @@
 @utility grid-areas-home-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: 560px;
-  grid-template-areas:
-    'j k l';
+  grid-template-areas: 'j k l';
 }
 
 @utility grid-in-j {

@@ -602,11 +602,7 @@ export async function updateAdminHomeSection(
         },
       });
 
-      await upsertHomeSectionTranslations(
-        tx,
-        sectionId,
-        input.translations,
-      );
+      await upsertHomeSectionTranslations(tx, sectionId, input.translations);
 
       return tx.homeSection.findUniqueOrThrow({
         where: { id: sectionId },
@@ -838,9 +834,7 @@ export async function createAdminHomeSectionItem(
           sectionId: input.sectionId,
           ...getAdminHomeSectionItemData(input),
           translations: {
-            create: getHomeSectionItemTranslationCreateData(
-              input.translations,
-            ),
+            create: getHomeSectionItemTranslationCreateData(input.translations),
           },
         },
         select: {
@@ -854,7 +848,10 @@ export async function createAdminHomeSectionItem(
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, 'Could not create the home section item.'),
+      getPrismaConflictMessage(
+        error,
+        'Could not create the home section item.',
+      ),
       getPrismaConflictErrorCode(
         error,
         ADMIN_ERROR_CODE.HOME_CARD_CREATE_FAILED,
@@ -892,11 +889,7 @@ export async function updateAdminHomeSectionItem(
         data: getAdminHomeSectionItemData(input),
       });
 
-      await upsertHomeSectionItemTranslations(
-        tx,
-        itemId,
-        input.translations,
-      );
+      await upsertHomeSectionItemTranslations(tx, itemId, input.translations);
 
       return tx.homeSectionItem.findUniqueOrThrow({
         where: { id: itemId },
@@ -911,7 +904,10 @@ export async function updateAdminHomeSectionItem(
     }
 
     throw new ConflictError(
-      getPrismaConflictMessage(error, 'Could not update the home section item.'),
+      getPrismaConflictMessage(
+        error,
+        'Could not update the home section item.',
+      ),
       getPrismaConflictErrorCode(
         error,
         ADMIN_ERROR_CODE.HOME_CARD_UPDATE_FAILED,

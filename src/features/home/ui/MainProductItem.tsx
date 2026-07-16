@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { IconArrowRight } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
-
 import type { HomeSection } from '@entities/home/model/types';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';

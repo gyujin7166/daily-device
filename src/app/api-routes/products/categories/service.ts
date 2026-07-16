@@ -9,7 +9,9 @@ import {
 
 import prisma from 'prisma/prismaClientSingleton';
 
-export async function getCategoryList(localeValue?: string): Promise<CategoryItems[]> {
+export async function getCategoryList(
+  localeValue?: string,
+): Promise<CategoryItems[]> {
   const { locale, localeFallbacks } = getTranslationContext(localeValue);
   const categories = await prisma.productCategory.findMany({
     where: {
@@ -55,10 +57,7 @@ export async function getCategoryList(localeValue?: string): Promise<CategoryIte
   });
 
   return categories.map((category) => {
-    const categoryTranslation = pickTranslation(
-      category.translations,
-      locale,
-    );
+    const categoryTranslation = pickTranslation(category.translations, locale);
 
     return {
       id: category.id,

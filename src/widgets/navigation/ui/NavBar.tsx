@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type React from 'react';
 
-
 import { IconMenu2, IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
@@ -116,10 +115,7 @@ export default function NavBar() {
 
     const handleClickOutsideSearch = (event: MouseEvent) => {
       const target = event.target;
-      if (
-        target instanceof Node &&
-        searchLayerRef.current?.contains(target)
-      ) {
+      if (target instanceof Node && searchLayerRef.current?.contains(target)) {
         return;
       }
 

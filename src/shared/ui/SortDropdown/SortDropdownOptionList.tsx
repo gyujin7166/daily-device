@@ -25,11 +25,7 @@ export default function SortDropdownOptionList<T extends string>({
   const isLarge = optionSize === 'md';
 
   return (
-    <div
-      role="listbox"
-      aria-label={listLabel}
-      className="grid gap-1"
-    >
+    <div role="listbox" aria-label={listLabel} className="grid gap-1">
       {options.map((option) => {
         const isSelected = option.value === value;
         return (

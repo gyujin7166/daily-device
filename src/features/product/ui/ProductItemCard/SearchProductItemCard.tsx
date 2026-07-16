@@ -1,4 +1,3 @@
-
 import { useTranslations } from 'next-intl';
 
 import { ProductColorPalette } from '@entities/product/ui';

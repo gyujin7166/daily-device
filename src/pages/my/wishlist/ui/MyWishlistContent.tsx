@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-
 import { IconTrash } from '@tabler/icons-react';
 import { useIsMutating } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';

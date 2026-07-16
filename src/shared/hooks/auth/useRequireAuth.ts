@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-
 import { useSession } from 'next-auth/react';
 
 import { getLoginRedirectPath } from '@shared/lib/authRedirect';

@@ -55,7 +55,9 @@ export function ProductImageLink({
     <Link
       href={productHref}
       draggable={false}
-      className={cn(isCatalog ? 'group block select-none' : 'block select-none')}
+      className={cn(
+        isCatalog ? 'group block select-none' : 'block select-none',
+      )}
     >
       <div
         className={

@@ -67,9 +67,7 @@ export default function ReviewContent({
         isRefreshing={isRefreshing}
         shouldShowSkeleton={reviewContentState.shouldShowSkeleton}
         emptyMessage={
-          reviewFilter === 'with_images'
-            ? t('noImageReviews')
-            : t('noReviews')
+          reviewFilter === 'with_images' ? t('noImageReviews') : t('noReviews')
         }
         getReviewImages={reviewContentState.getReviewImages}
         isFeedbackPendingForReview={

@@ -79,11 +79,8 @@ export default function MyPageEmptyStatePanel({
 }: MyPageEmptyStatePanelProps) {
   const hasSupplement = Boolean(children);
   const isHorizontal = layout === 'horizontal';
-  const {
-    MainIcon,
-    badgeClassName,
-    iconClassName,
-  } = EMPTY_ICON_CONFIG[iconVariant];
+  const { MainIcon, badgeClassName, iconClassName } =
+    EMPTY_ICON_CONFIG[iconVariant];
 
   return (
     <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xs dark:border-dark-border dark:bg-dark-panel">

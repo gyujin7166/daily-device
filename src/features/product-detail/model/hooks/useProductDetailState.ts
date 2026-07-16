@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-
 import { useSession } from 'next-auth/react';
 import { useLocale } from 'next-intl';
 

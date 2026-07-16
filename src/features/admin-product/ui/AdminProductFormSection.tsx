@@ -30,7 +30,8 @@ import type {
 const getLocalizedCategoryName = (
   category: Pick<ProductCategory, 'name_en' | 'name_ko'>,
   locale: string,
-) => (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
+) =>
+  (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
 
 type AdminProductFormSectionProps = {
   form: ProductFormState;
@@ -123,9 +124,7 @@ export default function AdminProductFormSection({
       />
       <div className="mt-5 grid gap-4">
         <TextInput
-          label={
-            activeTranslationLocale === 'en' ? t('nameEn') : t('nameKo')
-          }
+          label={activeTranslationLocale === 'en' ? t('nameEn') : t('nameKo')}
           value={activeTranslation.name}
           onChange={(value) => updateTranslationField('name', value)}
           required

@@ -1,6 +1,5 @@
 import type { MouseEvent } from 'react';
 
-
 import { IconChevronDown, IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 

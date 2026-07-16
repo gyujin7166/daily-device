@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-
 import { useFormatter, useTranslations } from 'next-intl';
 
 import type { OrderResponse } from '@entities/order/model/types';
@@ -118,15 +117,11 @@ export default function MyOrdersOrderCard({
           <span className="flex w-full justify-start">
             {t('labels.product')}
           </span>
-          <span className="flex w-full justify-start">
-            {t('labels.color')}
-          </span>
+          <span className="flex w-full justify-start">{t('labels.color')}</span>
           <span className="flex w-full justify-end">
             {t('labels.quantity')}
           </span>
-          <span className="flex w-full justify-end">
-            {t('labels.amount')}
-          </span>
+          <span className="flex w-full justify-end">{t('labels.amount')}</span>
           <span className="flex w-full justify-end" aria-hidden="true"></span>
         </div>
 
