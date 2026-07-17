@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../revalidation';
 import { adminProductBodySchema, adminProductQuerySchema } from '../schemas';
 import {
   assertAdminReadAccess,
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
     const body = await readJsonBody(request);
     const input = parseWithSchema(adminProductBodySchema, body);
     const product = await createAdminProduct(input);
+    revalidatePublicShopPages();
 
     return NextResponse.json(
       { items: product, message: API_MESSAGE.SUCCESS },

@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../../revalidation';
 import { adminHeroBodySchema, adminIdParamSchema } from '../../schemas';
 import {
   assertAdminWriteAccess,
@@ -24,6 +25,7 @@ export async function PUT(request: Request, context: AdminHeroRouteContext) {
     const body = await readJsonBody(request);
     const input = parseWithSchema(adminHeroBodySchema, body);
     const hero = await updateAdminHero(id, input);
+    revalidatePublicShopPages();
     return NextResponse.json(
       { items: hero, message: API_MESSAGE.SUCCESS },
       { status: 200 },
@@ -44,6 +46,7 @@ export async function DELETE(
     const { heroId } = await context.params;
     const { id } = parseWithSchema(adminIdParamSchema, { id: heroId });
     await deleteAdminHero(id);
+    revalidatePublicShopPages();
 
     return NextResponse.json(
       { items: { id }, message: API_MESSAGE.SUCCESS },

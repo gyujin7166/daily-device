@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../../revalidation';
 import { adminIdParamSchema, adminProductBodySchema } from '../../schemas';
 import {
   assertAdminWriteAccess,
@@ -24,6 +25,7 @@ export async function PUT(request: Request, context: AdminProductRouteContext) {
     const body = await readJsonBody(request);
     const input = parseWithSchema(adminProductBodySchema, body);
     const product = await updateAdminProduct(id, input);
+    revalidatePublicShopPages();
     return NextResponse.json(
       { items: product, message: API_MESSAGE.SUCCESS },
       { status: 200 },
@@ -44,6 +46,7 @@ export async function DELETE(
     const { productId } = await context.params;
     const { id } = parseWithSchema(adminIdParamSchema, { id: productId });
     await deleteAdminProduct(id);
+    revalidatePublicShopPages();
 
     return NextResponse.json(
       { items: { id }, message: API_MESSAGE.SUCCESS },

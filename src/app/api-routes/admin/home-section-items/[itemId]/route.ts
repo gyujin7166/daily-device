@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../../revalidation';
 import {
   adminHomeSectionItemBodySchema,
   adminIdParamSchema,
@@ -29,6 +30,7 @@ export async function PUT(
     const body = await readJsonBody(request);
     const input = parseWithSchema(adminHomeSectionItemBodySchema, body);
     const item = await updateAdminHomeSectionItem(id, input);
+    revalidatePublicShopPages();
     return NextResponse.json(
       { items: item, message: API_MESSAGE.SUCCESS },
       { status: 200 },
