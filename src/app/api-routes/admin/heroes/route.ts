@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../revalidation';
 import { adminHeroBodySchema } from '../schemas';
 import {
   assertAdminReadAccess,
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     const body = await readJsonBody(request);
     const input = parseWithSchema(adminHeroBodySchema, body);
     const hero = await createAdminHero(input);
+    revalidatePublicShopPages();
 
     return NextResponse.json(
       { items: hero, message: API_MESSAGE.SUCCESS },

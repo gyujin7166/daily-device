@@ -5,6 +5,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
+import { revalidatePublicShopPages } from '../../revalidation';
 import { adminIdParamSchema, adminReviewPatchBodySchema } from '../../schemas';
 import {
   assertAdminWriteAccess,
@@ -29,6 +30,7 @@ export async function PATCH(
     const review = hidden
       ? await hideAdminReview(id)
       : await restoreAdminReview(id);
+    revalidatePublicShopPages();
 
     return NextResponse.json(
       { items: review, message: API_MESSAGE.SUCCESS },
