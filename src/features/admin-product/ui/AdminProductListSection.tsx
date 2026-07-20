@@ -124,6 +124,7 @@ export default function AdminProductListSection({
               const priceInfo = getProductPriceInfo(
                 product.price,
                 product.discountRate,
+                locale,
               );
 
               return (
