@@ -7,6 +7,8 @@ loadEnv({ quiet: true });
 const baseURL = 'http://localhost:3100';
 const playwrightDatabaseUrl = process.env.PLAYWRIGHT_DATABASE_URL;
 const databaseUrl = playwrightDatabaseUrl ?? process.env.DATABASE_URL;
+const databaseConnectionMode =
+  process.env.DATABASE_CONNECTION_MODE ?? 'serverless';
 const testUserEmail = 'playwright@daily-device.local';
 const testUserName = 'Playwright User';
 
@@ -42,6 +44,7 @@ export default defineConfig({
       AUTH_URL: baseURL,
       NEXTAUTH_URL: baseURL,
       DATABASE_URL: databaseUrl,
+      DATABASE_CONNECTION_MODE: databaseConnectionMode,
       DEMO_USER_EMAIL: testUserEmail,
       DEMO_USER_NAME: testUserName,
     },

@@ -25,6 +25,7 @@ jobs:
     timeout-minutes: 20
     env:
       PLAYWRIGHT_DATABASE_URL: ${{ secrets.PLAYWRIGHT_DATABASE_URL }}
+      DATABASE_CONNECTION_MODE: direct
       AUTH_SECRET: playwright-e2e-ci-only-secret-not-for-production
 
     steps:

@@ -200,7 +200,7 @@ npx tsc --noEmit
 npm run lint
 ```
 
-`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 공유 테스트 사용자와 DB 상태가 충돌하지 않도록 workflow 실행을 한 번에 하나로 제한합니다. 실패한 실행의 trace와 스크린샷은 `playwright-test-results` artifact에서 확인할 수 있습니다.
+`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 공유 테스트 사용자와 DB 상태가 충돌하지 않도록 workflow 실행을 한 번에 하나로 제한하며, 실패한 실행의 trace와 스크린샷은 `playwright-test-results` artifact에서 확인할 수 있습니다.
 
 GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 E2E job을 건너뜁니다. Next.js build는 DB와 배포 환경변수가 필요하므로 로컬 검증 범위로 유지합니다.
 

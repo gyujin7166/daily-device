@@ -2,15 +2,30 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaTiDBCloud } from '@tidbcloud/prisma-adapter';
 
 const connectionString = process.env.DATABASE_URL;
+const connectionMode = process.env.DATABASE_CONNECTION_MODE ?? 'serverless';
 
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required.');
 }
 
+if (connectionMode !== 'serverless' && connectionMode !== 'direct') {
+  throw new Error(
+    'DATABASE_CONNECTION_MODE must be either "serverless" or "direct".',
+  );
+}
+
+const createPrismaClient = () => {
+  if (connectionMode === 'direct') {
+    return new PrismaClient();
+  }
+
+  const adapter = new PrismaTiDBCloud({ url: connectionString });
+  return new PrismaClient({ adapter });
+};
+
 const prismaClientSingleton = () => {
   if (!globalThis.prismaGlobal) {
-    const adapter = new PrismaTiDBCloud({ url: connectionString });
-    globalThis.prismaGlobal = new PrismaClient({ adapter });
+    globalThis.prismaGlobal = createPrismaClient();
   }
   return globalThis.prismaGlobal;
 };
