@@ -1,11 +1,15 @@
 import { expect, test } from './fixtures/authenticatedTest';
 
 const PRODUCT_PATH = '/products/mice/aster-mouse-mini';
+const AUTHENTICATED_FLOW_TIMEOUT = 60_000;
+const REMOTE_STATE_TIMEOUT = 15_000;
 
 test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 내역을 확인한다', async ({
   authenticatedPage: page,
   testAddress,
 }) => {
+  test.setTimeout(AUTHENTICATED_FLOW_TIMEOUT);
+
   await page.goto(PRODUCT_PATH);
 
   await expect(
@@ -37,7 +41,9 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
     name: '결제하기',
     exact: true,
   });
-  await expect(checkoutButton).toBeEnabled();
+  await expect(checkoutButton).toBeEnabled({
+    timeout: REMOTE_STATE_TIMEOUT,
+  });
   await checkoutButton.click();
 
   await expect(page).toHaveURL(/\/checkout$/);
@@ -72,7 +78,9 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
   await expect(demoPaymentButton).toBeEnabled();
   await demoPaymentButton.click();
 
-  await expect(page).toHaveURL(/\/my\/orders$/);
+  await expect(page).toHaveURL(/\/my\/orders$/, {
+    timeout: REMOTE_STATE_TIMEOUT,
+  });
   await expect(
     page.getByRole('heading', { name: '주문 목록', exact: true }),
   ).toBeVisible();
