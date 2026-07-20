@@ -1,0 +1,57 @@
+name: End-to-End Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_DATABASE_URL: ${{ secrets.PLAYWRIGHT_DATABASE_URL }}
+      DATABASE_CONNECTION_MODE: direct
+      AUTH_SECRET: playwright-e2e-ci-only-secret-not-for-production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - name: Upload failure artifacts
+        if: failure() && !cancelled()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-test-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
