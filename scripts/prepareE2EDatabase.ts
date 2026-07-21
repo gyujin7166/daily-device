@@ -3,8 +3,14 @@ import { spawnSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 
-import { isE2ESeedDataReady } from './e2eDatabaseSeed';
+import {
+  isE2ESeedDataReady,
+  readE2ESeedDataCounts,
+  retryE2EDatabaseOperation,
+} from './e2eDatabaseSeed';
 import { requireE2EDatabaseUrl } from './e2eDatabaseUrl';
+
+import type { E2ESeedDataCountReaders } from './e2eDatabaseSeed';
 
 config({ path: '.env.local', quiet: true });
 config({ quiet: true });
@@ -52,75 +58,52 @@ function runCommand(command: Command, env: NodeJS.ProcessEnv) {
 }
 
 async function hasRequiredSeedData(databaseUrl: string) {
-  const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
+  return retryE2EDatabaseOperation(
+    async () => {
+      const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
+      const readers: E2ESeedDataCountReaders = {
+        categories: () => prisma.productCategory.count(),
+        categoryTranslations: () => prisma.productCategoryTranslation.count(),
+        colors: () => prisma.color.count(),
+        colorTranslations: () => prisma.colorTranslation.count(),
+        filterOptions: () => prisma.filterOption.count(),
+        filterOptionTranslations: () => prisma.filterOptionTranslation.count(),
+        filters: () => prisma.filter.count(),
+        filterTranslations: () => prisma.filterTranslation.count(),
+        heroes: () => prisma.hero.count(),
+        heroTranslations: () => prisma.heroTranslation.count(),
+        homeSectionItems: () => prisma.homeSectionItem.count(),
+        homeSectionItemTranslations: () =>
+          prisma.homeSectionItemTranslation.count(),
+        homeSections: () => prisma.homeSection.count(),
+        homeSectionTranslations: () => prisma.homeSectionTranslation.count(),
+        productDetails: () => prisma.productDetail.count(),
+        productDetailTranslations: () =>
+          prisma.productDetailTranslation.count(),
+        productImages: () => prisma.productImage.count(),
+        products: () => prisma.product.count(),
+        productTranslations: () => prisma.productTranslation.count(),
+      };
 
-  try {
-    const [
-      categories,
-      categoryTranslations,
-      colors,
-      colorTranslations,
-      filterOptions,
-      filterOptionTranslations,
-      filters,
-      filterTranslations,
-      heroes,
-      heroTranslations,
-      homeSectionItems,
-      homeSectionItemTranslations,
-      homeSections,
-      homeSectionTranslations,
-      productDetails,
-      productDetailTranslations,
-      productImages,
-      products,
-      productTranslations,
-    ] = await Promise.all([
-      prisma.productCategory.count(),
-      prisma.productCategoryTranslation.count(),
-      prisma.color.count(),
-      prisma.colorTranslation.count(),
-      prisma.filterOption.count(),
-      prisma.filterOptionTranslation.count(),
-      prisma.filter.count(),
-      prisma.filterTranslation.count(),
-      prisma.hero.count(),
-      prisma.heroTranslation.count(),
-      prisma.homeSectionItem.count(),
-      prisma.homeSectionItemTranslation.count(),
-      prisma.homeSection.count(),
-      prisma.homeSectionTranslation.count(),
-      prisma.productDetail.count(),
-      prisma.productDetailTranslation.count(),
-      prisma.productImage.count(),
-      prisma.product.count(),
-      prisma.productTranslation.count(),
-    ]);
+      try {
+        await prisma.$connect();
+        const counts = await readE2ESeedDataCounts(readers);
 
-    return isE2ESeedDataReady({
-      categories,
-      categoryTranslations,
-      colors,
-      colorTranslations,
-      filterOptions,
-      filterOptionTranslations,
-      filters,
-      filterTranslations,
-      heroes,
-      heroTranslations,
-      homeSectionItems,
-      homeSectionItemTranslations,
-      homeSections,
-      homeSectionTranslations,
-      productDetails,
-      productDetailTranslations,
-      productImages,
-      products,
-      productTranslations,
-    });
-  } finally {
-    await prisma.$disconnect();
-  }
+        return isE2ESeedDataReady(counts);
+      } finally {
+        await prisma.$disconnect();
+      }
+    },
+    {
+      maxAttempts: 3,
+      retryDelayMs: 1_000,
+      onRetry: (nextAttempt, delayMs) => {
+        console.warn(
+          `E2E seed readiness check failed. Retrying attempt ${nextAttempt}/3 in ${delayMs}ms.`,
+        );
+      },
+    },
+  );
 }
 
 async function prepareE2EDatabase() {
