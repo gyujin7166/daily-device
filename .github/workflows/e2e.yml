@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare E2E database
+        run: npm run db:prepare:e2e
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

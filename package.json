@@ -14,6 +14,7 @@
     "db:seed:i18n": "ts-node prisma/seeds/seed-i18n.ts",
     "db:seed:i18n:product-category": "ts-node prisma/seeds/seed-product-category-i18n.ts",
     "db:seed:i18n:product-detail": "ts-node prisma/seeds/seed-product-detail-i18n.ts",
+    "db:prepare:e2e": "ts-node scripts/prepareE2EDatabase.ts",
     "upload:seed-images": "ts-node prisma/seeds/upload-seed-images.ts",
     "test": "vitest",
     "test:unit": "vitest run",
