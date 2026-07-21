@@ -181,10 +181,16 @@ npx playwright install chromium
 - 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
 - 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
 
-인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 없으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다. E2E DB에는 상품 seed 데이터가 준비되어 있어야 합니다.
+인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 없으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다.
 
 ```env
-PLAYWRIGHT_DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/TEST_DATABASE?sslaccept=strict"
+PLAYWRIGHT_DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/daily_device_e2e?sslaccept=strict"
+```
+
+E2E 전용 DB의 스키마와 seed 데이터를 수동으로 준비할 때는 다음 명령을 실행합니다. 이 명령은 URL의 데이터베이스 이름이 정확히 `daily_device_e2e`인 경우에만 실행되며, 검증된 URL을 Prisma의 `DATABASE_URL`로 전달합니다. 스키마를 동기화한 뒤 필수 seed 상태를 확인하고, 데이터가 비어 있거나 불완전한 경우에만 기본 seed와 i18n seed를 동기화합니다.
+
+```bash
+npm run db:prepare:e2e
 ```
 
 실제 OAuth, Toss Payments 승인과 운영 DB는 자동화 테스트에서 사용하지 않습니다. 결제 E2E는 외부 결제창을 호출하지 않는 데모 결제 흐름만 검증합니다.
@@ -200,7 +206,7 @@ npx tsc --noEmit
 npm run lint
 ```
 
-`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 공유 테스트 사용자와 DB 상태가 충돌하지 않도록 workflow 실행을 한 번에 하나로 제한하며, 실패한 실행의 trace와 스크린샷은 `playwright-test-results` artifact에서 확인할 수 있습니다.
+`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다. GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용하며, 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 공유 테스트 사용자와 DB 상태가 충돌하지 않도록 workflow 실행을 한 번에 하나로 제한하며, 실패한 실행의 trace와 스크린샷은 `playwright-test-results` artifact에서 확인할 수 있습니다.
 
 GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 E2E job을 건너뜁니다. Next.js build는 DB와 배포 환경변수가 필요하므로 로컬 검증 범위로 유지합니다.
 
