@@ -46,7 +46,7 @@ jobs:
 
       - name: Run production build
         env:
-          DATABASE_URL: ${{ secrets.PLAYWRIGHT_DATABASE_URL }}
+          DATABASE_URL: '${{ secrets.PLAYWRIGHT_DATABASE_URL }}&connection_limit=1&connect_timeout=30&pool_timeout=60'
         run: npm run build
 
       - name: Install Chromium
