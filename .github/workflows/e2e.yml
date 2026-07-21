@@ -44,6 +44,11 @@ jobs:
       - name: Prepare E2E database
         run: npm run db:prepare:e2e
 
+      - name: Run production build
+        env:
+          DATABASE_URL: ${{ secrets.PLAYWRIGHT_DATABASE_URL }}
+        run: npm run build
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
