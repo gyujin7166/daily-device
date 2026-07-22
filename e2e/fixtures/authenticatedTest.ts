@@ -31,6 +31,8 @@ type AddressApiResponse = {
 
 const STORAGE_INITIALIZED_KEY = 'playwright-storage-initialized';
 const TEST_USER_EMAIL = 'playwright@daily-device.local';
+const DEMO_LOGIN_MAX_ATTEMPTS = 3;
+const DEMO_LOGIN_RETRY_DELAY_MS = 1_000;
 const TEST_ADDRESS = {
   recipientName: 'Playwright Recipient',
   recipientPhone: '01012345678',
@@ -102,6 +104,30 @@ async function signOut(request: APIRequestContext) {
   expect(signOutResponse).toBeOK();
 }
 
+async function loginAsDemoUser(request: APIRequestContext) {
+  let loginResponse = await request.post('/api/auth/demo-login', {
+    data: { callbackUrl: '/products' },
+  });
+
+  for (
+    let attempt = 1;
+    attempt < DEMO_LOGIN_MAX_ATTEMPTS &&
+    loginResponse.status() >= 500 &&
+    loginResponse.status() < 600;
+    attempt += 1
+  ) {
+    await loginResponse.dispose();
+    await new Promise((resolve) =>
+      setTimeout(resolve, DEMO_LOGIN_RETRY_DELAY_MS),
+    );
+    loginResponse = await request.post('/api/auth/demo-login', {
+      data: { callbackUrl: '/products' },
+    });
+  }
+
+  await expect(loginResponse).toBeOK();
+}
+
 export const test = base.extend<AuthenticatedFixtures>({
   authenticatedPage: async ({ context, page }, provide) => {
     await page.addInitScript((storageInitializedKey) => {
@@ -114,10 +140,7 @@ export const test = base.extend<AuthenticatedFixtures>({
       window.sessionStorage.setItem(storageInitializedKey, 'true');
     }, STORAGE_INITIALIZED_KEY);
 
-    const loginResponse = await context.request.post('/api/auth/demo-login', {
-      data: { callbackUrl: '/products' },
-    });
-    expect(loginResponse).toBeOK();
+    await loginAsDemoUser(context.request);
     await clearOrders();
     await clearCart(context.request);
 
