@@ -10,7 +10,7 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
 }) => {
   test.setTimeout(AUTHENTICATED_FLOW_TIMEOUT);
 
-  await page.goto(PRODUCT_PATH);
+  await page.goto(PRODUCT_PATH, { waitUntil: 'domcontentloaded' });
 
   await expect(
     page.getByRole('button', {
