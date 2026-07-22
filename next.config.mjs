@@ -9,7 +9,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: isE2EBuild
     ? {
-        cpus: 1,
+        cpus: 2,
         staticGenerationMaxConcurrency: 1,
         staticGenerationRetryCount: 2,
       }
