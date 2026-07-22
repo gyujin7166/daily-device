@@ -46,7 +46,9 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
   });
   await checkoutButton.click();
 
-  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page).toHaveURL(/\/checkout$/, {
+    timeout: REMOTE_STATE_TIMEOUT,
+  });
   await expect(
     page.getByRole('heading', { name: '주문/결제', exact: true }),
   ).toBeVisible();
