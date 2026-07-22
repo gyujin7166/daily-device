@@ -5,10 +5,14 @@ loadEnv({ path: '.env.local', quiet: true });
 loadEnv({ quiet: true });
 
 const baseURL = 'http://localhost:3100';
+const isCI = Boolean(process.env.CI);
 const playwrightDatabaseUrl = process.env.PLAYWRIGHT_DATABASE_URL;
 const databaseUrl = playwrightDatabaseUrl ?? process.env.DATABASE_URL;
 const databaseConnectionMode =
   process.env.DATABASE_CONNECTION_MODE ?? 'serverless';
+const webServerCommand = isCI
+  ? 'npm run start -- --hostname localhost --port 3100'
+  : 'npm run dev -- --hostname localhost --port 3100';
 const testUserEmail = 'playwright@daily-device.local';
 const testUserName = 'Playwright User';
 
@@ -38,9 +42,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run dev -- --hostname localhost --port 3100',
+    command: webServerCommand,
     env: {
-      NEXT_DIST_DIR: '.next-playwright',
+      ...(isCI ? {} : { NEXT_DIST_DIR: '.next-playwright' }),
       AUTH_URL: baseURL,
       NEXTAUTH_URL: baseURL,
       DATABASE_URL: databaseUrl,

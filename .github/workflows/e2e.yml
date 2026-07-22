@@ -22,7 +22,7 @@ jobs:
       (github.actor != 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     env:
       PLAYWRIGHT_DATABASE_URL: ${{ secrets.PLAYWRIGHT_DATABASE_URL }}
       DATABASE_CONNECTION_MODE: direct
@@ -55,7 +55,33 @@ jobs:
       - name: Run production build
         env:
           DATABASE_URL: '${{ secrets.PLAYWRIGHT_DATABASE_URL }}&connection_limit=3&connect_timeout=30&pool_timeout=60'
-        run: npm run build
+          E2E_BUILD: 'true'
+        shell: bash
+        run: |
+          set -o pipefail
+          build_log="$RUNNER_TEMP/next-build.log"
+
+          for attempt in 1 2; do
+            if npm run build 2>&1 | tee "$build_log"; then
+              rm -f "$build_log"
+              exit 0
+            fi
+
+            if ! grep -Eq "P1001|Can't reach database server" "$build_log"; then
+              rm -f "$build_log"
+              echo "::error::Production build failed with a non-transient error."
+              exit 1
+            fi
+
+            if [ "$attempt" -eq 2 ]; then
+              rm -f "$build_log"
+              echo "::error::Production build still cannot reach the E2E database after one retry."
+              exit 1
+            fi
+
+            echo "::warning::Production build could not reach the E2E database. Retrying in 10 seconds."
+            sleep 10
+          done
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium

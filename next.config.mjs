@@ -1,11 +1,19 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
+const isE2EBuild = process.env.E2E_BUILD === 'true';
 
 const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR ?? '.next',
   transpilePackages: ['next-auth'],
   reactStrictMode: true,
+  experimental: isE2EBuild
+    ? {
+        cpus: 2,
+        staticGenerationMaxConcurrency: 1,
+        staticGenerationRetryCount: 2,
+      }
+    : undefined,
   images: {
     remotePatterns: [
       {
