@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: e2e-${{ github.repository }}
-  cancel-in-progress: false
+  group: e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   e2e:
