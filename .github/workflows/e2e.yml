@@ -55,6 +55,7 @@ jobs:
       - name: Run production build
         env:
           DATABASE_URL: '${{ secrets.PLAYWRIGHT_DATABASE_URL }}&connection_limit=3&connect_timeout=30&pool_timeout=60'
+          E2E_BUILD: 'true'
         shell: bash
         run: |
           set -o pipefail
