@@ -145,6 +145,41 @@ npm run dev
 http://localhost:3000
 ```
 
+## 환경 변수
+
+`.env.example`을 `.env.local`로 복사한 뒤 로컬 환경에 맞는 값을 설정합니다. `.env.local`을 포함한 `.env*` 파일은 Git에서 제외되며, `.env.example`에는 실제 Secret을 기록하지 않습니다.
+
+### 기본 실행
+
+| 구분          | 환경 변수                                 | 설명                                                                  |
+| ------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| Database      | `DATABASE_URL`                            | Prisma가 사용하는 개발 DB 연결 URL                                    |
+| 연결 방식     | `DATABASE_CONNECTION_MODE`                | `serverless`가 기본값이며 직접 MySQL 연결이 필요할 때만 `direct` 사용 |
+| Auth.js       | `AUTH_SECRET`, `AUTH_URL`, `NEXTAUTH_URL` | 세션 서명과 로컬 callback 기준 URL                                    |
+| Auth 디버그   | `AUTH_DEBUG`                              | 인증 문제를 확인할 때만 `true`로 설정                                 |
+| 데모 로그인   | `DEMO_USER_EMAIL`, `DEMO_USER_NAME`       | 생략하면 코드의 데모 계정 기본값 사용                                 |
+| API 기준 경로 | `NEXT_PUBLIC_API_URL`                     | 생략하면 현재 origin의 상대 경로 사용                                 |
+
+### 기능별 선택 설정
+
+| 기능             | 환경 변수                                                                                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Google OAuth     | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`                                                                                                                   |
+| Naver OAuth      | `AUTH_NAVER_ID`, `AUTH_NAVER_SECRET`                                                                                                                     |
+| Kakao OAuth      | `AUTH_KAKAO_ID`, `AUTH_KAKAO_SECRET`                                                                                                                     |
+| Cloudinary       | `CLOUDINARY_URL` 또는 `CLOUDINARY_API_SECRET`, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_API_KEY`, 업로드 preset과 folder prefix 변수 |
+| Toss Payments    | `NEXT_PUBLIC_TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`                                                                                                         |
+| Seed 이미지 도구 | `SEED_IMAGE_ROOT`, `SEED_IMAGE_MANIFEST_PATH`, `SEED_MAIN_HERO_IMAGE_URL`, `SEED_PRODUCT_ALL_HERO_IMAGE_URL`, `SEED_PRODUCT_DISCOUNTS_HERO_IMAGE_URL`    |
+
+`NEXT_PUBLIC_*` 변수는 브라우저 번들에 포함되므로 Secret을 넣으면 안 됩니다. OAuth client secret, `AUTH_SECRET`, `CLOUDINARY_API_SECRET`, `CLOUDINARY_URL`, `TOSS_SECRET_KEY`와 DB URL은 서버 환경에서만 관리합니다.
+
+### E2E와 배포 환경
+
+- 로컬 Playwright는 `PLAYWRIGHT_DATABASE_URL`을 우선 사용하고, 없으면 개발용 `DATABASE_URL`을 사용합니다.
+- GitHub Actions에서는 Repository Secret `PLAYWRIGHT_DATABASE_URL`이 반드시 `daily_device_e2e` 전용 DB를 가리켜야 합니다.
+- `PLAYWRIGHT_DATABASE_URL`은 Vercel에 등록하지 않습니다. Vercel Preview와 Production의 DB, OAuth, Cloudinary, 결제 환경 변수는 각 환경에서 별도로 관리합니다.
+- `CI`, `VERCEL`, `E2E_BUILD`, `NEXT_DIST_DIR`은 플랫폼, workflow와 Playwright 설정이 내부적으로 제어하므로 일반적인 `.env.local` 설정에 추가하지 않습니다.
+
 ## DB 관리
 
 포트폴리오 목적의 프로젝트라 현재는 `schema.prisma`와 `db push` 기준으로 관리했습니다.
