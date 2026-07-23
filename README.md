@@ -179,7 +179,7 @@ npx vitest run src/i18n/messages.test.ts
 npm run db:seed:i18n
 ```
 
-`db:seed:i18n`은 연결된 DB를 변경하므로 실행 전에 `DATABASE_URL` 또는 `PLAYWRIGHT_DATABASE_URL`이 의도한 개발·E2E DB를 가리키는지 확인해야 합니다.
+`db:seed:i18n`은 `DATABASE_URL`이 가리키는 DB를 직접 변경하므로 실행 전에 대상이 의도한 개발 DB인지 확인해야 합니다. E2E DB의 스키마와 번역 데이터를 준비할 때는 아래의 `db:prepare:e2e`를 사용합니다. 이 명령이 `PLAYWRIGHT_DATABASE_URL`을 검증한 뒤 seed 과정에 `DATABASE_URL`로 전달합니다.
 
 ## 테스트
 
