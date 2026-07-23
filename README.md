@@ -19,6 +19,12 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
 포트폴리오 검토를 위해 데모 계정은 관리자 페이지를 읽기 전용으로 조회할 수 있습니다.
 
+배포와 검증은 다음 흐름으로 진행합니다.
+
+- Pull request: Quality Check, Playwright E2E, Vercel Preview 확인
+- `main` 병합: 동일한 GitHub Actions 재검증 후 Vercel Production 배포
+- GitHub Actions의 E2E 환경과 Vercel의 Preview·Production 환경 변수는 서로 분리
+
 ## 사용 기술
 
 ### Frontend
@@ -27,6 +33,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - TypeScript
 - Tailwind CSS v4
 - TanStack Query v5
+- next-intl
 
 ### Backend / Database
 
@@ -62,6 +69,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - Daum 우편번호 검색을 이용한 배송지 주소 입력
 - 배송지/상품평 입력 폼 유효성 검사
 - 로그인, 소셜 로그인, 데모 로그인
+- 한국어·영어 UI와 상품 콘텐츠, locale 기반 라우팅
 - 관리자 페이지
   - Hero 추가/수정/삭제, 문구 색상, 네비바 색상, 오버레이, 위치 관리
   - 상품 추가/수정/삭제
@@ -89,6 +97,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 ## 프로젝트에서 신경 쓴 부분
 
 - Next.js App Router는 라우팅 엔트리로 사용하고, 화면 조합과 기능 로직은 FSD 구조에 맞춰 분리했습니다.
+- UI 문구는 `messages/ko.json`, `messages/en.json` 카탈로그로 관리하고, 상품·카테고리처럼 DB에서 조회하는 콘텐츠는 locale별 번역 테이블과 한국어 fallback을 사용합니다.
 - API Route에서는 요청 `params`, `query`, `body`를 Zod schema로 검증하고, 클라이언트 폼에서는 즉시 피드백을 위한 별도 검증 로직을 적용했습니다.
 - TanStack Query의 prefetch/hydration, query key 분리, 낙관적 업데이트로 서버 상태와 클라이언트 UI를 관리했습니다.
 - Prisma ORM과 TiDB/MySQL을 사용해 상품, 카테고리, 색상 옵션, 이미지, 장바구니, 주문, 배송지, 상품평, 찜하기 데이터를 관계형 구조로 설계했습니다.
@@ -116,8 +125,11 @@ src/features/         기능 단위 UI와 로직
 src/entities/         도메인 단위 타입, API, UI
 src/shared/           공용 UI, 유틸, 상수
 src/app/api-routes/   API Route 실제 구현
+src/i18n/             next-intl 요청별 메시지 설정
+messages/             한국어·영어 UI 메시지 카탈로그
 prisma/               Prisma schema와 seed, seed 이미지 업로드 스크립트
 public/               로고, fallback, 홈/카테고리 등 정적 UI 이미지
+.github/workflows/     Quality Check와 Playwright E2E workflow
 ```
 
 ## 실행
@@ -148,6 +160,26 @@ npm run db:seed
 npm run upload:seed-images
 npm run db:seed
 ```
+
+## 국제화 (i18n)
+
+`next-intl`을 사용해 한국어와 영어를 지원합니다. locale의 기준은 `src/shared/config/i18n/routing.ts`이며, 기본 locale은 한국어입니다. 한국어 경로는 `/products`처럼 접두사 없이 표시되고, 영어 경로는 `/en/products`처럼 `/en` 접두사를 사용합니다. 저장된 `NEXT_LOCALE` 쿠키가 없고 URL에도 locale이 없으면 브라우저 선호 언어에 따라 영어 경로로 안내합니다.
+
+번역 데이터는 성격에 따라 나누어 관리합니다.
+
+- UI 문구: `messages/ko.json`, `messages/en.json`
+- 상품, 카테고리, Hero 등 DB 콘텐츠: Prisma의 locale별 번역 모델
+- locale 인식 링크와 이동: `src/shared/lib/i18n/navigation.ts`
+- 요청별 메시지 로딩: `src/i18n/request.ts`
+
+UI 문구를 추가할 때는 두 메시지 카탈로그에 같은 key와 ICU placeholder를 추가합니다. DB 콘텐츠 번역을 변경할 때는 대상 DB를 확인한 뒤 i18n seed를 실행합니다.
+
+```bash
+npx vitest run src/i18n/messages.test.ts
+npm run db:seed:i18n
+```
+
+`db:seed:i18n`은 연결된 DB를 변경하므로 실행 전에 `DATABASE_URL` 또는 `PLAYWRIGHT_DATABASE_URL`이 의도한 개발·E2E DB를 가리키는지 확인해야 합니다.
 
 ## 테스트
 
@@ -195,7 +227,9 @@ npm run db:prepare:e2e
 
 실제 OAuth, Toss Payments 승인과 운영 DB는 자동화 테스트에서 사용하지 않습니다. 결제 E2E는 외부 결제창을 호출하지 않는 데모 결제 흐름만 검증합니다.
 
-## CI
+## CI/CD
+
+### Quality Check
 
 GitHub Actions의 `Quality Check` workflow는 pull request와 `main` 브랜치 push에서 다음 검사를 실행합니다.
 
@@ -206,6 +240,8 @@ npx tsc --noEmit
 npm run lint
 ```
 
+### Playwright E2E
+
 `End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
 
 빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
@@ -215,6 +251,12 @@ GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Pri
 같은 ref에서 새 workflow가 시작되면 이전 실행은 취소됩니다. 실패한 실행의 trace와 스크린샷은 7일 동안 `playwright-test-results` artifact에서 확인할 수 있습니다.
 
 GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 production build와 E2E를 포함한 해당 job을 건너뜁니다.
+
+### Vercel 배포
+
+Pull request에는 Vercel Preview 배포를 연결하고, 필수 GitHub Actions 검사를 통과해 `main`에 병합된 커밋은 Production으로 배포합니다. GitHub Actions의 `PLAYWRIGHT_DATABASE_URL`은 Vercel에 전달하지 않으며, Vercel의 Preview와 Production에는 각 환경에 맞는 `DATABASE_URL`, OAuth, Cloudinary, 결제 관련 환경 변수를 별도로 설정합니다.
+
+상품 상세 경로는 정적 생성과 1시간 단위 ISR을 사용합니다. 관리자에서 관련 콘텐츠를 변경하는 mutation은 해당 경로를 revalidate해 주기적인 갱신을 기다리지 않고 변경 사항을 반영합니다.
 
 ## 검증
 
