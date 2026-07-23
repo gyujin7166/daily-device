@@ -206,7 +206,13 @@ npx tsc --noEmit
 npm run lint
 ```
 
-`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다. 빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고, 다수의 정적 페이지를 생성할 때 TiDB Starter의 연결이 소진되지 않도록 Prisma pool을 연결 1개로 제한하고 연결·pool 대기 시간을 확장합니다. GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 공유 테스트 사용자와 DB 상태가 충돌하지 않도록 workflow 실행을 한 번에 하나로 제한하며, 실패한 실행의 trace와 스크린샷은 `playwright-test-results` artifact에서 확인할 수 있습니다.
+`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
+
+빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
+
+GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 인증 E2E의 데모 로그인 요청이 일시적인 5xx 응답을 반환하면 1초 간격으로 최대 3회 시도하며, 4xx 응답이나 반복되는 서버 오류는 테스트 실패로 처리합니다.
+
+같은 ref에서 새 workflow가 시작되면 이전 실행은 취소됩니다. 실패한 실행의 trace와 스크린샷은 7일 동안 `playwright-test-results` artifact에서 확인할 수 있습니다.
 
 GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 production build와 E2E를 포함한 해당 job을 건너뜁니다.
 
