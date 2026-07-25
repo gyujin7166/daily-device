@@ -53,6 +53,7 @@ export default function NavBar() {
     handleMouseEnter,
     handleMouseLeave,
     handleMouseMove,
+    handleDropdownNavigate,
     handleCloseMobileMenu,
     handleToggleMobileMenu,
     handleToggleMobileShop,
@@ -208,6 +209,7 @@ export default function NavBar() {
               handleMouseEnter={handleMouseEnter}
               handleMouseLeave={handleMouseLeave}
               handleMouseMove={handleMouseMove}
+              onNavigate={handleDropdownNavigate}
               isDarkOverlayStyle={useDarkOverlayContent}
               isOverlayStyle={useLightOverlayContent}
             />

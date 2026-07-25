@@ -1,6 +1,8 @@
 import { IconChevronDown } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
+import { useCategory } from '@entities/product/queries/useCategory';
+
 import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 import { cn } from '@shared/lib/utils/style';
@@ -14,6 +16,7 @@ type NavigationMenuProps = {
   handleMouseEnter: () => void;
   handleMouseLeave: () => void;
   handleMouseMove?: () => void;
+  onNavigate: () => void;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
 };
@@ -23,11 +26,14 @@ export default function NavMenu({
   handleMouseEnter,
   handleMouseLeave,
   handleMouseMove,
+  onNavigate,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
 }: NavigationMenuProps) {
   const t = useTranslations('Navigation.menu');
   const commonFeedbackT = useTranslations('Common.feedback');
+  useCategory();
+
   const handleUnavailableMenuClick = () => {
     toast.info(commonFeedbackT('notImplemented'));
   };
@@ -99,6 +105,7 @@ export default function NavMenu({
         <NavBarDropdown
           handleMouseEnter={handleMouseEnter}
           handleMouseLeave={handleMouseLeave}
+          onNavigate={onNavigate}
         />
       )}
     </div>
