@@ -2,10 +2,7 @@ import { useTranslations } from 'next-intl';
 
 import type { HomeSection } from '@entities/home/model/types';
 
-import {
-  CATEGORY_CAROUSEL_LAYOUTS,
-  HOME_CATEGORY_CAROUSEL_SLIDES,
-} from '../model/homeCategoryCarousel';
+import { CATEGORY_CAROUSEL_LAYOUTS } from '../model/homeCategoryCarousel';
 import { useHomeCategoryCarousel } from '../model/hooks/useHomeCategoryCarousel';
 
 import HomeCategoryCarouselArrowButton from './HomeCategoryCarouselArrowButton';
@@ -28,7 +25,7 @@ const toCategoryLayoutGroups = (
   section: HomeSection | undefined,
 ): HomeCategoryCarouselSlideType[] => {
   if (!section) {
-    return HOME_CATEGORY_CAROUSEL_SLIDES;
+    return [];
   }
 
   return section.items
