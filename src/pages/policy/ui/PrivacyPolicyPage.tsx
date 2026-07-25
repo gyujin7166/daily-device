@@ -2,8 +2,15 @@ import { getPolicy } from '../model/policies';
 
 import PolicyPage from './PolicyPage';
 
-export default async function PrivacyPolicyPage() {
-  const policy = await getPolicy('privacy');
+type PrivacyPolicyPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function PrivacyPolicyPage({
+  params,
+}: PrivacyPolicyPageProps) {
+  const { locale } = await params;
+  const policy = await getPolicy('privacy', locale);
 
   return <PolicyPage {...policy} />;
 }

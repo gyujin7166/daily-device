@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import Script from 'next/script';
 
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 
 import '@app/styles/globals.css';
 
@@ -71,6 +71,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
+  const messages = await getMessages({ locale });
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -84,7 +85,7 @@ export default async function LocaleLayout({
       <body
         className={`${pretendard.className} bg-canvas text-ink dark:bg-dark-bg dark:text-surface`}
       >
-        <NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>
