@@ -217,6 +217,13 @@ export async function upsertCartItem(
   const quantity = Math.max(0, Math.min(Math.trunc(rawQuantity), 10));
 
   return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw<Array<{ id: string }>>`
+      SELECT id
+      FROM \`User\`
+      WHERE id = ${userId}
+      FOR UPDATE
+    `;
+
     let cart = await tx.cart.findFirst({
       where: { userId },
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
@@ -287,12 +294,22 @@ export async function upsertCartItem(
             colorName: resolvedColorName ?? null,
           };
 
-    const existingCartItem = await tx.cartItem.findFirst({
+    const existingCartItems = await tx.cartItem.findMany({
       where: findWhere,
       select: { id: true },
+      orderBy: { id: 'asc' },
     });
+    const [existingCartItem, ...duplicateCartItems] = existingCartItems;
 
     if (existingCartItem) {
+      if (duplicateCartItems.length > 0) {
+        await tx.cartItem.deleteMany({
+          where: {
+            id: { in: duplicateCartItems.map((item) => item.id) },
+          },
+        });
+      }
+
       return tx.cartItem.update({
         where: { id: existingCartItem.id },
         data: {

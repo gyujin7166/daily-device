@@ -131,7 +131,7 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
       return rest;
     });
   };
-  const startCartSync = (variantKey: string) => {
+  const startCartSync = useCallback((variantKey: string) => {
     pendingCartSyncKeysRef.current = {
       ...pendingCartSyncKeysRef.current,
       [variantKey]: true,
@@ -139,8 +139,8 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
     setPendingCartSyncKeys((prev) =>
       prev[variantKey] ? prev : { ...prev, [variantKey]: true },
     );
-  };
-  const finishCartSync = (variantKey: string) => {
+  }, []);
+  const finishCartSync = useCallback((variantKey: string) => {
     if (pendingCartSyncKeysRef.current[variantKey]) {
       const { [variantKey]: _removed, ...rest } =
         pendingCartSyncKeysRef.current;
@@ -155,7 +155,7 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
       const { [variantKey]: _removed, ...rest } = prev;
       return rest;
     });
-  };
+  }, []);
   const isCartVariantAdding = useCallback(
     (variantKey: string) =>
       Boolean(pendingAddingItemKeysRef.current[variantKey]),
@@ -245,18 +245,25 @@ export default function CartProvider({ children }: React.PropsWithChildren) {
 
     mergedUserIdRef.current = session.user.id;
     isMergingLocalCartRef.current = true;
+    const mergingVariantKeys = Array.from(
+      new Set(parsedLocalCartItems.map(getCartVariantKey)),
+    );
+    mergingVariantKeys.forEach(startCartSync);
 
     void mergeLocalCart(parsedLocalCartItems, setLocalCartItems, userCartItems)
       .catch(() => {
         mergedUserIdRef.current = null;
       })
       .finally(() => {
+        mergingVariantKeys.forEach(finishCartSync);
         isMergingLocalCartRef.current = false;
       });
   }, [
+    finishCartSync,
     isUserCartFetched,
     mergeLocalCart,
     session?.user.id,
+    startCartSync,
     status,
     userCartItems,
   ]);
