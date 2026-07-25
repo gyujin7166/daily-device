@@ -113,4 +113,42 @@ describe('CartProvider', () => {
     rerender();
     expect(mocks.mergeLocalCart).toHaveBeenCalledTimes(1);
   });
+
+  it('로컬 장바구니 병합 중에는 해당 variant의 추가 동작을 잠근다', async () => {
+    let resolveMerge: (() => void) | undefined;
+    mocks.mergeLocalCart.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveMerge = resolve;
+        }),
+    );
+    localStorage.setItem('localCart', JSON.stringify([localCartItemFixture]));
+    mocks.session = {
+      data: { user: { id: 'test-user' } },
+      status: 'authenticated',
+    };
+    mocks.cartResult = {
+      data: { ...cartResponseFixture, items: [], totalPrice: 0 },
+      isFetched: true,
+    };
+
+    const { result } = renderHook(useCartContext, { wrapper });
+    const variantKey = getCartVariantKey(localCartItemFixture);
+
+    await waitFor(() => {
+      expect(mocks.mergeLocalCart).toHaveBeenCalledOnce();
+    });
+
+    expect(result.current.isCartVariantMutationPending(variantKey)).toBe(true);
+
+    await act(async () => {
+      resolveMerge?.();
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCartVariantMutationPending(variantKey)).toBe(
+        false,
+      );
+    });
+  });
 });
