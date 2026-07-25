@@ -5,14 +5,17 @@ import type { CategoryItems } from '@entities/category/model/types';
 import { Link } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import { cn } from '@shared/lib/utils/style';
 
 type CategoryItemProps = {
   category: CategoryItems;
+  currentPath: string;
   onNavigate?: () => void;
 };
 
 export default function CategoryItem({
   category,
+  currentPath,
   onNavigate,
 }: CategoryItemProps) {
   return (
@@ -40,17 +43,28 @@ export default function CategoryItem({
         </p>
 
         <ul className="text-sm font-medium text-muted dark:text-dark-muted">
-          {category.children.map((item) => (
-            <li key={item.id} className="mb-2.5">
-              <Link
-                href={getCategoryHref(item.slug)}
-                onClick={onNavigate}
-                className="block rounded-xl px-2 py-1 transition-colors hover:bg-primary-soft hover:text-primary dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
-              >
-                {item.name_ko}
-              </Link>
-            </li>
-          ))}
+          {category.children.map((item) => {
+            const href = getCategoryHref(item.slug);
+            const isActive = currentPath === href;
+
+            return (
+              <li key={item.id} className="mb-2.5">
+                <Link
+                  href={href}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={onNavigate}
+                  className={cn(
+                    'block rounded-xl px-2 py-1 transition-colors hover:bg-primary-soft hover:text-primary dark:hover:bg-blue-900/30 dark:hover:text-blue-300',
+                    isActive
+                      ? 'bg-primary-soft text-primary dark:bg-blue-900/30 dark:text-blue-300'
+                      : '',
+                  )}
+                >
+                  {item.name_ko}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

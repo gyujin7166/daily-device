@@ -3,6 +3,8 @@ import type { Dispatch, SetStateAction } from 'react';
 
 const DROPDOWN_OPEN_SCROLL_COOLDOWN_MS = 140;
 
+type DropdownOpenLockReason = 'navigate' | 'scroll' | null;
+
 type UseNavBarStateParams = {
   headerVisible: boolean;
   routerPath: string;
@@ -22,10 +24,10 @@ export default function useNavBarState({
   const hoverOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastScrollAtRef = useRef(0);
   const isShopHoveredRef = useRef(false);
-  const lockOpenUntilMouseLeaveRef = useRef(false);
+  const dropdownOpenLockReasonRef = useRef<DropdownOpenLockReason>(null);
 
   const scheduleDropdownOpen = () => {
-    if (!headerVisible || lockOpenUntilMouseLeaveRef.current) {
+    if (!headerVisible || dropdownOpenLockReasonRef.current) {
       return;
     }
 
@@ -55,7 +57,7 @@ export default function useNavBarState({
 
   const handleMouseEnter = () => {
     isShopHoveredRef.current = true;
-    lockOpenUntilMouseLeaveRef.current = false;
+    dropdownOpenLockReasonRef.current = null;
 
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -67,7 +69,7 @@ export default function useNavBarState({
 
   const handleMouseLeave = () => {
     isShopHoveredRef.current = false;
-    lockOpenUntilMouseLeaveRef.current = false;
+    dropdownOpenLockReasonRef.current = null;
 
     if (hoverOpenTimerRef.current) {
       clearTimeout(hoverOpenTimerRef.current);
@@ -78,7 +80,10 @@ export default function useNavBarState({
   };
 
   const handleMouseMove = () => {
-    if (!isShopHoveredRef.current || !lockOpenUntilMouseLeaveRef.current) {
+    if (
+      !isShopHoveredRef.current ||
+      dropdownOpenLockReasonRef.current !== 'scroll'
+    ) {
       return;
     }
 
@@ -87,8 +92,24 @@ export default function useNavBarState({
       return;
     }
 
-    lockOpenUntilMouseLeaveRef.current = false;
+    dropdownOpenLockReasonRef.current = null;
     scheduleDropdownOpen();
+  };
+
+  const handleDropdownNavigate = () => {
+    dropdownOpenLockReasonRef.current = 'navigate';
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (hoverOpenTimerRef.current) {
+      clearTimeout(hoverOpenTimerRef.current);
+      hoverOpenTimerRef.current = null;
+    }
+
+    setIsDropdownOpen(false);
   };
 
   const handleCloseMobileMenu = () => {
@@ -141,7 +162,7 @@ export default function useNavBarState({
         return;
       }
 
-      lockOpenUntilMouseLeaveRef.current = true;
+      dropdownOpenLockReasonRef.current = 'scroll';
 
       if (hoverOpenTimerRef.current) {
         clearTimeout(hoverOpenTimerRef.current);
@@ -161,6 +182,7 @@ export default function useNavBarState({
     handleMouseEnter,
     handleMouseLeave,
     handleMouseMove,
+    handleDropdownNavigate,
     handleCloseMobileMenu,
     handleToggleMobileMenu,
     handleToggleMobileShop,

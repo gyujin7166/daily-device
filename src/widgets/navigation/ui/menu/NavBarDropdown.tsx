@@ -3,9 +3,9 @@ import { useEffect, useMemo } from 'react';
 import type { CategoryItems } from '@entities/category/model/types';
 import { useCategory } from '@entities/product/queries/useCategory';
 
-import { Link } from '@shared/lib/i18n/navigation';
-import { useRouter } from '@shared/lib/i18n/navigation';
+import { Link, usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
+import { cn } from '@shared/lib/utils/style';
 
 import CategoryItem from './CategoryItem';
 
@@ -23,6 +23,7 @@ export default function NavBarDropdown({
   onNavigate,
 }: NavBarDropdownProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: categories, isLoading: categoryIsLoading } = useCategory();
   const categoryHrefs = useMemo(
     () =>
@@ -62,17 +63,28 @@ export default function NavBarDropdown({
                   {category.name_ko}
                 </p>
                 <ul className="space-y-1 text-sm font-medium text-muted dark:text-dark-muted">
-                  {category.children.map((item) => (
-                    <li key={item.id}>
-                      <Link
-                        href={getCategoryHref(item.slug)}
-                        className="block rounded-lg px-2 py-1 transition-colors hover:bg-primary-soft hover:text-primary dark:hover:bg-blue-900/30 dark:hover:text-blue-300"
-                        onClick={onNavigate}
-                      >
-                        {item.name_ko}
-                      </Link>
-                    </li>
-                  ))}
+                  {category.children.map((item) => {
+                    const href = getCategoryHref(item.slug);
+                    const isActive = pathname === href;
+
+                    return (
+                      <li key={item.id}>
+                        <Link
+                          href={href}
+                          aria-current={isActive ? 'page' : undefined}
+                          className={cn(
+                            'block rounded-lg px-2 py-1 transition-colors hover:bg-primary-soft hover:text-primary dark:hover:bg-blue-900/30 dark:hover:text-blue-300',
+                            isActive
+                              ? 'bg-primary-soft text-primary dark:bg-blue-900/30 dark:text-blue-300'
+                              : '',
+                          )}
+                          onClick={onNavigate}
+                        >
+                          {item.name_ko}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -101,6 +113,7 @@ export default function NavBarDropdown({
                       <CategoryItem
                         key={category.id}
                         category={category}
+                        currentPath={pathname}
                         onNavigate={onNavigate}
                       />
                     ))}
