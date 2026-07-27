@@ -331,7 +331,6 @@ export default function ProductCategoryContentContainer({
         onProductQueryChange={markProductQueryChanged}
         filteredItem={filteredItem}
         isPending={isPending}
-        shouldWaitFilteredResult={shouldWaitFilteredResult}
         totalProducts={totalProducts}
         hasNextPage={hasNextPage}
         fetchNextPage={handleFetchNextPage}
