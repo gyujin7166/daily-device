@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
@@ -11,8 +9,7 @@ import ProductDetailAccordionSection from '../accordion/ProductDetailAccordionSe
 
 import ProductDetailHeader from './ProductDetailHeader';
 import ProductDetailPurchaseSection from './ProductDetailPurchaseSection';
-import ProductDetailRatingSection from './ProductDetailRatingSection';
-import ProductDetailRatingSummarySuspense from './ProductDetailRatingSummarySuspense';
+import ProductDetailRatingSummary from './ProductDetailRatingSummary';
 import ProductDetailSkeleton from './ProductDetailSkeleton';
 
 type ProductDetailProps = {
@@ -73,17 +70,7 @@ export default function ProductDetail({
               />
             )}
           >
-            <Suspense
-              fallback={
-                <ProductDetailRatingSection
-                  reviewCount={0}
-                  averageRating={0}
-                  isReviewSummaryLoading
-                />
-              }
-            >
-              <ProductDetailRatingSummarySuspense detail={detail} />
-            </Suspense>
+            <ProductDetailRatingSummary detail={detail} />
           </ErrorBoundary>
         )}
       </QueryErrorResetBoundary>
