@@ -8,11 +8,9 @@ import { useFormatter, useTranslations } from 'next-intl';
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
 import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
-import { cn } from '@shared/lib/utils/style';
 
 type ReviewGalleryGridViewProps = {
   images: ProductReviewGalleryImage[];
-  selectedIndex: number;
   tileRefs: RefObject<Array<HTMLButtonElement | null>>;
   totalCount: number;
   hasMore: boolean;
@@ -24,7 +22,6 @@ type ReviewGalleryGridViewProps = {
 
 export default function ReviewGalleryGridView({
   images,
-  selectedIndex,
   tileRefs,
   totalCount,
   hasMore,
@@ -76,14 +73,6 @@ export default function ReviewGalleryGridView({
                   draggable={false}
                   placeholder={image.blur_data_url ? 'blur' : 'empty'}
                   blurDataURL={image.blur_data_url ?? undefined}
-                />
-                <span
-                  className={cn(
-                    'pointer-events-none absolute inset-0 transition-colors duration-200',
-                    idx === selectedIndex
-                      ? 'bg-primary/12 dark:bg-primary/18'
-                      : 'bg-transparent group-hover:bg-primary/10 dark:group-hover:bg-primary/15',
-                  )}
                 />
               </button>
             ))}

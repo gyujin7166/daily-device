@@ -23,21 +23,16 @@ export function ReviewGalleryModal({
   detailEntrySource = 'gallery',
 }: ReviewGalleryModalProps) {
   const t = useTranslations('ProductReview.gallery');
-  const {
-    selectedIndex,
-    isDetailOpen,
-    tileRefs,
-    detailViewProps,
-    openDetailModal,
-  } = useReviewGalleryModalState({
-    currentPath,
-    isOpen,
-    images,
-    initialIndex,
-    initialView,
-    detailEntrySource,
-    onClose,
-  });
+  const { isDetailOpen, tileRefs, detailViewProps, openDetailModal } =
+    useReviewGalleryModalState({
+      currentPath,
+      isOpen,
+      images,
+      initialIndex,
+      initialView,
+      detailEntrySource,
+      onClose,
+    });
 
   if (!isOpen) {
     return null;
@@ -65,7 +60,6 @@ export function ReviewGalleryModal({
         ) : (
           <ReviewGalleryGridView
             images={images}
-            selectedIndex={selectedIndex}
             tileRefs={tileRefs}
             totalCount={totalCount}
             hasMore={hasMore}
