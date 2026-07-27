@@ -198,7 +198,7 @@ npm run db:seed
 
 ## 국제화 (i18n)
 
-`next-intl`을 사용해 한국어와 영어를 지원합니다. locale의 기준은 `src/shared/config/i18n/routing.ts`이며, 기본 locale은 한국어입니다. 한국어 경로는 `/products`처럼 접두사 없이 표시되고, 영어 경로는 `/en/products`처럼 `/en` 접두사를 사용합니다. 저장된 `NEXT_LOCALE` 쿠키가 없고 URL에도 locale이 없으면 브라우저 선호 언어에 따라 영어 경로로 안내합니다.
+`next-intl`을 사용해 한국어와 영어를 지원합니다. locale의 기준은 `src/shared/config/i18n/routing.ts`이며, 기본 locale은 한국어입니다. 한국어 경로는 `/products`처럼 접두사 없이 표시되고, 영어 경로는 `/en/products`처럼 `/en` 접두사를 사용합니다. 저장된 `NEXT_LOCALE` 쿠키가 없고 URL에도 locale이 없으면 브라우저의 최우선 선호 언어가 한국어가 아닐 때 영어 경로로 안내합니다.
 
 번역 데이터는 성격에 따라 나누어 관리합니다.
 
@@ -207,7 +207,7 @@ npm run db:seed
 - locale 인식 링크와 이동: `src/shared/lib/i18n/navigation.ts`
 - 요청별 메시지 로딩: `src/i18n/request.ts`
 
-UI 문구를 추가할 때는 두 메시지 카탈로그에 같은 key와 ICU placeholder를 추가합니다. DB 콘텐츠 번역을 변경할 때는 대상 DB를 확인한 뒤 i18n seed를 실행합니다.
+UI 문구를 추가할 때는 두 메시지 카탈로그에 같은 key와 ICU placeholder를 추가합니다. locale을 사용하는 API, TanStack Query key, prefetch와 hydration 데이터도 같은 locale로 분리합니다. DB 콘텐츠 번역을 변경할 때는 대상 DB를 확인한 뒤 i18n seed를 실행합니다.
 
 ```bash
 npx vitest run src/i18n/messages.test.ts
@@ -225,6 +225,10 @@ npm run db:seed:i18n
 - MSW: 장바구니, 찜, 주문 API의 성공, 실패, 빈 응답에 따른 클라이언트 통합 테스트
 - Playwright: 실제 Chromium에서 라우팅, 인증 상태, 저장소와 핵심 사용자 흐름을 검증하는 E2E 테스트
 
+### 테스트 개발 방식
+
+프로젝트 전체를 처음부터 TDD로 개발하지는 않았습니다. 현재는 버그 수정이나 로직·사용자 상호작용 변경 시 가능한 한 실패하는 재현 테스트를 먼저 확인하고, 최소 구현으로 통과시킨 뒤 리팩터링과 재검증을 진행합니다. 문구, 스타일과 단순 정적 마크업 변경에는 테스트 우선을 적용하지 않습니다.
+
 주요 테스트 명령은 다음과 같습니다.
 
 | 명령어                | 설명                                          |
@@ -236,6 +240,8 @@ npm run db:seed:i18n
 | `npm run test:all`    | Vitest 실행 후 Playwright E2E 실행            |
 | `npm run test:visual` | `@visual` 태그가 있는 시각 회귀 테스트 실행   |
 
+현재 등록된 `@visual` 테스트가 없으면 `test:visual`은 성공으로 종료됩니다.
+
 Playwright 브라우저가 설치되지 않았다면 최초 한 번 Chromium을 설치합니다.
 
 ```bash
@@ -245,6 +251,8 @@ npx playwright install chromium
 현재 E2E 테스트는 다음 흐름을 검증합니다.
 
 - 홈 화면의 핵심 탐색 UI 표시
+- 한국어·영어 locale 전환과 URL prefix 처리
+- 두 locale의 404 응답, 홈 이동과 hydration 안정성
 - 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
 - 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
 
@@ -279,11 +287,13 @@ npm run lint
 
 `End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
 
-빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
+빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E가 사용하는 `mice` 카테고리와 `aster-mouse-mini` 상품만 대표 정적 경로로 생성하고, 전체 상품·카테고리 경로를 조회하는 Prisma 호출을 생략합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
+
+E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
 
 GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 인증 E2E의 데모 로그인 요청이 일시적인 5xx 응답을 반환하면 1초 간격으로 최대 3회 시도하며, 4xx 응답이나 반복되는 서버 오류는 테스트 실패로 처리합니다.
 
-같은 ref에서 새 workflow가 시작되면 이전 실행은 취소됩니다. 실패한 실행의 trace와 스크린샷은 7일 동안 `playwright-test-results` artifact에서 확인할 수 있습니다.
+같은 ref에서 새 workflow가 시작되면 이전 실행은 취소됩니다. CI의 Playwright 테스트는 실패 시 최대 2회 재시도하며, 재시도로 통과한 경우에도 첫 실패 원인을 확인합니다. 실패한 실행의 trace와 스크린샷은 7일 동안 `playwright-test-results` artifact에서 확인할 수 있습니다.
 
 GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 production build와 E2E를 포함한 해당 job을 건너뜁니다.
 
