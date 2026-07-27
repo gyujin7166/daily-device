@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { getLocale } from 'next-intl/server';
 
@@ -13,7 +11,6 @@ import { productQueryKeys } from '@entities/product/queries/queryKeys';
 
 import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 
-import ProductAllLoadingState from './ProductAllLoadingState';
 import ProductAllPageContainer from './ProductAllPageContainer';
 
 type ProductAllRoutePageProps = {
@@ -69,9 +66,7 @@ async function ProductAllRoutePage({
 
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
-      <Suspense fallback={<ProductAllLoadingState />}>
-        <ProductAllPageContainer discountedOnly={discountedOnly} />
-      </Suspense>
+      <ProductAllPageContainer discountedOnly={discountedOnly} />
     </HydrationBoundary>
   );
 }

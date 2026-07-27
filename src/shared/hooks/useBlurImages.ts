@@ -7,6 +7,15 @@ type UseBlurImagesOptions = {
   waitForBlur?: boolean;
 };
 
+const createImmediateImages = (
+  images: BaseImage[],
+  blurCache: Record<string, string> = {},
+) =>
+  images.map((photo) => ({
+    ...photo,
+    blurHash: blurCache[photo.image_url] ?? '',
+  }));
+
 /**
  * Blur placeholder는 원본 이미지 로딩 전에 먼저 표시되어야 하므로 캐시된 값은 즉시 반환하고,
  * 아직 없는 값만 비동기로 생성해 같은 URL의 반복 계산을 피한다.
@@ -16,24 +25,28 @@ export const useBlurImages = (
   options: UseBlurImagesOptions = {},
 ) => {
   const { waitForBlur = false } = options;
-  const [imagesSet, setImagesSet] = useState<ImageWithBlur[]>([]);
   const blurCache = useRef<Record<string, string>>({});
   const stableData = useMemo(() => data ?? [], [data]);
   const dataKey = JSON.stringify(stableData);
+  const [imagesSet, setImagesSet] = useState<ImageWithBlur[]>(() =>
+    waitForBlur ? [] : createImmediateImages(stableData),
+  );
 
   // 동일한 이미지 목록이면 setState를 건너뛰어 blur 생성 후 불필요한 리렌더링을 줄인다.
   const isSameImagesSet = (prev: ImageWithBlur[], next: ImageWithBlur[]) =>
     prev.length === next.length &&
     prev.every((item, index) => {
       const nextItem = next[index];
+      if (!nextItem) {
+        return false;
+      }
+
+      const itemKeys = Object.keys(item);
+      const nextItemKeys = Object.keys(nextItem);
+
       return (
-        item.id === nextItem?.id &&
-        item.image_url === nextItem?.image_url &&
-        item.blurHash === nextItem?.blurHash &&
-        item.position === nextItem?.position &&
-        item.textTone === nextItem?.textTone &&
-        item.navTone === nextItem?.navTone &&
-        item.overlayTone === nextItem?.overlayTone
+        itemKeys.length === nextItemKeys.length &&
+        itemKeys.every((key) => item[key] === nextItem[key])
       );
     });
 
@@ -72,10 +85,10 @@ export const useBlurImages = (
     }
 
     let isCancelled = false;
-    const immediateImages = stableData.map((photo) => ({
-      ...photo,
-      blurHash: blurCache.current[photo.image_url] ?? '',
-    }));
+    const immediateImages = createImmediateImages(
+      stableData,
+      blurCache.current,
+    );
     const hasImmediateBlurImages = immediateImages.every(
       (image) => image.blurHash.length > 0,
     );
