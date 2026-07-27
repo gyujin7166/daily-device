@@ -10,6 +10,7 @@ import {
 } from '@features/my/model/orderDisplay';
 import type { MyOrdersMode } from '@features/my/model/orderList';
 import {
+  MyPageLoadingOverlay,
   MyPageMobileMenuButton,
   MyPageScrollArea,
   MyPageSectionHeader,
@@ -17,7 +18,6 @@ import {
 import MyPageOrdersSkeleton from '@features/my/ui/skeletons/MyPageOrdersSkeleton';
 
 import { cn } from '@shared/lib/utils/style';
-import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import MyOrdersEmptyState from './parts/MyOrdersEmptyState';
 import MyOrdersItemAction from './parts/MyOrdersItemAction';
@@ -165,10 +165,7 @@ export default function MyOrdersContent({
           })}
         </div>
         {isFetching ? (
-          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-            <Spinner size="md" />
-            <span className="sr-only">{t('loading')}</span>
-          </div>
+          <MyPageLoadingOverlay label={t('loading')} hideDuringTabTransition />
         ) : null}
       </MyPageScrollArea>
 
