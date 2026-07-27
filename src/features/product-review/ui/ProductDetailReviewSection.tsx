@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type React from 'react';
 
 import { useTranslations } from 'next-intl';
@@ -54,6 +55,11 @@ export default function ProductDetailReviewSection({
     isError,
     refetch,
   } = useProductReviews(detail, currentPage, reviewSortOption, reviewFilter);
+  const [settledReviewControls, setSettledReviewControls] = useState(() => ({
+    currentPage,
+    reviewSortOption,
+    reviewFilter,
+  }));
 
   const totalReviews = productReviews?.summaryTotalItems ?? 0;
   const filteredTotalReviews = productReviews?.totalItems ?? 0;
@@ -62,9 +68,44 @@ export default function ProductDetailReviewSection({
   const hasNoReviews = totalReviews === 0;
   const hasReviewData = !!productReviews;
   const isInitialLoading = isPending && !hasReviewData;
-  const isReviewTransitionPending = isReviewsFetching && isPlaceholderData;
+  const hasReviewControlsChanged =
+    settledReviewControls.currentPage !== currentPage ||
+    settledReviewControls.reviewSortOption !== reviewSortOption ||
+    settledReviewControls.reviewFilter !== reviewFilter;
+  const isReviewTransitionPending =
+    isReviewsFetching && isPlaceholderData && hasReviewControlsChanged;
   const isReviewsRefreshing = isReviewTransitionPending || isError;
   const isReviewContentDimmed = isReviewTransitionPending || isError;
+
+  useEffect(() => {
+    if (isReviewsFetching || isPlaceholderData || isError || !productReviews) {
+      return;
+    }
+
+    setSettledReviewControls((previous) => {
+      if (
+        previous.currentPage === currentPage &&
+        previous.reviewSortOption === reviewSortOption &&
+        previous.reviewFilter === reviewFilter
+      ) {
+        return previous;
+      }
+
+      return {
+        currentPage,
+        reviewSortOption,
+        reviewFilter,
+      };
+    });
+  }, [
+    currentPage,
+    isError,
+    isPlaceholderData,
+    isReviewsFetching,
+    productReviews,
+    reviewFilter,
+    reviewSortOption,
+  ]);
 
   return (
     <PageWrapper>
