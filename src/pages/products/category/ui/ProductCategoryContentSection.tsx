@@ -27,7 +27,6 @@ type ProductCategoryContentSectionProps = {
   onProductQueryChange?: ProductFilterProps['onQueryChange'];
   filteredItem: FilteredProductsProps['filteredItem'];
   isPending: boolean;
-  shouldWaitFilteredResult: boolean;
   totalProducts?: FilteredProductsProps['totalCount'];
   hasNextPage?: FilteredProductsProps['hasNextPage'];
   fetchNextPage?: FilteredProductsProps['fetchNextPage'];
@@ -54,7 +53,6 @@ export default function ProductCategoryContentSection({
   onProductQueryChange,
   filteredItem,
   isPending,
-  shouldWaitFilteredResult,
   totalProducts,
   hasNextPage,
   fetchNextPage,
@@ -63,7 +61,6 @@ export default function ProductCategoryContentSection({
   resetKey,
 }: ProductCategoryContentSectionProps) {
   const isSidebarVisible = !isMobileViewport && visibleFilter;
-  const isProductListPending = isPending || shouldWaitFilteredResult;
 
   return (
     <section className="bg-canvas py-8 text-ink sm:py-10 dark:bg-dark-bg dark:text-surface">
@@ -103,7 +100,7 @@ export default function ProductCategoryContentSection({
             <FilteredProducts
               filteredItem={filteredItem}
               products={products}
-              isPending={isProductListPending}
+              isPending={isPending}
               totalCount={totalProducts}
               hasNextPage={hasNextPage}
               fetchNextPage={fetchNextPage}
