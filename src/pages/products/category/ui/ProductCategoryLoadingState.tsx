@@ -14,11 +14,7 @@ export default function ProductCategoryLoadingState({
   colorRows,
 }: ProductCategoryLoadingStateProps) {
   return (
-    <div className="bg-canvas dark:bg-dark-bg">
-      <section className="relative min-h-[36vh] animate-pulse bg-line supports-[height:100svh]:min-h-[36svh] sm:min-h-[38vh] sm:supports-[height:100svh]:min-h-[38svh] md:min-h-[44vh] md:supports-[height:100svh]:min-h-[44svh] lg:min-h-[50vh] dark:bg-dark-bg-hover">
-        <div className="absolute inset-0 bg-line dark:bg-dark-bg-hover" />
-      </section>
-
+    <>
       <section className="w-full border-b border-line bg-surface text-sm dark:border-dark-border dark:bg-dark-bg">
         <PageWrapper className="flex flex-wrap items-center justify-between gap-3 py-4">
           <div className="flex items-center gap-3">
@@ -48,6 +44,6 @@ export default function ProductCategoryLoadingState({
           </div>
         </PageWrapper>
       </section>
-    </div>
+    </>
   );
 }

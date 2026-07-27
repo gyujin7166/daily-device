@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
 
 import { HydrationBoundary, QueryClient } from '@tanstack/react-query';
@@ -15,7 +13,6 @@ import { getHeroList } from '@app/api-routes/products/hero/service';
 import { getProductsPage } from '@app/api-routes/products/service';
 import { getStaticProductCategoryParams } from '@app/api-routes/products/static-params/service';
 
-import ProductFilterProvider from '@features/product-filter/model/context/ProductFilterContext';
 import { productFilterQueryKeys } from '@features/product-filter/queries/queryKeys';
 
 import { PRODUCT_LIST_STALE_TIME_MS } from '@entities/product/constants/cache';
@@ -24,7 +21,6 @@ import { productQueryKeys } from '@entities/product/queries/queryKeys';
 
 import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 
-import ProductCategoryLoadingState from './ProductCategoryLoadingState';
 import ProductCategoryPageContainer from './ProductCategoryPageContainer';
 
 type ProductCategoryPageProps = {
@@ -102,15 +98,11 @@ export default async function ProductCategoryPage({
 
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
-      <Suspense fallback={<ProductCategoryLoadingState />}>
-        <ProductFilterProvider>
-          <ProductCategoryPageContainer
-            category={normalizedCategory}
-            priceRange={priceRange}
-            colorOptions={colorOptions}
-          />
-        </ProductFilterProvider>
-      </Suspense>
+      <ProductCategoryPageContainer
+        category={normalizedCategory}
+        priceRange={priceRange}
+        colorOptions={colorOptions}
+      />
     </HydrationBoundary>
   );
 }
