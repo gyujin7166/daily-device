@@ -107,7 +107,7 @@ export default function CartFooter() {
         >
           {shouldShowSyncSpinner ? (
             <>
-              <Spinner size="sm" variant="current" className="size-5" />
+              <Spinner size="sm" variant="primary" className="size-5" />
               <span className="sr-only">{t('syncing')}</span>
             </>
           ) : (
