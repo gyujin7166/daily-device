@@ -41,6 +41,8 @@ export default function ReviewGalleryDetailImagePanel({
               sizes="(min-width: 1280px) 520px, (min-width: 1024px) 50vw, 90vw"
               className="select-none rounded-xl"
               draggable={false}
+              placeholder={detailImage.blur_data_url ? 'blur' : 'empty'}
+              blurDataURL={detailImage.blur_data_url ?? undefined}
               style={{
                 objectFit: 'contain',
                 objectPosition: 'center',
