@@ -2,6 +2,9 @@
 
 Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
+[![Quality Check](https://github.com/gyujin7166/daily-device/actions/workflows/quality.yml/badge.svg)](https://github.com/gyujin7166/daily-device/actions/workflows/quality.yml)
+[![End-to-End Tests](https://github.com/gyujin7166/daily-device/actions/workflows/e2e.yml/badge.svg)](https://github.com/gyujin7166/daily-device/actions/workflows/e2e.yml)
+
 상품 탐색, 장바구니, 체크아웃, 주문 관리, 상품평, 찜하기, 관리자 페이지까지 이어지는 이커머스 흐름을 구현했습니다. 라우팅은 Next.js App Router의 `app/`에서 담당하고, 화면 조합과 기능 로직은 FSD 구조에 맞춰 `src/` 하위 레이어로 분리했습니다.
 
 > 이 프로젝트는 포트폴리오 목적의 데모 서비스입니다. 실제 상품 판매, 배송, 결제 처리는 이루어지지 않으며, Toss Payments는 테스트 결제 환경을 사용합니다. 데모 사용 시 실제 개인정보를 입력하지 않는 것을 권장합니다.
@@ -18,12 +21,6 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - `ADMIN`: 추가, 수정, 삭제 가능
 
 포트폴리오 검토를 위해 데모 계정은 관리자 페이지를 읽기 전용으로 조회할 수 있습니다.
-
-배포와 검증은 다음 흐름으로 진행합니다.
-
-- Pull request: Quality Check, Playwright E2E, Vercel Preview 확인
-- `main` 병합: 동일한 GitHub Actions 재검증 후 Vercel Production 배포
-- GitHub Actions의 E2E 환경과 Vercel의 Preview·Production 환경 변수는 서로 분리
 
 ## 사용 기술
 
@@ -95,21 +92,16 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 | ----------------------------------------------- | -------------------------------------------------- |
 | ![메인 PC 화면](./docs/images/home-desktop.png) | ![메인 모바일 화면](./docs/images/home-mobile.png) |
 
-## 프로젝트에서 신경 쓴 부분
+## 기술적 하이라이트
 
-- Next.js App Router는 라우팅 엔트리로 사용하고, 화면 조합과 기능 로직은 FSD 구조에 맞춰 분리했습니다.
-- UI 문구는 `messages/ko.json`, `messages/en.json` 카탈로그로 관리하고, 상품·카테고리처럼 DB에서 조회하는 콘텐츠는 locale별 번역 테이블과 한국어 fallback을 사용합니다.
-- API Route에서는 요청 `params`, `query`, `body`를 Zod schema로 검증하고, 클라이언트 폼에서는 즉시 피드백을 위한 별도 검증 로직을 적용했습니다.
-- TanStack Query의 prefetch/hydration, query key 분리, 낙관적 업데이트로 서버 상태와 클라이언트 UI를 관리했습니다.
-- Prisma ORM과 TiDB/MySQL을 사용해 상품, 카테고리, 색상 옵션, 이미지, 장바구니, 주문, 배송지, 상품평, 찜하기 데이터를 관계형 구조로 설계했습니다.
-- 주문은 `PENDING`, `CONFIRMED`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `EXPIRED` 상태를 기준으로 결제, 배송, 취소, 만료 흐름을 분리했습니다.
-- 상품평 작성은 구매한 주문 상품 기준으로만 가능하도록 서버에서 권한과 주문 상태를 확인했습니다.
-- 포트폴리오 검토를 위해 일반 계정도 관리자 페이지를 읽기 전용으로 조회할 수 있게 하고, 데이터 수정은 `ADMIN` 권한 계정에서만 가능하게 했습니다.
-- Cloudinary를 이미지 서버로 사용하고, 상품, Hero, 상품평 이미지를 대상별 폴더와 public id 규칙에 맞춰 업로드합니다.
-- 상품과 Hero 이미지는 AI로 생성했고, 상품 seed 이미지는 Python `rembg` 라이브러리로 배경을 제거해 알파 채널이 있는 WebP 이미지로 가공했습니다.
-- seed image manifest를 기준으로 Cloudinary 업로드 결과와 DB seed 데이터를 연결했습니다.
-- base64 blurDataURL과 색상별 이미지 fallback으로 이미지 로딩 중 빈 화면 노출과 레이아웃 흔들림을 줄였습니다.
-- 로딩, 빈 상태, 에러 상태를 페이지와 섹션 단위로 분리해 주요 사용자 흐름이 끊기지 않도록 했습니다.
+- App Router는 라우팅 엔트리로 사용하고, 화면 조합과 기능 로직은 FSD 의존 방향에 맞춰 분리했습니다.
+- 공개 쇼핑 화면은 정적 생성·ISR로 최적화하고, 인증과 권한이 필요한 체크아웃·마이페이지·관리자 화면은 동적으로 처리했습니다.
+- TanStack Query의 prefetch/hydration, query key 분리와 낙관적 업데이트로 서버 상태와 클라이언트 UI를 관리했습니다.
+- 한국어·영어 UI 메시지와 DB 콘텐츠 번역을 분리하고 locale별 API·캐시·라우팅 기준을 일관되게 유지했습니다.
+- API 입력값은 Zod로 검증하고, 상품평 작성 권한과 주문 상태 같은 도메인 규칙은 서버에서 최종 확인합니다.
+- 주문 상태를 결제·배송·취소·만료 흐름으로 분리하고, 일반 계정의 관리자 조회와 `ADMIN` 쓰기 권한을 구분했습니다.
+- Cloudinary 업로드 규칙, base64 blurDataURL과 색상별 이미지 fallback으로 이미지 로딩 경험을 개선했습니다.
+- Vitest·RTL·MSW·Playwright와 GitHub Actions를 사용해 로직부터 핵심 구매 흐름까지 검증합니다.
 
 ## 회고
 
@@ -219,21 +211,11 @@ npm run db:seed
 
 `next-intl`을 사용해 한국어와 영어를 지원합니다. locale의 기준은 `src/shared/config/i18n/routing.ts`이며, 기본 locale은 한국어입니다. 한국어 경로는 `/products`처럼 접두사 없이 표시되고, 영어 경로는 `/en/products`처럼 `/en` 접두사를 사용합니다. 저장된 `NEXT_LOCALE` 쿠키가 없고 URL에도 locale이 없으면 브라우저의 최우선 선호 언어가 한국어가 아닐 때 영어 경로로 안내합니다.
 
-번역 데이터는 성격에 따라 나누어 관리합니다.
-
 - UI 문구: `messages/ko.json`, `messages/en.json`
 - 상품, 카테고리, Hero 등 DB 콘텐츠: Prisma의 locale별 번역 모델
-- locale 인식 링크와 이동: `src/shared/lib/i18n/navigation.ts`
-- 요청별 메시지 로딩: `src/i18n/request.ts`
+- locale 인식 링크·이동과 요청별 메시지 로딩: `src/shared/lib/i18n/navigation.ts`, `src/i18n/request.ts`
 
-UI 문구를 추가할 때는 두 메시지 카탈로그에 같은 key와 ICU placeholder를 추가합니다. locale을 사용하는 API, TanStack Query key, prefetch와 hydration 데이터도 같은 locale로 분리합니다. DB 콘텐츠 번역을 변경할 때는 대상 DB를 확인한 뒤 i18n seed를 실행합니다.
-
-```bash
-npx vitest run src/i18n/messages.test.ts
-npm run db:seed:i18n
-```
-
-`db:seed:i18n`은 `DATABASE_URL`이 가리키는 DB를 직접 변경하므로 실행 전에 대상이 의도한 개발 DB인지 확인해야 합니다. E2E DB의 스키마와 번역 데이터를 준비할 때는 아래의 `db:prepare:e2e`를 사용합니다. 이 명령이 `PLAYWRIGHT_DATABASE_URL`을 검증한 뒤 seed 과정에 `DATABASE_URL`로 전달합니다.
+UI 메시지의 key와 ICU placeholder 일치 여부를 테스트하고, API·TanStack Query key·prefetch와 hydration 데이터에도 같은 locale을 사용합니다. 번역 seed 실행 방법은 위의 DB 관리 절차에 포함했습니다.
 
 ## 테스트
 
@@ -244,28 +226,14 @@ npm run db:seed:i18n
 - MSW: 장바구니, 찜, 주문 API의 성공, 실패, 빈 응답에 따른 클라이언트 통합 테스트
 - Playwright: 실제 Chromium에서 라우팅, 인증 상태, 저장소와 핵심 사용자 흐름을 검증하는 E2E 테스트
 
-### 테스트 개발 방식
+버그 수정이나 로직·사용자 상호작용 변경에는 가능한 한 실패하는 재현 테스트를 먼저 확인하고, 최소 구현과 리팩터링 후 다시 검증합니다.
 
-프로젝트 전체를 처음부터 TDD로 개발하지는 않았습니다. 현재는 버그 수정이나 로직·사용자 상호작용 변경 시 가능한 한 실패하는 재현 테스트를 먼저 확인하고, 최소 구현으로 통과시킨 뒤 리팩터링과 재검증을 진행합니다. 문구, 스타일과 단순 정적 마크업 변경에는 테스트 우선을 적용하지 않습니다.
-
-주요 테스트 명령은 다음과 같습니다.
-
-| 명령어                | 설명                                          |
-| --------------------- | --------------------------------------------- |
-| `npm test`            | Vitest watch 모드                             |
-| `npm run test:unit`   | 단위·컴포넌트·클라이언트 통합 테스트 1회 실행 |
-| `npm run test:e2e`    | Playwright Chromium E2E 실행                  |
-| `npm run test:e2e:ui` | Playwright UI 모드 실행                       |
-| `npm run test:all`    | Vitest 실행 후 Playwright E2E 실행            |
-| `npm run test:visual` | `@visual` 태그가 있는 시각 회귀 테스트 실행   |
-
-현재 등록된 `@visual` 테스트가 없으면 `test:visual`은 성공으로 종료됩니다.
-
-Playwright 브라우저가 설치되지 않았다면 최초 한 번 Chromium을 설치합니다.
-
-```bash
-npx playwright install chromium
-```
+| 명령어                | 검증 범위                                   |
+| --------------------- | ------------------------------------------- |
+| `npm run test:unit`   | Vitest 단위·컴포넌트·클라이언트 통합 테스트 |
+| `npm run test:e2e`    | Playwright Chromium 핵심 사용자 흐름        |
+| `npm run test:visual` | `@visual` 태그 기반 시각 회귀 테스트        |
+| `npm run test:all`    | Vitest 실행 후 Playwright E2E 실행          |
 
 현재 E2E 테스트는 다음 흐름을 검증합니다.
 
@@ -276,52 +244,28 @@ npx playwright install chromium
 - 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
 - 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
 
-인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 환경 변수 자체가 설정되지 않았으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다.
-
-```env
-PLAYWRIGHT_DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/daily_device_e2e?sslaccept=strict"
-```
-
-E2E 전용 DB의 스키마와 seed 데이터를 수동으로 준비할 때는 다음 명령을 실행합니다. 이 명령은 URL의 데이터베이스 이름이 정확히 `daily_device_e2e`인 경우에만 실행되며, 검증된 URL을 Prisma의 `DATABASE_URL`로 전달합니다. 스키마를 동기화한 뒤 필수 seed 상태를 확인하고, 데이터가 비어 있거나 불완전한 경우에만 기본 seed와 i18n seed를 동기화합니다.
+인증 E2E는 전용 사용자를 사용하고 테스트 전후의 장바구니·배송지·주문 데이터를 정리합니다. CI에서는 운영 DB와 분리된 `daily_device_e2e` DB만 허용하며, 로컬에서 같은 DB를 준비할 때는 다음 명령을 사용합니다.
 
 ```bash
 npm run db:prepare:e2e
 ```
 
-실제 OAuth, Toss Payments 승인과 운영 DB는 자동화 테스트에서 사용하지 않습니다. 결제 E2E는 외부 결제창을 호출하지 않는 데모 결제 흐름만 검증합니다.
+실제 OAuth, Toss Payments 승인과 운영 DB는 자동화 테스트에서 사용하지 않습니다.
 
 ## CI/CD
 
-### Quality Check
+| 시점               | 검증 및 배포                                                          |
+| ------------------ | --------------------------------------------------------------------- |
+| Pull request       | format·unit·type·lint, production build, Chromium E2E, Vercel Preview |
+| `main` 브랜치 반영 | 동일한 GitHub Actions 재검증 후 Vercel Production 배포                |
 
-GitHub Actions의 `Quality Check` workflow는 pull request와 `main` 브랜치 push에서 다음 검사를 실행합니다.
-
-```bash
-npm run format:check
-npm run test:unit
-npx tsc --noEmit
-npm run lint
-```
-
-### Playwright E2E
-
-`End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
-
-CI의 DB 준비와 Playwright 실행에서는 전용 URL 구성 로직이 기존 SSL 옵션을 보존하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. 같은 연결 옵션이 이미 있으면 CI 설정으로 교체합니다. Production build도 해당 Secret을 `DATABASE_URL`로 전달하고 같은 연결 옵션을 적용합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E DB에서 노출 상태, 대표 이미지, 기본 색상과 한국어·영어 번역이 준비된 첫 번째 상품을 조회하고 해당 상품과 카테고리만 대표 정적 경로로 생성합니다. 전체 상품·카테고리 경로 조회는 생략하며, Playwright도 같은 기준으로 선택한 상품과 카테고리를 사용합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
-
-E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
-
-GitHub-hosted runner에서는 `DATABASE_CONNECTION_MODE=direct`를 설정해 Prisma의 직접 MySQL 연결을 사용합니다. 애플리케이션의 기본 연결은 기존 TiDB Cloud Serverless adapter를 유지합니다. 인증 E2E의 데모 로그인 요청이 일시적인 5xx 응답을 반환하면 1초 간격으로 최대 3회 시도하며, 4xx 응답이나 반복되는 서버 오류는 테스트 실패로 처리합니다.
-
-같은 ref에서 새 workflow가 시작되면 이전 실행은 취소됩니다. CI의 Playwright 테스트는 실패 시 최대 2회 재시도하며, 재시도로 통과한 경우에도 첫 실패 원인을 확인합니다. 실패한 실행의 trace와 스크린샷은 7일 동안 `playwright-test-results` artifact에서 확인할 수 있습니다.
-
-GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request에서는 production build와 E2E를 포함한 해당 job을 건너뜁니다.
-
-### Vercel 배포
-
-Pull request에는 Vercel Preview 배포를 연결하고, 필수 GitHub Actions 검사를 통과해 `main`에 병합된 커밋은 Production으로 배포합니다. GitHub Actions의 `PLAYWRIGHT_DATABASE_URL`은 Vercel에 전달하지 않으며, Vercel의 Preview와 Production에는 각 환경에 맞는 `DATABASE_URL`, OAuth, Cloudinary, 결제 관련 환경 변수를 별도로 설정합니다.
+- E2E는 운영 DB와 분리된 전용 TiDB의 스키마와 seed 상태를 준비한 뒤 실행합니다.
+- `E2E_BUILD=true`에서는 테스트에 필요한 대표 상품과 카테고리만 정적 생성하고, 로컬·Vercel build는 전체 경로를 생성합니다.
+- GitHub Actions와 Vercel의 Preview·Production 환경 변수 및 Secret은 서로 분리합니다.
 
 홈과 상품 목록·할인·카테고리·상세 경로는 정적 생성과 1시간 단위 ISR을 사용합니다. 관리자 페이지에서 Hero, 홈 섹션, 상품 또는 상품평을 변경하는 mutation은 공개 shop layout을 revalidate해 주기적인 갱신을 기다리지 않고 변경 사항을 반영합니다.
+
+정적 생성 경로 최적화와 Playwright DB 연결 안정화 과정은 [회고](./RETROSPECTIVE.md#github-actions-정적-생성-병목-개선)에 정리했습니다.
 
 ## 검증
 
