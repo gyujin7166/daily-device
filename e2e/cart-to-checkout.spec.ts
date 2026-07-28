@@ -1,6 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/productTest';
 
-const PRODUCT_PATH = '/products/mice/aster-mouse-mini';
 const STORAGE_INITIALIZED_KEY = 'playwright-storage-initialized';
 
 test.beforeEach(async ({ page }) => {
@@ -23,14 +22,15 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('비회원이 장바구니에서 결제를 선택하면 로그인 화면으로 이동한다', async ({
+  e2eProduct,
   page,
 }) => {
-  await page.goto(PRODUCT_PATH);
+  await page.goto(
+    `/products/${e2eProduct.categorySlug}/${e2eProduct.productSlug}`,
+  );
 
   const productHeading = page.getByRole('heading', {
-    name: 'Aster Mouse Mini',
     level: 1,
-    exact: true,
   });
   await expect(productHeading).toBeVisible();
   await expect(

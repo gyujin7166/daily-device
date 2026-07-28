@@ -287,7 +287,7 @@ npm run lint
 
 `End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
 
-빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E가 사용하는 `mice` 카테고리와 `aster-mouse-mini` 상품만 대표 정적 경로로 생성하고, 전체 상품·카테고리 경로를 조회하는 Prisma 호출을 생략합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
+빌드 단계에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E DB에서 노출 상태, 대표 이미지, 기본 색상과 한국어·영어 번역이 준비된 첫 번째 상품을 조회하고 해당 상품과 카테고리만 대표 정적 경로로 생성합니다. 전체 상품·카테고리 경로 조회는 생략하며, Playwright도 같은 기준으로 선택한 상품과 카테고리를 사용합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
 
 E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
 

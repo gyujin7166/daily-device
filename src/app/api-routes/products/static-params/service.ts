@@ -2,12 +2,13 @@ import 'server-only';
 
 import prisma from 'prisma/prismaClientSingleton';
 
-const E2E_PRODUCT_CATEGORY = 'mice';
-const E2E_PRODUCT_SLUG = 'aster-mouse-mini';
+import { getRequiredE2EProductFixture } from './e2eProductFixture';
 
 export async function getStaticProductCategoryParams() {
   if (process.env.E2E_BUILD === 'true') {
-    return [{ category: E2E_PRODUCT_CATEGORY }];
+    const fixture = await getRequiredE2EProductFixture(prisma);
+
+    return [{ category: fixture.categorySlug }];
   }
 
   const categories = await prisma.productCategory.findMany({
@@ -30,10 +31,12 @@ export async function getStaticProductCategoryParams() {
 
 export async function getStaticProductDetailParams() {
   if (process.env.E2E_BUILD === 'true') {
+    const fixture = await getRequiredE2EProductFixture(prisma);
+
     return [
       {
-        category: E2E_PRODUCT_CATEGORY,
-        slug: E2E_PRODUCT_SLUG,
+        category: fixture.categorySlug,
+        slug: fixture.productSlug,
       },
     ];
   }

@@ -3,6 +3,8 @@ import { spawnSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 
+import { findE2EProductFixture } from '../src/app/api-routes/products/static-params/e2eProductFixture';
+
 import {
   isE2ESeedDataReady,
   readE2ESeedDataCounts,
@@ -89,7 +91,11 @@ async function hasRequiredSeedData(databaseUrl: string) {
         await prisma.$connect();
         const counts = await readE2ESeedDataCounts(readers);
 
-        return isE2ESeedDataReady(counts);
+        if (!isE2ESeedDataReady(counts)) {
+          return false;
+        }
+
+        return Boolean(await findE2EProductFixture(prisma));
       } finally {
         await prisma.$disconnect();
       }
@@ -125,6 +131,12 @@ async function prepareE2EDatabase() {
 
   for (const command of seedCommands) {
     runCommand(command, env);
+  }
+
+  if (!(await hasRequiredSeedData(databaseUrl))) {
+    throw new Error(
+      'E2E seed completed without creating test-ready catalog data.',
+    );
   }
 }
 

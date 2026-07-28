@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/productTest';
 
 import type { Page } from '@playwright/test';
 
@@ -133,6 +133,7 @@ test('홈에서 locale prefix를 중복하지 않고 언어를 전환한다', as
 });
 
 test('홈·상품·검색에서 locale 전환 중에도 다크 테마를 유지한다', async ({
+  e2eProduct,
   page,
 }) => {
   test.setTimeout(90_000);
@@ -148,8 +149,8 @@ test('홈·상품·검색에서 locale 전환 중에도 다크 테마를 유지�
     },
     {
       name: '상품 카테고리',
-      href: '/products/mice',
-      expectedHref: '/en/products/mice',
+      href: `/products/${e2eProduct.categorySlug}`,
+      expectedHref: `/en/products/${e2eProduct.categorySlug}`,
     },
     {
       name: '상품 검색',

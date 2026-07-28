@@ -7,6 +7,7 @@ import {
 
 const mocks = vi.hoisted(() => ({
   productCategoryFindMany: vi.fn(),
+  productFindFirst: vi.fn(),
   productFindMany: vi.fn(),
 }));
 
@@ -18,6 +19,7 @@ vi.mock('prisma/prismaClientSingleton', () => ({
       findMany: mocks.productCategoryFindMany,
     },
     product: {
+      findFirst: mocks.productFindFirst,
       findMany: mocks.productFindMany,
     },
   },
@@ -30,6 +32,10 @@ describe('product static params service', () => {
       { slug: 'mice' },
       { slug: 'headsets' },
     ]);
+    mocks.productFindFirst.mockResolvedValue({
+      slug: 'first-e2e-product',
+      category: { slug: 'first-e2e-category' },
+    });
     mocks.productFindMany.mockResolvedValue([
       {
         slug: 'aster-mouse-mini',
@@ -50,16 +56,33 @@ describe('product static params service', () => {
     vi.stubEnv('E2E_BUILD', 'true');
 
     await expect(getStaticProductCategoryParams()).resolves.toEqual([
-      { category: 'mice' },
+      { category: 'first-e2e-category' },
     ]);
     await expect(getStaticProductDetailParams()).resolves.toEqual([
       {
-        category: 'mice',
-        slug: 'aster-mouse-mini',
+        category: 'first-e2e-category',
+        slug: 'first-e2e-product',
       },
     ]);
     expect(mocks.productCategoryFindMany).not.toHaveBeenCalled();
     expect(mocks.productFindMany).not.toHaveBeenCalled();
+    expect(mocks.productFindFirst).toHaveBeenCalledTimes(2);
+    expect(mocks.productFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: {
+          id: 'asc',
+        },
+      }),
+    );
+  });
+
+  it('E2E build에 사용할 수 있는 상품이 없으면 명확하게 실패한다', async () => {
+    vi.stubEnv('E2E_BUILD', 'true');
+    mocks.productFindFirst.mockResolvedValue(null);
+
+    await expect(getStaticProductDetailParams()).rejects.toThrow(
+      'E2E requires a visible product with test-ready catalog data.',
+    );
   });
 
   it('일반 build에서는 DB의 전체 정적 경로를 반환한다', async () => {
@@ -79,6 +102,7 @@ describe('product static params service', () => {
         slug: 'aster-headset-mini',
       },
     ]);
+    expect(mocks.productFindFirst).not.toHaveBeenCalled();
     expect(mocks.productCategoryFindMany).toHaveBeenCalledOnce();
     expect(mocks.productFindMany).toHaveBeenCalledOnce();
   });
