@@ -10,7 +10,7 @@ import {
   readE2ESeedDataCounts,
   retryE2EDatabaseOperation,
 } from './e2eDatabaseSeed';
-import { requireE2EDatabaseUrl } from './e2eDatabaseUrl';
+import { configureE2EDatabaseUrl } from './e2eDatabaseUrl';
 
 import type { E2ESeedDataCountReaders } from './e2eDatabaseSeed';
 
@@ -113,7 +113,7 @@ async function hasRequiredSeedData(databaseUrl: string) {
 }
 
 async function prepareE2EDatabase() {
-  const databaseUrl = requireE2EDatabaseUrl(
+  const databaseUrl = configureE2EDatabaseUrl(
     process.env.PLAYWRIGHT_DATABASE_URL,
   );
   const env = {

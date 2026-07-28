@@ -1,15 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 import { config as loadEnv } from 'dotenv';
 
+import { configureE2EDatabaseUrl } from './scripts/e2eDatabaseUrl';
+
 loadEnv({ path: '.env.local', quiet: true });
 loadEnv({ quiet: true });
 
 const baseURL = 'http://localhost:3100';
 const isCI = Boolean(process.env.CI);
 const playwrightDatabaseUrl = process.env.PLAYWRIGHT_DATABASE_URL;
-const databaseUrl = playwrightDatabaseUrl ?? process.env.DATABASE_URL;
 const databaseConnectionMode =
   process.env.DATABASE_CONNECTION_MODE ?? 'serverless';
+const databaseUrl =
+  playwrightDatabaseUrl && databaseConnectionMode === 'direct'
+    ? configureE2EDatabaseUrl(playwrightDatabaseUrl)
+    : (playwrightDatabaseUrl ?? process.env.DATABASE_URL);
 const webServerCommand = isCI
   ? 'npm run start -- --hostname localhost --port 3100'
   : 'npm run dev -- --hostname localhost --port 3100';
