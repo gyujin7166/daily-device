@@ -57,6 +57,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - 상품 목록, 카테고리, 상세 페이지
 - 상품 필터, 정렬, 검색, 추천 검색어, 무한 스크롤
 - 색상 선택과 색상별 이미지 표시
+- 추천 상품과 `localStorage` 기반 최근 본 상품 캐러셀
 - 장바구니, 바로 구매, 체크아웃, Toss Payments 테스트 결제
 - 주문 취소, 배송 완료 처리, 결제 대기 주문 만료 처리
 - 배송지 등록, 수정, 삭제
@@ -101,7 +102,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - API Route에서는 요청 `params`, `query`, `body`를 Zod schema로 검증하고, 클라이언트 폼에서는 즉시 피드백을 위한 별도 검증 로직을 적용했습니다.
 - TanStack Query의 prefetch/hydration, query key 분리, 낙관적 업데이트로 서버 상태와 클라이언트 UI를 관리했습니다.
 - Prisma ORM과 TiDB/MySQL을 사용해 상품, 카테고리, 색상 옵션, 이미지, 장바구니, 주문, 배송지, 상품평, 찜하기 데이터를 관계형 구조로 설계했습니다.
-- 주문은 `PENDING`, `CONFIRMED`, `CANCELLED`, `EXPIRED` 상태를 기준으로 결제, 취소, 만료 흐름을 분리했습니다.
+- 주문은 `PENDING`, `CONFIRMED`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `EXPIRED` 상태를 기준으로 결제, 배송, 취소, 만료 흐름을 분리했습니다.
 - 상품평 작성은 구매한 주문 상품 기준으로만 가능하도록 서버에서 권한과 주문 상태를 확인했습니다.
 - 포트폴리오 검토를 위해 일반 계정도 관리자 페이지를 읽기 전용으로 조회할 수 있게 하고, 데이터 수정은 `ADMIN` 권한 계정에서만 가능하게 했습니다.
 - Cloudinary를 이미지 서버로 사용하고, 상품, Hero, 상품평 이미지를 대상별 폴더와 public id 규칙에 맞춰 업로드합니다.
@@ -270,6 +271,7 @@ npx playwright install chromium
 
 - 홈 화면의 핵심 탐색 UI 표시
 - 한국어·영어 locale 전환과 URL prefix 처리
+- 홈·상품·검색에서 locale 전환 중 다크 테마 유지
 - 두 locale의 404 응답, 홈 이동과 hydration 안정성
 - 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
 - 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
@@ -305,7 +307,7 @@ npm run lint
 
 `End-to-End Tests` workflow는 같은 저장소에서 생성된 pull request와 `main` 브랜치 push에서 production build와 Chromium E2E를 실행합니다. E2E 전용 TiDB URL은 Repository Secret인 `PLAYWRIGHT_DATABASE_URL`로 전달하며, 빌드와 Playwright 실행 전에 전용 DB의 Prisma 스키마와 필수 seed 상태를 자동으로 준비합니다. 이미 seed가 준비되어 있으면 긴 동기화 작업은 건너뜁니다. URL의 데이터베이스 이름이 `daily_device_e2e`가 아니면 준비 단계에서 중단합니다.
 
-CI의 DB 준비, production build와 Playwright 실행에서는 해당 Secret을 `DATABASE_URL`로 전달하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. 기존 SSL 옵션은 유지하며 동일한 연결 옵션이 있으면 안정적인 CI 설정으로 교체합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E DB에서 노출 상태, 대표 이미지, 기본 색상과 한국어·영어 번역이 준비된 첫 번째 상품을 조회하고 해당 상품과 카테고리만 대표 정적 경로로 생성합니다. 전체 상품·카테고리 경로 조회는 생략하며, Playwright도 같은 기준으로 선택한 상품과 카테고리를 사용합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
+CI의 DB 준비와 Playwright 실행에서는 전용 URL 구성 로직이 기존 SSL 옵션을 보존하고 `connection_limit=3`, `connect_timeout=30`, `pool_timeout=60`을 적용합니다. 같은 연결 옵션이 이미 있으면 CI 설정으로 교체합니다. Production build도 해당 Secret을 `DATABASE_URL`로 전달하고 같은 연결 옵션을 적용합니다. `E2E_BUILD=true`인 GitHub Actions에서는 E2E DB에서 노출 상태, 대표 이미지, 기본 색상과 한국어·영어 번역이 준비된 첫 번째 상품을 조회하고 해당 상품과 카테고리만 대표 정적 경로로 생성합니다. 전체 상품·카테고리 경로 조회는 생략하며, Playwright도 같은 기준으로 선택한 상품과 카테고리를 사용합니다. 로컬 및 Vercel의 일반 production build는 기존처럼 전체 정적 경로를 생성합니다.
 
 E2E production build에만 정적 생성 워커 2개를 사용하고, 워커당 동시에 처리하는 페이지는 1개로 제한하며, 개별 페이지 생성은 최대 2회 재시도합니다. `P1001` 또는 DB 서버 연결 실패로 전체 빌드가 중단되면 10초 후 한 번 더 실행합니다. job의 최대 실행 시간은 60분입니다.
 
@@ -319,7 +321,7 @@ GitHub Actions Secret이 제공되지 않는 fork 또는 Dependabot pull request
 
 Pull request에는 Vercel Preview 배포를 연결하고, 필수 GitHub Actions 검사를 통과해 `main`에 병합된 커밋은 Production으로 배포합니다. GitHub Actions의 `PLAYWRIGHT_DATABASE_URL`은 Vercel에 전달하지 않으며, Vercel의 Preview와 Production에는 각 환경에 맞는 `DATABASE_URL`, OAuth, Cloudinary, 결제 관련 환경 변수를 별도로 설정합니다.
 
-상품 상세 경로는 정적 생성과 1시간 단위 ISR을 사용합니다. 관리자에서 관련 콘텐츠를 변경하는 mutation은 해당 경로를 revalidate해 주기적인 갱신을 기다리지 않고 변경 사항을 반영합니다.
+홈과 상품 목록·할인·카테고리·상세 경로는 정적 생성과 1시간 단위 ISR을 사용합니다. 관리자 페이지에서 Hero, 홈 섹션, 상품 또는 상품평을 변경하는 mutation은 공개 shop layout을 revalidate해 주기적인 갱신을 기다리지 않고 변경 사항을 반영합니다.
 
 ## 검증
 
