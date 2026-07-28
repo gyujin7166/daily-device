@@ -4,7 +4,6 @@ import type { Metadata } from 'next';
 
 import localFont from 'next/font/local';
 import { notFound } from 'next/navigation';
-import Script from 'next/script';
 
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -12,7 +11,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import '@app/styles/globals.css';
 
 import Providers from '@app/providers';
-import { themeInitScript } from '@app/theme/themeInitScript';
+import ThemeInitScriptInjection from '@app/theme/ThemeInitScriptInjection';
 
 import { routing } from '../../src/i18n/routing';
 
@@ -75,16 +74,10 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <head>
-        <Script
-          id="theme-init"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
-      </head>
       <body
         className={`${pretendard.className} bg-canvas text-ink dark:bg-dark-bg dark:text-surface`}
       >
+        <ThemeInitScriptInjection />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
