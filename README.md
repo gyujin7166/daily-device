@@ -134,10 +134,24 @@ public/               로고, fallback, 홈/카테고리 등 정적 UI 이미지
 
 ## 실행
 
+Node.js 24.x가 필요합니다. 버전 기준은 `.nvmrc`와 `package.json`의 `engines`에 맞춥니다.
+
 ```bash
 npm install
 cp .env.example .env.local
-npx prisma generate
+```
+
+`.env.local`의 placeholder를 실제 개발 환경 값으로 교체합니다. 새로 만들었거나 비어 있는 개발 DB를 사용한다면 스키마와 기본·번역 seed 데이터를 준비합니다. 아래 명령은 `DATABASE_URL`이 가리키는 DB를 직접 변경하므로 운영 DB에는 실행하지 않습니다.
+
+```bash
+npx prisma db push
+npm run db:seed
+npm run db:seed:i18n
+```
+
+이미 초기화된 개발 DB를 사용한다면 DB 준비 명령은 생략할 수 있습니다. `npm install`의 `postinstall`에서 Prisma Client를 생성합니다.
+
+```bash
 npm run dev
 ```
 
@@ -147,7 +161,7 @@ http://localhost:3000
 
 ## 환경 변수
 
-`.env.example`을 `.env.local`로 복사한 뒤 로컬 환경에 맞는 값을 설정합니다. `.env.local`을 포함한 `.env*` 파일은 Git에서 제외되며, `.env.example`에는 실제 Secret을 기록하지 않습니다.
+`.env.example`을 `.env.local`로 복사한 뒤 로컬 환경에 맞는 값을 설정합니다. `.env.example`을 제외한 `.env*` 파일은 Git에서 제외되며, `.env.example`에는 실제 Secret을 기록하지 않습니다.
 
 ### 기본 실행
 
@@ -175,7 +189,8 @@ http://localhost:3000
 
 ### E2E와 배포 환경
 
-- 로컬 Playwright는 `PLAYWRIGHT_DATABASE_URL`을 우선 사용하고, 없으면 개발용 `DATABASE_URL`을 사용합니다.
+- 로컬 Playwright는 `PLAYWRIGHT_DATABASE_URL`을 우선 사용하고, 환경 변수 자체가 없으면 개발용 `DATABASE_URL`을 사용합니다.
+- `.env.example`을 복사하면 `PLAYWRIGHT_DATABASE_URL` placeholder도 함께 생성됩니다. E2E 전용 DB를 사용한다면 실제 URL로 교체하고, 개발용 `DATABASE_URL` fallback을 사용한다면 해당 줄 전체를 삭제하거나 주석 처리합니다. 빈 문자열로 남겨도 fallback되지 않습니다.
 - GitHub Actions에서는 Repository Secret `PLAYWRIGHT_DATABASE_URL`이 반드시 `daily_device_e2e` 전용 DB를 가리켜야 합니다.
 - `PLAYWRIGHT_DATABASE_URL`은 Vercel에 등록하지 않습니다. Vercel Preview와 Production의 DB, OAuth, Cloudinary, 결제 환경 변수는 각 환경에서 별도로 관리합니다.
 - `CI`, `VERCEL`, `E2E_BUILD`, `NEXT_DIST_DIR`은 플랫폼, workflow와 Playwright 설정이 내부적으로 제어하므로 일반적인 `.env.local` 설정에 추가하지 않습니다.
@@ -187,7 +202,10 @@ http://localhost:3000
 ```bash
 npx prisma db push
 npm run db:seed
+npm run db:seed:i18n
 ```
+
+`db:seed`는 기본 카탈로그 데이터를 준비하고, `db:seed:i18n`은 locale별 번역 데이터를 동기화합니다.
 
 상품 seed 이미지는 미리 가공된 WebP 파일을 사용합니다. 가공된 이미지를 Cloudinary에 업로드하고 DB에 반영할 때는 아래 흐름을 사용합니다.
 
@@ -256,7 +274,7 @@ npx playwright install chromium
 - 비회원이 상품을 장바구니에 담고 결제를 선택했을 때 로그인 화면으로 이동하는 인증 경계
 - 로그인 사용자의 상품 추가, 배송지 선택, 체크아웃, 데모 결제, 주문 내역 확인
 
-인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 없으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다.
+인증 E2E는 `playwright@daily-device.local` 전용 사용자를 사용하며 테스트 전후에 장바구니, 배송지와 주문 데이터를 정리합니다. 로컬에서는 `PLAYWRIGHT_DATABASE_URL`이 있으면 해당 DB를 사용하고, 환경 변수 자체가 설정되지 않았으면 `DATABASE_URL`을 사용합니다. 이 fallback DB도 운영 DB가 아닌 개발용 DB여야 합니다. CI에서는 실수로 운영 DB를 사용하지 않도록 `PLAYWRIGHT_DATABASE_URL`이 반드시 필요합니다.
 
 ```env
 PLAYWRIGHT_DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/daily_device_e2e?sslaccept=strict"
