@@ -240,6 +240,15 @@ html.dark {
   color-scheme: dark;
 }
 
+html.theme-syncing *,
+html.theme-syncing *::before,
+html.theme-syncing *::after,
+html.theme-locale-switching *,
+html.theme-locale-switching *::before,
+html.theme-locale-switching *::after {
+  transition: none !important;
+}
+
 html,
 body {
   min-height: 100%;

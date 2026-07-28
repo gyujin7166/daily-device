@@ -8,6 +8,10 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { Locale } from '@shared/config/i18n/routing';
 import { useDropdown } from '@shared/hooks/useDropdown';
 import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
+import {
+  finishLocaleThemeTransition,
+  startLocaleThemeTransition,
+} from '@shared/lib/theme/theme';
 import { cn } from '@shared/lib/utils/style';
 
 import { NAV_DROPDOWN_ACTION_ITEM_CLASS } from '../../model/navActions';
@@ -57,8 +61,13 @@ export default function NavLocaleSwitcher({
     }
 
     onSelectLocale();
+    startLocaleThemeTransition();
     router.replace(href, { locale: nextLocale, scroll: false });
   };
+
+  useEffect(() => {
+    finishLocaleThemeTransition();
+  }, [locale]);
 
   useEffect(() => {
     if (!isDropdownOpen) {
