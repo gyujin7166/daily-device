@@ -1,4 +1,9 @@
 const E2E_DATABASE_NAME = 'daily_device_e2e';
+const E2E_DATABASE_CONNECTION_OPTIONS = {
+  connection_limit: '3',
+  connect_timeout: '30',
+  pool_timeout: '60',
+} as const;
 
 export function requireE2EDatabaseUrl(value: string | undefined) {
   const databaseUrl = value?.trim();
@@ -28,4 +33,16 @@ export function requireE2EDatabaseUrl(value: string | undefined) {
   }
 
   return databaseUrl;
+}
+
+export function configureE2EDatabaseUrl(value: string | undefined) {
+  const parsedUrl = new URL(requireE2EDatabaseUrl(value));
+
+  for (const [name, optionValue] of Object.entries(
+    E2E_DATABASE_CONNECTION_OPTIONS,
+  )) {
+    parsedUrl.searchParams.set(name, optionValue);
+  }
+
+  return parsedUrl.toString();
 }

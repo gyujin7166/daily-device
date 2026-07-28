@@ -1,6 +1,6 @@
-import { expect, test as base } from '@playwright/test';
-
 import prisma from '../../prisma/prismaClientSingleton';
+
+import { expect, test as base } from './productTest';
 
 import type { APIRequestContext, Page } from '@playwright/test';
 

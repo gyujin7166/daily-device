@@ -1,16 +1,19 @@
 import { expect, test } from './fixtures/authenticatedTest';
 
-const PRODUCT_PATH = '/products/mice/aster-mouse-mini';
 const AUTHENTICATED_FLOW_TIMEOUT = 60_000;
 const REMOTE_STATE_TIMEOUT = 15_000;
 
 test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 내역을 확인한다', async ({
   authenticatedPage: page,
+  e2eProduct,
   testAddress,
 }) => {
   test.setTimeout(AUTHENTICATED_FLOW_TIMEOUT);
 
-  await page.goto(PRODUCT_PATH, { waitUntil: 'domcontentloaded' });
+  await page.goto(
+    `/products/${e2eProduct.categorySlug}/${e2eProduct.productSlug}`,
+    { waitUntil: 'domcontentloaded' },
+  );
 
   await expect(
     page.getByRole('button', {
@@ -19,13 +22,10 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
     }),
   ).toBeEnabled();
 
-  await expect(
-    page.getByRole('heading', {
-      name: 'Aster Mouse Mini',
-      level: 1,
-      exact: true,
-    }),
-  ).toBeVisible();
+  const productHeading = page.getByRole('heading', { level: 1 });
+  await expect(productHeading).toBeVisible();
+  const productName = (await productHeading.innerText()).trim();
+  expect(productName).not.toBe('');
 
   const addToCartButton = page
     .getByRole('button')
@@ -56,7 +56,7 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
     page.getByRole('heading', { name: '주문 상품 (1)', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('link', { name: 'Aster Mouse Mini', exact: true }),
+    page.getByRole('link', { name: productName, exact: true }),
   ).toBeVisible();
   await expect(page.getByText('포트폴리오 데모 안내')).toBeVisible();
   await expect(
@@ -88,7 +88,7 @@ test('로그인 사용자가 장바구니 상품을 데모 결제하고 주문 �
   ).toBeVisible();
   await expect(page.getByText('결제완료', { exact: true })).toBeVisible();
   await expect(
-    page.getByRole('link', { name: 'Aster Mouse Mini', exact: true }),
+    page.getByRole('link', { name: productName, exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText(testAddress.recipientName, { exact: true }),

@@ -3,12 +3,14 @@ import { spawnSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 
+import { findE2EProductFixture } from '../src/app/api-routes/products/static-params/e2eProductFixture';
+
 import {
   isE2ESeedDataReady,
   readE2ESeedDataCounts,
   retryE2EDatabaseOperation,
 } from './e2eDatabaseSeed';
-import { requireE2EDatabaseUrl } from './e2eDatabaseUrl';
+import { configureE2EDatabaseUrl } from './e2eDatabaseUrl';
 
 import type { E2ESeedDataCountReaders } from './e2eDatabaseSeed';
 
@@ -89,7 +91,11 @@ async function hasRequiredSeedData(databaseUrl: string) {
         await prisma.$connect();
         const counts = await readE2ESeedDataCounts(readers);
 
-        return isE2ESeedDataReady(counts);
+        if (!isE2ESeedDataReady(counts)) {
+          return false;
+        }
+
+        return Boolean(await findE2EProductFixture(prisma));
       } finally {
         await prisma.$disconnect();
       }
@@ -107,7 +113,7 @@ async function hasRequiredSeedData(databaseUrl: string) {
 }
 
 async function prepareE2EDatabase() {
-  const databaseUrl = requireE2EDatabaseUrl(
+  const databaseUrl = configureE2EDatabaseUrl(
     process.env.PLAYWRIGHT_DATABASE_URL,
   );
   const env = {
@@ -125,6 +131,12 @@ async function prepareE2EDatabase() {
 
   for (const command of seedCommands) {
     runCommand(command, env);
+  }
+
+  if (!(await hasRequiredSeedData(databaseUrl))) {
+    throw new Error(
+      'E2E seed completed without creating test-ready catalog data.',
+    );
   }
 }
 
