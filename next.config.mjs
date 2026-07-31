@@ -1,6 +1,10 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = createNextIntlPlugin({
+  experimental: {
+    createMessagesDeclaration: './messages/ko.json',
+  },
+});
 const isE2EBuild = process.env.E2E_BUILD === 'true';
 
 const nextConfig = {

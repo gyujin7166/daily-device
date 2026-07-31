@@ -59,7 +59,7 @@
     "pagination": {
       "previous": "Previous page",
       "next": "Next page",
-      "goToPage": "Go to page {page}"
+      "goToPage": "Go to page {page, number}"
     },
     "feedback": {
       "notImplemented": "This feature is coming soon."
@@ -111,7 +111,7 @@
     "checking": "Checking your search...",
     "filters": {
       "clearAll": "Clear all",
-      "visibleCount": "Showing {visible} / {total}",
+      "visibleCount": "Showing {visible, number} / {total, number}",
       "sortSheetTitle": "Sort by",
       "sort": {
         "relevance": "Relevance",
@@ -168,7 +168,7 @@
       "imageFallbackAlt": "Product image coming soon",
       "previousSlide": "Previous category slide",
       "nextSlide": "Next category slide",
-      "goToSlide": "Go to category slide {page}",
+      "goToSlide": "Go to category slide {page, number}",
       "notImplemented": "This feature is coming soon.",
       "fallbackItems": {
         "miceAndKeyboards": "Mice & Keyboards",
@@ -188,7 +188,7 @@
       "color": "Color"
     },
     "summary": {
-      "resultCount": "{count} products"
+      "resultCount": "{count, number} products"
     },
     "toggle": {
       "default": "Filter",
@@ -245,13 +245,13 @@
       "buyNow": "Buy now"
     },
     "rating": {
-      "ariaLabel": "Rating {rating}, {count} reviews",
+      "ariaLabel": "Rating {rating, number}, {count, number} reviews",
       "reviewCount": "{count} reviews"
     },
     "media": {
       "fallbackAlt": "Product image coming soon",
-      "imageAlt": "Product image {index}",
-      "thumbnailAlt": "Product thumbnail {index}"
+      "imageAlt": "Product image {index, number}",
+      "thumbnailAlt": "Product thumbnail {index, number}"
     },
     "errors": {
       "ratingLoadFailed": "Could not load rating information."
@@ -273,7 +273,7 @@
     "list": {
       "emptyTitle": "No products to display.",
       "emptyDescription": "Please try again later.",
-      "range": "Showing {shown} of {total}",
+      "range": "Showing {shown, number} of {total, number}",
       "loadMore": "Load more",
       "backToTop": "Back to top",
       "loading": "Loading product list"
@@ -295,7 +295,7 @@
       "recommendedLoadFailed": "Could not load recommended products.",
       "loading": {
         "reviews": "Reviews",
-        "starPoint": "{star} stars"
+        "starPoint": "{star, number} stars"
       },
       "carousel": {
         "recommended": "Recommended products",
@@ -303,7 +303,7 @@
         "forYou": "You may also like",
         "previous": "Previous products",
         "next": "Next products",
-        "goToPage": "Go to page {page}"
+        "goToPage": "Go to page {page, number}"
       }
     }
   },
@@ -328,7 +328,7 @@
     "sections": {
       "shipping": "Shipping information",
       "payment": "Payment method",
-      "orderItems": "Order items ({count})",
+      "orderItems": "Order items ({count, number})",
       "summary": "Order summary"
     },
     "shipping": {
@@ -387,7 +387,7 @@
         "demoCompleted": "Demo order completed."
       },
       "orderName": {
-        "multiple": "{primaryName} and {count} more"
+        "multiple": "{primaryName} and {count, number} more"
       },
       "methods": {
         "test": {
@@ -409,7 +409,7 @@
       "cartChanged": "Cart information has changed."
     },
     "orderItems": {
-      "quantity": "Qty: {count}",
+      "quantity": "Qty: {count, number}",
       "currency": "₩{amount}"
     },
     "complete": {
@@ -418,7 +418,7 @@
       "demoNotice": "This is a portfolio demo order. No real charges or product delivery will occur.",
       "total": "Total paid",
       "currency": "₩{amount}",
-      "quantity": "{count}",
+      "quantity": "{count, number}",
       "viewOrderDetail": "View order details",
       "continueShopping": "Continue shopping",
       "empty": {
@@ -597,7 +597,7 @@
       "orderNumber": "Order no.",
       "orderDate": "Order date: {date}",
       "product": "Product: {name}",
-      "extraItems": " and {count} more",
+      "extraItems": " and {count, number} more",
       "total": "Total: ₩{amount}",
       "empty": "No recent orders."
     },
@@ -614,7 +614,7 @@
   "MyWishlist": {
     "page": {
       "title": "Wishlist",
-      "description": "{count} products in your wishlist.",
+      "description": "{count, number} products in your wishlist.",
       "clearAll": "Clear all",
       "authRequired": "Log in to view your wishlist.",
       "loadFailed": "Could not load wishlist."
@@ -631,7 +631,7 @@
       "label": "Wishlist pagination",
       "previous": "Previous page",
       "next": "Next page",
-      "goToPage": "Go to page {page}"
+      "goToPage": "Go to page {page, number}"
     }
   },
   "MyOrderDetail": {
@@ -706,7 +706,7 @@
     },
     "form": {
       "rating": "Rating",
-      "selectRating": "Select {star} stars",
+      "selectRating": "Select {star, number} stars",
       "title": "Title",
       "titlePlaceholder": "Summarize your experience in a few words",
       "content": "Content",
@@ -714,12 +714,12 @@
       "optional": "Optional",
       "characterCount": "{count} / {max}",
       "imageUpload": "Add photos",
-      "existingImageAlt": "Existing image {index}",
-      "newImageAlt": "New image {index}",
+      "existingImageAlt": "Existing image {index, number}",
+      "newImageAlt": "New image {index, number}",
       "removeImage": "Remove image",
       "uploading": "Uploading",
       "addImage": "Add image",
-      "uploadGuide": "You can upload up to {maxCount} images, {maxSize}MB per file.",
+      "uploadGuide": "You can upload up to {maxCount, number} images, {maxSize, number}MB per file.",
       "cancel": "Cancel",
       "uploadingImage": "Uploading image",
       "updating": "Updating",
@@ -773,7 +773,7 @@
     "summary": {
       "title": "Reviews",
       "scoreBase": "Based on {count} reviews",
-      "starPoint": "{star} stars"
+      "starPoint": "{star, number} stars"
     },
     "sort": {
       "latest": "Latest",
@@ -808,7 +808,7 @@
     "gallery": {
       "previewLabel": "Photo reviews",
       "moreAria": "View more photo reviews, {count} more",
-      "detailAria": "View photo review {index}",
+      "detailAria": "View photo review {index, number}",
       "imageAlt": "Product review gallery image",
       "reviewImageAlt": "Product review image",
       "more": "More",
@@ -825,9 +825,9 @@
       "closeModal": "Close photo review modal",
       "previousReview": "Previous review",
       "nextReview": "Next review",
-      "selectedImageAlt": "Selected photo review {index}",
-      "selectImage": "Select photo review image {index}",
-      "thumbnailAlt": "Thumbnail {index}",
+      "selectedImageAlt": "Selected photo review {index, number}",
+      "selectImage": "Select photo review image {index, number}",
+      "thumbnailAlt": "Thumbnail {index, number}",
       "anonymous": "Anonymous",
       "noTitle": "This review has no title.",
       "noContent": "No review content.",
@@ -881,7 +881,7 @@
       "label": "Address pagination",
       "previous": "Previous page",
       "next": "Next page",
-      "goToPage": "Go to page {page}"
+      "goToPage": "Go to page {page, number}"
     },
     "toast": {
       "defaultSuccess": "Default address has been set.",
@@ -1032,7 +1032,7 @@
       "imageCount": "{count} images",
       "mainImage": "Main",
       "defaultColorSuffix": " · Default",
-      "discount": "{rate}% off"
+      "discount": "{rate, number}% off"
     },
     "form": {
       "editTitle": "Edit product",
@@ -1082,7 +1082,7 @@
       "add": "Add image",
       "guide": "Products with colors require a linked color for each image. Products without colors use common images only.",
       "empty": "No product images registered.",
-      "urlLabel": "Image URL {index}",
+      "urlLabel": "Image URL {index, number}",
       "uploading": "Uploading",
       "upload": "Upload file",
       "linkedColor": "Linked color",
@@ -1242,7 +1242,7 @@
       "layoutPreset": "Layout preset",
       "cardPosition": "Card position",
       "disabledHelper": "Disabled keeps the data saved but does not show it in the categories carousel.",
-      "usageHelper": "Carousel page {page} / {preset}: {used}/{limit} used",
+      "usageHelper": "Carousel page {page, number} / {preset}: {used, number}/{limit, number} used",
       "presetConflict": "Only one layout preset can be used on the same carousel page.",
       "areaUsed": "This card position is already used. Choose another position.",
       "layoutFull": "No more cards can be added to {preset}.",

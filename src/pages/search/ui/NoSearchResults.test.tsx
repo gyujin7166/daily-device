@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
+
+import { TestIntlProvider } from '../../../../test/render';
 
 import NoSearchResults from './NoSearchResults';
 
@@ -41,12 +42,9 @@ describe('NoSearchResults', () => {
     '$locale 빈 검색 결과 문구에 검색어를 보간한다',
     ({ locale, query, title, description }) => {
       render(
-        <NextIntlClientProvider
-          locale={locale}
-          messages={messagesByLocale[locale]}
-        >
+        <TestIntlProvider locale={locale} messages={messagesByLocale[locale]}>
           <NoSearchResults searchTerm={query} />
-        </NextIntlClientProvider>,
+        </TestIntlProvider>,
       );
 
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();

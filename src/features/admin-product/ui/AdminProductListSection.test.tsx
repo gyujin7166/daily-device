@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
 import enMessages from '../../../../messages/en.json';
 import koMessages from '../../../../messages/ko.json';
+import { TestIntlProvider } from '../../../../test/render';
 
 import AdminProductListSection from './AdminProductListSection';
 
@@ -71,10 +71,7 @@ describe('AdminProductListSection', () => {
     '$locale locale의 통화 형식으로 가격을 표시한다',
     ({ locale, expectedPrice }) => {
       render(
-        <NextIntlClientProvider
-          locale={locale}
-          messages={messagesByLocale[locale]}
-        >
+        <TestIntlProvider locale={locale} messages={messagesByLocale[locale]}>
           <AdminProductListSection
             params={{ page: 1, limit: 20, keyword: '', categoryId: '' }}
             products={[product]}
@@ -88,7 +85,7 @@ describe('AdminProductListSection', () => {
             onEdit={vi.fn()}
             onDelete={vi.fn()}
           />
-        </NextIntlClientProvider>,
+        </TestIntlProvider>,
       );
 
       expect(screen.getByText(expectedPrice)).toBeInTheDocument();

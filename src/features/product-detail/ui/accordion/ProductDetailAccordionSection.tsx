@@ -12,8 +12,8 @@ import { useTranslations } from 'next-intl';
 import type { ProductDetailResponse } from '@entities/product/model/types';
 
 import {
+  getProductDetailLabelKey,
   getProductDetailSpecificationGroups,
-  PRODUCT_DETAIL_LABEL,
 } from '../../model/detail';
 
 import ProductDetailAccordionItem from './ProductDetailAccordionItem';
@@ -84,7 +84,7 @@ export default function ProductDetailAccordionSection(
             key={sectionId}
             sectionKey={sectionKey}
             titleId={sectionId}
-            label={t(PRODUCT_DETAIL_LABEL[sectionKey] ?? 'fallback')}
+            label={t(getProductDetailLabelKey(sectionKey))}
             Icon={SECTION_ICON_MAP[sectionKey]}
             isOpen={!!toggleState[sectionKey]}
             expandedHeight={contentHeights[sectionKey] ?? 0}
@@ -101,7 +101,7 @@ export default function ProductDetailAccordionSection(
       <ProductDetailAccordionItem
         sectionKey="4"
         titleId={4}
-        label={t(PRODUCT_DETAIL_LABEL['4'])}
+        label={t(getProductDetailLabelKey('4'))}
         Icon={SupportSectionIcon}
         isOpen={!!toggleState['4']}
         expandedHeight={contentHeights['4'] ?? 0}

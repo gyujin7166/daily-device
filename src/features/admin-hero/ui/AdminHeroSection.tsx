@@ -114,7 +114,7 @@ export default function AdminHeroSection({
       onMessage(
         t('saveCompleted', {
           action,
-          id: savedHero.id,
+          id: String(savedHero.id),
           name: getHeroDisplayName(savedHero),
         }),
       );
@@ -150,7 +150,7 @@ export default function AdminHeroSection({
       }
       onMessage(
         t('deleteCompleted', {
-          id: hero.id,
+          id: String(hero.id),
           name: getHeroDisplayName(hero),
         }),
       );

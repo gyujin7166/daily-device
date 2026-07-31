@@ -59,7 +59,7 @@
     "pagination": {
       "previous": "이전 페이지",
       "next": "다음 페이지",
-      "goToPage": "{page} 페이지로 이동"
+      "goToPage": "{page, number} 페이지로 이동"
     },
     "feedback": {
       "notImplemented": "현재 준비 중인 기능입니다."
@@ -111,7 +111,7 @@
     "checking": "검색어를 확인하고 있습니다...",
     "filters": {
       "clearAll": "모두 지우기",
-      "visibleCount": "표시 {visible} / {total}",
+      "visibleCount": "표시 {visible, number} / {total, number}",
       "sortSheetTitle": "정렬 기준",
       "sort": {
         "relevance": "관련도순",
@@ -168,7 +168,7 @@
       "imageFallbackAlt": "상품 이미지 준비 중",
       "previousSlide": "이전 카테고리 슬라이드",
       "nextSlide": "다음 카테고리 슬라이드",
-      "goToSlide": "{page}번 카테고리 슬라이드로 이동",
+      "goToSlide": "{page, number}번 카테고리 슬라이드로 이동",
       "notImplemented": "현재 준비 중인 기능입니다.",
       "fallbackItems": {
         "miceAndKeyboards": "마우스 & 키보드",
@@ -188,7 +188,7 @@
       "color": "색상"
     },
     "summary": {
-      "resultCount": "총 {count}개 상품"
+      "resultCount": "총 {count, number}개 상품"
     },
     "toggle": {
       "default": "필터",
@@ -245,13 +245,13 @@
       "buyNow": "바로 구매하기"
     },
     "rating": {
-      "ariaLabel": "평점 {rating}점, 리뷰 {count}개",
+      "ariaLabel": "평점 {rating, number}점, 리뷰 {count, number}개",
       "reviewCount": "리뷰 {count}개"
     },
     "media": {
       "fallbackAlt": "상품 이미지 준비 중",
-      "imageAlt": "상품 이미지 {index}",
-      "thumbnailAlt": "상품 썸네일 {index}"
+      "imageAlt": "상품 이미지 {index, number}",
+      "thumbnailAlt": "상품 썸네일 {index, number}"
     },
     "errors": {
       "ratingLoadFailed": "평점 정보를 불러오지 못했습니다."
@@ -273,7 +273,7 @@
     "list": {
       "emptyTitle": "표시할 상품이 없습니다.",
       "emptyDescription": "잠시 후 다시 시도해 주세요.",
-      "range": "총 {total}개 중 {shown}개 표시",
+      "range": "총 {total, number}개 중 {shown, number}개 표시",
       "loadMore": "더보기",
       "backToTop": "최상단으로 이동",
       "loading": "상품 목록을 불러오는 중"
@@ -295,7 +295,7 @@
       "recommendedLoadFailed": "추천 상품을 불러오지 못했습니다.",
       "loading": {
         "reviews": "상품평",
-        "starPoint": "{star}점"
+        "starPoint": "{star, number}점"
       },
       "carousel": {
         "recommended": "추천 상품",
@@ -303,7 +303,7 @@
         "forYou": "이런 상품은 어떠세요?",
         "previous": "이전 상품",
         "next": "다음 상품",
-        "goToPage": "{page}번 페이지로 이동"
+        "goToPage": "{page, number}번 페이지로 이동"
       }
     }
   },
@@ -328,7 +328,7 @@
     "sections": {
       "shipping": "배송 정보",
       "payment": "결제 방법",
-      "orderItems": "주문 상품 ({count})",
+      "orderItems": "주문 상품 ({count, number})",
       "summary": "주문 요약"
     },
     "shipping": {
@@ -387,7 +387,7 @@
         "demoCompleted": "데모 주문이 완료되었습니다."
       },
       "orderName": {
-        "multiple": "{primaryName} 외 {count}건"
+        "multiple": "{primaryName} 외 {count, number}건"
       },
       "methods": {
         "test": {
@@ -409,7 +409,7 @@
       "cartChanged": "장바구니 정보가 변경되었습니다."
     },
     "orderItems": {
-      "quantity": "수량: {count}",
+      "quantity": "수량: {count, number}",
       "currency": "{amount}원"
     },
     "complete": {
@@ -418,7 +418,7 @@
       "demoNotice": "포트폴리오 데모 주문입니다. 실제 비용 청구나 상품 배송은 발생하지 않습니다.",
       "total": "총 결제금액",
       "currency": "{amount}원",
-      "quantity": "{count}개",
+      "quantity": "{count, number}개",
       "viewOrderDetail": "주문 상세 보기",
       "continueShopping": "쇼핑 계속하기",
       "empty": {
@@ -597,7 +597,7 @@
       "orderNumber": "주문번호",
       "orderDate": "주문일: {date}",
       "product": "상품: {name}",
-      "extraItems": " 외 {count}건",
+      "extraItems": " 외 {count, number}건",
       "total": "총액: {amount}원",
       "empty": "최근 주문 내역이 없습니다."
     },
@@ -614,7 +614,7 @@
   "MyWishlist": {
     "page": {
       "title": "찜한 상품",
-      "description": "총 {count}개의 상품을 찜했습니다.",
+      "description": "총 {count, number}개의 상품을 찜했습니다.",
       "clearAll": "전체 삭제",
       "authRequired": "로그인 후 찜 목록을 확인할 수 있습니다.",
       "loadFailed": "찜 목록을 불러오지 못했습니다."
@@ -631,7 +631,7 @@
       "label": "찜한 상품 페이지네이션",
       "previous": "이전 페이지",
       "next": "다음 페이지",
-      "goToPage": "{page} 페이지로 이동"
+      "goToPage": "{page, number} 페이지로 이동"
     }
   },
   "MyOrderDetail": {
@@ -706,7 +706,7 @@
     },
     "form": {
       "rating": "만족도 평가",
-      "selectRating": "{star}점 선택",
+      "selectRating": "{star, number}점 선택",
       "title": "제목",
       "titlePlaceholder": "몇 마디로 경험을 요약해 주세요",
       "content": "내용",
@@ -714,12 +714,12 @@
       "optional": "선택",
       "characterCount": "{count} / {max}자",
       "imageUpload": "사진 첨부",
-      "existingImageAlt": "기존 이미지 {index}",
-      "newImageAlt": "새 이미지 {index}",
+      "existingImageAlt": "기존 이미지 {index, number}",
+      "newImageAlt": "새 이미지 {index, number}",
       "removeImage": "이미지 삭제",
       "uploading": "업로드 중",
       "addImage": "이미지 추가",
-      "uploadGuide": "이미지는 최대 {maxCount}개, 파일당 {maxSize}MB까지 업로드할 수 있습니다.",
+      "uploadGuide": "이미지는 최대 {maxCount, number}개, 파일당 {maxSize, number}MB까지 업로드할 수 있습니다.",
       "cancel": "취소",
       "uploadingImage": "이미지 업로드 중",
       "updating": "수정 중",
@@ -773,7 +773,7 @@
     "summary": {
       "title": "상품평",
       "scoreBase": "총 {count}개 리뷰 기준",
-      "starPoint": "{star}점"
+      "starPoint": "{star, number}점"
     },
     "sort": {
       "latest": "최신순",
@@ -808,7 +808,7 @@
     "gallery": {
       "previewLabel": "사진 후기",
       "moreAria": "사진 후기 더보기, {count}개 더 보기",
-      "detailAria": "{index}번째 사진 후기 자세히 보기",
+      "detailAria": "{index, number}번째 사진 후기 자세히 보기",
       "imageAlt": "상품평 갤러리 이미지",
       "reviewImageAlt": "상품평 리뷰 이미지",
       "more": "더보기",
@@ -825,9 +825,9 @@
       "closeModal": "사진 후기 모달 닫기",
       "previousReview": "이전 상품평",
       "nextReview": "다음 상품평",
-      "selectedImageAlt": "선택된 사진 후기 {index}",
-      "selectImage": "{index}번째 사진 후기 이미지 선택",
-      "thumbnailAlt": "썸네일 {index}",
+      "selectedImageAlt": "선택된 사진 후기 {index, number}",
+      "selectImage": "{index, number}번째 사진 후기 이미지 선택",
+      "thumbnailAlt": "썸네일 {index, number}",
       "anonymous": "익명",
       "noTitle": "리뷰 제목이 없습니다.",
       "noContent": "리뷰 내용이 없습니다.",
@@ -881,7 +881,7 @@
       "label": "배송지 페이지네이션",
       "previous": "이전 페이지",
       "next": "다음 페이지",
-      "goToPage": "{page} 페이지로 이동"
+      "goToPage": "{page, number} 페이지로 이동"
     },
     "toast": {
       "defaultSuccess": "기본 배송지로 설정되었습니다.",
@@ -1032,7 +1032,7 @@
       "imageCount": "이미지 {count}개",
       "mainImage": "대표",
       "defaultColorSuffix": " · 기본",
-      "discount": "{rate}% 할인"
+      "discount": "{rate, number}% 할인"
     },
     "form": {
       "editTitle": "상품 수정",
@@ -1082,7 +1082,7 @@
       "add": "이미지 추가",
       "guide": "색상이 있는 상품은 이미지마다 연결 색상을 선택합니다. 색상이 없는 상품만 공통 이미지로 등록됩니다.",
       "empty": "등록된 상품 이미지가 없습니다.",
-      "urlLabel": "이미지 URL {index}",
+      "urlLabel": "이미지 URL {index, number}",
       "uploading": "업로드 중",
       "upload": "파일 업로드",
       "linkedColor": "연결 색상",
@@ -1242,7 +1242,7 @@
       "layoutPreset": "레이아웃 프리셋",
       "cardPosition": "카드 위치",
       "disabledHelper": "사용 안 함은 데이터를 저장하지만 categories 캐러셀에는 표시하지 않습니다.",
-      "usageHelper": "캐러셀 {page}페이지 / {preset}: {used}/{limit}개 사용 중",
+      "usageHelper": "캐러셀 {page, number}페이지 / {preset}: {used, number}/{limit, number}개 사용 중",
       "presetConflict": "같은 캐러셀 페이지에는 하나의 레이아웃 프리셋만 사용할 수 있습니다.",
       "areaUsed": "이미 사용 중인 카드 위치입니다. 다른 위치를 선택해주세요.",
       "layoutFull": "{preset}에 더 이상 카드를 추가할 수 없습니다.",

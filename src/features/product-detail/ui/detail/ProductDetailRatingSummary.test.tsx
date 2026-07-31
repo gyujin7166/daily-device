@@ -1,14 +1,16 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ProductReviewsPayload } from '@entities/review/model/types';
 
 import { TEST_API_URL } from '../../../../../test/mocks/handlers';
 import { server } from '../../../../../test/mocks/server';
-import { createTestQueryClient } from '../../../../../test/render';
+import {
+  createTestQueryClient,
+  TestIntlProvider,
+} from '../../../../../test/render';
 
 import ProductDetailRatingSummary from './ProductDetailRatingSummary';
 
@@ -26,7 +28,7 @@ vi.mock('next-auth/react', () => ({
 const messages = {
   ProductDetail: {
     rating: {
-      ariaLabel: 'Rating {rating}, {count} reviews',
+      ariaLabel: 'Rating {rating, number}, {count, number} reviews',
       reviewCount: '{count} reviews',
     },
   },
@@ -74,12 +76,12 @@ describe('ProductDetailRatingSummary', () => {
     );
 
     const queryClient = createTestQueryClient();
-    const renderRating = (locale: string) => (
-      <NextIntlClientProvider locale={locale} messages={messages}>
+    const renderRating = (locale: 'ko' | 'en') => (
+      <TestIntlProvider locale={locale} messages={messages}>
         <QueryClientProvider client={queryClient}>
           <ProductDetailRatingSummary detail="keyboard" />
         </QueryClientProvider>
-      </NextIntlClientProvider>
+      </TestIntlProvider>
     );
     const { container, rerender } = render(renderRating('ko'));
 

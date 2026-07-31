@@ -11,6 +11,8 @@ import {
   TableHeader,
 } from '@shared/ui/AdminControls';
 
+import { getAdminHeroTypeLabelKey } from '../model/types';
+
 import type { AdminHero } from '../model/types';
 
 const ADMIN_HERO_LIST_PAGE_SIZE = 10;
@@ -37,6 +39,11 @@ export default function AdminHeroListSection({
 }: AdminHeroListSectionProps) {
   const locale = useLocale();
   const t = useTranslations('AdminHero');
+  const getHeroTypeLabel = (name: string) => {
+    const labelKey = getAdminHeroTypeLabelKey(name);
+
+    return labelKey ? t(labelKey) : name;
+  };
   const [page, setPage] = useState(1);
   const totalPages = Math.max(
     1,
@@ -98,7 +105,7 @@ export default function AdminHeroListSection({
                   {hero.id}
                 </td>
                 <td className="px-3 py-3 align-middle">
-                  {t(`types.${hero.heroType.name}`)}
+                  {getHeroTypeLabel(hero.heroType.name)}
                 </td>
                 <td className="px-3 py-3 text-center align-middle">
                   {hero.isDefault ? (
