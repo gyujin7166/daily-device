@@ -16,7 +16,7 @@ type SearchFilterControlsProps = {
   totalCount: number;
 };
 
-const CATEGORY_LABEL_KEYS: Record<string, string> = {
+const CATEGORY_LABEL_KEYS = {
   mice: 'mice',
   keyboards: 'keyboards',
   'tablet-keyboards': 'tabletKeyboards',
@@ -35,7 +35,7 @@ const CATEGORY_LABEL_KEYS: Record<string, string> = {
   'computer-speakers': 'computerSpeakers',
   'security-cameras': 'securityCameras',
   'smart-home': 'smartHome',
-};
+} as const;
 
 export default function SearchFilterControls({
   categories,
@@ -56,7 +56,8 @@ export default function SearchFilterControls({
     { value: 'price_desc', label: t('sort.priceDesc') },
   ];
   const getCategoryLabel = (category: string) => {
-    const key = CATEGORY_LABEL_KEYS[category];
+    const key =
+      CATEGORY_LABEL_KEYS[category as keyof typeof CATEGORY_LABEL_KEYS];
 
     return key ? t(`categories.${key}`) : category;
   };

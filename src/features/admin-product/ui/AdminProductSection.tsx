@@ -129,7 +129,7 @@ export default function AdminProductSection({
       onMessage(
         t('saveCompleted', {
           action,
-          id: savedProduct.id,
+          id: String(savedProduct.id),
           name: getProductDisplayName(savedProduct),
         }),
       );
@@ -165,7 +165,7 @@ export default function AdminProductSection({
       }
       onMessage(
         t('deleteCompleted', {
-          id: product.id,
+          id: String(product.id),
           name: getProductDisplayName(product),
         }),
       );

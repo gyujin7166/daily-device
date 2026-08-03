@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
+
+import { TestIntlProvider } from '../../../../test/render';
 
 import SearchHeader from './SearchHeader';
 
@@ -47,12 +48,9 @@ describe('SearchHeader', () => {
       const query = locale === 'ko' ? '키보드' : 'keyboard';
 
       render(
-        <NextIntlClientProvider
-          locale={locale}
-          messages={messagesByLocale[locale]}
-        >
+        <TestIntlProvider locale={locale} messages={messagesByLocale[locale]}>
           <SearchHeader decodedQuery={query} totalItems={18} />
-        </NextIntlClientProvider>,
+        </TestIntlProvider>,
       );
 
       expect(screen.getByRole('heading', { name: title })).toBeInTheDocument();

@@ -1,17 +1,21 @@
 import type { ProductDetailResponse } from '@entities/product/model/types';
 
-export const PRODUCT_DETAIL_LABEL: { [key: string]: string } = {
+export const PRODUCT_DETAIL_LABEL = {
   '1': 'details',
   '2': 'compatibility',
   '3': 'included',
   '4': 'support',
-};
+} as const;
+
+export const getProductDetailLabelKey = (sectionKey: string) =>
+  PRODUCT_DETAIL_LABEL[sectionKey as keyof typeof PRODUCT_DETAIL_LABEL] ??
+  'fallback';
 
 export const SUPPORT_LINKS = [
   { id: 1, href: '#', labelKey: 'manual' },
   { id: 2, href: '#', labelKey: 'faq' },
   { id: 3, href: '#', labelKey: 'register' },
-];
+] as const;
 
 type ProductDetailItem = ProductDetailResponse['productDetails'][number];
 

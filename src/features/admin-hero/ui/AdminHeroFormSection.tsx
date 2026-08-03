@@ -21,6 +21,8 @@ import {
 } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
+import { getAdminHeroTypeLabelKey } from '../model/types';
+
 import type {
   AdminHeroCategory,
   AdminHeroType,
@@ -111,6 +113,11 @@ export default function AdminHeroFormSection({
   const activeTranslationLocale: HeroTranslationLocale =
     locale === 'en' ? 'en' : 'ko';
   const t = useTranslations('AdminHero');
+  const getHeroTypeLabel = (name: string) => {
+    const labelKey = getAdminHeroTypeLabelKey(name);
+
+    return labelKey ? t(labelKey) : name;
+  };
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const selectedHeroPath =
@@ -216,7 +223,7 @@ export default function AdminHeroFormSection({
                 value={type.id}
                 disabled={isHeroTypeDisabled(type)}
               >
-                {t(`types.${type.name}`)}
+                {getHeroTypeLabel(type.name)}
                 {isHeroTypeDisabled(type) ? t('form.disabledSuffix') : ''}
               </option>
             ))}

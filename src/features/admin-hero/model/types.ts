@@ -1,3 +1,13 @@
+const ADMIN_HERO_TYPE_LABEL_KEYS = {
+  main: 'types.main',
+  product: 'types.product',
+  'product-all': 'types.product-all',
+  'product-discounts': 'types.product-discounts',
+} as const;
+
+export const getAdminHeroTypeLabelKey = (name: string) =>
+  ADMIN_HERO_TYPE_LABEL_KEYS[name as keyof typeof ADMIN_HERO_TYPE_LABEL_KEYS];
+
 export type AdminHeroType = {
   id: number;
   name: string;

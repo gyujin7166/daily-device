@@ -2,8 +2,9 @@ import type React from 'react';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
+
+import { TestIntlProvider } from '../../../../../test/render';
 
 import CheckoutPaymentButton from './CheckoutPaymentButton';
 
@@ -28,9 +29,9 @@ function renderCheckoutPaymentButton(
   props: React.ComponentProps<typeof CheckoutPaymentButton>,
 ) {
   return render(
-    <NextIntlClientProvider locale="ko" messages={messages}>
+    <TestIntlProvider locale="ko" messages={messages}>
       <CheckoutPaymentButton {...props} />
-    </NextIntlClientProvider>,
+    </TestIntlProvider>,
   );
 }
 

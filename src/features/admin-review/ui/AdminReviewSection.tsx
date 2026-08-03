@@ -61,7 +61,7 @@ export default function AdminReviewSection({
           action: updatedReview.adminHiddenAt
             ? t('hideAction')
             : t('restoreAction'),
-          id: updatedReview.id,
+          id: String(updatedReview.id),
           productName: getReviewProductName(updatedReview),
         }),
       );

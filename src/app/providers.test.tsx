@@ -2,10 +2,11 @@ import type { PropsWithChildren } from 'react';
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { toast } from '@shared/lib/toast';
+
+import { TestIntlProvider } from '../../test/render';
 
 import Providers from './providers';
 
@@ -41,13 +42,13 @@ afterEach(() => {
 describe('Providers toast i18n context', () => {
   it.each([
     {
-      locale: 'ko',
+      locale: 'ko' as const,
       type: 'success' as const,
       message: '기본 배송지로 설정했습니다.',
       closeLabel: '토스트 메시지 닫기',
     },
     {
-      locale: 'en',
+      locale: 'en' as const,
       type: 'error' as const,
       message: 'Failed to update the address.',
       closeLabel: 'Close notification',
@@ -65,11 +66,11 @@ describe('Providers toast i18n context', () => {
       };
 
       render(
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <TestIntlProvider locale={locale} messages={messages}>
           <Providers>
             <ToastTrigger message={message} type={type} />
           </Providers>
-        </NextIntlClientProvider>,
+        </TestIntlProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Show toast' }));

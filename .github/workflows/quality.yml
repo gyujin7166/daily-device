@@ -39,6 +39,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Generate Next.js and next-intl types
+        run: npx next typegen
+
       - name: Run type check
         run: npx tsc --noEmit
 
