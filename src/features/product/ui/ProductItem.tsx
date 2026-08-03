@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 import { useProductItemActions } from '../model/hooks/useProductItemActions';
 import {
@@ -23,7 +23,7 @@ type ProductItemProps = {
   priorityImage?: boolean;
 };
 
-export default function ProductItem({
+function ProductItem({
   product,
   backgroundClassName = 'bg-surface dark:bg-dark-panel',
   variant = 'default',
@@ -65,3 +65,5 @@ export default function ProductItem({
 
   return <ProductItemCard variant={variant} {...cardProps} />;
 }
+
+export default memo(ProductItem);

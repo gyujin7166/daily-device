@@ -1,7 +1,6 @@
 'use client';
 import { Suspense } from 'react';
 
-import ProductFilterProvider from '@features/product-filter/model/context/ProductFilterContext';
 import type { ProductPriceRange } from '@features/product-filter/model/productFilter';
 
 import type { ProductColorFilterOption } from '@entities/product/model/types';
@@ -25,13 +24,11 @@ export default function ProductCategoryPageContainer({
     <div className="bg-canvas dark:bg-dark-bg">
       <ProductCategoryHeroContainer category={category} />
       <Suspense fallback={<ProductCategoryLoadingState />}>
-        <ProductFilterProvider>
-          <ProductCategoryContentContainer
-            category={category}
-            priceRange={priceRange}
-            colorOptions={colorOptions}
-          />
-        </ProductFilterProvider>
+        <ProductCategoryContentContainer
+          category={category}
+          priceRange={priceRange}
+          colorOptions={colorOptions}
+        />
       </Suspense>
     </div>
   );

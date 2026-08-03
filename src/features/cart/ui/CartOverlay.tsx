@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 import { Transition } from 'react-transition-group';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartDrawerStore } from '@entities/cart/model/store/cartDrawerStore';
 
 import { cn } from '@shared/lib/utils/style';
 import { getTransitionStyle } from '@shared/types/transition';
@@ -32,7 +32,7 @@ const transitionStyles: TransitionStyle = {
 
 export default function CartOverlay() {
   const nodeRef = useRef<HTMLDivElement | null>(null);
-  const { isCartOpen } = useCartContext();
+  const isCartOpen = useCartDrawerStore((state) => state.isCartOpen);
 
   return (
     <Transition nodeRef={nodeRef} in={isCartOpen} timeout={220} unmountOnExit>

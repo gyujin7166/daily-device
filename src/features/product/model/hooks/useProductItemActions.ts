@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
-import { useCartContext } from '@entities/cart/model/context/CartContext';
 import useCartActions from '@entities/cart/model/hooks/useCartActions';
+import { useCartDrawerStore } from '@entities/cart/model/store/cartDrawerStore';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
 import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 import {
   buildWishlistItem,
@@ -42,7 +43,7 @@ export const useProductItemActions = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  const { openCart, isCartVariantMutationPending } = useCartContext();
+  const { openCart } = useCartDrawerStore((state) => state.actions);
   const { handleUpsertCartItem } = useCartActions();
   const { data: wishlistItems = [] } = useWishlist();
   const { mutate: addWishlist } = useUpsertWishlist();
@@ -61,10 +62,18 @@ export const useProductItemActions = ({
           colorName: hasColors ? resolvedColor?.name : undefined,
         })
       : null;
+  const isCartVariantMutationPending = useCartPendingStore((state) =>
+    cartVariantKey
+      ? Boolean(
+          state.pendingAddingItemKeys[cartVariantKey] ||
+          state.pendingCartSyncKeys[cartVariantKey],
+        )
+      : false,
+  );
   const canAddToCart =
     status !== 'loading' &&
     typeof product.id === 'number' &&
-    (!cartVariantKey || !isCartVariantMutationPending(cartVariantKey));
+    !isCartVariantMutationPending;
 
   const handleToggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();

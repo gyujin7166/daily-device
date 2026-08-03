@@ -27,6 +27,7 @@ import type {
 
 type FilterProps = {
   filterItems: FilterWithOptions[] | undefined;
+  filterIsPending: boolean;
   products: CatalogProductItem[];
   setFilteredItem: React.Dispatch<
     React.SetStateAction<CatalogProductItem[] | null>
@@ -49,6 +50,7 @@ type FilterProps = {
 
 export default function ProductFilter({
   filterItems,
+  filterIsPending,
   products,
   setFilteredItem,
   variant = 'default',
@@ -70,7 +72,6 @@ export default function ProductFilter({
       : 'rounded-3xl border border-line bg-surface p-5 shadow-xs dark:border-dark-border dark:bg-dark-panel';
   const {
     effectiveCheckboxStates,
-    filterIsPending,
     handleCheckboxChange,
     handleToggle,
     inputIdPrefix,

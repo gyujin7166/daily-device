@@ -4,16 +4,16 @@ import { isSameCartVariant } from '@entities/cart/lib/cartItemVariant';
 import type { LocalCartItem, UserCartItem } from '@entities/cart/model/types';
 
 import { useAddToCart } from '../../queries/useAddToCart';
+import { useCartLocalStore } from '../store/cartLocalStore';
 
 export default function useMergeLocalCart() {
   const { mutateAsync } = useAddToCart();
+  const clearLocalCart = useCartLocalStore(
+    (state) => state.actions.clearLocalCart,
+  );
 
   const mergeLocalCart = useCallback(
-    async (
-      localCartItems: LocalCartItem[],
-      setLocalCartItems: React.Dispatch<React.SetStateAction<LocalCartItem[]>>,
-      userCartItems: UserCartItem[],
-    ) => {
+    async (localCartItems: LocalCartItem[], userCartItems: UserCartItem[]) => {
       // 로그인 전 로컬 장바구니에는 같은 상품/색상이 중복 저장될 수 있어 서버 반영 전에 먼저 합친다.
       const mergedLocalItems = localCartItems.reduce<LocalCartItem[]>(
         (acc, item) => {
@@ -60,10 +60,9 @@ export default function useMergeLocalCart() {
         }),
       );
 
-      localStorage.removeItem('localCart');
-      setLocalCartItems([]);
+      clearLocalCart();
     },
-    [mutateAsync],
+    [clearLocalCart, mutateAsync],
   );
 
   return { mergeLocalCart };

@@ -3,18 +3,26 @@ import { useSearchParams } from 'next/navigation';
 import { IconX } from '@tabler/icons-react';
 import { useLocale, useTranslations } from 'next-intl';
 
-import type { ProductColorFilterOption } from '@entities/product/model/types';
+import type {
+  FilterWithOptions,
+  ProductColorFilterOption,
+} from '@entities/product/model/types';
 
 import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
-import { useProductFilterContext } from '../model/context/ProductFilterContext';
+import {
+  selectHasCheckedProductFilters,
+  useProductFilterStore,
+} from '../model/store/productFilterStore';
 
 import type {
+  ProductFilterCheckboxStates,
   ProductPriceFilterValue,
   ProductPriceRange,
 } from '../model/productFilter';
 
 type ProductFilterBarProps = {
+  filterItems: FilterWithOptions[] | undefined;
   priceRange?: ProductPriceRange;
   priceValue?: ProductPriceFilterValue;
   onPriceChange?: (nextValue: ProductPriceFilterValue) => void;
@@ -37,6 +45,7 @@ const formatPrice = (value: number, locale: string) => {
 };
 
 export default function ProductFilterBar({
+  filterItems,
   priceRange,
   priceValue = {},
   onPriceChange,
@@ -47,17 +56,21 @@ export default function ProductFilterBar({
 }: ProductFilterBarProps) {
   const locale = useLocale();
   const t = useTranslations('ProductFilter');
-  const { checkboxStates, setCheckboxStates, hasCheckedFilters, filter } =
-    useProductFilterContext();
+  const checkboxStates = useProductFilterStore((state) => state.checkboxStates);
+  const hasCheckedFilters = useProductFilterStore(
+    selectHasCheckedProductFilters,
+  );
+  const setCheckboxStates = useProductFilterStore(
+    (state) => state.actions.setCheckboxStates,
+  );
   const { setParam, setParams } = useQueryParams();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
-  type CheckboxStates = typeof checkboxStates;
   const checkedIds = Object.keys(checkboxStates)
     .filter((key) => checkboxStates[+key])
     .map(Number);
 
-  const checkedNames = filter
+  const checkedNames = filterItems
     ?.flatMap((item) => item.filterOption)
     .filter((option) => checkedIds.includes(option.id))
     .map((option) => option.name_ko);
@@ -82,9 +95,11 @@ export default function ProductFilterBar({
         })
       : null;
 
-  const updateFilterQuery = (nextCheckboxStates: CheckboxStates) => {
+  const updateFilterQuery = (
+    nextCheckboxStates: ProductFilterCheckboxStates,
+  ) => {
     const selectedOptionNames =
-      filter
+      filterItems
         ?.flatMap((item) => item.filterOption)
         .filter((option) => nextCheckboxStates[option.id] === true)
         .map((option) => option.name_en) ?? [];
@@ -165,7 +180,7 @@ export default function ProductFilterBar({
           onClick={() => {
             const nextCheckboxStates = Object.keys(
               checkboxStates,
-            ).reduce<CheckboxStates>((acc, key) => {
+            ).reduce<ProductFilterCheckboxStates>((acc, key) => {
               acc[+key] = false;
               return acc;
             }, {});

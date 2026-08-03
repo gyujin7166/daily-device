@@ -6,7 +6,6 @@ import { getLocale } from 'next-intl/server';
 import { getAddresses } from '@app/api-routes/addresses/service';
 import { getCartByUserId } from '@app/api-routes/cart/service';
 
-import CheckoutProvider from '@features/checkout/model/context/CheckoutContext';
 import { CheckoutPageContent } from '@features/checkout/ui/page';
 
 import { addressQueryKeys } from '@entities/address/queries/queryKeys';
@@ -42,9 +41,7 @@ export default async function CheckoutPage() {
 
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
-      <CheckoutProvider>
-        <CheckoutPageContent />
-      </CheckoutProvider>
+      <CheckoutPageContent />
     </HydrationBoundary>
   );
 }

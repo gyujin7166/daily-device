@@ -4,8 +4,11 @@ import { useIsMutating } from '@tanstack/react-query';
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartLocalStore } from '@entities/cart/model/store/cartLocalStore';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
+import { useCartQuantityStore } from '@entities/cart/model/store/cartQuantityStore';
 import { cartMutationKeys } from '@entities/cart/queries/queryKeys';
+import { selectCartItems, useCart } from '@entities/cart/queries/useCart';
 
 import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
@@ -20,13 +23,15 @@ export default function CartFooter() {
   const t = useTranslations('Cart');
   const router = useRouter();
   const [isCheckoutRouting, startCheckoutRouting] = useTransition();
-  const {
-    userCartItems,
-    localCartItems,
-    quantities,
-    isAddingNewItem,
-    isCartSyncPending,
-  } = useCartContext();
+  const { data: userCartItems = [] } = useCart({ select: selectCartItems });
+  const localCartItems = useCartLocalStore((state) => state.localCartItems);
+  const isAddingNewItem = useCartPendingStore(
+    (state) => Object.keys(state.pendingAddingItemKeys).length > 0,
+  );
+  const isCartSyncPending = useCartPendingStore(
+    (state) => Object.keys(state.pendingCartSyncKeys).length > 0,
+  );
+  const quantities = useCartQuantityStore((state) => state.quantities);
   const cartUpsertMutationCount = useIsMutating({
     mutationKey: cartMutationKeys.addToCart(),
   });

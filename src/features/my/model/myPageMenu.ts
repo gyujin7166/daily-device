@@ -31,3 +31,26 @@ export const MY_PAGE_MENU_ITEMS: MyPageMenuItem[] = [
   { labelKey: 'writeReview', tab: 'write-review', icon: IconPencil },
   { labelKey: 'reviews', tab: 'reviews', icon: IconStar },
 ];
+
+export const getMyTabFromPathname = (pathname: string): MyTab => {
+  const myPathStart = pathname.indexOf('/my');
+  const myPath = myPathStart >= 0 ? pathname.slice(myPathStart) : pathname;
+
+  if (myPath.startsWith('/my/reviews/write')) {
+    return 'write-review';
+  }
+  if (myPath.startsWith('/my/reviews')) {
+    return 'reviews';
+  }
+  if (myPath.startsWith('/my/orders')) {
+    return 'orders';
+  }
+  if (myPath.startsWith('/my/wishlist')) {
+    return 'wishlist';
+  }
+  if (myPath.startsWith('/my/address')) {
+    return 'address';
+  }
+
+  return 'overview';
+};
