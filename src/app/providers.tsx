@@ -7,8 +7,6 @@ import { SessionProvider } from 'next-auth/react';
 import { Slide, ToastContainer } from 'react-toastify';
 import { twMerge } from 'tailwind-merge';
 
-import { HeroNavToneProvider } from '@shared/model/context/HeroNavToneContext';
-
 type ProvidersProps = {
   children: React.ReactNode;
 };
@@ -35,7 +33,7 @@ export default function Providers({ children }: ProvidersProps) {
         refetchOnWindowFocus
         refetchWhenOffline={false}
       >
-        <HeroNavToneProvider>{children}</HeroNavToneProvider>
+        {children}
         <ToastContainer
           position="top-right"
           transition={Slide}

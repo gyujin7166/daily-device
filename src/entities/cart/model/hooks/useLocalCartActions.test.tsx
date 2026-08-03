@@ -1,38 +1,18 @@
-import type { SetStateAction } from 'react';
-
 import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { LocalCartItem } from '@entities/cart/model/types';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { localCartItemFixture } from '../../../../../test/mocks/handlers';
+import { useCartLocalStore } from '../store/cartLocalStore';
 
 import useLocalCartActions from './useLocalCartActions';
 
-const mocks = vi.hoisted(() => ({
-  setLocalCartItems: vi.fn(),
-}));
-
-vi.mock('../context/CartContext', () => ({
-  useCartContext: () => ({
-    setLocalCartItems: mocks.setLocalCartItems,
-  }),
-}));
-
-let currentLocalCartItems: LocalCartItem[];
-
 describe('useLocalCartActions', () => {
   beforeEach(() => {
-    currentLocalCartItems = [];
+    useCartLocalStore.setState({
+      hasHydrated: false,
+      localCartItems: [],
+    });
     localStorage.clear();
-    mocks.setLocalCartItems.mockImplementation(
-      (updater: SetStateAction<LocalCartItem[]>) => {
-        currentLocalCartItems =
-          typeof updater === 'function'
-            ? updater(currentLocalCartItems)
-            : updater;
-      },
-    );
   });
 
   it('새 상품을 로컬 장바구니에 추가한다', () => {
@@ -53,7 +33,7 @@ describe('useLocalCartActions', () => {
       });
     });
 
-    expect(currentLocalCartItems).toEqual([
+    expect(useCartLocalStore.getState().localCartItems).toEqual([
       expect.objectContaining({
         productId: 101,
         productColorId: 201,
@@ -69,7 +49,9 @@ describe('useLocalCartActions', () => {
   });
 
   it('동일 variant의 수량을 갱신하고 최대 10개로 제한한다', () => {
-    currentLocalCartItems = [localCartItemFixture];
+    useCartLocalStore.setState({
+      localCartItems: [localCartItemFixture],
+    });
     const { result } = renderHook(useLocalCartActions);
 
     act(() => {
@@ -81,7 +63,7 @@ describe('useLocalCartActions', () => {
       });
     });
 
-    expect(currentLocalCartItems).toEqual([
+    expect(useCartLocalStore.getState().localCartItems).toEqual([
       { ...localCartItemFixture, quantity: 10 },
     ]);
   });
@@ -92,8 +74,9 @@ describe('useLocalCartActions', () => {
       productColorId: 202,
       colorName: 'White',
     };
-    currentLocalCartItems = [localCartItemFixture, otherVariant];
-    localStorage.setItem('localCart', JSON.stringify(currentLocalCartItems));
+    useCartLocalStore.setState({
+      localCartItems: [localCartItemFixture, otherVariant],
+    });
     const { result } = renderHook(useLocalCartActions);
 
     act(() => {
@@ -104,7 +87,9 @@ describe('useLocalCartActions', () => {
       });
     });
 
-    expect(currentLocalCartItems).toEqual([otherVariant]);
-    expect(localStorage.getItem('localCart')).toBeNull();
+    expect(useCartLocalStore.getState().localCartItems).toEqual([otherVariant]);
+    expect(JSON.parse(localStorage.getItem('localCart') ?? '{}').state).toEqual(
+      { localCartItems: [otherVariant] },
+    );
   });
 });

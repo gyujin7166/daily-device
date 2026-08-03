@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 
 import { Transition } from 'react-transition-group';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartDrawerStore } from '@entities/cart/model/store/cartDrawerStore';
 
+import { useScrollLock } from '@shared/hooks/useScrollLock';
+import { usePathname } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import { getTransitionStyle } from '@shared/types/transition';
 import type { TransitionStyle } from '@shared/types/transition';
@@ -33,7 +35,16 @@ const TRANSITION_STYLES: TransitionStyle = {
 
 export default function CartDrawerPanel({ children }: CartDrawerPanelProps) {
   const nodeRef = useRef<HTMLDivElement | null>(null);
-  const { isCartOpen, closeCart } = useCartContext();
+  const pathname = usePathname();
+  const isCartOpen = useCartDrawerStore((state) => state.isCartOpen);
+  const { closeCart } = useCartDrawerStore((state) => state.actions);
+  useScrollLock(isCartOpen);
+
+  useEffect(() => {
+    closeCart();
+  }, [closeCart, pathname]);
+
+  useEffect(() => () => closeCart(), [closeCart]);
 
   useEffect(() => {
     if (!isCartOpen) {

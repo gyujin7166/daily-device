@@ -16,6 +16,7 @@ type ProductCategoryMobileFilterDrawerSectionProps = {
   onReset: () => void;
   onApply: () => void;
   filterItems: ProductFilterProps['filterItems'];
+  filterIsPending: ProductFilterProps['filterIsPending'];
   products: ProductFilterProps['products'];
   setFilteredItem: ProductFilterProps['setFilteredItem'];
   priceRange: ProductFilterProps['priceRange'];
@@ -37,6 +38,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
   onReset,
   onApply,
   filterItems,
+  filterIsPending,
   products,
   setFilteredItem,
   priceRange,
@@ -97,6 +99,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
             <ProductFilter
               filterItems={filterItems}
+              filterIsPending={filterIsPending}
               products={products}
               setFilteredItem={setFilteredItem}
               variant="drawer"

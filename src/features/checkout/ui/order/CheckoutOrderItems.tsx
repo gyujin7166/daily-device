@@ -2,7 +2,6 @@ import Image from 'next/image';
 
 import { useFormatter, useTranslations } from 'next-intl';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
 
 import { Link } from '@shared/lib/i18n/navigation';
@@ -10,16 +9,12 @@ import { getOptionalProductHref } from '@shared/lib/routes/productRoutes';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 
 type CheckoutOrderItemsProps = {
-  items?: UserCartItem[];
+  items: UserCartItem[];
 };
 
-export default function CheckoutOrderItems({
-  items: overrideItems,
-}: CheckoutOrderItemsProps) {
+export default function CheckoutOrderItems({ items }: CheckoutOrderItemsProps) {
   const format = useFormatter();
   const t = useTranslations('Checkout.orderItems');
-  const { userCartItems } = useCartContext();
-  const items = overrideItems ?? userCartItems;
 
   if (items.length === 0) {
     return null;

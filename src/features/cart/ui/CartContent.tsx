@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { SubmitEvent } from 'react';
 
 import Image from 'next/image';
@@ -6,25 +7,30 @@ import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useFormatter, useTranslations } from 'next-intl';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
-import { useCartContext } from '@entities/cart/model/context/CartContext';
 import useCartActions from '@entities/cart/model/hooks/useCartActions';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
+import { useCartQuantityStore } from '@entities/cart/model/store/cartQuantityStore';
 import type { LocalCartItem, UserCartItem } from '@entities/cart/model/types';
 
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
-type CartContextProps = {
+type CartContentProps = {
   item: UserCartItem | LocalCartItem;
 };
 
-export default function CartContent({ item }: CartContextProps) {
+function CartContent({ item }: CartContentProps) {
   const format = useFormatter();
   const t = useTranslations('Cart');
-  const { handleUpsertCartItem, handleDeleteCartItem } = useCartActions();
-  const { quantities, isCartVariantAdding } = useCartContext();
   const variantKey = getCartVariantKey(item);
-  const displayedQuantity = quantities[variantKey] ?? item.quantity ?? 0;
-  const isVariantAdding = isCartVariantAdding(variantKey);
+  const { handleUpsertCartItem, handleDeleteCartItem } = useCartActions();
+  const isVariantAdding = useCartPendingStore((state) =>
+    Boolean(state.pendingAddingItemKeys[variantKey]),
+  );
+  const quantity = useCartQuantityStore(
+    (state) => state.quantities[variantKey],
+  );
+  const displayedQuantity = quantity ?? item.quantity ?? 0;
 
   return (
     <li className="rounded-xl border border-line bg-surface p-3 shadow-xs transition-shadow hover:shadow-md sm:p-4 dark:border-dark-border dark:bg-dark-panel dark:shadow-xs dark:hover:shadow-md">
@@ -177,3 +183,5 @@ export default function CartContent({ item }: CartContextProps) {
     </li>
   );
 }
+
+export default memo(CartContent);

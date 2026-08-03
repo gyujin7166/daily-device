@@ -4,11 +4,12 @@ import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
 import { bumpCartVariantMutationRevision } from '@entities/cart/lib/cartMutationRevision';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
+import { useCartQuantityStore } from '@entities/cart/model/store/cartQuantityStore';
 import type { LocalCartItem } from '@entities/cart/model/types';
 
 import { useAddToCart } from '../../queries/useAddToCart';
 import { useDeleteCartItem } from '../../queries/useDeleteCartItem';
-import { useCartContext } from '../context/CartContext';
 
 import useLocalCartActions from './useLocalCartActions';
 
@@ -21,15 +22,14 @@ export default function useCartActions() {
   const { mutate: deleteCartItemMutate } = useDeleteCartItem();
   const { deleteLocalCartItem, updateLocalCart } = useLocalCartActions();
   const {
-    quantities,
-    setQuantities,
-    startAddingNewItem,
     finishAddingNewItem,
-    startCartSync,
     finishCartSync,
-    isCartVariantAdding,
-    isCartVariantMutationPending,
-  } = useCartContext();
+    startAddingNewItem,
+    startCartSync,
+  } = useCartPendingStore((state) => state.actions);
+  const { removeQuantity, setQuantity } = useCartQuantityStore(
+    (state) => state.actions,
+  );
   const { status } = useSession();
   const cartSyncDebounceTimersRef = useRef<
     Record<string, ReturnType<typeof setTimeout>>
@@ -62,9 +62,16 @@ export default function useCartActions() {
       colorName,
     });
 
-    const currentQuantity = quantities[variantKey] ?? 0;
+    const currentQuantity =
+      useCartQuantityStore.getState().quantities[variantKey] ?? 0;
 
-    if (skipIfPending && isCartVariantMutationPending(variantKey)) {
+    const pendingState = useCartPendingStore.getState();
+    const isVariantMutationPending = Boolean(
+      pendingState.pendingAddingItemKeys[variantKey] ||
+      pendingState.pendingCartSyncKeys[variantKey],
+    );
+
+    if (skipIfPending && isVariantMutationPending) {
       return;
     }
 
@@ -106,10 +113,7 @@ export default function useCartActions() {
       return;
     }
 
-    setQuantities((prev) => ({
-      ...prev,
-      [variantKey]: nextQuantity,
-    }));
+    setQuantity(variantKey, nextQuantity);
 
     const isNewItem =
       !isDirectInput &&
@@ -183,7 +187,7 @@ export default function useCartActions() {
       colorName,
     });
 
-    if (isCartVariantAdding(variantKey)) {
+    if (useCartPendingStore.getState().pendingAddingItemKeys[variantKey]) {
       return;
     }
 
@@ -200,10 +204,7 @@ export default function useCartActions() {
 
       finishCartSync(variantKey);
       finishAddingNewItem(variantKey);
-      setQuantities((prev) => {
-        const { [variantKey]: _removed, ...rest } = prev;
-        return rest;
-      });
+      removeQuantity(variantKey);
 
       deleteCartItemMutate({
         cartItemId,
@@ -213,10 +214,7 @@ export default function useCartActions() {
       });
     } else if (status === 'unauthenticated') {
       deleteLocalCartItem({ productId, productColorId, colorName });
-      setQuantities((prev) => {
-        const { [variantKey]: _, ...updatedQuantities } = prev;
-        return updatedQuantities;
-      });
+      removeQuantity(variantKey);
     }
   };
 

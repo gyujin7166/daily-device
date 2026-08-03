@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import { cn } from '@shared/lib/utils/style';
-import { useHeroNavToneContext } from '@shared/model/context/HeroNavToneContext';
-import type { HeroNavTone } from '@shared/model/context/HeroNavToneContext';
+import { useHeroNavToneStore } from '@shared/model/store/heroNavToneStore';
+import type { HeroNavTone } from '@shared/model/store/heroNavToneStore';
 import type { ImageWithBlur } from '@shared/types/image';
 
 type HeroPosition = 'start' | 'center' | 'end';
@@ -115,7 +115,10 @@ export default function Hero({
   defaultNavTone = 'light',
   defaultOverlayTone = 'none',
 }: HeroProps) {
-  const { resetHeroNavTone, setHeroNavTone } = useHeroNavToneContext();
+  const setHeroNavTone = useHeroNavToneStore((state) => state.setHeroNavTone);
+  const resetHeroNavTone = useHeroNavToneStore(
+    (state) => state.resetHeroNavTone,
+  );
   const heroImage = imagesSet?.[0];
   const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
   const resolvedTextTone = normalizeTone(heroImage?.textTone, defaultTextTone);

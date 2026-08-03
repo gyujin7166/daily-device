@@ -1,11 +1,23 @@
 import { IconMenu2 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
-import { useMyPageMobileMenu } from '../model/context/MyPageMobileMenuContext';
+import { usePathname } from '@shared/lib/i18n/navigation';
+
+import { getMyTabFromPathname, MY_PAGE_MENU_ITEMS } from '../model/myPageMenu';
+import { useMyPageShellStore } from '../model/store/myPageShellStore';
 
 export default function MyPageMobileMenuButton() {
   const t = useTranslations('MyPage.menu');
-  const { openMobileMenu, activeLabel } = useMyPageMobileMenu();
+  const pathname = usePathname();
+  const pendingTab = useMyPageShellStore((state) => state.pendingTab);
+  const openMobileMenu = useMyPageShellStore(
+    (state) => state.actions.openMobileMenu,
+  );
+  const activeTab = pendingTab ?? getMyTabFromPathname(pathname);
+  const activeMenuItem =
+    MY_PAGE_MENU_ITEMS.find((item) => item.tab === activeTab) ??
+    MY_PAGE_MENU_ITEMS[0];
+  const activeLabel = t(activeMenuItem.labelKey);
 
   return (
     <button

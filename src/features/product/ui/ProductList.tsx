@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 import { IconArrowUp } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -95,10 +95,6 @@ export default function ProductList({
   const nextSkeletonCount = Math.min(pageSize, remainingCount);
   const [autoLoadLimit, setAutoLoadLimit] = useState(autoLoadBatchSize);
   const canAutoLoadMore = canLoadMore && shownCount < autoLoadLimit;
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const [backToTopRight, setBackToTopRight] = useState(
-    BACK_TO_TOP_VIEWPORT_GAP_PX,
-  );
   const [showAppendSkeleton, setShowAppendSkeleton] = useState(false);
   const shouldShowLoadMoreButton =
     canLoadMore &&
@@ -213,67 +209,6 @@ export default function ProductList({
       cancelAnimationFrame(frame);
     };
   }, [canLoadMore, isFetchingNextPage, showAppendSkeleton, shownCount]);
-
-  useEffect(() => {
-    let scrollFrame = 0;
-
-    const updateBackToTopVisibility = () => {
-      scrollFrame = 0;
-      setShowBackToTop(window.scrollY > BACK_TO_TOP_VISIBILITY_SCROLL_Y);
-    };
-
-    const handleScroll = () => {
-      if (scrollFrame) {
-        return;
-      }
-
-      scrollFrame = requestAnimationFrame(updateBackToTopVisibility);
-    };
-
-    updateBackToTopVisibility();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (scrollFrame) {
-        cancelAnimationFrame(scrollFrame);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const updateBackToTopPosition = () => {
-      const target = productListRef.current;
-
-      if (!target || window.innerWidth < BACK_TO_TOP_INLINE_BREAKPOINT_PX) {
-        setBackToTopRight(BACK_TO_TOP_VIEWPORT_GAP_PX);
-        return;
-      }
-
-      const rect = target.getBoundingClientRect();
-      const preferredLeft = rect.right + BACK_TO_TOP_SIDE_GAP_PX;
-      const maxLeft =
-        window.innerWidth -
-        BACK_TO_TOP_VIEWPORT_GAP_PX -
-        BACK_TO_TOP_BUTTON_SIZE_PX;
-      const left = Math.min(preferredLeft, maxLeft);
-
-      setBackToTopRight(window.innerWidth - left - BACK_TO_TOP_BUTTON_SIZE_PX);
-    };
-
-    updateBackToTopPosition();
-    window.addEventListener('resize', updateBackToTopPosition);
-
-    const resizeObserver = new ResizeObserver(updateBackToTopPosition);
-    if (productListRef.current) {
-      resizeObserver.observe(productListRef.current);
-    }
-
-    return () => {
-      window.removeEventListener('resize', updateBackToTopPosition);
-      resizeObserver.disconnect();
-    };
-  }, [products.length, columns]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -406,13 +341,6 @@ export default function ProductList({
     fetchNextPageAndSettle();
   };
 
-  const handleBackToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
   if (isPending) {
     return (
       <ProductSkeleton
@@ -504,20 +432,104 @@ export default function ProductList({
         />
       </div>
 
-      <button
-        type="button"
-        aria-label={t('backToTop')}
-        onClick={handleBackToTop}
-        className={`fixed bottom-24 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-canvas focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 sm:bottom-8 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover ${
-          showBackToTop
-            ? 'pointer-events-auto translate-y-0 opacity-100'
-            : 'pointer-events-none translate-y-3 opacity-0'
-        }`}
-        style={{ right: backToTopRight }}
-      >
-        <IconArrowUp size={20} stroke={2.4} />
-      </button>
+      <BackToTopButton productListRef={productListRef} />
     </div>
+  );
+}
+
+type BackToTopButtonProps = {
+  productListRef: RefObject<HTMLDivElement | null>;
+};
+
+function BackToTopButton({ productListRef }: BackToTopButtonProps) {
+  const t = useTranslations('Products.list');
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [backToTopRight, setBackToTopRight] = useState(
+    BACK_TO_TOP_VIEWPORT_GAP_PX,
+  );
+
+  useEffect(() => {
+    let scrollFrame = 0;
+
+    const updateBackToTopVisibility = () => {
+      scrollFrame = 0;
+      setShowBackToTop(window.scrollY > BACK_TO_TOP_VISIBILITY_SCROLL_Y);
+    };
+
+    const handleScroll = () => {
+      if (scrollFrame) {
+        return;
+      }
+
+      scrollFrame = requestAnimationFrame(updateBackToTopVisibility);
+    };
+
+    updateBackToTopVisibility();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateBackToTopPosition = () => {
+      const target = productListRef.current;
+
+      if (!target || window.innerWidth < BACK_TO_TOP_INLINE_BREAKPOINT_PX) {
+        setBackToTopRight(BACK_TO_TOP_VIEWPORT_GAP_PX);
+        return;
+      }
+
+      const rect = target.getBoundingClientRect();
+      const preferredLeft = rect.right + BACK_TO_TOP_SIDE_GAP_PX;
+      const maxLeft =
+        window.innerWidth -
+        BACK_TO_TOP_VIEWPORT_GAP_PX -
+        BACK_TO_TOP_BUTTON_SIZE_PX;
+      const left = Math.min(preferredLeft, maxLeft);
+
+      setBackToTopRight(window.innerWidth - left - BACK_TO_TOP_BUTTON_SIZE_PX);
+    };
+
+    updateBackToTopPosition();
+    window.addEventListener('resize', updateBackToTopPosition);
+
+    const resizeObserver = new ResizeObserver(updateBackToTopPosition);
+    if (productListRef.current) {
+      resizeObserver.observe(productListRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateBackToTopPosition);
+      resizeObserver.disconnect();
+    };
+  }, [productListRef]);
+
+  const handleBackToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      aria-label={t('backToTop')}
+      onClick={handleBackToTop}
+      className={`fixed bottom-24 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-lg transition duration-200 hover:-translate-y-0.5 hover:bg-canvas focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/30 sm:bottom-8 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover ${
+        showBackToTop
+          ? 'pointer-events-auto translate-y-0 opacity-100'
+          : 'pointer-events-none translate-y-3 opacity-0'
+      }`}
+      style={{ right: backToTopRight }}
+    >
+      <IconArrowUp size={20} stroke={2.4} />
+    </button>
   );
 }
 

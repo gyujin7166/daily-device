@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useIsMutating } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
 import type { UserCartItem } from '@entities/cart/model/types';
 import { cartMutationKeys } from '@entities/cart/queries/queryKeys';
 import { useCreateOrder } from '@entities/order/queries/useCreateOrder';
@@ -16,7 +16,6 @@ import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
 
-import { useCheckoutContext } from '../../context/CheckoutContext';
 import { loadTossPayments } from '../../lib/tossPayments';
 import {
   buildCheckoutOrderPayload,
@@ -26,20 +25,30 @@ import {
   isCheckoutShippingReady,
   validateCheckoutBeforePay,
 } from '../../payment';
+import {
+  selectIsCheckoutFormValid,
+  useCheckoutStore,
+} from '../../store/checkoutStore';
 
 import type { CheckoutOrderStatus, CheckoutPaymentMethod } from '../../payment';
 
 type UseCheckoutPaymentOptions = {
-  items?: UserCartItem[];
+  items: UserCartItem[];
   isBuyNow?: boolean;
 };
 
-export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
+export function useCheckoutPayment(options: UseCheckoutPaymentOptions) {
   const t = useTranslations('Checkout.payment');
   const tApiError = useTranslations('Common.apiErrors');
   const router = useRouter();
-  const { userCartItems, isCartSyncPending } = useCartContext();
-  const { formState, isFormValid, selectedAddressId } = useCheckoutContext();
+  const isCartSyncPending = useCartPendingStore(
+    (state) => Object.keys(state.pendingCartSyncKeys).length > 0,
+  );
+  const formState = useCheckoutStore((state) => state.formState);
+  const isFormValid = useCheckoutStore(selectIsCheckoutFormValid);
+  const selectedAddressId = useCheckoutStore(
+    (state) => state.selectedAddressId,
+  );
   const { mutateAsync, isPending } = useCreateOrder();
   const cartUpsertMutationCount = useIsMutating({
     mutationKey: cartMutationKeys.addToCart(),
@@ -48,8 +57,8 @@ export function useCheckoutPayment(options?: UseCheckoutPaymentOptions) {
     useState<CheckoutPaymentMethod>('test');
   const [isRequestingPayment, setIsRequestingPayment] = useState(false);
   const [isDemoProcessing, setIsDemoProcessing] = useState(false);
-  const checkoutItems = options?.items ?? userCartItems;
-  const isBuyNow = !!options?.isBuyNow;
+  const checkoutItems = options.items;
+  const isBuyNow = !!options.isBuyNow;
   const isUsingSavedAddress = selectedAddressId !== null;
   const shipping = buildCheckoutShipping({
     name: formState.name,

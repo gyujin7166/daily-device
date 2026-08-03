@@ -1,44 +1,49 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { hasAddressFormValues } from '@entities/address/model/form';
+import {
+  hasAddressFormValues,
+  validateAddressField,
+} from '@entities/address/model/form';
 import type { UserAddress } from '@entities/address/model/types';
 import { useUserAddresses } from '@entities/address/queries/useUserAddresses';
 
 import { useScrollLock } from '@shared/hooks/useScrollLock';
 
-import { useCheckoutContext } from '../../context/CheckoutContext';
 import {
   getOrderedCheckoutAddresses,
   getPreferredCheckoutAddress,
   isCheckoutAddressReady,
 } from '../../shippingAddress';
+import { useCheckoutStore } from '../../store/checkoutStore';
 
 import useCheckoutAddressBookActions from './useCheckoutAddressBookActions';
 import useCheckoutAddressFormControls from './useCheckoutAddressFormControls';
 
 export default function useCheckoutShippingFormState() {
+  const formState = useCheckoutStore((state) => state.formState);
+  const validationState = useCheckoutStore((state) => state.validationState);
+  const blurState = useCheckoutStore((state) => state.blurState);
+  const showPostcode = useCheckoutStore((state) => state.showPostcode);
+  const address = useCheckoutStore((state) => state.address);
+  const selectedAddressId = useCheckoutStore(
+    (state) => state.selectedAddressId,
+  );
+  const isAddressModalOpen = useCheckoutStore(
+    (state) => state.isAddressModalOpen,
+  );
+  const addressModalMode = useCheckoutStore((state) => state.addressModalMode);
+  const editingAddressId = useCheckoutStore((state) => state.editingAddressId);
   const {
-    formState,
     setFormState,
-    validationState,
     setValidationState,
-    validateField,
-    setIsFormValid,
-    blurState,
     setBlurState,
-    showPostcode,
     setShowPostcode,
-    address,
     setAddress,
-    selectedAddressId,
     setSelectedAddressId,
-    isAddressModalOpen,
     setIsAddressModalOpen,
-    addressModalMode,
     setAddressModalMode,
-    editingAddressId,
     setEditingAddressId,
-  } = useCheckoutContext();
+  } = useCheckoutStore((state) => state.actions);
 
   const { data: userAddresses = [], isPending: isAddressesPending } =
     useUserAddresses();
@@ -87,7 +92,7 @@ export default function useCheckoutShippingFormState() {
     setFormState,
     setValidationState,
     setBlurState,
-    validateField,
+    validateField: validateAddressField,
   });
 
   const applySavedAddress = useCallback(
@@ -161,12 +166,6 @@ export default function useCheckoutShippingFormState() {
     }
     handleCloseAddressModal();
   };
-
-  useEffect(() => {
-    setIsFormValid(
-      validationState && Object.values(validationState).every((value) => value),
-    );
-  }, [setIsFormValid, validationState]);
 
   useEffect(() => {
     if (didInitDefault) {

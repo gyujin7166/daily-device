@@ -13,6 +13,7 @@ type ProductCategoryContentSectionProps = {
   isMobileViewport: boolean;
   visibleFilter: boolean;
   filterItems: ProductFilterProps['filterItems'];
+  filterIsPending: ProductFilterProps['filterIsPending'];
   products: ProductFilterProps['products'];
   setFilteredItem: ProductFilterProps['setFilteredItem'];
   hasCheckedFilters: boolean;
@@ -39,6 +40,7 @@ export default function ProductCategoryContentSection({
   isMobileViewport,
   visibleFilter,
   filterItems,
+  filterIsPending,
   products,
   setFilteredItem,
   hasCheckedFilters,
@@ -70,6 +72,7 @@ export default function ProductCategoryContentSection({
             <aside className="hidden w-full shrink-0 lg:block lg:w-65">
               <ProductFilter
                 filterItems={filterItems}
+                filterIsPending={filterIsPending}
                 products={products}
                 setFilteredItem={setFilteredItem}
                 priceRange={priceRange}
@@ -88,6 +91,7 @@ export default function ProductCategoryContentSection({
             hasActivePriceFilter ||
             hasActiveColorFilter ? (
               <ProductFilterBar
+                filterItems={filterItems}
                 priceRange={priceRange}
                 priceValue={priceValue}
                 onPriceChange={onPriceChange}

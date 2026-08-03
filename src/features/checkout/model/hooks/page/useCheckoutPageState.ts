@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
-import { useCart } from '@entities/cart/queries/useCart';
+import { selectCartItems, useCart } from '@entities/cart/queries/useCart';
 
 import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
@@ -15,7 +14,7 @@ import { useRouter } from '@shared/lib/i18n/navigation';
 import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
 import { parseBuyNowCartItems } from '../../buyNowCartItem';
-import { useCheckoutContext } from '../../context/CheckoutContext';
+import { useCheckoutStore } from '../../store/checkoutStore';
 import { useCheckoutPayment } from '../payment/useCheckoutPayment';
 
 type ResolvedCheckoutEntry = CheckoutEntrySource | 'direct';
@@ -26,14 +25,18 @@ export default function useCheckoutPageState() {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
   const { setParam } = useQueryParams();
+  const isAddressModalOpen = useCheckoutStore(
+    (state) => state.isAddressModalOpen,
+  );
   const {
+    resetCheckoutState,
     setIsAddressModalOpen,
     setAddressModalMode,
     setEditingAddressId,
-    isAddressModalOpen,
-  } = useCheckoutContext();
-  const { userCartItems } = useCartContext();
-  const { isPending } = useCart();
+  } = useCheckoutStore((state) => state.actions);
+  const { data: userCartItems = [], isPending } = useCart({
+    select: selectCartItems,
+  });
 
   const [buyNowItems, setBuyNowItems] = useState<UserCartItem[]>([]);
   const [checkoutEntry, setCheckoutEntry] =
@@ -99,6 +102,8 @@ export default function useCheckoutPageState() {
   const handleGoHome = () => {
     router.push('/');
   };
+
+  useEffect(() => () => resetCheckoutState(), [resetCheckoutState]);
 
   /**
    * 결제 페이지는 cart, buyNow, 직접 접근을 모두 받는다.

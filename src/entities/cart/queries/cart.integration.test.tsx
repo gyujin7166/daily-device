@@ -76,6 +76,35 @@ describe('useCart', () => {
     expect(result.current.data).toEqual(emptyCart);
   });
 
+  it('선택한 값이 같으면 관련 없는 장바구니 변경에 리렌더되지 않는다', async () => {
+    let renderCount = 0;
+    const selectCartItemCount = (cart: CartResponse) => cart.items.length;
+    const { result, queryClient } = renderCartHook(() => {
+      renderCount += 1;
+      return useCart({ select: selectCartItemCount });
+    });
+
+    await waitFor(() => {
+      expect(result.current.data).toBe(cartResponseFixture.items.length);
+    });
+
+    const renderCountAfterFetch = renderCount;
+    await act(async () => {
+      setCart(queryClient, {
+        ...cartResponseFixture,
+        items: cartResponseFixture.items.map((item) => ({
+          ...item,
+          quantity: item.quantity + 1,
+        })),
+        totalPrice: cartResponseFixture.totalPrice + 100_000,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(result.current.data).toBe(cartResponseFixture.items.length);
+    expect(renderCount).toBe(renderCountAfterFetch);
+  });
+
   it('인증 오류는 재시도하지 않는다', async () => {
     let requestCount = 0;
     server.use(

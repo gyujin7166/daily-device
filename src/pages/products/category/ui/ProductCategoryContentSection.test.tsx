@@ -28,6 +28,7 @@ const defaultProps = {
   isMobileViewport: false,
   visibleFilter: true,
   filterItems: [],
+  filterIsPending: false,
   products: [{} as never],
   setFilteredItem: vi.fn(),
   hasCheckedFilters: true,

@@ -53,44 +53,46 @@ export default async function ProductCategoryPage({
 
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: productQueryKeys.hero('product', normalizedCategory, locale),
-    queryFn: () => getHeroList('product', normalizedCategory, locale),
-    staleTime: 60 * 60 * 1000,
-    gcTime: 60 * 60 * 1000,
-  });
-  void queryClient.prefetchInfiniteQuery({
-    queryKey: productQueryKeys.list({
-      category: normalizedCategory,
-      locale,
-      sort: 'relevance',
-      pageSize: PRODUCT_PAGE_SIZE,
-      filtersKey: '',
-      colorsKey: '',
-      discountedOnly: false,
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: productQueryKeys.hero('product', normalizedCategory, locale),
+      queryFn: () => getHeroList('product', normalizedCategory, locale),
+      staleTime: 60 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
     }),
-    initialPageParam: { page: 1, limit: PRODUCT_PAGE_SIZE },
-    queryFn: ({ pageParam }) => {
-      const productPageParam =
-        typeof pageParam === 'number'
-          ? { page: pageParam, limit: PRODUCT_PAGE_SIZE }
-          : pageParam;
-
-      return getProductsPage(
-        normalizedCategory,
-        productPageParam.page,
-        productPageParam.limit,
-        'relevance',
-        [],
-        {},
-        {},
-        {},
+    queryClient.prefetchInfiniteQuery({
+      queryKey: productQueryKeys.list({
+        category: normalizedCategory,
         locale,
-      );
-    },
-    staleTime: PRODUCT_LIST_STALE_TIME_MS,
-    gcTime: 30 * 60 * 1000,
-  });
+        sort: 'relevance',
+        pageSize: PRODUCT_PAGE_SIZE,
+        filtersKey: '',
+        colorsKey: '',
+        discountedOnly: false,
+      }),
+      initialPageParam: { page: 1, limit: PRODUCT_PAGE_SIZE },
+      queryFn: ({ pageParam }) => {
+        const productPageParam =
+          typeof pageParam === 'number'
+            ? { page: pageParam, limit: PRODUCT_PAGE_SIZE }
+            : pageParam;
+
+        return getProductsPage(
+          normalizedCategory,
+          productPageParam.page,
+          productPageParam.limit,
+          'relevance',
+          [],
+          {},
+          {},
+          {},
+          locale,
+        );
+      },
+      staleTime: PRODUCT_LIST_STALE_TIME_MS,
+      gcTime: 30 * 60 * 1000,
+    }),
+  ]);
   queryClient.setQueryData(
     productFilterQueryKeys.filters(normalizedCategory, locale),
     filterItems,
