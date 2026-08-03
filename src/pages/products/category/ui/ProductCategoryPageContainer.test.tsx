@@ -1,5 +1,3 @@
-import type { PropsWithChildren } from 'react';
-
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -7,10 +5,6 @@ import ProductCategoryPageContainer from './ProductCategoryPageContainer';
 
 const mocks = vi.hoisted(() => ({
   pendingContent: new Promise<never>(() => {}),
-}));
-
-vi.mock('@features/product-filter/model/context/ProductFilterContext', () => ({
-  default: ({ children }: PropsWithChildren) => children,
 }));
 
 vi.mock('./ProductCategoryHeroContainer', () => ({

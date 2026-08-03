@@ -3,12 +3,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-import { useProductFilterContext } from '@features/product-filter/model/context/ProductFilterContext';
 import useProductCategoryPageState from '@features/product-filter/model/hooks/useProductCategoryPageState';
+import useProductFilterUrlSync from '@features/product-filter/model/hooks/useProductFilterUrlSync';
 import type {
   ProductPriceFilterValue,
   ProductPriceRange,
 } from '@features/product-filter/model/productFilter';
+import {
+  selectHasCheckedProductFilters,
+  useProductFilterStore,
+} from '@features/product-filter/model/store/productFilterStore';
+import { useProductFilter } from '@features/product-filter/queries/useProductFilter';
 import { FilterSortBar } from '@features/product-filter/ui';
 
 import { PRODUCT_PAGE_SIZE } from '@entities/product/constants/pagination';
@@ -36,15 +41,15 @@ export default function ProductCategoryContentContainer({
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
   const { setParam, setParams } = useQueryParams();
-  const {
-    visibleFilter,
-    setVisibleFilter,
-    filter,
-    filterIsPending,
-    hasCheckedFilters,
-    checkboxStates,
-    setCheckboxStates,
-  } = useProductFilterContext();
+  const { data: filter, isPending: filterIsPending } =
+    useProductFilter(category);
+  const visibleFilter = useProductFilterStore((state) => state.visibleFilter);
+  const checkboxStates = useProductFilterStore((state) => state.checkboxStates);
+  const hasCheckedFilters = useProductFilterStore(
+    selectHasCheckedProductFilters,
+  );
+  const { resetProductFilterState, setCheckboxStates, setVisibleFilter } =
+    useProductFilterStore((state) => state.actions);
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance');
   const [retainedProductLimit, setRetainedProductLimit] =
     useState(PRODUCT_PAGE_SIZE);
@@ -60,6 +65,7 @@ export default function ProductCategoryContentContainer({
   const rawMinPrice = params.get('minPrice');
   const rawMaxPrice = params.get('maxPrice');
   const rawColors = params.get('colors');
+  useProductFilterUrlSync({ currentFilters, filterItems: filter });
   const filterValues = useMemo(
     () =>
       currentFilters
@@ -229,6 +235,11 @@ export default function ProductCategoryContentContainer({
     setRetainedProductLimit(PRODUCT_PAGE_SIZE);
   }, [category]);
 
+  useEffect(
+    () => () => resetProductFilterState(),
+    [category, resetProductFilterState],
+  );
+
   useEffect(() => {
     if (
       isPending ||
@@ -317,6 +328,7 @@ export default function ProductCategoryContentContainer({
         isMobileViewport={isMobileViewport}
         visibleFilter={visibleFilter}
         filterItems={filter}
+        filterIsPending={filterIsPending}
         products={products}
         setFilteredItem={setFilteredItem}
         hasCheckedFilters={hasCheckedFilters}
@@ -345,6 +357,7 @@ export default function ProductCategoryContentContainer({
         onReset={handleResetMobileDraftFilters}
         onApply={handleApplyMobileFilterChanges}
         filterItems={filter}
+        filterIsPending={filterIsPending}
         products={products}
         setFilteredItem={setFilteredItem}
         priceRange={priceRange}

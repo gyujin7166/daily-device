@@ -10,7 +10,6 @@ import type {
 
 import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
-import { useProductFilterContext } from '../context/ProductFilterContext';
 import {
   areSameCatalogProductList,
   buildProductFilterSelectedMap,
@@ -21,6 +20,7 @@ import {
   getSelectedProductFilterNames,
   parseProductFilterParam,
 } from '../productFilter';
+import { useProductFilterStore } from '../store/productFilterStore';
 
 import type {
   ProductFilterCheckboxStates,
@@ -55,8 +55,10 @@ export default function useProductFilterState({
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
   const { setParam } = useQueryParams();
-  const { checkboxStates, setCheckboxStates, filterIsPending } =
-    useProductFilterContext();
+  const checkboxStates = useProductFilterStore((state) => state.checkboxStates);
+  const setCheckboxStates = useProductFilterStore(
+    (state) => state.actions.setCheckboxStates,
+  );
   const inputIdPrefix = useId();
   const [toggleState, setToggleState] = useState<Record<string, boolean>>({});
   const effectiveCheckboxStates = checkboxStatesOverride ?? checkboxStates;
@@ -147,7 +149,6 @@ export default function useProductFilterState({
 
   return {
     effectiveCheckboxStates,
-    filterIsPending,
     handleCheckboxChange,
     handleToggle,
     inputIdPrefix,

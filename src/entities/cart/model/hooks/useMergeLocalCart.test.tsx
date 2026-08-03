@@ -8,6 +8,7 @@ import {
   localCartItemFixture,
   secondCartItemFixture,
 } from '../../../../../test/mocks/handlers';
+import { useCartLocalStore } from '../store/cartLocalStore';
 
 import useMergeLocalCart from './useMergeLocalCart';
 
@@ -21,6 +22,10 @@ vi.mock('../../queries/useAddToCart', () => ({
 
 describe('useMergeLocalCart', () => {
   beforeEach(() => {
+    useCartLocalStore.setState({
+      hasHydrated: false,
+      localCartItems: [],
+    });
     localStorage.clear();
     mocks.mutateAsync.mockResolvedValue({});
   });
@@ -42,14 +47,11 @@ describe('useMergeLocalCart', () => {
       duplicateLocalItem,
       secondLocalItem,
     ];
-    const setLocalCartItems = vi.fn();
-    localStorage.setItem('localCart', JSON.stringify(localItems));
+    useCartLocalStore.setState({ localCartItems: localItems });
     const { result } = renderHook(useMergeLocalCart);
 
     await act(async () => {
-      await result.current.mergeLocalCart(localItems, setLocalCartItems, [
-        cartItemFixture,
-      ]);
+      await result.current.mergeLocalCart(localItems, [cartItemFixture]);
     });
 
     expect(mocks.mutateAsync).toHaveBeenCalledTimes(2);
@@ -66,25 +68,24 @@ describe('useMergeLocalCart', () => {
       colorName: undefined,
     });
     expect(localStorage.getItem('localCart')).toBeNull();
-    expect(setLocalCartItems).toHaveBeenCalledWith([]);
+    expect(useCartLocalStore.getState().localCartItems).toEqual([]);
   });
 
   it('서버 병합 실패 시 로컬 장바구니를 유지한다', async () => {
     mocks.mutateAsync.mockRejectedValue(new Error('병합 실패'));
     const localItems = [localCartItemFixture];
-    const setLocalCartItems = vi.fn();
-    localStorage.setItem('localCart', JSON.stringify(localItems));
+    useCartLocalStore.setState({ localCartItems: localItems });
     const { result } = renderHook(useMergeLocalCart);
 
     await act(async () => {
       await expect(
-        result.current.mergeLocalCart(localItems, setLocalCartItems, []),
+        result.current.mergeLocalCart(localItems, []),
       ).rejects.toThrow('병합 실패');
     });
 
-    expect(JSON.parse(localStorage.getItem('localCart') ?? '[]')).toEqual(
-      localItems,
+    expect(useCartLocalStore.getState().localCartItems).toEqual(localItems);
+    expect(JSON.parse(localStorage.getItem('localCart') ?? '{}').state).toEqual(
+      { localCartItems: localItems },
     );
-    expect(setLocalCartItems).not.toHaveBeenCalled();
   });
 });

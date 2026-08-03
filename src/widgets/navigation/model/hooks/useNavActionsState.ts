@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { signOut, useSession } from 'next-auth/react';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartDrawerStore } from '@entities/cart/model/store/cartDrawerStore';
+import { useCartLocalStore } from '@entities/cart/model/store/cartLocalStore';
+import { selectCartItemCount, useCart } from '@entities/cart/queries/useCart';
 
 import { useDropdown } from '@shared/hooks/useDropdown';
 import { useThemeMode } from '@shared/hooks/useThemeMode';
@@ -13,14 +15,18 @@ import { buildLoginCallbackPath } from '../navActions';
 export default function useNavActionsState() {
   const router = useRouter();
   const pathname = usePathname();
-  const { toggleCart, userCartItems, localCartItems } = useCartContext();
+  const { data: userCartItemCount = 0 } = useCart({
+    select: selectCartItemCount,
+  });
+  const localCartItemCount = useCartLocalStore(
+    (state) => state.localCartItems.length,
+  );
+  const { toggleCart } = useCartDrawerStore((state) => state.actions);
   const { data: session, status } = useSession();
   const { isDropdownOpen, setIsDropdownOpen } = useDropdown();
   const { theme, toggleTheme, mounted } = useThemeMode();
   const [isAvatarLoadFailed, setIsAvatarLoadFailed] = useState(false);
-  const cartItemCount = session?.user
-    ? userCartItems.length
-    : localCartItems.length;
+  const cartItemCount = session?.user ? userCartItemCount : localCartItemCount;
   const avatarSrc = session?.user?.image?.trim() ?? '';
   const shouldShowAvatarImage = avatarSrc.length > 0 && !isAvatarLoadFailed;
   const isDarkMode = mounted && theme === 'dark';

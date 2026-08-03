@@ -10,7 +10,7 @@ import { SearchBar, SearchSuggestion } from '@features/search/ui';
 import { useDropdown } from '@shared/hooks/useDropdown';
 import { usePathname } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
-import { useHeroNavToneContext } from '@shared/model/context/HeroNavToneContext';
+import { useHeroNavToneStore } from '@shared/model/store/heroNavToneStore';
 import Logo from '@shared/ui/Logo/Logo';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
@@ -26,7 +26,7 @@ export default function NavBar() {
   const t = useTranslations('Navigation.menu');
   const pathname = usePathname();
   const searchLayerRef = useRef<HTMLDivElement | null>(null);
-  const { heroNavTone } = useHeroNavToneContext();
+  const heroNavTone = useHeroNavToneStore((state) => state.heroNavTone);
   const {
     inputText,
     highlightedText,

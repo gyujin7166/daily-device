@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
 import type { UserCartItem } from '@entities/cart/model/types';
 import { cartQueryKeys } from '@entities/cart/queries/queryKeys';
 
@@ -12,37 +11,23 @@ import { toast } from '@shared/lib/toast';
 import OrderSummaryPriceTable from './OrderSummaryPriceTable';
 
 type CheckoutSummaryProps = {
-  items?: UserCartItem[];
-  totalPrice?: number;
+  items: UserCartItem[];
+  totalPrice: number;
   disableCartSyncEffects?: boolean;
 };
 
 export default function CheckoutSummary({
-  items: overrideItems,
-  totalPrice: overrideTotalPrice,
+  items,
+  totalPrice,
   disableCartSyncEffects = false,
 }: CheckoutSummaryProps) {
   const locale = useLocale();
   const t = useTranslations('Checkout.summary');
   const queryClient = useQueryClient();
   const cartQueryKey = cartQueryKeys.cart(locale);
-  const { userCartItems, userTotalPrice } = useCartContext();
   const prevTotalQuantityRef = useRef(0);
   const refetchDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const checkoutItems = overrideItems ?? userCartItems;
-  const checkoutTotalPrice =
-    typeof overrideTotalPrice === 'number'
-      ? overrideTotalPrice
-      : overrideItems
-        ? checkoutItems.reduce(
-            (acc, item) => acc + item.quantity * item.product.price,
-            0,
-          )
-        : userTotalPrice;
-  const totalQuantity = checkoutItems.reduce(
-    (acc, item) => acc + item.quantity,
-    0,
-  );
+  const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
     if (disableCartSyncEffects) {
@@ -111,5 +96,5 @@ export default function CheckoutSummary({
     };
   }, [cartQueryKey, disableCartSyncEffects, queryClient]);
 
-  return <OrderSummaryPriceTable totalPrice={checkoutTotalPrice} />;
+  return <OrderSummaryPriceTable totalPrice={totalPrice} />;
 }

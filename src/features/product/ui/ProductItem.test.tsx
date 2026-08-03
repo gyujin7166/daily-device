@@ -4,11 +4,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
+import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
+
 import ProductItem from './ProductItem';
 
 const mocks = vi.hoisted(() => ({
   handleUpsertCartItem: vi.fn(),
   openCart: vi.fn(),
+  useCartActions: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
@@ -47,16 +51,17 @@ vi.mock('next-auth/react', () => ({
 }));
 
 vi.mock('@entities/cart/model/hooks/useCartActions', () => ({
-  default: () => ({
-    handleUpsertCartItem: mocks.handleUpsertCartItem,
-  }),
+  default: () => {
+    mocks.useCartActions();
+
+    return {
+      handleUpsertCartItem: mocks.handleUpsertCartItem,
+    };
+  },
 }));
 
-vi.mock('@entities/cart/model/context/CartContext', () => ({
-  useCartContext: () => ({
-    openCart: mocks.openCart,
-    isCartVariantMutationPending: () => false,
-  }),
+vi.mock('@entities/cart/model/store/cartDrawerStore', () => ({
+  useCartDrawerStore: () => ({ openCart: mocks.openCart }),
 }));
 
 vi.mock('@entities/wishlist/queries/useWishlist', () => ({
@@ -74,6 +79,31 @@ vi.mock('@entities/wishlist/queries/useDeleteWishlist', () => ({
 describe('ProductItem', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useCartPendingStore.getState().actions.resetPendingState();
+  });
+
+  it('동일한 상품 props로 부모가 다시 렌더되어도 상품 행 렌더를 생략한다', () => {
+    const product = {
+      id: 101,
+      name_en: 'Aster Mouse Mini',
+      slug: 'aster-mouse-mini',
+      price: 129_000,
+      priceLabel: '129,000원',
+      image_url: '/images/aster-mouse-mini.webp',
+      category: {
+        name_en: 'Mice',
+        slug: 'mice',
+      },
+    };
+    const { rerender } = render(
+      <ProductItem variant="catalog" product={product} />,
+    );
+
+    expect(mocks.useCartActions).toHaveBeenCalledTimes(1);
+
+    rerender(<ProductItem variant="catalog" product={product} />);
+
+    expect(mocks.useCartActions).toHaveBeenCalledTimes(1);
   });
 
   it('비회원이 장바구니 버튼을 누르면 상품 정보를 전달하고 drawer를 연다', async () => {
@@ -112,5 +142,32 @@ describe('ProductItem', () => {
       }),
     );
     expect(mocks.openCart).toHaveBeenCalledOnce();
+  });
+
+  it('동일 상품이 pending 상태이면 장바구니 버튼을 비활성화한다', () => {
+    const variantKey = getCartVariantKey({ productId: 101 });
+    useCartPendingStore.getState().actions.startCartSync(variantKey);
+
+    render(
+      <ProductItem
+        variant="catalog"
+        product={{
+          id: 101,
+          name_en: 'Aster Mouse Mini',
+          slug: 'aster-mouse-mini',
+          price: 129_000,
+          priceLabel: '129,000원',
+          image_url: '/images/aster-mouse-mini.webp',
+          category: {
+            name_en: 'Mice',
+            slug: 'mice',
+          },
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: '장바구니에 추가' }),
+    ).toBeDisabled();
   });
 });

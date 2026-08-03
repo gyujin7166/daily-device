@@ -1,29 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { MouseEvent } from 'react';
-
-import { useTranslations } from 'next-intl';
 
 import type { MyTab } from '@shared/constants/myRoutes';
 
-import { MY_PAGE_MENU_ITEMS } from '../myPageMenu';
+import { useMyPageShellStore } from '../store/myPageShellStore';
 
 export const useMyPageShellState = (activeTab: MyTab) => {
-  const t = useTranslations('MyPage.menu');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [pendingTab, setPendingTab] = useState<MyTab | null>(null);
+  const isMobileMenuOpen = useMyPageShellStore(
+    (state) => state.isMobileMenuOpen,
+  );
+  const pendingTab = useMyPageShellStore((state) => state.pendingTab);
+  const { closeMobileMenu, resetMyPageShellState, setPendingTab } =
+    useMyPageShellStore((state) => state.actions);
   const visualActiveTab = pendingTab ?? activeTab;
   const isContentPending = pendingTab !== null && pendingTab !== activeTab;
-  const activeMenuItem =
-    MY_PAGE_MENU_ITEMS.find((item) => item.tab === visualActiveTab) ??
-    MY_PAGE_MENU_ITEMS[0];
-
-  const handleOpenMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen(true);
-  }, []);
-
-  const handleCloseMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen(false);
-  }, []);
 
   const handleTabLinkClick = useCallback(
     (
@@ -51,15 +41,7 @@ export const useMyPageShellState = (activeTab: MyTab) => {
 
       setPendingTab(tab);
     },
-    [activeTab],
-  );
-
-  const mobileMenuContextValue = useMemo(
-    () => ({
-      openMobileMenu: handleOpenMobileMenu,
-      activeLabel: t(activeMenuItem.labelKey),
-    }),
-    [activeMenuItem.labelKey, handleOpenMobileMenu, t],
+    [activeTab, setPendingTab],
   );
 
   useEffect(() => {
@@ -72,7 +54,7 @@ export const useMyPageShellState = (activeTab: MyTab) => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        handleCloseMobileMenu();
+        closeMobileMenu();
       }
     };
 
@@ -82,18 +64,18 @@ export const useMyPageShellState = (activeTab: MyTab) => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleCloseMobileMenu, isMobileMenuOpen]);
+  }, [closeMobileMenu, isMobileMenuOpen]);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        handleCloseMobileMenu();
+        closeMobileMenu();
       }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [handleCloseMobileMenu]);
+  }, [closeMobileMenu]);
 
   useEffect(() => {
     if (pendingTab === null) {
@@ -103,14 +85,15 @@ export const useMyPageShellState = (activeTab: MyTab) => {
     if (pendingTab === activeTab) {
       setPendingTab(null);
     }
-  }, [activeTab, pendingTab]);
+  }, [activeTab, pendingTab, setPendingTab]);
+
+  useEffect(() => () => resetMyPageShellState(), [resetMyPageShellState]);
 
   return {
     isMobileMenuOpen,
     visualActiveTab,
     isContentPending,
-    mobileMenuContextValue,
-    handleCloseMobileMenu,
+    handleCloseMobileMenu: closeMobileMenu,
     handleTabLinkClick,
   };
 };

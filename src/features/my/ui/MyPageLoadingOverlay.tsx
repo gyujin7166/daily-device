@@ -1,9 +1,11 @@
 'use client';
 
+import { usePathname } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
-import { useMyPageLoading } from '../model/context/MyPageLoadingContext';
+import { getMyTabFromPathname } from '../model/myPageMenu';
+import { useMyPageShellStore } from '../model/store/myPageShellStore';
 
 type MyPageLoadingOverlayProps = {
   label: string;
@@ -18,7 +20,11 @@ export default function MyPageLoadingOverlay({
   hideDuringTabTransition = false,
   className,
 }: MyPageLoadingOverlayProps) {
-  const { isTabTransitionPending } = useMyPageLoading();
+  const pathname = usePathname();
+  const pendingTab = useMyPageShellStore((state) => state.pendingTab);
+  const activeTab = getMyTabFromPathname(pathname);
+  const isTabTransitionPending =
+    pendingTab !== null && pendingTab !== activeTab;
 
   if (hideDuringTabTransition && isTabTransitionPending) {
     return null;

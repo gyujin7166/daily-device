@@ -2,14 +2,25 @@ import { IconShoppingBag, IconX } from '@tabler/icons-react';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
-import { useCartContext } from '@entities/cart/model/context/CartContext';
+import { useCartDrawerStore } from '@entities/cart/model/store/cartDrawerStore';
+import { useCartLocalStore } from '@entities/cart/model/store/cartLocalStore';
+import {
+  selectCartTotalQuantity,
+  useCart,
+} from '@entities/cart/queries/useCart';
 
 export default function CartHeader() {
   const t = useTranslations('Cart');
-  const { closeCart, userCartItems, localCartItems } = useCartContext();
+  const { data: userTotalQuantity = 0 } = useCart({
+    select: selectCartTotalQuantity,
+  });
+  const localTotalQuantity = useCartLocalStore((state) =>
+    state.localCartItems.reduce((sum, item) => sum + item.quantity, 0),
+  );
+  const { closeCart } = useCartDrawerStore((state) => state.actions);
   const { status } = useSession();
-  const items = status === 'authenticated' ? userCartItems : localCartItems;
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity =
+    status === 'authenticated' ? userTotalQuantity : localTotalQuantity;
   return (
     <div className="border-b border-line bg-surface dark:border-dark-border dark:bg-dark-bg">
       <div className="flex min-h-19.5 w-full items-center justify-between px-6 py-3">
