@@ -1,4 +1,3 @@
-import type { AddressFormState } from '@entities/address/model/form';
 import type { UserAddress } from '@entities/address/model/types';
 
 /**
@@ -34,27 +33,3 @@ export const getPreferredCheckoutAddress = (
   defaultAddress: UserAddress | null,
   recentAddress: UserAddress | null,
 ) => defaultAddress ?? recentAddress;
-
-export const isCheckoutAddressReady = (
-  formState: AddressFormState,
-  validationState: Record<'name' | 'phone_number' | 'address_1', boolean>,
-) =>
-  !!formState.name?.trim() &&
-  !!formState.phone_number?.trim() &&
-  !!formState.address_1?.trim() &&
-  validationState.name &&
-  validationState.phone_number &&
-  validationState.address_1;
-
-export const buildCheckoutAddressPayload = (
-  formState: AddressFormState,
-  saveAsDefault: boolean,
-  editingAddressId: number | null,
-) => ({
-  id: editingAddressId ?? undefined,
-  recipientName: (formState.name || '').trim(),
-  recipientPhone: (formState.phone_number || '').trim(),
-  address1: (formState.address_1 || '').trim(),
-  address2: formState.address_2?.trim() || undefined,
-  isDefault: saveAsDefault,
-});

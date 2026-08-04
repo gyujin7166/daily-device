@@ -9,22 +9,25 @@ import {
   cloudinaryUploadErrorKeyByCode,
   uploadCloudinaryImage,
 } from '@shared/lib/cloudinary/uploadImage';
-import { TextInput, inputClass, labelClass } from '@shared/ui/AdminControls';
+import { inputClass, labelClass } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import type { AdminColor, ProductFormState } from '../model/types';
-
-type ProductImageFormItem = ProductFormState['images'][number];
+import type {
+  FieldArrayWithId,
+  UseFormGetValues,
+  UseFormRegister,
+  UseFormSetValue,
+} from 'react-hook-form';
 
 type AdminProductImageFieldsProps = {
-  images: ProductFormState['images'];
-  categoryId: string;
-  productSlug: string;
+  fields: FieldArrayWithId<ProductFormState, 'images', 'fieldKey'>[];
   selectedFormColors: AdminColor[];
   locale: string;
+  getValues: UseFormGetValues<ProductFormState>;
+  register: UseFormRegister<ProductFormState>;
+  setValue: UseFormSetValue<ProductFormState>;
   onAddImage: () => void;
-  onUpdateImage: (index: number, patch: Partial<ProductImageFormItem>) => void;
-  onUpdateImageOrder: (index: number, value: string) => void;
   onRemoveImage: (index: number) => void;
 };
 
@@ -45,23 +48,31 @@ const getUploadErrorMessage = (
   return error instanceof Error ? error.message : t('uploadFailed');
 };
 
+const normalizeImageOrder = (value: string) => {
+  const parsedValue = Number(value);
+
+  if (value === '' || !Number.isFinite(parsedValue)) {
+    return '';
+  }
+
+  return String(Math.max(0, Math.floor(parsedValue)));
+};
+
 export default function AdminProductImageFields({
-  images,
-  categoryId,
-  productSlug,
+  fields,
   selectedFormColors,
   locale,
+  getValues,
+  register,
+  setValue,
   onAddImage,
-  onUpdateImage,
-  onUpdateImageOrder,
   onRemoveImage,
 }: AdminProductImageFieldsProps) {
   const t = useTranslations('AdminProduct.images');
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const handleFileChange =
-    (index: number, image: ProductImageFormItem) =>
-    async (event: ChangeEvent<HTMLInputElement>) => {
+    (index: number) => async (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       event.target.value = '';
 
@@ -69,8 +80,10 @@ export default function AdminProductImageFields({
         return;
       }
 
-      const parsedCategoryId = Number(categoryId);
-      const parsedColorId = image.colorId ? Number(image.colorId) : null;
+      const parsedCategoryId = Number(getValues('categoryId'));
+      const productSlug = getValues('slug');
+      const colorId = getValues(`images.${index}.colorId`);
+      const parsedColorId = colorId ? Number(colorId) : null;
 
       if (!Number.isInteger(parsedCategoryId) || parsedCategoryId <= 0) {
         setUploadError(t('categoryRequired'));
@@ -82,7 +95,7 @@ export default function AdminProductImageFields({
         return;
       }
 
-      if (selectedFormColors.length > 0 && !image.colorId) {
+      if (selectedFormColors.length > 0 && !colorId) {
         setUploadError(t('colorRequired'));
         return;
       }
@@ -104,7 +117,10 @@ export default function AdminProductImageFields({
           },
         });
 
-        onUpdateImage(index, { image_url: uploaded.image_url });
+        setValue(`images.${index}.image_url`, uploaded.image_url, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
       } catch (error) {
         setUploadError(getUploadErrorMessage(error, t));
       } finally {
@@ -134,99 +150,104 @@ export default function AdminProductImageFields({
         <p className="text-xs font-semibold text-danger">{uploadError}</p>
       ) : null}
 
-      {images.length === 0 ? (
+      {fields.length === 0 ? (
         <div className="rounded-md border border-dashed border-line px-3 py-6 text-center text-sm text-muted dark:border-dark-border dark:text-dark-muted">
           {t('empty')}
         </div>
       ) : (
         <div className="grid gap-3">
-          {images.map((image, index) => (
-            <div
-              key={image.id ?? `new-image-${index}`}
-              className="grid gap-3 rounded-md border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
-            >
-              <TextInput
-                label={t('urlLabel', { index: index + 1 })}
-                value={image.image_url}
-                onChange={(value) => onUpdateImage(index, { image_url: value })}
-              />
-              <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 dark:border-dark-border">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
-                  disabled={uploadingIndex !== null}
-                  onChange={handleFileChange(index, image)}
-                  className="sr-only"
-                />
-                {uploadingIndex === index ? (
-                  <Spinner size="sm" variant="current" />
-                ) : (
-                  <IconUpload size={16} />
-                )}
-                {uploadingIndex === index ? t('uploading') : t('upload')}
-              </label>
-              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_90px]">
+          {fields.map((field, index) => {
+            const orderRegistration = register(`images.${index}.order`);
+
+            return (
+              <div
+                key={field.fieldKey}
+                className="grid gap-3 rounded-md border border-line bg-canvas p-3 dark:border-dark-border dark:bg-dark-bg"
+              >
+                <input type="hidden" {...register(`images.${index}.id`)} />
                 <label className={labelClass}>
-                  {t('linkedColor')}
-                  <select
-                    className={inputClass}
-                    value={image.colorId}
-                    required={selectedFormColors.length > 0}
-                    onChange={(event) =>
-                      onUpdateImage(index, {
-                        colorId: event.target.value,
-                      })
-                    }
-                  >
-                    {selectedFormColors.length === 0 ? (
-                      <option value="">{t('commonImage')}</option>
-                    ) : (
-                      <>
-                        <option value="" disabled>
-                          {t('selectColor')}
-                        </option>
-                        {selectedFormColors.map((color) => (
-                          <option key={color.id} value={color.id}>
-                            {getLocalizedColorName(color, locale)}
-                          </option>
-                        ))}
-                      </>
-                    )}
-                  </select>
-                </label>
-                <TextInput
-                  label={t('order')}
-                  type="number"
-                  value={image.order}
-                  min={0}
-                  onChange={(value) => onUpdateImageOrder(index, value)}
-                />
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-ink dark:text-surface">
+                  {t('urlLabel', { index: index + 1 })}
                   <input
-                    type="checkbox"
-                    className="h-4 w-4 accent-primary"
-                    checked={image.isMain}
-                    onChange={(event) =>
-                      onUpdateImage(index, {
-                        isMain: event.target.checked,
-                      })
-                    }
+                    className={inputClass}
+                    {...register(`images.${index}.image_url`)}
                   />
-                  {t('main')}
                 </label>
-                <button
-                  type="button"
-                  onClick={() => onRemoveImage(index)}
-                  className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold text-danger transition hover:border-danger dark:border-dark-border"
-                >
-                  <IconTrash size={16} />
-                  {t('delete')}
-                </button>
+                <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 dark:border-dark-border">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+                    disabled={uploadingIndex !== null}
+                    onChange={handleFileChange(index)}
+                    className="sr-only"
+                  />
+                  {uploadingIndex === index ? (
+                    <Spinner size="sm" variant="current" />
+                  ) : (
+                    <IconUpload size={16} />
+                  )}
+                  {uploadingIndex === index ? t('uploading') : t('upload')}
+                </label>
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_90px]">
+                  <label className={labelClass}>
+                    {t('linkedColor')}
+                    <select
+                      className={inputClass}
+                      {...register(`images.${index}.colorId`)}
+                      required={selectedFormColors.length > 0}
+                    >
+                      {selectedFormColors.length === 0 ? (
+                        <option value="">{t('commonImage')}</option>
+                      ) : (
+                        <>
+                          <option value="" disabled>
+                            {t('selectColor')}
+                          </option>
+                          {selectedFormColors.map((color) => (
+                            <option key={color.id} value={color.id}>
+                              {getLocalizedColorName(color, locale)}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </label>
+                  <label className={labelClass}>
+                    {t('order')}
+                    <input
+                      {...orderRegistration}
+                      type="number"
+                      min={0}
+                      className={inputClass}
+                      onChange={(event) => {
+                        event.target.value = normalizeImageOrder(
+                          event.target.value,
+                        );
+                        void orderRegistration.onChange(event);
+                      }}
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-ink dark:text-surface">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-primary"
+                      {...register(`images.${index}.isMain`)}
+                    />
+                    {t('main')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveImage(index)}
+                    className="inline-flex h-9 items-center gap-2 rounded-md border border-line px-3 text-sm font-semibold text-danger transition hover:border-danger dark:border-dark-border"
+                  >
+                    <IconTrash size={16} />
+                    {t('delete')}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </fieldset>

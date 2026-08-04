@@ -1,6 +1,8 @@
 import { useTranslations } from 'next-intl';
+import { Controller } from 'react-hook-form';
 
 import { useReviewFormState } from '../../model/hooks/useReviewFormState';
+import { isReviewFormErrorKey } from '../../model/reviewForm';
 
 import ReviewFormActions from './ReviewFormActions';
 import ReviewFormImageUploadSection from './ReviewFormImageUploadSection';
@@ -15,24 +17,21 @@ export default function ReviewForm({
   initialReview,
 }: ReviewFormProps) {
   const t = useTranslations('ReviewWrite.form');
+  const tValidation = useTranslations('ReviewWrite.validation');
   const {
-    formData,
+    control,
     hovered,
     existingImages,
     selectedImages,
     totalImages,
-    blurState,
-    errors,
+    isSubmitted,
     isEditing,
     isPending,
     isUploading,
     uploadError,
     setHovered,
-    setFormData,
     handleSubmit,
     handleCancel,
-    handleFieldChange,
-    handleBlur,
     addImages,
     handleRemoveExistingImage,
     removeImage,
@@ -40,38 +39,64 @@ export default function ReviewForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <ReviewFormRatingField
-        rating={formData.rating}
-        hovered={hovered}
-        onRatingChange={(rating) =>
-          setFormData((prev) => ({ ...prev, rating }))
-        }
-        onHoverChange={setHovered}
+      <Controller
+        name="rating"
+        control={control}
+        render={({ field }) => (
+          <ReviewFormRatingField
+            rating={field.value}
+            hovered={hovered}
+            onRatingChange={field.onChange}
+            onHoverChange={setHovered}
+          />
+        )}
       />
 
-      <ReviewFormTextField
-        id="title"
-        label={t('title')}
-        value={formData.title}
-        error={errors.title}
-        isBlurred={blurState.title}
-        placeholder={t('titlePlaceholder')}
-        maxLength={100}
-        onChange={handleFieldChange}
-        onBlur={handleBlur}
+      <Controller
+        name="title"
+        control={control}
+        render={({ field, fieldState }) => (
+          <ReviewFormTextField
+            id="title"
+            label={t('title')}
+            value={field.value}
+            error={
+              isReviewFormErrorKey(fieldState.error?.message)
+                ? tValidation(fieldState.error.message)
+                : undefined
+            }
+            isBlurred={fieldState.isTouched || isSubmitted}
+            placeholder={t('titlePlaceholder')}
+            maxLength={100}
+            inputRef={field.ref}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+          />
+        )}
       />
 
-      <ReviewFormTextField
-        id="content"
-        label={t('content')}
-        value={formData.content}
-        error={errors.content}
-        isBlurred={blurState.content}
-        placeholder={t('contentPlaceholder')}
-        maxLength={1000}
-        multiline
-        onChange={handleFieldChange}
-        onBlur={handleBlur}
+      <Controller
+        name="content"
+        control={control}
+        render={({ field, fieldState }) => (
+          <ReviewFormTextField
+            id="content"
+            label={t('content')}
+            value={field.value}
+            error={
+              isReviewFormErrorKey(fieldState.error?.message)
+                ? tValidation(fieldState.error.message)
+                : undefined
+            }
+            isBlurred={fieldState.isTouched || isSubmitted}
+            placeholder={t('contentPlaceholder')}
+            maxLength={1000}
+            multiline
+            inputRef={field.ref}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+          />
+        )}
       />
 
       <ReviewFormImageUploadSection

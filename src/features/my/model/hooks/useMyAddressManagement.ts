@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, SubmitEvent } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import {
-  formatAddressPhone,
-  normalizePhoneNumber,
-  validateAddressField,
-} from '@entities/address/model/form';
+import { toAddressFormPayload } from '@entities/address/model/schema';
+import type { AddressFormValues } from '@entities/address/model/schema';
 import type { UserAddress } from '@entities/address/model/types';
 import { useDeleteAddress } from '@entities/address/queries/useDeleteAddress';
 import { useUpsertAddress } from '@entities/address/queries/useUpsertAddress';
@@ -23,19 +19,7 @@ import {
   MY_ADDRESSES_PER_PAGE,
 } from '../addressManagement';
 
-import { useMyAddressCreateForm } from './useMyAddressCreateForm';
-
-import type {
-  AddressEditForm,
-  AddressProcessingAction,
-} from '../addressManagement';
-
-const createEmptyEditForm = (): AddressEditForm => ({
-  recipientName: '',
-  recipientPhone: '',
-  address1: '',
-  address2: '',
-});
+import type { AddressProcessingAction } from '../addressManagement';
 
 export const useMyAddressManagement = () => {
   const t = useTranslations('MyAddress');
@@ -53,9 +37,6 @@ export const useMyAddressManagement = () => {
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(
     null,
   );
-  const [editForm, setEditForm] = useState<AddressEditForm>(
-    createEmptyEditForm(),
-  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreatingAddress, setIsCreatingAddress] = useState(false);
   const [animatedAddressId, setAnimatedAddressId] = useState<number | null>(
@@ -64,9 +45,6 @@ export const useMyAddressManagement = () => {
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-  const { state: createFormState, actions: createFormActions } =
-    useMyAddressCreateForm();
-
   useScrollLock(!!editingAddress || isCreateModalOpen);
 
   const totalPages = Math.max(
@@ -175,12 +153,6 @@ export const useMyAddressManagement = () => {
     }
 
     setEditingAddress(address);
-    setEditForm({
-      recipientName: address.recipientName,
-      recipientPhone: formatAddressPhone(address.recipientPhone),
-      address1: address.address1,
-      address2: address.address2 ?? '',
-    });
   };
 
   const closeEditModal = () => {
@@ -191,47 +163,19 @@ export const useMyAddressManagement = () => {
     setEditingAddress(null);
   };
 
-  const handleEditFormChange =
-    (field: keyof AddressEditForm) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setEditForm((prev) => ({
-        ...prev,
-        [field]: event.target.value,
-      }));
-    };
-
-  const handleSubmitEdit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleSaveEdit = async (formValues: AddressFormValues) => {
     if (!editingAddress || processingAddressId) {
       return;
     }
 
-    const recipientName = editForm.recipientName.trim();
-    const recipientPhone = normalizePhoneNumber(editForm.recipientPhone);
-    const address1 = editForm.address1.trim();
-    const address2 = editForm.address2.trim();
-
-    if (!recipientName || !recipientPhone || !address1) {
-      toast.error(t('toast.required'));
-      return;
-    }
-
-    if (!validateAddressField(recipientPhone, 'phone_number')) {
-      toast.error(t('toast.invalidPhone'));
-      return;
-    }
+    const payload = toAddressFormPayload(formValues, editingAddress.isDefault);
 
     setProcessingAddressId(editingAddress.id);
     setProcessingAction('edit');
     try {
       await upsertAddress({
         id: editingAddress.id,
-        recipientName,
-        recipientPhone,
-        address1,
-        address2: address2 || undefined,
-        isDefault: editingAddress.isDefault,
+        ...payload,
       });
       toast.success(t('toast.editSuccess'));
       setEditingAddress(null);
@@ -253,7 +197,6 @@ export const useMyAddressManagement = () => {
       return;
     }
 
-    createFormActions.reset();
     setIsCreateModalOpen(true);
   };
 
@@ -263,23 +206,19 @@ export const useMyAddressManagement = () => {
     }
 
     setIsCreateModalOpen(false);
-    createFormActions.reset();
   };
 
-  const handleSaveCreateAddress = async () => {
-    const payload = createFormActions.getValidatedPayload();
-
-    if (!payload) {
-      toast.error(t('toast.createInvalid'));
-      return;
-    }
+  const handleSaveCreateAddress = async (
+    formValues: AddressFormValues,
+    isDefault: boolean,
+  ) => {
+    const payload = toAddressFormPayload(formValues, isDefault);
 
     try {
       setIsCreatingAddress(true);
       await upsertAddress(payload);
       toast.success(t('toast.createSuccess'));
       setIsCreateModalOpen(false);
-      createFormActions.reset();
     } catch (error) {
       const message = getApiErrorMessage(
         error,
@@ -290,6 +229,10 @@ export const useMyAddressManagement = () => {
     } finally {
       setIsCreatingAddress(false);
     }
+  };
+
+  const handleInvalidCreateAddress = () => {
+    toast.error(t('toast.createInvalid'));
   };
 
   useEffect(() => {
@@ -316,39 +259,19 @@ export const useMyAddressManagement = () => {
     processingAddressId,
     processingAction,
     editingAddress,
-    editForm,
     isCreateModalOpen,
+    isCreatingAddress,
     animatedAddressId,
     isDefaultUpdatePending,
-    createAddressModalState: {
-      title: t('createModal.title'),
-      description: t('createModal.description'),
-      isSaving: isCreatingAddress,
-      showPostcode: createFormState.showPostcode,
-      formState: createFormState.formState,
-      validationState: createFormState.validationState,
-      blurState: createFormState.blurState,
-      address: createFormState.address,
-      saveAsDefault: createFormState.saveAsDefault,
-      isAddressReady: createFormState.isAddressReady,
-    },
-    createAddressModalActions: {
-      onClose: closeCreateModal,
-      onCancel: closeCreateModal,
-      onSave: handleSaveCreateAddress,
-      onShowPostcodeChange: createFormActions.setShowPostcode,
-      onSaveAsDefaultChange: createFormActions.setSaveAsDefault,
-      onAddressComplete: createFormActions.handleAddressComplete,
-      onFieldChange: createFormActions.handleFieldChange,
-      onFieldBlur: createFormActions.handleFieldBlur,
-    },
     openCreateModal,
+    closeCreateModal,
     openEditModal,
     closeEditModal,
     handleDelete,
     handlePageChange,
     handleSetDefault,
-    handleSubmitEdit,
-    handleEditFormChange,
+    handleSaveCreateAddress,
+    handleInvalidCreateAddress,
+    handleSaveEdit,
   };
 };

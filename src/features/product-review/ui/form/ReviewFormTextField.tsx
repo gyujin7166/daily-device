@@ -15,6 +15,7 @@ type ReviewFormTextFieldProps = {
   placeholder: string;
   maxLength: number;
   multiline?: boolean;
+  inputRef: (instance: HTMLInputElement | HTMLTextAreaElement | null) => void;
   onChange: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -30,6 +31,7 @@ export default function ReviewFormTextField({
   placeholder,
   maxLength,
   multiline = false,
+  inputRef,
   onChange,
   onBlur,
 }: ReviewFormTextFieldProps) {
@@ -45,6 +47,7 @@ export default function ReviewFormTextField({
     <ReviewFormSection label={label} required>
       {multiline ? (
         <textarea
+          ref={inputRef}
           id={id}
           name={id}
           value={value}
@@ -57,6 +60,7 @@ export default function ReviewFormTextField({
         />
       ) : (
         <input
+          ref={inputRef}
           id={id}
           type="text"
           name={id}

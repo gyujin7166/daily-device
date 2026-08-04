@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import type { ChangeEvent, FocusEvent, SubmitEvent } from 'react';
+import type { SubmitEvent } from 'react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
+import { useForm } from 'react-hook-form';
 
 import { MY_TAB_PATHS } from '@shared/constants/myRoutes';
 import { PRODUCT_REVIEW_ERROR_CODE } from '@shared/constants/productReviewErrorCode';
@@ -14,15 +16,12 @@ import { useUpsertProductReview } from '../../queries/useUpsertProductReview';
 import {
   createInitialReviewFormData,
   createInitialReviewFormImages,
-  getReviewFormFieldError,
-  isReviewFormFieldName,
-  validateReviewForm,
-  validateReviewFormField,
+  reviewFormSchema,
 } from '../reviewForm';
 
 import useUploadImage from './useUploadImage';
 
-import type { ReviewFormBlurState, ReviewFormProps } from '../reviewForm';
+import type { ReviewFormData, ReviewFormProps } from '../reviewForm';
 
 export const useReviewFormState = ({
   productId,
@@ -43,25 +42,23 @@ export const useReviewFormState = ({
     clearSelectedImages,
   } = useUploadImage();
   const [hovered, setHovered] = useState<number | null>(null);
-  const [formData, setFormData] = useState(() =>
-    createInitialReviewFormData(initialReview),
-  );
   const [existingImages, setExistingImages] = useState(() =>
     createInitialReviewFormImages(initialReview),
   );
-  const [blurState, setBlurState] = useState<ReviewFormBlurState>({
-    title: false,
-    content: false,
+  const {
+    control,
+    handleSubmit: submitForm,
+    formState: { isDirty, isSubmitted },
+  } = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewFormSchema),
+    defaultValues: createInitialReviewFormData(initialReview),
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const isEditing = initialReview?.id !== undefined;
   const totalImages = existingImages.length + selectedImages.length;
-  const initialFormData = createInitialReviewFormData(initialReview);
   const initialImages = createInitialReviewFormImages(initialReview);
-  const hasFormChanges =
-    formData.rating !== initialFormData.rating ||
-    formData.title !== initialFormData.title ||
-    formData.content !== initialFormData.content ||
+  const hasImageChanges =
     selectedImages.length > 0 ||
     existingImages.length !== initialImages.length ||
     existingImages.some(
@@ -70,64 +67,11 @@ export const useReviewFormState = ({
         image.order !== initialImages[index]?.order,
     );
 
-  const handleFieldChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = event.target;
-    if (!isReviewFormFieldName(name)) {
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (blurState[name] && validateReviewFormField(name, value)) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleBlur = (
-    event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = event.target;
-    if (!isReviewFormFieldName(name)) {
-      return;
-    }
-
-    setBlurState((prev) => ({ ...prev, [name]: true }));
-    const errorKey = getReviewFormFieldError(name, value);
-    setErrors((prev) => ({
-      ...prev,
-      [name]: errorKey ? t(`validation.${errorKey}`) : '',
-    }));
-  };
-
   const handleRemoveExistingImage = (index: number) => {
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!session?.user.id) {
-      toast.error(t('toast.loginRequired'));
-      router.push('/login');
-      return;
-    }
-
-    const validationResult = validateReviewForm(formData);
-    if (!validationResult.isValid) {
-      setErrors(
-        Object.fromEntries(
-          Object.entries(validationResult.errors).map(([key, errorKey]) => [
-            key,
-            errorKey ? t(`validation.${errorKey}`) : '',
-          ]),
-        ),
-      );
-      setBlurState({ title: true, content: true });
-      return;
-    }
-
+  const submitReview = async (formData: ReviewFormData) => {
     try {
       const uploadedImages = await uploadPendingImages({
         target: 'review',
@@ -186,8 +130,19 @@ export const useReviewFormState = ({
     }
   };
 
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
+    if (!session?.user.id) {
+      event.preventDefault();
+      toast.error(t('toast.loginRequired'));
+      router.push('/login');
+      return;
+    }
+
+    await submitForm(submitReview)(event);
+  };
+
   const handleCancel = () => {
-    if (!hasFormChanges) {
+    if (!isDirty && !hasImageChanges) {
       router.back();
       return;
     }
@@ -200,23 +155,19 @@ export const useReviewFormState = ({
   };
 
   return {
-    formData,
+    control,
     hovered,
     existingImages,
     selectedImages,
     totalImages,
-    blurState,
-    errors,
+    isSubmitted,
     isEditing,
     isPending,
     isUploading,
     uploadError,
     setHovered,
-    setFormData,
     handleSubmit,
     handleCancel,
-    handleFieldChange,
-    handleBlur,
     addImages,
     handleRemoveExistingImage,
     removeImage,

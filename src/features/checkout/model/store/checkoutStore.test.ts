@@ -1,11 +1,7 @@
 import { act } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import {
-  createInitialAddressFormState,
-  createInitialAddressValidationState,
-} from '@entities/address/model/form';
-import type { AddressValidationState } from '@entities/address/model/form';
+import { createInitialAddressFormState } from '@entities/address/model/form';
 
 import { selectIsCheckoutFormValid, useCheckoutStore } from './checkoutStore';
 
@@ -28,18 +24,16 @@ describe('useCheckoutStore', () => {
     });
   });
 
-  it('validationState에서 폼 유효성을 계산한다', () => {
+  it('확정된 배송지 값에서 폼 유효성을 계산한다', () => {
     expect(selectIsCheckoutFormValid(useCheckoutStore.getState())).toBe(false);
 
-    const validState = Object.fromEntries(
-      Object.keys(createInitialAddressValidationState()).map((key) => [
-        key,
-        true,
-      ]),
-    ) as AddressValidationState;
-
     act(() => {
-      useCheckoutStore.getState().actions.setValidationState(validState);
+      useCheckoutStore.getState().actions.setFormState({
+        name: '홍길동',
+        phone_number: '01012345678',
+        address_1: '서울시 테스트 주소',
+        address_2: '',
+      });
     });
 
     expect(selectIsCheckoutFormValid(useCheckoutStore.getState())).toBe(true);

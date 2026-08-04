@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 
+import { adminReviewPatchBodySchema } from '@features/admin-review/model/schema';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
 import { revalidatePublicShopPages } from '../../revalidation';
-import { adminIdParamSchema, adminReviewPatchBodySchema } from '../../schemas';
+import { adminIdParamSchema } from '../../schema';
 import {
   assertAdminWriteAccess,
   hideAdminReview,

@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 
+import { adminHeroBodySchema } from '@features/admin-hero/model/schema';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
 import { revalidatePublicShopPages } from '../../revalidation';
-import { adminHeroBodySchema, adminIdParamSchema } from '../../schemas';
+import { adminIdParamSchema } from '../../schema';
 import {
   assertAdminWriteAccess,
   deleteAdminHero,

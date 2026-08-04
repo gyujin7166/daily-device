@@ -25,20 +25,20 @@ export default function MyAddressContent() {
     processingAddressId,
     processingAction,
     editingAddress,
-    editForm,
     isCreateModalOpen,
+    isCreatingAddress,
     animatedAddressId,
     isDefaultUpdatePending,
-    createAddressModalState,
-    createAddressModalActions,
     openCreateModal,
+    closeCreateModal,
     openEditModal,
     closeEditModal,
     handleDelete,
     handlePageChange,
     handleSetDefault,
-    handleSubmitEdit,
-    handleEditFormChange,
+    handleSaveCreateAddress,
+    handleInvalidCreateAddress,
+    handleSaveEdit,
   } = useMyAddressManagement();
 
   return (
@@ -87,20 +87,25 @@ export default function MyAddressContent() {
         onPageChange={handlePageChange}
       />
 
-      <AddressFormModal
-        isOpen={isCreateModalOpen}
-        state={createAddressModalState}
-        actions={createAddressModalActions}
-      />
+      {isCreateModalOpen ? (
+        <AddressFormModal
+          isSaving={isCreatingAddress}
+          onClose={closeCreateModal}
+          onCancel={closeCreateModal}
+          onSave={handleSaveCreateAddress}
+          onInvalid={handleInvalidCreateAddress}
+        />
+      ) : null}
 
-      <MyAddressEditModal
-        editingAddress={editingAddress}
-        editForm={editForm}
-        isSaving={processingAction === 'edit'}
-        onClose={closeEditModal}
-        onSubmit={handleSubmitEdit}
-        onFieldChange={handleEditFormChange}
-      />
+      {editingAddress ? (
+        <MyAddressEditModal
+          key={editingAddress.id}
+          editingAddress={editingAddress}
+          isSaving={processingAction === 'edit'}
+          onClose={closeEditModal}
+          onSave={handleSaveEdit}
+        />
+      ) : null}
     </div>
   );
 }

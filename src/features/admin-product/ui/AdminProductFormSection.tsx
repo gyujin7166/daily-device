@@ -1,21 +1,23 @@
-import type { Dispatch, SetStateAction } from 'react';
-import type { SubmitEvent } from 'react';
+import { useEffect, useMemo } from 'react';
+import type { ChangeEvent } from 'react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 
 import {
   PRODUCT_LINE_VALUES,
   isProductLineValue,
 } from '@shared/constants/productLine';
-import type { ProductLineValue } from '@shared/constants/productLine';
 import {
   SectionTitle,
-  TextArea,
-  TextInput,
   inputClass,
   labelClass,
+  textareaClass,
 } from '@shared/ui/AdminControls';
+
+import { adminProductFormSchema } from '../model/schema';
 
 import AdminProductColorFields from './AdminProductColorFields';
 import AdminProductImageFields from './AdminProductImageFields';
@@ -34,83 +36,178 @@ const getLocalizedCategoryName = (
   (locale === 'en' ? category.name_en : category.name_ko) || category.name_en;
 
 type AdminProductFormSectionProps = {
-  form: ProductFormState;
+  initialValues: ProductFormState;
   categories: ProductCategory[];
   colors: AdminColor[];
-  selectedFormColors: AdminColor[];
   isSaving: boolean;
-  setForm: Dispatch<SetStateAction<ProductFormState>>;
   onReset: () => void;
-  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
-  onToggleColor: (colorId: string) => void;
-  onAddImage: () => void;
-  onUpdateImage: (
-    index: number,
-    patch: Partial<ProductFormState['images'][number]>,
-  ) => void;
-  onUpdateImageOrder: (index: number, value: string) => void;
-  onRemoveImage: (index: number) => void;
+  onSubmit: (formValues: ProductFormState) => Promise<void>;
 };
 
 export default function AdminProductFormSection({
-  form,
+  initialValues,
   categories,
   colors,
-  selectedFormColors,
   isSaving,
-  setForm,
   onReset,
   onSubmit,
-  onToggleColor,
-  onAddImage,
-  onUpdateImage,
-  onUpdateImageOrder,
-  onRemoveImage,
 }: AdminProductFormSectionProps) {
   const locale = useLocale();
   const activeTranslationLocale: ProductTranslationLocale =
     locale === 'en' ? 'en' : 'ko';
   const t = useTranslations('AdminProduct.form');
   const commonT = useTranslations('Common');
-  const activeTranslation = form.translations[activeTranslationLocale];
-  const updateTranslationField = (
-    field: 'name' | 'description' | 'detailed_description' | 'note',
-    value: string,
+  const methods = useForm<ProductFormState>({
+    resolver: zodResolver(adminProductFormSchema),
+    defaultValues: initialValues,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+  });
+  const { control, getValues, handleSubmit, register, setValue } = methods;
+  const { append, fields, remove } = useFieldArray({
+    control,
+    name: 'images',
+    keyName: 'fieldKey',
+  });
+  const colorIds = useWatch({ control, name: 'colorIds' });
+  const selectedFormColors = useMemo(
+    () => colors.filter((color) => colorIds.includes(String(color.id))),
+    [colorIds, colors],
+  );
+  const translationFieldPrefix =
+    `translations.${activeTranslationLocale}` as const;
+  const translationNameRegistration = register(
+    `${translationFieldPrefix}.name`,
+    { required: true },
+  );
+  const translationDescriptionRegistration = register(
+    `${translationFieldPrefix}.description`,
+    { required: true },
+  );
+  const translationDetailedDescriptionRegistration = register(
+    `${translationFieldPrefix}.detailed_description`,
+  );
+  const translationNoteRegistration = register(
+    `${translationFieldPrefix}.note`,
+  );
+
+  useEffect(() => {
+    if (getValues('categoryId') || !categories[0]) {
+      return;
+    }
+
+    setValue('categoryId', String(categories[0].id), {
+      shouldValidate: true,
+    });
+  }, [categories, getValues, setValue]);
+
+  const handleTranslationNameChange = (
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
-    setForm((prev) => ({
-      ...prev,
-      ...(field === 'name' && activeTranslationLocale === 'en'
-        ? { name_en: value }
-        : {}),
-      ...(field === 'name' && activeTranslationLocale === 'ko'
-        ? { name_ko: value }
-        : {}),
-      ...(field === 'description' && activeTranslationLocale === 'ko'
-        ? { description: value }
-        : {}),
-      ...(field === 'detailed_description' && activeTranslationLocale === 'ko'
-        ? { detailed_description: value }
-        : {}),
-      ...(field === 'note' && activeTranslationLocale === 'ko'
-        ? { note: value }
-        : {}),
-      translations: {
-        ...prev.translations,
-        [activeTranslationLocale]: {
-          ...prev.translations[activeTranslationLocale],
-          [field]: value,
-        },
+    void translationNameRegistration.onChange(event);
+    setValue(
+      activeTranslationLocale === 'en' ? 'name_en' : 'name_ko',
+      event.target.value,
+      { shouldDirty: true, shouldValidate: true },
+    );
+  };
+
+  const handleTranslationDescriptionChange = (
+    event: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    void translationDescriptionRegistration.onChange(event);
+    if (activeTranslationLocale === 'ko') {
+      setValue('description', event.target.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleTranslationDetailedDescriptionChange = (
+    event: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    void translationDetailedDescriptionRegistration.onChange(event);
+    if (activeTranslationLocale === 'ko') {
+      setValue('detailed_description', event.target.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleTranslationNoteChange = (
+    event: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    void translationNoteRegistration.onChange(event);
+    if (activeTranslationLocale === 'ko') {
+      setValue('note', event.target.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleToggleColor = (colorId: string, isChecked: boolean) => {
+    const currentColorIds = getValues('colorIds');
+    const nextColorIds = isChecked
+      ? Array.from(new Set([...currentColorIds, colorId]))
+      : currentColorIds.filter((item) => item !== colorId);
+
+    setValue('colorIds', nextColorIds, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    const currentDefaultColorId = getValues('defaultColorId');
+    if (!nextColorIds.includes(currentDefaultColorId)) {
+      setValue('defaultColorId', nextColorIds[0] ?? '', {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+
+    if (!isChecked) {
+      getValues('images').forEach((image, index) => {
+        if (image.colorId === colorId) {
+          setValue(`images.${index}.colorId`, '', {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+      });
+    }
+  };
+
+  const handleAddImage = () => {
+    const images = getValues('images');
+    const currentColorIds = getValues('colorIds');
+
+    append(
+      {
+        id: null,
+        image_url: '',
+        colorId: currentColorIds.length > 0 ? getValues('defaultColorId') : '',
+        order: String(images.length),
+        isMain: images.length === 0,
       },
-    }));
+      { shouldFocus: false },
+    );
   };
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
+      <input type="hidden" {...register('id')} />
+      <input type="hidden" {...register('name_en')} />
+      <input type="hidden" {...register('name_ko')} />
+      <input type="hidden" {...register('description')} />
+      <input type="hidden" {...register('detailed_description')} />
+      <input type="hidden" {...register('note')} />
       <SectionTitle
-        title={form.id ? t('editTitle') : t('createTitle')}
+        title={initialValues.id ? t('editTitle') : t('createTitle')}
         action={
           <button
             type="button"
@@ -123,56 +220,55 @@ export default function AdminProductFormSection({
         }
       />
       <div className="mt-5 grid gap-4">
-        <TextInput
-          label={activeTranslationLocale === 'en' ? t('nameEn') : t('nameKo')}
-          value={activeTranslation.name}
-          onChange={(value) => updateTranslationField('name', value)}
-          required
-        />
-        <TextInput
-          label={t('slug')}
-          value={form.slug}
-          onChange={(value) => setForm((prev) => ({ ...prev, slug: value }))}
-          required
-        />
-        {activeTranslationLocale === 'ko' ? (
-          <TextInput
-            label={t('searchKeyword')}
-            value={form.search_keyword}
-            onChange={(value) =>
-              setForm((prev) => ({ ...prev, search_keyword: value }))
-            }
+        <label className={labelClass}>
+          {activeTranslationLocale === 'en' ? t('nameEn') : t('nameKo')}
+          <input
+            {...translationNameRegistration}
+            className={inputClass}
+            onChange={handleTranslationNameChange}
             required
           />
-        ) : null}
-        <TextInput
-          label={t('price')}
-          type="number"
-          value={form.price}
-          onChange={(value) => setForm((prev) => ({ ...prev, price: value }))}
-          required
-        />
-        <TextInput
-          label={t('discountRate')}
-          type="number"
-          value={form.discountRate}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, discountRate: value }))
-          }
-        />
+        </label>
+        <label className={labelClass}>
+          {t('slug')}
+          <input className={inputClass} {...register('slug')} required />
+        </label>
+        {activeTranslationLocale === 'ko' ? (
+          <label className={labelClass}>
+            {t('searchKeyword')}
+            <input
+              className={inputClass}
+              {...register('search_keyword')}
+              required
+            />
+          </label>
+        ) : (
+          <input type="hidden" {...register('search_keyword')} />
+        )}
+        <label className={labelClass}>
+          {t('price')}
+          <input
+            type="number"
+            min={0}
+            className={inputClass}
+            {...register('price')}
+            required
+          />
+        </label>
+        <label className={labelClass}>
+          {t('discountRate')}
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            className={inputClass}
+            {...register('discountRate')}
+          />
+        </label>
         <label className={labelClass}>
           {t('category')}
-          <select
-            className={inputClass}
-            value={form.categoryId}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                categoryId: event.target.value,
-              }))
-            }
-            required
-          >
+          <select className={inputClass} {...register('categoryId')} required>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {getLocalizedCategoryName(category, locale)}
@@ -182,16 +278,7 @@ export default function AdminProductFormSection({
         </label>
         <label className={labelClass}>
           {t('productLine')}
-          <select
-            className={inputClass}
-            value={form.productLine}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                productLine: event.target.value as ProductLineValue | '',
-              }))
-            }
-          >
+          <select className={inputClass} {...register('productLine')}>
             <option value="">{t('none')}</option>
             {PRODUCT_LINE_VALUES.map((value) => (
               <option key={value} value={value}>
@@ -203,42 +290,48 @@ export default function AdminProductFormSection({
           </select>
         </label>
         <AdminProductColorFields
-          form={form}
           colors={colors}
+          colorIds={colorIds}
           selectedFormColors={selectedFormColors}
           locale={locale}
-          setForm={setForm}
-          onToggleColor={onToggleColor}
+          register={register}
+          onToggleColor={handleToggleColor}
         />
         <AdminProductImageFields
-          images={form.images}
-          categoryId={form.categoryId}
-          productSlug={form.slug}
+          fields={fields}
           selectedFormColors={selectedFormColors}
           locale={locale}
-          onAddImage={onAddImage}
-          onUpdateImage={onUpdateImage}
-          onUpdateImageOrder={onUpdateImageOrder}
-          onRemoveImage={onRemoveImage}
+          getValues={getValues}
+          register={register}
+          setValue={setValue}
+          onAddImage={handleAddImage}
+          onRemoveImage={remove}
         />
-        <TextArea
-          label={t('description')}
-          value={activeTranslation.description}
-          onChange={(value) => updateTranslationField('description', value)}
-          required
-        />
-        <TextArea
-          label={t('detailedDescription')}
-          value={activeTranslation.detailed_description}
-          onChange={(value) =>
-            updateTranslationField('detailed_description', value)
-          }
-        />
-        <TextArea
-          label={t('note')}
-          value={activeTranslation.note}
-          onChange={(value) => updateTranslationField('note', value)}
-        />
+        <label className={labelClass}>
+          {t('description')}
+          <textarea
+            {...translationDescriptionRegistration}
+            className={textareaClass}
+            onChange={handleTranslationDescriptionChange}
+            required
+          />
+        </label>
+        <label className={labelClass}>
+          {t('detailedDescription')}
+          <textarea
+            {...translationDetailedDescriptionRegistration}
+            className={textareaClass}
+            onChange={handleTranslationDetailedDescriptionChange}
+          />
+        </label>
+        <label className={labelClass}>
+          {t('note')}
+          <textarea
+            {...translationNoteRegistration}
+            className={textareaClass}
+            onChange={handleTranslationNoteChange}
+          />
+        </label>
         <button
           type="submit"
           disabled={isSaving}

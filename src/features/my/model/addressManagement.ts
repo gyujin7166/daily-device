@@ -1,10 +1,3 @@
-export type AddressEditForm = {
-  recipientName: string;
-  recipientPhone: string;
-  address1: string;
-  address2: string;
-};
-
 export type AddressProcessingAction = 'default' | 'delete' | 'edit' | null;
 
 export const DEFAULT_ADDRESS_ANIMATION_DURATION_MS = 1200;

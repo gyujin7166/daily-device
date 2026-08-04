@@ -2,45 +2,34 @@ import type { Dispatch, MouseEvent, SetStateAction } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import type {
-  AddressBlurState,
-  AddressFormState,
-} from '@entities/address/model/form';
+import type { AddressFormState } from '@entities/address/model/form';
+import { toAddressFormPayload } from '@entities/address/model/schema';
+import type { AddressFormValues } from '@entities/address/model/schema';
 import { useDeleteAddress } from '@entities/address/queries/useDeleteAddress';
 import { useUpsertAddress } from '@entities/address/queries/useUpsertAddress';
 
 import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { toast } from '@shared/lib/toast';
 
-import { buildCheckoutAddressPayload } from '../../shippingAddress';
-
 type AddressModalMode = 'saved' | 'new';
 
 type UseCheckoutAddressBookActionsParams = {
-  formState: AddressFormState;
-  isAddressReady: boolean;
-  saveAsDefault: boolean;
   editingAddressId: number | null;
   selectedAddressId: number | null;
-  setBlurState: Dispatch<SetStateAction<AddressBlurState>>;
+  setFormState: Dispatch<SetStateAction<AddressFormState>>;
   setSelectedAddressId: Dispatch<SetStateAction<number | null>>;
   setPendingDefaultId: Dispatch<SetStateAction<number | null>>;
-  setSaveAsDefault: Dispatch<SetStateAction<boolean>>;
   setEditingAddressId: Dispatch<SetStateAction<number | null>>;
   setAddressModalMode: Dispatch<SetStateAction<AddressModalMode>>;
   resetAddressFormState: () => void;
 };
 
 export default function useCheckoutAddressBookActions({
-  formState,
-  isAddressReady,
-  saveAsDefault,
   editingAddressId,
   selectedAddressId,
-  setBlurState,
+  setFormState,
   setSelectedAddressId,
   setPendingDefaultId,
-  setSaveAsDefault,
   setEditingAddressId,
   setAddressModalMode,
   resetAddressFormState,
@@ -82,29 +71,30 @@ export default function useCheckoutAddressBookActions({
     }
   };
 
-  const handleSaveAddress = async () => {
-    if (!isAddressReady) {
-      setBlurState((prev) => ({
-        ...prev,
-        name: true,
-        phone_number: true,
-        address_1: true,
-      }));
-      toast.error(t('invalidAddress'));
-      return;
-    }
+  const handleSaveAddress = async (
+    formValues: AddressFormValues,
+    isDefault: boolean,
+  ) => {
+    const payload = toAddressFormPayload(formValues, isDefault);
 
     try {
-      const result = await upsertAddress(
-        buildCheckoutAddressPayload(formState, saveAsDefault, editingAddressId),
-      );
+      const result = await upsertAddress({
+        id: editingAddressId ?? undefined,
+        ...payload,
+      });
+
+      setFormState({
+        name: payload.recipientName,
+        phone_number: payload.recipientPhone,
+        address_1: payload.address1,
+        address_2: payload.address2 ?? '',
+      });
 
       if (result?.id) {
         setSelectedAddressId(result.id);
       }
 
       toast.success(t('saveSuccess'));
-      setSaveAsDefault(false);
       setEditingAddressId(null);
       setAddressModalMode('saved');
     } catch (error) {
@@ -113,9 +103,14 @@ export default function useCheckoutAddressBookActions({
     }
   };
 
+  const handleInvalidAddress = () => {
+    toast.error(t('invalidAddress'));
+  };
+
   return {
     handleDeleteAddress,
     handleSaveAddress,
+    handleInvalidAddress,
     isDeletingAddress,
     isSavingAddress,
   };

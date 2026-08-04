@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import type { SubmitEvent } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { useAdminProductForm } from '../model/useAdminProductForm';
+import {
+  createEmptyProductForm,
+  createProductFormFromItem,
+} from '../model/types';
 import {
   useDeleteAdminProductMutation,
   useSaveAdminProductMutation,
@@ -18,6 +20,7 @@ import type {
   AdminProductListParams,
   AdminProductPayload,
   ProductCategory,
+  ProductFormState,
 } from '../model/types';
 
 type AdminProductSectionProps = {
@@ -61,71 +64,50 @@ export default function AdminProductSection({
   const colors = data?.colors ?? EMPTY_COLORS;
   const productPage = data?.products;
   const products = productPage?.items ?? EMPTY_PRODUCTS;
-  const {
-    form,
-    selectedFormColors,
-    setForm,
-    resetForm,
-    editProduct,
-    toggleFormColor,
-    addProductImage,
-    updateProductImage,
-    updateProductImageOrder,
-    removeProductImage,
-  } = useAdminProductForm({ categories, colors });
   const isSaving =
     saveProductMutation.isPending || deleteProductMutation.isPending;
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(
     null,
   );
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [formVersion, setFormVersion] = useState(0);
 
   useEffect(() => {
-    if (isCreatingProduct) {
+    if (isCreatingProduct || editingProduct || products.length === 0) {
       return;
     }
 
-    if (selectedProductId !== null) {
-      return;
-    }
+    setEditingProduct(products[0]);
+  }, [editingProduct, isCreatingProduct, products]);
 
-    if (products.length === 0) {
-      setSelectedProductId(null);
-      return;
-    }
-
-    const firstProduct = products[0];
-
-    setSelectedProductId(firstProduct.id);
-    editProduct(firstProduct);
-  }, [editProduct, isCreatingProduct, products, selectedProductId]);
+  const initialValues = editingProduct
+    ? createProductFormFromItem(editingProduct)
+    : createEmptyProductForm(categories);
 
   const handleResetForm = () => {
-    resetForm();
-    setSelectedProductId(null);
+    setEditingProduct(null);
     setIsCreatingProduct(true);
+    setFormVersion((version) => version + 1);
   };
 
   const handleEditProduct = (product: AdminProduct) => {
-    editProduct(product);
-    setSelectedProductId(product.id);
+    setEditingProduct(product);
     setIsCreatingProduct(false);
+    setFormVersion((version) => version + 1);
   };
 
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleSubmit = async (formValues: ProductFormState) => {
     if (!canWriteAdmin) {
       onReadOnlyAction();
       return;
     }
 
     try {
-      const action = form.id ? t('editAction') : t('createAction');
-      const savedProduct = await saveProductMutation.mutateAsync(form);
-      editProduct(savedProduct);
-      setSelectedProductId(savedProduct.id);
+      const action = formValues.id ? t('editAction') : t('createAction');
+      const savedProduct = await saveProductMutation.mutateAsync(formValues);
+      setEditingProduct(savedProduct);
       setIsCreatingProduct(false);
+      setFormVersion((version) => version + 1);
       onMessage(
         t('saveCompleted', {
           action,
@@ -150,18 +132,12 @@ export default function AdminProductSection({
 
     try {
       await deleteProductMutation.mutateAsync(product.id);
-      if (selectedProductId === product.id) {
-        const nextProduct = products.find((item) => item.id !== product.id);
-
-        if (nextProduct) {
-          editProduct(nextProduct);
-          setSelectedProductId(nextProduct.id);
-        } else {
-          resetForm();
-          setSelectedProductId(null);
-        }
-
+      if (editingProduct?.id === product.id) {
+        const nextProduct =
+          products.find((item) => item.id !== product.id) ?? null;
+        setEditingProduct(nextProduct);
         setIsCreatingProduct(false);
+        setFormVersion((version) => version + 1);
       }
       onMessage(
         t('deleteCompleted', {
@@ -182,22 +158,18 @@ export default function AdminProductSection({
     );
   }
 
+  const formKey = `${isCreatingProduct ? 'new' : (editingProduct?.id ?? 'empty')}-${formVersion}`;
+
   return (
     <section className="grid items-start gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
       <AdminProductFormSection
-        form={form}
+        key={formKey}
+        initialValues={initialValues}
         categories={categories}
         colors={colors}
-        selectedFormColors={selectedFormColors}
         isSaving={isSaving}
-        setForm={setForm}
         onReset={handleResetForm}
         onSubmit={handleSubmit}
-        onToggleColor={toggleFormColor}
-        onAddImage={addProductImage}
-        onUpdateImage={updateProductImage}
-        onUpdateImageOrder={updateProductImageOrder}
-        onRemoveImage={removeProductImage}
       />
 
       <AdminProductListSection
@@ -205,7 +177,7 @@ export default function AdminProductSection({
         productPage={productPage}
         products={products}
         categories={categories}
-        selectedProductId={selectedProductId}
+        selectedProductId={editingProduct?.id ?? null}
         isFetching={isFetching}
         isSaving={isSaving}
         onKeywordChange={onKeywordChange}

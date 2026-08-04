@@ -1,25 +1,12 @@
+import { z } from 'zod';
+
 import type { ProductReviewEditItem } from '@entities/review/model/types';
-
-type ReviewFormData = {
-  rating: number;
-  title: string;
-  content: string;
-};
-
-export type ReviewFormBlurState = {
-  title: boolean;
-  content: boolean;
-};
 
 export type ReviewFormErrorKey =
   | 'titleRequired'
   | 'titleMin'
   | 'contentRequired'
   | 'contentMin';
-
-type ReviewFormErrors = Partial<
-  Record<keyof ReviewFormBlurState, ReviewFormErrorKey>
->;
 
 type ReviewFormExistingImage = {
   image_url: string;
@@ -33,6 +20,40 @@ export type ReviewFormProps = {
   initialReview: ProductReviewEditItem | null;
 };
 
+const titleSchema = z.string().superRefine((value, context) => {
+  const length = value.trim().length;
+
+  if (length === 0) {
+    context.addIssue({ code: 'custom', message: 'titleRequired' });
+    return;
+  }
+
+  if (length < 2) {
+    context.addIssue({ code: 'custom', message: 'titleMin' });
+  }
+});
+
+const contentSchema = z.string().superRefine((value, context) => {
+  const length = value.trim().length;
+
+  if (length === 0) {
+    context.addIssue({ code: 'custom', message: 'contentRequired' });
+    return;
+  }
+
+  if (length < 10) {
+    context.addIssue({ code: 'custom', message: 'contentMin' });
+  }
+});
+
+export const reviewFormSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  title: titleSchema,
+  content: contentSchema,
+});
+
+export type ReviewFormData = z.infer<typeof reviewFormSchema>;
+
 export const createInitialReviewFormData = (
   initialReview: ProductReviewEditItem | null,
 ): ReviewFormData => ({
@@ -45,68 +66,10 @@ export const createInitialReviewFormImages = (
   initialReview: ProductReviewEditItem | null,
 ): ReviewFormExistingImage[] => initialReview?.ProductReviewImage ?? [];
 
-export const validateReviewFormField = (
-  name: keyof ReviewFormBlurState,
-  value: string,
-) => {
-  if (name === 'title') {
-    return value.trim().length >= 2;
-  }
-
-  if (name === 'content') {
-    return value.trim().length >= 10;
-  }
-
-  return true;
-};
-
-export const getReviewFormFieldError = (
-  name: keyof ReviewFormBlurState,
-  value: string,
-) => {
-  if (name === 'title') {
-    if (!value.trim()) {
-      return 'titleRequired';
-    }
-
-    if (value.trim().length < 2) {
-      return 'titleMin';
-    }
-  }
-
-  if (name === 'content') {
-    if (!value.trim()) {
-      return 'contentRequired';
-    }
-
-    if (value.trim().length < 10) {
-      return 'contentMin';
-    }
-  }
-
-  return '';
-};
-
-export const isReviewFormFieldName = (
-  value: string,
-): value is keyof ReviewFormBlurState =>
-  value === 'title' || value === 'content';
-
-export const validateReviewForm = (formData: ReviewFormData) => {
-  const visibleErrors: ReviewFormErrors = {};
-  const titleError = getReviewFormFieldError('title', formData.title);
-  const contentError = getReviewFormFieldError('content', formData.content);
-
-  if (titleError) {
-    visibleErrors.title = titleError;
-  }
-
-  if (contentError) {
-    visibleErrors.content = contentError;
-  }
-
-  return {
-    errors: visibleErrors,
-    isValid: Object.keys(visibleErrors).length === 0,
-  };
-};
+export const isReviewFormErrorKey = (
+  value: unknown,
+): value is ReviewFormErrorKey =>
+  value === 'titleRequired' ||
+  value === 'titleMin' ||
+  value === 'contentRequired' ||
+  value === 'contentMin';
