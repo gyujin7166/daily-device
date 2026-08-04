@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Dispatch, SetStateAction, SubmitEvent } from 'react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconDeviceFloppy,
   IconPencil,
@@ -8,6 +8,7 @@ import {
   IconRefresh,
 } from '@tabler/icons-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
+import { useForm, useWatch } from 'react-hook-form';
 
 import {
   getCategoryHref,
@@ -19,12 +20,15 @@ import {
   PaginationControls,
   SectionTitle,
   TableHeader,
-  TextArea,
-  TextInput,
   inputClass,
   labelClass,
+  textareaClass,
 } from '@shared/ui/AdminControls';
 
+import {
+  adminHomeSectionFormSchema,
+  adminHomeSectionItemFormSchema,
+} from '../model/schema';
 import {
   createEmptyHomeSectionItemForm,
   createHomeSectionForm,
@@ -45,6 +49,7 @@ import type {
   HomeSectionFormState,
   HomeSectionItemFormState,
 } from '../model/types';
+import type { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 
 const EMPTY_SECTIONS: AdminHomeSectionType[] = [];
 const EMPTY_CATEGORIES: AdminHomeCategory[] = [];
@@ -106,9 +111,9 @@ const getLayoutTemplateLimit = (
   template: (typeof HOME_LAYOUT_OPTIONS)[number],
 ) => template.areaOptions.filter((option) => option.value).length;
 
-const getLayoutTemplate = (form: HomeSectionItemFormState) =>
+const getLayoutTemplate = (layoutGroupClassName: string) =>
   HOME_LAYOUT_OPTIONS.find(
-    (template) => template.layoutGroupClassName === form.layoutGroupClassName,
+    (template) => template.layoutGroupClassName === layoutGroupClassName,
   ) ?? HOME_LAYOUT_DISABLED_PRESET;
 
 type AdminHomeSectionProps = {
@@ -138,12 +143,14 @@ export default function AdminHomeSection({
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
     null,
   );
-  const [sectionForm, setSectionForm] = useState<HomeSectionFormState | null>(
+  const [editingItem, setEditingItem] = useState<AdminHomeSectionItem | null>(
     null,
   );
-  const [itemForm, setItemForm] = useState<HomeSectionItemFormState | null>(
-    null,
-  );
+  const [creatingItemDisplayOrder, setCreatingItemDisplayOrder] = useState<
+    number | null
+  >(null);
+  const [sectionFormVersion, setSectionFormVersion] = useState(0);
+  const [itemFormVersion, setItemFormVersion] = useState(0);
   const isSaving =
     updateSectionMutation.isPending || saveItemMutation.isPending;
 
@@ -157,44 +164,40 @@ export default function AdminHomeSection({
   useEffect(() => {
     if (!selectedSection) {
       setSelectedSectionId(null);
-      setSectionForm(null);
-      setItemForm(null);
+      setEditingItem(null);
+      setCreatingItemDisplayOrder(null);
       return;
     }
 
     setSelectedSectionId(selectedSection.id);
-    setSectionForm(createHomeSectionForm(selectedSection));
-    setItemForm((prev) => {
-      const selectedItem =
-        selectedSection.items.find((item) => item.id === prev?.id) ??
-        selectedSection.items[0];
-
-      return selectedItem ? createHomeSectionItemForm(selectedItem) : null;
+    setEditingItem((previousItem) => {
+      return (
+        selectedSection.items.find((item) => item.id === previousItem?.id) ??
+        selectedSection.items[0] ??
+        null
+      );
     });
+    setCreatingItemDisplayOrder(null);
+    setSectionFormVersion((version) => version + 1);
+    setItemFormVersion((version) => version + 1);
   }, [selectedSection]);
 
   const handleSectionSelect = (section: AdminHomeSectionType) => {
     setSelectedSectionId(section.id);
-    setSectionForm(createHomeSectionForm(section));
-    setItemForm(
-      section.items[0] ? createHomeSectionItemForm(section.items[0]) : null,
-    );
+    setEditingItem(section.items[0] ?? null);
+    setCreatingItemDisplayOrder(null);
+    setSectionFormVersion((version) => version + 1);
+    setItemFormVersion((version) => version + 1);
   };
 
-  const handleSectionSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleSectionSubmit = async (formValues: HomeSectionFormState) => {
     if (!canWriteAdmin) {
       onReadOnlyAction();
       return;
     }
 
-    if (!sectionForm) {
-      return;
-    }
-
     try {
-      const savedSection = await updateSectionMutation.mutateAsync(sectionForm);
+      const savedSection = await updateSectionMutation.mutateAsync(formValues);
       onMessage(
         t('sectionSaved', {
           title: getLocalizedSectionTitle(savedSection, locale),
@@ -205,22 +208,18 @@ export default function AdminHomeSection({
     }
   };
 
-  const handleItemSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleItemSubmit = async (formValues: HomeSectionItemFormState) => {
     if (!canWriteAdmin) {
       onReadOnlyAction();
       return;
     }
 
-    if (!itemForm) {
-      return;
-    }
-
     try {
-      const action = itemForm.id ? t('editAction') : t('createAction');
-      const savedItem = await saveItemMutation.mutateAsync(itemForm);
-      setItemForm(createHomeSectionItemForm(savedItem));
+      const action = formValues.id ? t('editAction') : t('createAction');
+      const savedItem = await saveItemMutation.mutateAsync(formValues);
+      setEditingItem(savedItem);
+      setCreatingItemDisplayOrder(null);
+      setItemFormVersion((version) => version + 1);
       onMessage(
         t('cardSaved', {
           action,
@@ -243,10 +242,42 @@ export default function AdminHomeSection({
         0,
       ) + 1;
 
-    setItemForm(
-      createEmptyHomeSectionItemForm(selectedSection.id, nextDisplayOrder),
-    );
+    setEditingItem(null);
+    setCreatingItemDisplayOrder(nextDisplayOrder);
+    setItemFormVersion((version) => version + 1);
   };
+
+  const handleEditItem = (item: AdminHomeSectionItem) => {
+    setEditingItem(item);
+    setCreatingItemDisplayOrder(null);
+    setItemFormVersion((version) => version + 1);
+  };
+
+  const handleResetItemForm = () => {
+    if (creatingItemDisplayOrder !== null) {
+      setItemFormVersion((version) => version + 1);
+      return;
+    }
+
+    const selectedItem = selectedSection?.items.find(
+      (item) => item.id === editingItem?.id,
+    );
+    if (selectedItem) {
+      setEditingItem(selectedItem);
+    }
+    setItemFormVersion((version) => version + 1);
+  };
+
+  const itemInitialValues = selectedSection
+    ? creatingItemDisplayOrder !== null
+      ? createEmptyHomeSectionItemForm(
+          selectedSection.id,
+          creatingItemDisplayOrder,
+        )
+      : editingItem
+        ? createHomeSectionItemForm(editingItem)
+        : null
+    : null;
 
   if (isPending) {
     return (
@@ -256,7 +287,7 @@ export default function AdminHomeSection({
     );
   }
 
-  if (!selectedSection || !sectionForm) {
+  if (!selectedSection) {
     return (
       <div className="rounded-md border border-line bg-surface p-8 text-center text-sm font-semibold text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted">
         {t('emptySections')}
@@ -270,41 +301,23 @@ export default function AdminHomeSection({
     <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
       <div className="order-2 grid content-start gap-6 xl:order-1">
         <HomeSectionForm
-          form={sectionForm}
+          key={`${selectedSection.id}-${sectionFormVersion}`}
+          initialValues={createHomeSectionForm(selectedSection)}
           isSaving={isSaving}
-          setForm={setSectionForm}
           onSubmit={handleSectionSubmit}
-          onReset={() => setSectionForm(createHomeSectionForm(selectedSection))}
+          onReset={() => setSectionFormVersion((version) => version + 1)}
         />
-        {itemForm ? (
+        {itemInitialValues ? (
           <HomeSectionItemForm
-            form={itemForm}
+            key={`${creatingItemDisplayOrder !== null ? 'new' : (editingItem?.id ?? 'empty')}-${itemFormVersion}`}
+            initialValues={itemInitialValues}
             categories={categories}
             products={products}
             sectionItems={selectedSection.items}
             enforceCarouselLayout={isCategoryCarouselSection}
             isSaving={isSaving}
-            setForm={setItemForm}
             onSubmit={handleItemSubmit}
-            onReset={() => {
-              if (!itemForm.id) {
-                setItemForm(
-                  createEmptyHomeSectionItemForm(
-                    selectedSection.id,
-                    Number(itemForm.displayOrder || 0),
-                  ),
-                );
-                return;
-              }
-
-              const selectedItem = selectedSection.items.find(
-                (item) => item.id === itemForm.id,
-              );
-
-              if (selectedItem) {
-                setItemForm(createHomeSectionItemForm(selectedItem));
-              }
-            }}
+            onReset={handleResetItemForm}
           />
         ) : null}
       </div>
@@ -317,10 +330,10 @@ export default function AdminHomeSection({
         />
         <HomeSectionItemList
           items={selectedSection.items}
-          selectedItemId={itemForm?.id ?? null}
+          selectedItemId={editingItem?.id ?? null}
           isSaving={isSaving}
           onCreate={handleCreateItem}
-          onEdit={(item) => setItemForm(createHomeSectionItemForm(item))}
+          onEdit={handleEditItem}
         />
       </div>
     </section>
@@ -403,49 +416,52 @@ function HomeSectionList({
 }
 
 function HomeSectionForm({
-  form,
+  initialValues,
   isSaving,
-  setForm,
   onSubmit,
   onReset,
 }: {
-  form: HomeSectionFormState;
+  initialValues: HomeSectionFormState;
   isSaving: boolean;
-  setForm: Dispatch<SetStateAction<HomeSectionFormState | null>>;
-  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
+  onSubmit: (formValues: HomeSectionFormState) => Promise<void>;
   onReset: () => void;
 }) {
   const locale = useLocale();
   const t = useTranslations('AdminHome.sectionForm');
   const activeTranslationLocale: HomeTranslationLocale =
     locale === 'en' ? 'en' : 'ko';
-  const activeTranslation = form.translations[activeTranslationLocale];
-  const updateTranslationField = (
+  const { handleSubmit, register, setValue } = useForm<HomeSectionFormState>({
+    resolver: zodResolver(adminHomeSectionFormSchema),
+    defaultValues: initialValues,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+  });
+  const translationFieldPrefix =
+    `translations.${activeTranslationLocale}` as const;
+  const eyebrowRegistration = register(`${translationFieldPrefix}.eyebrow`);
+  const titleRegistration = register(`${translationFieldPrefix}.title`, {
+    required: true,
+  });
+  const subtitleRegistration = register(`${translationFieldPrefix}.subtitle`);
+
+  const updateBaseTranslationField = (
     field: 'eyebrow' | 'title' | 'subtitle',
     value: string,
   ) => {
-    setForm((prev) =>
-      prev
-        ? {
-            ...prev,
-            ...(activeTranslationLocale === 'ko' ? { [field]: value } : {}),
-            translations: {
-              ...prev.translations,
-              [activeTranslationLocale]: {
-                ...prev.translations[activeTranslationLocale],
-                [field]: value,
-              },
-            },
-          }
-        : prev,
-    );
+    if (activeTranslationLocale === 'ko') {
+      setValue(field, value, { shouldDirty: true, shouldValidate: true });
+    }
   };
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
+      <input type="hidden" {...register('id')} />
+      <input type="hidden" {...register('eyebrow')} />
+      <input type="hidden" {...register('title')} />
+      <input type="hidden" {...register('subtitle')} />
       <SectionTitle
         title={t('title')}
         action={
@@ -461,41 +477,52 @@ function HomeSectionForm({
         }
       />
       <div className="mt-5 grid gap-4">
-        <TextInput
-          label={t('eyebrow')}
-          value={activeTranslation.eyebrow}
-          onChange={(value) => updateTranslationField('eyebrow', value)}
-        />
-        <TextInput
-          label={t('sectionTitle')}
-          value={activeTranslation.title}
-          onChange={(value) => updateTranslationField('title', value)}
-          required
-        />
-        <TextArea
-          label={t('subtitle')}
-          value={activeTranslation.subtitle}
-          onChange={(value) => updateTranslationField('subtitle', value)}
-        />
-        <TextInput
-          label={t('displayOrder')}
-          type="number"
-          min={0}
-          value={form.displayOrder}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, displayOrder: value } : prev))
-          }
-        />
-        <label className="flex items-center gap-2 text-sm font-semibold">
+        <label className={labelClass}>
+          {t('eyebrow')}
           <input
-            type="checkbox"
-            checked={form.isVisible}
-            onChange={(event) =>
-              setForm((prev) =>
-                prev ? { ...prev, isVisible: event.target.checked } : prev,
-              )
-            }
+            {...eyebrowRegistration}
+            className={inputClass}
+            onChange={(event) => {
+              void eyebrowRegistration.onChange(event);
+              updateBaseTranslationField('eyebrow', event.target.value);
+            }}
           />
+        </label>
+        <label className={labelClass}>
+          {t('sectionTitle')}
+          <input
+            {...titleRegistration}
+            className={inputClass}
+            onChange={(event) => {
+              void titleRegistration.onChange(event);
+              updateBaseTranslationField('title', event.target.value);
+            }}
+            required
+          />
+        </label>
+        <label className={labelClass}>
+          {t('subtitle')}
+          <textarea
+            {...subtitleRegistration}
+            className={textareaClass}
+            onChange={(event) => {
+              void subtitleRegistration.onChange(event);
+              updateBaseTranslationField('subtitle', event.target.value);
+            }}
+          />
+        </label>
+        <label className={labelClass}>
+          {t('displayOrder')}
+          <input
+            type="number"
+            min={0}
+            step={1}
+            className={inputClass}
+            {...register('displayOrder')}
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm font-semibold">
+          <input type="checkbox" {...register('isVisible')} />
           {t('visible')}
         </label>
         <button
@@ -642,36 +669,63 @@ function HomeSectionItemList({
 }
 
 function HomeSectionItemForm({
-  form,
+  initialValues,
   categories,
   products,
   sectionItems,
   enforceCarouselLayout,
   isSaving,
-  setForm,
   onSubmit,
   onReset,
 }: {
-  form: HomeSectionItemFormState;
+  initialValues: HomeSectionItemFormState;
   categories: AdminHomeCategory[];
   products: AdminHomeProduct[];
   sectionItems: AdminHomeSectionItem[];
   enforceCarouselLayout: boolean;
   isSaving: boolean;
-  setForm: Dispatch<SetStateAction<HomeSectionItemFormState | null>>;
-  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
+  onSubmit: (formValues: HomeSectionItemFormState) => Promise<void>;
   onReset: () => void;
 }) {
   const t = useTranslations('AdminHome');
   const locale = useLocale();
   const activeTranslationLocale: HomeTranslationLocale =
     locale === 'en' ? 'en' : 'ko';
-  const selectedLayoutTemplate = getLayoutTemplate(form);
-  const selectedLayoutGroup = Number(form.layoutGroup || 0);
+  const { control, handleSubmit, register, setValue } =
+    useForm<HomeSectionItemFormState>({
+      resolver: zodResolver(adminHomeSectionItemFormSchema),
+      defaultValues: initialValues,
+      mode: 'onChange',
+      reValidateMode: 'onChange',
+    });
+  const [
+    targetType,
+    targetCategoryId,
+    targetProductId,
+    href,
+    layoutGroup,
+    layoutGroupClassName,
+    layoutAreaClassName,
+    isVisible,
+  ] = useWatch({
+    control,
+    name: [
+      'targetType',
+      'targetCategoryId',
+      'targetProductId',
+      'href',
+      'layoutGroup',
+      'layoutGroupClassName',
+      'layoutAreaClassName',
+      'isVisible',
+    ],
+  });
+  const selectedLayoutTemplate = getLayoutTemplate(layoutGroupClassName);
+  const selectedLayoutGroup = Number(layoutGroup || 0);
   const selectedLayoutLimit = getLayoutTemplateLimit(selectedLayoutTemplate);
   const visibleItemsInSelectedGroup = sectionItems.filter(
     (item) =>
-      item.id !== form.id &&
+      item.id !== initialValues.id &&
       item.isVisible &&
       selectedLayoutGroup > 0 &&
       item.layoutGroup === selectedLayoutGroup,
@@ -686,22 +740,22 @@ function HomeSectionItemForm({
       ?.layoutGroupClassName ?? null;
   const isSelectedLayoutFull =
     enforceCarouselLayout &&
-    form.isVisible &&
+    isVisible &&
     selectedLayoutGroup > 0 &&
     selectedLayoutLimit > 0 &&
     visibleItemsInSelectedGroup.length >= selectedLayoutLimit;
   const isSelectedLayoutAreaUsed =
     enforceCarouselLayout &&
-    form.isVisible &&
+    isVisible &&
     selectedLayoutGroup > 0 &&
-    Boolean(form.layoutAreaClassName) &&
-    usedLayoutAreas.has(form.layoutAreaClassName);
+    Boolean(layoutAreaClassName) &&
+    usedLayoutAreas.has(layoutAreaClassName);
   const isSelectedLayoutPresetConflict =
     enforceCarouselLayout &&
-    form.isVisible &&
+    isVisible &&
     selectedLayoutGroup > 0 &&
     Boolean(existingLayoutClassNameInSelectedGroup) &&
-    existingLayoutClassNameInSelectedGroup !== form.layoutGroupClassName;
+    existingLayoutClassNameInSelectedGroup !== layoutGroupClassName;
   const layoutHelperText =
     selectedLayoutGroup === 0
       ? t('cardForm.disabledHelper')
@@ -711,35 +765,43 @@ function HomeSectionItemForm({
           used: visibleItemsInSelectedGroup.length,
           limit: selectedLayoutLimit,
         });
-  const activeTranslation = form.translations[activeTranslationLocale];
-  const updateTranslationField = (
+  const translationFieldPrefix =
+    `translations.${activeTranslationLocale}` as const;
+  const labelRegistration = register(`${translationFieldPrefix}.label`);
+  const titleRegistration = register(`${translationFieldPrefix}.title`, {
+    required: true,
+  });
+  const descriptionRegistration = register(
+    `${translationFieldPrefix}.description`,
+  );
+  const ctaRegistration = register(`${translationFieldPrefix}.cta`);
+  const imageAltRegistration = register(`${translationFieldPrefix}.imageAlt`);
+
+  const updateBaseTranslationField = (
     field: 'label' | 'title' | 'description' | 'cta' | 'imageAlt',
     value: string,
   ) => {
-    setForm((prev) =>
-      prev
-        ? {
-            ...prev,
-            ...(activeTranslationLocale === 'ko' ? { [field]: value } : {}),
-            translations: {
-              ...prev.translations,
-              [activeTranslationLocale]: {
-                ...prev.translations[activeTranslationLocale],
-                [field]: value,
-              },
-            },
-          }
-        : prev,
-    );
+    if (activeTranslationLocale === 'ko') {
+      setValue(field, value, { shouldDirty: true, shouldValidate: true });
+    }
   };
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
+      <input type="hidden" {...register('id')} />
+      <input type="hidden" {...register('sectionId')} />
+      <input type="hidden" {...register('label')} />
+      <input type="hidden" {...register('title')} />
+      <input type="hidden" {...register('description')} />
+      <input type="hidden" {...register('cta')} />
+      <input type="hidden" {...register('imageAlt')} />
       <SectionTitle
-        title={form.id ? t('cardForm.editTitle') : t('cardForm.createTitle')}
+        title={
+          initialValues.id ? t('cardForm.editTitle') : t('cardForm.createTitle')
+        }
         action={
           <button
             type="button"
@@ -754,57 +816,86 @@ function HomeSectionItemForm({
       />
       <div className="mt-5 grid gap-4">
         <div className="grid gap-3 sm:grid-cols-2">
-          <TextInput
-            label={t('cardForm.label')}
-            value={activeTranslation.label}
-            onChange={(value) => updateTranslationField('label', value)}
-          />
-          <TextInput
-            label={t('cardForm.displayOrder')}
-            type="number"
-            min={0}
-            value={form.displayOrder}
-            onChange={(value) =>
-              setForm((prev) =>
-                prev ? { ...prev, displayOrder: value } : prev,
-              )
-            }
-          />
+          <label className={labelClass}>
+            {t('cardForm.label')}
+            <input
+              {...labelRegistration}
+              className={inputClass}
+              onChange={(event) => {
+                void labelRegistration.onChange(event);
+                updateBaseTranslationField('label', event.target.value);
+              }}
+            />
+          </label>
+          <label className={labelClass}>
+            {t('cardForm.displayOrder')}
+            <input
+              type="number"
+              min={0}
+              step={1}
+              className={inputClass}
+              {...register('displayOrder')}
+            />
+          </label>
         </div>
-        <TextInput
-          label={t('cardForm.title')}
-          value={activeTranslation.title}
-          onChange={(value) => updateTranslationField('title', value)}
-          required
-        />
-        <TextArea
-          label={t('cardForm.description')}
-          value={activeTranslation.description}
-          onChange={(value) => updateTranslationField('description', value)}
-        />
-        <TextInput
-          label="CTA"
-          value={activeTranslation.cta}
-          onChange={(value) => updateTranslationField('cta', value)}
-        />
-        <TextInput
-          label={t('cardForm.imageUrl')}
-          value={form.image_url}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, image_url: value } : prev))
-          }
-          required
-        />
-        <TextInput
-          label={t('cardForm.imageAlt')}
-          value={activeTranslation.imageAlt}
-          onChange={(value) => updateTranslationField('imageAlt', value)}
-        />
+        <label className={labelClass}>
+          {t('cardForm.title')}
+          <input
+            {...titleRegistration}
+            className={inputClass}
+            onChange={(event) => {
+              void titleRegistration.onChange(event);
+              updateBaseTranslationField('title', event.target.value);
+            }}
+            required
+          />
+        </label>
+        <label className={labelClass}>
+          {t('cardForm.description')}
+          <textarea
+            {...descriptionRegistration}
+            className={textareaClass}
+            onChange={(event) => {
+              void descriptionRegistration.onChange(event);
+              updateBaseTranslationField('description', event.target.value);
+            }}
+          />
+        </label>
+        <label className={labelClass}>
+          CTA
+          <input
+            {...ctaRegistration}
+            className={inputClass}
+            onChange={(event) => {
+              void ctaRegistration.onChange(event);
+              updateBaseTranslationField('cta', event.target.value);
+            }}
+          />
+        </label>
+        <label className={labelClass}>
+          {t('cardForm.imageUrl')}
+          <input className={inputClass} {...register('image_url')} required />
+        </label>
+        <label className={labelClass}>
+          {t('cardForm.imageAlt')}
+          <input
+            {...imageAltRegistration}
+            className={inputClass}
+            onChange={(event) => {
+              void imageAltRegistration.onChange(event);
+              updateBaseTranslationField('imageAlt', event.target.value);
+            }}
+          />
+        </label>
         <TargetFields
-          form={form}
+          targetType={targetType}
+          targetCategoryId={targetCategoryId}
+          targetProductId={targetProductId}
+          href={href}
           categories={categories}
           products={products}
-          setForm={setForm}
+          register={register}
+          setValue={setValue}
         />
         <details className="rounded-md border border-line p-3 dark:border-dark-border">
           <summary className="cursor-pointer text-sm font-bold">
@@ -818,7 +909,7 @@ function HomeSectionItemForm({
                   type="number"
                   min={0}
                   className={inputClass}
-                  value={form.layoutGroup}
+                  {...register('layoutGroup')}
                   onChange={(event) => {
                     const nextGroup = Math.max(
                       0,
@@ -826,7 +917,7 @@ function HomeSectionItemForm({
                     );
                     const existingItemInNextGroup = sectionItems.find(
                       (item) =>
-                        item.id !== form.id &&
+                        item.id !== initialValues.id &&
                         item.isVisible &&
                         nextGroup > 0 &&
                         item.layoutGroup === nextGroup &&
@@ -847,7 +938,7 @@ function HomeSectionItemForm({
                         : HOME_LAYOUT_DISABLED_PRESET;
                     const nextUsedAreas = new Set(
                       sectionItems.flatMap((item) =>
-                        item.id !== form.id &&
+                        item.id !== initialValues.id &&
                         item.isVisible &&
                         nextGroup > 0 &&
                         item.layoutGroup === nextGroup &&
@@ -862,16 +953,19 @@ function HomeSectionItemForm({
                           !option.value || !nextUsedAreas.has(option.value),
                       ) ?? nextTemplate.areaOptions[0];
 
-                    setForm((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            layoutGroup: String(nextGroup),
-                            layoutGroupClassName:
-                              nextTemplate.layoutGroupClassName,
-                            layoutAreaClassName: nextAreaOption?.value ?? '',
-                          }
-                        : prev,
+                    setValue('layoutGroup', String(nextGroup), {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                    setValue(
+                      'layoutGroupClassName',
+                      nextTemplate.layoutGroupClassName,
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                    setValue(
+                      'layoutAreaClassName',
+                      nextAreaOption?.value ?? '',
+                      { shouldDirty: true, shouldValidate: true },
                     );
                   }}
                 />
@@ -880,7 +974,7 @@ function HomeSectionItemForm({
                 {t('cardForm.layoutPreset')}
                 <select
                   className={inputClass}
-                  value={selectedLayoutTemplate.layoutGroupClassName}
+                  {...register('layoutGroupClassName')}
                   onChange={(event) => {
                     const nextTemplate =
                       HOME_LAYOUT_OPTIONS.find(
@@ -892,7 +986,7 @@ function HomeSectionItemForm({
                       : 0;
                     const nextUsedAreas = new Set(
                       sectionItems.flatMap((item) =>
-                        item.id !== form.id &&
+                        item.id !== initialValues.id &&
                         item.isVisible &&
                         nextGroup > 0 &&
                         item.layoutGroup === nextGroup &&
@@ -907,16 +1001,19 @@ function HomeSectionItemForm({
                           !option.value || !nextUsedAreas.has(option.value),
                       ) ?? nextTemplate.areaOptions[0];
 
-                    setForm((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            layoutGroup: String(nextGroup),
-                            layoutGroupClassName:
-                              nextTemplate.layoutGroupClassName,
-                            layoutAreaClassName: nextAreaOption?.value ?? '',
-                          }
-                        : prev,
+                    setValue('layoutGroup', String(nextGroup), {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                    setValue(
+                      'layoutGroupClassName',
+                      nextTemplate.layoutGroupClassName,
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                    setValue(
+                      'layoutAreaClassName',
+                      nextAreaOption?.value ?? '',
+                      { shouldDirty: true, shouldValidate: true },
                     );
                   }}
                 >
@@ -936,14 +1033,7 @@ function HomeSectionItemForm({
                 {t('cardForm.cardPosition')}
                 <select
                   className={inputClass}
-                  value={form.layoutAreaClassName}
-                  onChange={(event) =>
-                    setForm((prev) =>
-                      prev
-                        ? { ...prev, layoutAreaClassName: event.target.value }
-                        : prev,
-                    )
-                  }
+                  {...register('layoutAreaClassName')}
                 >
                   {selectedLayoutTemplate.areaOptions.map((option) => (
                     <option
@@ -984,17 +1074,7 @@ function HomeSectionItemForm({
             <div className="grid gap-3 sm:grid-cols-2">
               <label className={labelClass}>
                 {t('cardForm.imageFit')}
-                <select
-                  className={inputClass}
-                  value={form.imageClassName}
-                  onChange={(event) =>
-                    setForm((prev) =>
-                      prev
-                        ? { ...prev, imageClassName: event.target.value }
-                        : prev,
-                    )
-                  }
-                >
+                <select className={inputClass} {...register('imageClassName')}>
                   {IMAGE_FIT_OPTIONS.map((option) => (
                     <option
                       key={option.value || 'default'}
@@ -1007,17 +1087,7 @@ function HomeSectionItemForm({
               </label>
               <label className={labelClass}>
                 {t('cardForm.labelPosition')}
-                <select
-                  className={inputClass}
-                  value={form.labelPosition}
-                  onChange={(event) =>
-                    setForm((prev) =>
-                      prev
-                        ? { ...prev, labelPosition: event.target.value }
-                        : prev,
-                    )
-                  }
-                >
+                <select className={inputClass} {...register('labelPosition')}>
                   <option value="">{t('layout.default')}</option>
                   <option value="top">{t('layout.labelTop')}</option>
                   <option value="bottom">{t('layout.labelBottom')}</option>
@@ -1027,15 +1097,7 @@ function HomeSectionItemForm({
           </div>
         </details>
         <label className="flex items-center gap-2 text-sm font-semibold">
-          <input
-            type="checkbox"
-            checked={form.isVisible}
-            onChange={(event) =>
-              setForm((prev) =>
-                prev ? { ...prev, isVisible: event.target.checked } : prev,
-              )
-            }
-          />
+          <input type="checkbox" {...register('isVisible')} />
           {t('cardForm.visible')}
         </label>
         <button
@@ -1044,7 +1106,7 @@ function HomeSectionItemForm({
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
-          {form.id ? t('cardForm.save') : t('cardForm.add')}
+          {initialValues.id ? t('cardForm.save') : t('cardForm.add')}
         </button>
       </div>
     </form>
@@ -1052,34 +1114,42 @@ function HomeSectionItemForm({
 }
 
 function TargetFields({
-  form,
+  targetType,
+  targetCategoryId,
+  targetProductId,
+  href,
   categories,
   products,
-  setForm,
+  register,
+  setValue,
 }: {
-  form: HomeSectionItemFormState;
+  targetType: HomeSectionItemFormState['targetType'];
+  targetCategoryId: string;
+  targetProductId: string;
+  href: string;
   categories: AdminHomeCategory[];
   products: AdminHomeProduct[];
-  setForm: Dispatch<SetStateAction<HomeSectionItemFormState | null>>;
+  register: UseFormRegister<HomeSectionItemFormState>;
+  setValue: UseFormSetValue<HomeSectionItemFormState>;
 }) {
   const locale = useLocale();
   const t = useTranslations('AdminHome.target');
   const selectedCategory = categories.find(
-    (category) => String(category.id) === form.targetCategoryId,
+    (category) => String(category.id) === targetCategoryId,
   );
   const selectedProduct = products.find(
-    (product) => String(product.id) === form.targetProductId,
+    (product) => String(product.id) === targetProductId,
   );
   const hrefPreview =
-    form.targetType === 'product' && selectedProduct
+    targetType === 'product' && selectedProduct
       ? getProductHref({
           categorySlug: selectedProduct.category.slug,
           productSlug: selectedProduct.slug,
         })
-      : form.targetType === 'category' && selectedCategory
+      : targetType === 'category' && selectedCategory
         ? getCategoryHref(selectedCategory.slug)
-        : form.targetType === 'custom'
-          ? form.href
+        : targetType === 'custom'
+          ? href
           : '';
 
   return (
@@ -1088,20 +1158,26 @@ function TargetFields({
         {t('title')}
         <select
           className={inputClass}
-          value={form.targetType}
-          onChange={(event) =>
-            setForm((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    targetType: event.target.value as typeof form.targetType,
-                    href: '',
-                    targetCategoryId: '',
-                    targetProductId: '',
-                  }
-                : prev,
-            )
-          }
+          {...register('targetType')}
+          onChange={(event) => {
+            setValue(
+              'targetType',
+              event.target.value as HomeSectionItemFormState['targetType'],
+              { shouldDirty: true, shouldValidate: true },
+            );
+            setValue('href', '', {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            setValue('targetCategoryId', '', {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            setValue('targetProductId', '', {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+          }}
         >
           <option value="category">{t('category')}</option>
           <option value="product">{t('product')}</option>
@@ -1109,18 +1185,10 @@ function TargetFields({
           <option value="none">{t('none')}</option>
         </select>
       </label>
-      {form.targetType === 'category' ? (
+      {targetType === 'category' ? (
         <label className={labelClass}>
           {t('category')}
-          <select
-            className={inputClass}
-            value={form.targetCategoryId}
-            onChange={(event) =>
-              setForm((prev) =>
-                prev ? { ...prev, targetCategoryId: event.target.value } : prev,
-              )
-            }
-          >
+          <select className={inputClass} {...register('targetCategoryId')}>
             <option value="">{t('selectCategory')}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
@@ -1129,19 +1197,13 @@ function TargetFields({
             ))}
           </select>
         </label>
-      ) : null}
-      {form.targetType === 'product' ? (
+      ) : (
+        <input type="hidden" {...register('targetCategoryId')} />
+      )}
+      {targetType === 'product' ? (
         <label className={labelClass}>
           {t('product')}
-          <select
-            className={inputClass}
-            value={form.targetProductId}
-            onChange={(event) =>
-              setForm((prev) =>
-                prev ? { ...prev, targetProductId: event.target.value } : prev,
-              )
-            }
-          >
+          <select className={inputClass} {...register('targetProductId')}>
             <option value="">{t('selectProduct')}</option>
             {products.map((product) => (
               <option key={product.id} value={product.id}>
@@ -1150,16 +1212,17 @@ function TargetFields({
             ))}
           </select>
         </label>
-      ) : null}
-      {form.targetType === 'custom' ? (
-        <TextInput
-          label={t('customUrl')}
-          value={form.href}
-          onChange={(value) =>
-            setForm((prev) => (prev ? { ...prev, href: value } : prev))
-          }
-        />
-      ) : null}
+      ) : (
+        <input type="hidden" {...register('targetProductId')} />
+      )}
+      {targetType === 'custom' ? (
+        <label className={labelClass}>
+          {t('customUrl')}
+          <input className={inputClass} {...register('href')} />
+        </label>
+      ) : (
+        <input type="hidden" {...register('href')} />
+      )}
       {hrefPreview ? (
         <p className="text-xs font-semibold text-muted dark:text-dark-muted">
           {t('pathPreview', { path: hrefPreview })}

@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 
+import { adminHomeSectionItemCreateBodySchema } from '@features/admin-home/model/schema';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
 import { revalidatePublicShopPages } from '../revalidation';
-import { adminHomeSectionItemCreateBodySchema } from '../schemas';
 import { assertAdminWriteAccess, createAdminHomeSectionItem } from '../service';
 
 export async function POST(request: Request) {

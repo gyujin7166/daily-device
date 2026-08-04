@@ -121,6 +121,49 @@ export const emptyHeroForm: HeroFormState = {
   translations: createEmptyTranslations(),
 };
 
+export const isAdminHeroTypeDisabled = (
+  heroType: AdminHeroType,
+  categories: AdminHeroCategory[],
+) => heroType.name === 'product' && categories.length === 0;
+
+export const getFirstAvailableAdminHeroType = (
+  heroTypes: AdminHeroType[],
+  categories: AdminHeroCategory[],
+) =>
+  heroTypes.find(
+    (heroType) => !isAdminHeroTypeDisabled(heroType, categories),
+  ) ?? heroTypes[0];
+
+export const createEmptyHeroForm = (
+  heroTypes: AdminHeroType[],
+  categories: AdminHeroCategory[],
+): HeroFormState => {
+  const defaultHeroType = getFirstAvailableAdminHeroType(heroTypes, categories);
+  const defaultCategory = categories[0];
+  const isProductHero = defaultHeroType?.name === 'product';
+
+  return {
+    ...emptyHeroForm,
+    heroTypeId: String(defaultHeroType?.id ?? ''),
+    targetCategoryId:
+      isProductHero && defaultCategory ? String(defaultCategory.id) : '',
+    name_en: isProductHero ? (defaultCategory?.name_en ?? '') : '',
+    name_ko: isProductHero ? (defaultCategory?.name_ko ?? '') : '',
+    translations: {
+      ko: {
+        name: isProductHero ? (defaultCategory?.name_ko ?? '') : '',
+        description: '',
+        detailed_description: '',
+      },
+      en: {
+        name: isProductHero ? (defaultCategory?.name_en ?? '') : '',
+        description: '',
+        detailed_description: '',
+      },
+    },
+  };
+};
+
 const getHeroTranslationForm = (
   hero: AdminHero,
   locale: HeroTranslationLocale,
@@ -142,7 +185,7 @@ const getHeroTranslationForm = (
   };
 };
 
-export const createHeroFormFromItem = (hero: AdminHero): HeroFormState => ({
+const createBaseHeroFormFromItem = (hero: AdminHero): HeroFormState => ({
   id: hero.id,
   name_en: hero.name_en,
   name_ko: hero.name_ko,
@@ -168,3 +211,40 @@ export const createHeroFormFromItem = (hero: AdminHero): HeroFormState => ({
     en: getHeroTranslationForm(hero, 'en'),
   },
 });
+
+export const createHeroFormFromItem = (
+  hero: AdminHero,
+  categories: AdminHeroCategory[] = [],
+): HeroFormState => {
+  const form = createBaseHeroFormFromItem(hero);
+
+  if (hero.heroType.name !== 'product' || form.targetCategoryId) {
+    return form;
+  }
+
+  const matchedCategory = categories.find(
+    (category) => category.name_en === hero.name_en,
+  );
+
+  if (!matchedCategory) {
+    return form;
+  }
+
+  return {
+    ...form,
+    targetCategoryId: String(matchedCategory.id),
+    name_en: matchedCategory.name_en,
+    name_ko: matchedCategory.name_ko,
+    translations: {
+      ...form.translations,
+      en: {
+        ...form.translations.en,
+        name: matchedCategory.name_en,
+      },
+      ko: {
+        ...form.translations.ko,
+        name: matchedCategory.name_ko,
+      },
+    },
+  };
+};

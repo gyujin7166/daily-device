@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
-import type { SubmitEvent } from 'react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy, IconPlus, IconUpload } from '@tabler/icons-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useForm, useWatch } from 'react-hook-form';
 
 import {
   CloudinaryUploadError,
@@ -14,23 +14,27 @@ import {
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 import {
   SectionTitle,
-  TextArea,
-  TextInput,
   inputClass,
   labelClass,
+  textareaClass,
 } from '@shared/ui/AdminControls';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
-import { getAdminHeroTypeLabelKey } from '../model/types';
+import { adminHeroFormSchema } from '../model/schema';
+import {
+  getAdminHeroTypeLabelKey,
+  getFirstAvailableAdminHeroType,
+  isAdminHeroTypeDisabled,
+} from '../model/types';
 
 import type {
   AdminHeroCategory,
   AdminHeroType,
+  HeroFormState,
   HeroOverlayTone,
   HeroPosition,
-  HeroTranslationLocale,
   HeroTone,
-  HeroFormState,
+  HeroTranslationLocale,
 } from '../model/types';
 
 const HERO_POSITION_OPTIONS: Array<{
@@ -79,47 +83,46 @@ const getUploadErrorMessage = (
 };
 
 type AdminHeroFormSectionProps = {
-  form: HeroFormState;
+  initialValues: HeroFormState;
   heroTypes: AdminHeroType[];
   categories: AdminHeroCategory[];
-  selectedHeroType?: AdminHeroType;
-  selectedTargetCategory?: AdminHeroCategory;
-  isProductHero: boolean;
   isSaving: boolean;
-  setForm: Dispatch<SetStateAction<HeroFormState>>;
   onReset: () => void;
-  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
-  onHeroTypeChange: (heroTypeId: string) => void;
-  onTargetCategoryChange: (targetCategoryId: string) => void;
-  isHeroTypeDisabled: (heroType: AdminHeroType) => boolean;
+  onSubmit: (formValues: HeroFormState) => Promise<void>;
 };
 
 export default function AdminHeroFormSection({
-  form,
+  initialValues,
   heroTypes,
   categories,
-  selectedHeroType,
-  selectedTargetCategory,
-  isProductHero,
   isSaving,
-  setForm,
   onReset,
   onSubmit,
-  onHeroTypeChange,
-  onTargetCategoryChange,
-  isHeroTypeDisabled,
 }: AdminHeroFormSectionProps) {
   const locale = useLocale();
   const activeTranslationLocale: HeroTranslationLocale =
     locale === 'en' ? 'en' : 'ko';
   const t = useTranslations('AdminHero');
-  const getHeroTypeLabel = (name: string) => {
-    const labelKey = getAdminHeroTypeLabelKey(name);
-
-    return labelKey ? t(labelKey) : name;
-  };
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const methods = useForm<HeroFormState>({
+    resolver: zodResolver(adminHeroFormSchema),
+    defaultValues: initialValues,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+  });
+  const { control, getValues, handleSubmit, register, setValue } = methods;
+  const [heroTypeId, targetCategoryId] = useWatch({
+    control,
+    name: ['heroTypeId', 'targetCategoryId'],
+  });
+  const selectedHeroType = heroTypes.find(
+    (type) => String(type.id) === heroTypeId,
+  );
+  const isProductHero = selectedHeroType?.name === 'product';
+  const selectedTargetCategory = categories.find(
+    (category) => String(category.id) === targetCategoryId,
+  );
   const selectedHeroPath =
     selectedHeroType?.name === 'main'
       ? '/'
@@ -128,6 +131,167 @@ export default function AdminHeroFormSection({
         : selectedHeroType?.name === 'product-discounts'
           ? '/products/discounts'
           : null;
+  const translationFieldPrefix =
+    `translations.${activeTranslationLocale}` as const;
+  const translationNameRegistration = register(
+    `${translationFieldPrefix}.name`,
+    { required: true },
+  );
+  const translationDescriptionRegistration = register(
+    `${translationFieldPrefix}.description`,
+  );
+  const translationDetailedDescriptionRegistration = register(
+    `${translationFieldPrefix}.detailed_description`,
+  );
+  const heroTypeRegistration = register('heroTypeId', { required: true });
+  const targetCategoryRegistration = register('targetCategoryId');
+
+  const getHeroTypeLabel = (name: string) => {
+    const labelKey = getAdminHeroTypeLabelKey(name);
+
+    return labelKey ? t(labelKey) : name;
+  };
+
+  const setCategoryNames = useCallback(
+    (category: AdminHeroCategory, onlyWhenEmpty = false) => {
+      const setName = (
+        fieldName:
+          | 'name_en'
+          | 'name_ko'
+          | 'translations.en.name'
+          | 'translations.ko.name',
+        value: string,
+      ) => {
+        if (onlyWhenEmpty && getValues(fieldName)) {
+          return;
+        }
+
+        setValue(fieldName, value, {
+          shouldDirty: !onlyWhenEmpty,
+          shouldValidate: true,
+        });
+      };
+
+      setName('name_en', category.name_en);
+      setName('name_ko', category.name_ko);
+      setName('translations.en.name', category.name_en);
+      setName('translations.ko.name', category.name_ko);
+    },
+    [getValues, setValue],
+  );
+
+  useEffect(() => {
+    const currentHeroTypeId = getValues('heroTypeId');
+    const currentHeroType = heroTypes.find(
+      (type) => String(type.id) === currentHeroTypeId,
+    );
+    const nextHeroType =
+      currentHeroType && !isAdminHeroTypeDisabled(currentHeroType, categories)
+        ? currentHeroType
+        : getFirstAvailableAdminHeroType(heroTypes, categories);
+
+    if (!nextHeroType) {
+      setValue('heroTypeId', '', { shouldValidate: true });
+      setValue('targetCategoryId', '', { shouldValidate: true });
+      return;
+    }
+
+    const nextHeroTypeId = String(nextHeroType.id);
+    if (currentHeroTypeId !== nextHeroTypeId) {
+      setValue('heroTypeId', nextHeroTypeId, { shouldValidate: true });
+    }
+
+    if (nextHeroType.name !== 'product') {
+      setValue('targetCategoryId', '', { shouldValidate: true });
+      return;
+    }
+
+    const currentCategoryId = getValues('targetCategoryId');
+    const nextCategory =
+      categories.find(
+        (category) => String(category.id) === currentCategoryId,
+      ) ?? categories[0];
+
+    if (nextCategory) {
+      setValue('targetCategoryId', String(nextCategory.id), {
+        shouldValidate: true,
+      });
+      setCategoryNames(nextCategory, true);
+    }
+  }, [categories, getValues, heroTypes, setCategoryNames, setValue]);
+
+  const handleHeroTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    void heroTypeRegistration.onChange(event);
+    const nextHeroType = heroTypes.find(
+      (type) => String(type.id) === event.target.value,
+    );
+
+    if (nextHeroType?.name !== 'product') {
+      setValue('targetCategoryId', '', {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+
+    const defaultCategory = categories[0];
+    setValue('targetCategoryId', String(defaultCategory?.id ?? ''), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    if (defaultCategory) {
+      setCategoryNames(defaultCategory);
+    }
+  };
+
+  const handleTargetCategoryChange = (
+    event: ChangeEvent<HTMLSelectElement>,
+  ) => {
+    void targetCategoryRegistration.onChange(event);
+    const category = categories.find(
+      (item) => String(item.id) === event.target.value,
+    );
+
+    if (category) {
+      setCategoryNames(category);
+    }
+  };
+
+  const handleTranslationNameChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    void translationNameRegistration.onChange(event);
+    setValue(
+      activeTranslationLocale === 'en' ? 'name_en' : 'name_ko',
+      event.target.value,
+      { shouldDirty: true, shouldValidate: true },
+    );
+  };
+
+  const handleTranslationDescriptionChange = (
+    event: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    void translationDescriptionRegistration.onChange(event);
+    if (activeTranslationLocale === 'ko') {
+      setValue('description', event.target.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleTranslationDetailedDescriptionChange = (
+    event: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    void translationDetailedDescriptionRegistration.onChange(event);
+    if (activeTranslationLocale === 'ko') {
+      setValue('detailed_description', event.target.value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
+
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
@@ -136,7 +300,7 @@ export default function AdminHeroFormSection({
       return;
     }
 
-    const parsedHeroTypeId = Number(form.heroTypeId);
+    const parsedHeroTypeId = Number(getValues('heroTypeId'));
     if (!Number.isInteger(parsedHeroTypeId) || parsedHeroTypeId <= 0) {
       setUploadError(t('form.typeRequired'));
       return;
@@ -154,49 +318,29 @@ export default function AdminHeroFormSection({
         },
       });
 
-      setForm((prev) => ({ ...prev, image_url: uploaded.image_url }));
+      setValue('image_url', uploaded.image_url, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     } catch (error) {
       setUploadError(getUploadErrorMessage(error, t));
     } finally {
       setIsUploading(false);
     }
   };
-  const updateTranslationField = (
-    field: 'name' | 'description' | 'detailed_description',
-    value: string,
-  ) => {
-    setForm((prev) => ({
-      ...prev,
-      ...(field === 'name' && activeTranslationLocale === 'en'
-        ? { name_en: value }
-        : {}),
-      ...(field === 'name' && activeTranslationLocale === 'ko'
-        ? { name_ko: value }
-        : {}),
-      ...(field === 'description' && activeTranslationLocale === 'ko'
-        ? { description: value }
-        : {}),
-      ...(field === 'detailed_description' && activeTranslationLocale === 'ko'
-        ? { detailed_description: value }
-        : {}),
-      translations: {
-        ...prev.translations,
-        [activeTranslationLocale]: {
-          ...prev.translations[activeTranslationLocale],
-          [field]: value,
-        },
-      },
-    }));
-  };
-  const activeTranslation = form.translations[activeTranslationLocale];
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       className="rounded-md border border-line bg-surface p-5 dark:border-dark-border dark:bg-dark-panel"
     >
+      <input type="hidden" {...register('id')} />
+      <input type="hidden" {...register('name_en')} />
+      <input type="hidden" {...register('name_ko')} />
+      <input type="hidden" {...register('description')} />
+      <input type="hidden" {...register('detailed_description')} />
       <SectionTitle
-        title={form.id ? t('form.editTitle') : t('form.createTitle')}
+        title={initialValues.id ? t('form.editTitle') : t('form.createTitle')}
         action={
           <button
             type="button"
@@ -212,19 +356,21 @@ export default function AdminHeroFormSection({
         <label className={labelClass}>
           {t('form.type')}
           <select
+            {...heroTypeRegistration}
             className={inputClass}
-            value={form.heroTypeId}
-            onChange={(event) => onHeroTypeChange(event.target.value)}
+            onChange={handleHeroTypeChange}
             required
           >
             {heroTypes.map((type) => (
               <option
                 key={type.id}
                 value={type.id}
-                disabled={isHeroTypeDisabled(type)}
+                disabled={isAdminHeroTypeDisabled(type, categories)}
               >
                 {getHeroTypeLabel(type.name)}
-                {isHeroTypeDisabled(type) ? t('form.disabledSuffix') : ''}
+                {isAdminHeroTypeDisabled(type, categories)
+                  ? t('form.disabledSuffix')
+                  : ''}
               </option>
             ))}
           </select>
@@ -238,9 +384,9 @@ export default function AdminHeroFormSection({
           <label className={labelClass}>
             {t('form.targetCategory')}
             <select
+              {...targetCategoryRegistration}
               className={inputClass}
-              value={form.targetCategoryId}
-              onChange={(event) => onTargetCategoryChange(event.target.value)}
+              onChange={handleTargetCategoryChange}
               required
             >
               <option value="">{t('form.selectCategory')}</option>
@@ -259,23 +405,21 @@ export default function AdminHeroFormSection({
             ) : null}
           </label>
         ) : null}
-        <TextInput
-          label={
-            activeTranslationLocale === 'en'
-              ? t('form.nameEn')
-              : t('form.nameKo')
-          }
-          value={activeTranslation.name}
-          onChange={(value) => updateTranslationField('name', value)}
-          required
-        />
-        <TextInput
-          label={t('form.imageUrl')}
-          value={form.image_url}
-          onChange={(value) =>
-            setForm((prev) => ({ ...prev, image_url: value }))
-          }
-        />
+        <label className={labelClass}>
+          {activeTranslationLocale === 'en'
+            ? t('form.nameEn')
+            : t('form.nameKo')}
+          <input
+            {...translationNameRegistration}
+            className={inputClass}
+            onChange={handleTranslationNameChange}
+            required
+          />
+        </label>
+        <label className={labelClass}>
+          {t('form.imageUrl')}
+          <input className={inputClass} {...register('image_url')} />
+        </label>
         <div className="grid gap-1.5">
           <label className="inline-flex h-9 w-fit cursor-pointer items-center justify-center gap-2 rounded-md border border-line px-3 text-sm font-semibold transition hover:border-primary hover:text-primary has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 dark:border-dark-border">
             <input
@@ -297,35 +441,30 @@ export default function AdminHeroFormSection({
           ) : null}
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <TextInput
-            label={t('form.imageWidth')}
-            type="number"
-            value={form.image_width}
-            onChange={(value) =>
-              setForm((prev) => ({ ...prev, image_width: value }))
-            }
-          />
-          <TextInput
-            label={t('form.imageHeight')}
-            type="number"
-            value={form.image_height}
-            onChange={(value) =>
-              setForm((prev) => ({ ...prev, image_height: value }))
-            }
-          />
+          <label className={labelClass}>
+            {t('form.imageWidth')}
+            <input
+              type="number"
+              min={1}
+              step={1}
+              className={inputClass}
+              {...register('image_width')}
+            />
+          </label>
+          <label className={labelClass}>
+            {t('form.imageHeight')}
+            <input
+              type="number"
+              min={1}
+              step={1}
+              className={inputClass}
+              {...register('image_height')}
+            />
+          </label>
         </div>
         <label className={labelClass}>
           {t('form.position')}
-          <select
-            className={inputClass}
-            value={form.position}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                position: event.target.value as HeroPosition,
-              }))
-            }
-          >
+          <select className={inputClass} {...register('position')}>
             {HERO_POSITION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {t(`options.position.${option.labelKey}`)}
@@ -336,13 +475,7 @@ export default function AdminHeroFormSection({
         <label className="inline-flex items-center gap-2 text-sm font-semibold text-ink dark:text-surface">
           <input
             type="checkbox"
-            checked={form.isDefault}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                isDefault: event.target.checked,
-              }))
-            }
+            {...register('isDefault')}
             className="h-4 w-4 rounded border-line text-primary focus:ring-primary dark:border-dark-border"
           />
           {t('form.defaultImage')}
@@ -350,16 +483,7 @@ export default function AdminHeroFormSection({
         <div className="grid gap-3 sm:grid-cols-3">
           <label className={labelClass}>
             {t('form.textTone')}
-            <select
-              className={inputClass}
-              value={form.textTone}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  textTone: event.target.value as HeroTone,
-                }))
-              }
-            >
+            <select className={inputClass} {...register('textTone')}>
               {HERO_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {t(`options.tone.${option.labelKey}`)}
@@ -369,16 +493,7 @@ export default function AdminHeroFormSection({
           </label>
           <label className={labelClass}>
             {t('form.navTone')}
-            <select
-              className={inputClass}
-              value={form.navTone}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  navTone: event.target.value as HeroTone,
-                }))
-              }
-            >
+            <select className={inputClass} {...register('navTone')}>
               {HERO_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {t(`options.tone.${option.labelKey}`)}
@@ -388,16 +503,7 @@ export default function AdminHeroFormSection({
           </label>
           <label className={labelClass}>
             {t('form.overlay')}
-            <select
-              className={inputClass}
-              value={form.overlayTone}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  overlayTone: event.target.value as HeroOverlayTone,
-                }))
-              }
-            >
+            <select className={inputClass} {...register('overlayTone')}>
               {HERO_OVERLAY_TONE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {t(`options.overlay.${option.labelKey}`)}
@@ -406,25 +512,32 @@ export default function AdminHeroFormSection({
             </select>
           </label>
         </div>
-        <TextArea
-          label={t('form.description')}
-          value={activeTranslation.description}
-          onChange={(value) => updateTranslationField('description', value)}
-        />
-        <TextArea
-          label={t('form.detailedDescription')}
-          value={activeTranslation.detailed_description}
-          onChange={(value) =>
-            updateTranslationField('detailed_description', value)
-          }
-        />
+        <label className={labelClass}>
+          {t('form.description')}
+          <textarea
+            {...translationDescriptionRegistration}
+            className={textareaClass}
+            onChange={handleTranslationDescriptionChange}
+          />
+        </label>
+        <label className={labelClass}>
+          {t('form.detailedDescription')}
+          <textarea
+            {...translationDetailedDescriptionRegistration}
+            className={textareaClass}
+            onChange={handleTranslationDetailedDescriptionChange}
+          />
+        </label>
         <button
           type="submit"
           disabled={
             isSaving ||
-            !form.heroTypeId ||
-            (selectedHeroType ? isHeroTypeDisabled(selectedHeroType) : true) ||
-            (isProductHero && !form.targetCategoryId)
+            isUploading ||
+            !heroTypeId ||
+            (selectedHeroType
+              ? isAdminHeroTypeDisabled(selectedHeroType, categories)
+              : true) ||
+            (isProductHero && !targetCategoryId)
           }
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
         >

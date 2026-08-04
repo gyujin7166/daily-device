@@ -27,18 +27,6 @@ export const FIELD_CONFIGS = [
 
 export type AddressFieldName = (typeof FIELD_CONFIGS)[number]['name'];
 export type AddressFormState = Record<AddressFieldName, string>;
-export type AddressValidationState = Record<AddressFieldName, boolean>;
-export type AddressBlurState = Record<AddressFieldName, boolean>;
-
-export const isAddressFieldName = (value: string): value is AddressFieldName =>
-  FIELD_CONFIGS.some((field) => field.name === value);
-
-const REQUIRED_FIELD_MAP: Record<AddressFieldName, boolean> = {
-  name: true,
-  phone_number: true,
-  address_1: true,
-  address_2: false,
-};
 
 export const createInitialAddressFormState = (): AddressFormState => ({
   name: '',
@@ -46,24 +34,6 @@ export const createInitialAddressFormState = (): AddressFormState => ({
   address_1: '',
   address_2: '',
 });
-
-export const createInitialAddressValidationState =
-  (): AddressValidationState => ({
-    name: false,
-    phone_number: false,
-    address_1: false,
-    address_2: true,
-  });
-
-export const createInitialAddressBlurState = (): AddressBlurState => ({
-  name: false,
-  phone_number: false,
-  address_1: false,
-  address_2: false,
-});
-
-export const isRequiredAddressField = (fieldName: AddressFieldName) =>
-  REQUIRED_FIELD_MAP[fieldName];
 
 export const normalizePhoneNumber = (value: string) =>
   value.replace(/[^\d]/g, '');

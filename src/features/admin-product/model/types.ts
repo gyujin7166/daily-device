@@ -111,7 +111,7 @@ export type ProductFormState = {
   translations: ProductTranslationFormMap;
 };
 
-type ProductImageFormState = {
+export type ProductImageFormState = {
   id: number | null;
   image_url: string;
   colorId: string;
@@ -140,6 +140,19 @@ export const emptyProductForm: ProductFormState = {
     en: { name: '', description: '', detailed_description: '', note: '' },
   },
 };
+
+export const createEmptyProductForm = (
+  categories: ProductCategory[],
+): ProductFormState => ({
+  ...emptyProductForm,
+  categoryId: String(categories[0]?.id ?? ''),
+  colorIds: [],
+  images: [],
+  translations: {
+    ko: { name: '', description: '', detailed_description: '', note: '' },
+    en: { name: '', description: '', detailed_description: '', note: '' },
+  },
+});
 
 const getProductTranslationForm = (
   product: AdminProduct,

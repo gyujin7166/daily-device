@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import type { SubmitEvent } from 'react';
 
 import { useTranslations } from 'next-intl';
 
-import { useAdminHeroForm } from '../model/useAdminHeroForm';
+import { createEmptyHeroForm, createHeroFormFromItem } from '../model/types';
 import {
   useDeleteAdminHeroMutation,
   useSaveAdminHeroMutation,
@@ -17,6 +16,7 @@ import type {
   AdminHeroCategory,
   AdminHeroPayload,
   AdminHeroType,
+  HeroFormState,
 } from '../model/types';
 
 const EMPTY_HERO_TYPES: AdminHeroType[] = [];
@@ -49,68 +49,47 @@ export default function AdminHeroSection({
   const heroTypes = data?.heroTypes ?? EMPTY_HERO_TYPES;
   const categories = data?.categories ?? EMPTY_CATEGORIES;
   const heroes = data?.heroes ?? EMPTY_HEROES;
-  const {
-    form,
-    selectedHeroType,
-    selectedTargetCategory,
-    isProductHero,
-    setForm,
-    resetForm,
-    changeHeroType,
-    changeTargetCategory,
-    editHero,
-    isHeroTypeDisabled,
-  } = useAdminHeroForm({ heroTypes, categories });
   const isSaving = saveHeroMutation.isPending || deleteHeroMutation.isPending;
-  const [selectedHeroId, setSelectedHeroId] = useState<number | null>(null);
+  const [editingHero, setEditingHero] = useState<AdminHero | null>(null);
   const [isCreatingHero, setIsCreatingHero] = useState(false);
+  const [formVersion, setFormVersion] = useState(0);
 
   useEffect(() => {
-    if (isCreatingHero) {
+    if (isCreatingHero || editingHero || heroes.length === 0) {
       return;
     }
 
-    if (selectedHeroId !== null) {
-      return;
-    }
+    setEditingHero(heroes[0]);
+  }, [editingHero, heroes, isCreatingHero]);
 
-    if (heroes.length === 0) {
-      setSelectedHeroId(null);
-      return;
-    }
-
-    const firstHero = heroes[0];
-
-    setSelectedHeroId(firstHero.id);
-    editHero(firstHero);
-  }, [editHero, heroes, isCreatingHero, selectedHeroId]);
+  const initialValues = editingHero
+    ? createHeroFormFromItem(editingHero, categories)
+    : createEmptyHeroForm(heroTypes, categories);
 
   const handleResetForm = () => {
-    resetForm();
-    setSelectedHeroId(null);
+    setEditingHero(null);
     setIsCreatingHero(true);
+    setFormVersion((version) => version + 1);
   };
 
   const handleEditHero = (hero: AdminHero) => {
-    editHero(hero);
-    setSelectedHeroId(hero.id);
+    setEditingHero(hero);
     setIsCreatingHero(false);
+    setFormVersion((version) => version + 1);
   };
 
-  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleSubmit = async (formValues: HeroFormState) => {
     if (!canWriteAdmin) {
       onReadOnlyAction();
       return;
     }
 
     try {
-      const action = form.id ? t('editAction') : t('createAction');
-      const savedHero = await saveHeroMutation.mutateAsync(form);
-      editHero(savedHero);
-      setSelectedHeroId(savedHero.id);
+      const action = formValues.id ? t('editAction') : t('createAction');
+      const savedHero = await saveHeroMutation.mutateAsync(formValues);
+      setEditingHero(savedHero);
       setIsCreatingHero(false);
+      setFormVersion((version) => version + 1);
       onMessage(
         t('saveCompleted', {
           action,
@@ -135,18 +114,11 @@ export default function AdminHeroSection({
 
     try {
       await deleteHeroMutation.mutateAsync(hero.id);
-      if (selectedHeroId === hero.id) {
-        const nextHero = heroes.find((item) => item.id !== hero.id);
-
-        if (nextHero) {
-          editHero(nextHero);
-          setSelectedHeroId(nextHero.id);
-        } else {
-          resetForm();
-          setSelectedHeroId(null);
-        }
-
+      if (editingHero?.id === hero.id) {
+        const nextHero = heroes.find((item) => item.id !== hero.id) ?? null;
+        setEditingHero(nextHero);
         setIsCreatingHero(false);
+        setFormVersion((version) => version + 1);
       }
       onMessage(
         t('deleteCompleted', {
@@ -163,27 +135,23 @@ export default function AdminHeroSection({
     return <AdminHeroLoading />;
   }
 
+  const formKey = `${isCreatingHero ? 'new' : (editingHero?.id ?? 'empty')}-${formVersion}`;
+
   return (
     <section className="grid items-start gap-6 lg:grid-cols-[420px_1fr]">
       <AdminHeroFormSection
-        form={form}
+        key={formKey}
+        initialValues={initialValues}
         heroTypes={heroTypes}
         categories={categories}
-        selectedHeroType={selectedHeroType}
-        selectedTargetCategory={selectedTargetCategory}
-        isProductHero={isProductHero}
         isSaving={isSaving}
-        setForm={setForm}
         onReset={handleResetForm}
         onSubmit={handleSubmit}
-        onHeroTypeChange={changeHeroType}
-        onTargetCategoryChange={changeTargetCategory}
-        isHeroTypeDisabled={isHeroTypeDisabled}
       />
 
       <AdminHeroListSection
         heroes={heroes}
-        selectedHeroId={selectedHeroId}
+        selectedHeroId={editingHero?.id ?? null}
         isSaving={isSaving}
         onEdit={handleEditHero}
         onDelete={(hero) => void handleDelete(hero)}

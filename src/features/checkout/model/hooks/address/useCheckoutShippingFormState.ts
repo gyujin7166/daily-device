@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import {
+  createInitialAddressFormState,
   hasAddressFormValues,
-  validateAddressField,
 } from '@entities/address/model/form';
+import type { AddressFormState } from '@entities/address/model/form';
 import type { UserAddress } from '@entities/address/model/types';
 import { useUserAddresses } from '@entities/address/queries/useUserAddresses';
 
@@ -12,19 +13,22 @@ import { useScrollLock } from '@shared/hooks/useScrollLock';
 import {
   getOrderedCheckoutAddresses,
   getPreferredCheckoutAddress,
-  isCheckoutAddressReady,
 } from '../../shippingAddress';
 import { useCheckoutStore } from '../../store/checkoutStore';
 
 import useCheckoutAddressBookActions from './useCheckoutAddressBookActions';
-import useCheckoutAddressFormControls from './useCheckoutAddressFormControls';
+
+const createFormStateFromSavedAddress = (
+  savedAddress: UserAddress,
+): AddressFormState => ({
+  name: savedAddress.recipientName,
+  phone_number: savedAddress.recipientPhone,
+  address_1: savedAddress.address1,
+  address_2: savedAddress.address2 ?? '',
+});
 
 export default function useCheckoutShippingFormState() {
   const formState = useCheckoutStore((state) => state.formState);
-  const validationState = useCheckoutStore((state) => state.validationState);
-  const blurState = useCheckoutStore((state) => state.blurState);
-  const showPostcode = useCheckoutStore((state) => state.showPostcode);
-  const address = useCheckoutStore((state) => state.address);
   const selectedAddressId = useCheckoutStore(
     (state) => state.selectedAddressId,
   );
@@ -35,10 +39,6 @@ export default function useCheckoutShippingFormState() {
   const editingAddressId = useCheckoutStore((state) => state.editingAddressId);
   const {
     setFormState,
-    setValidationState,
-    setBlurState,
-    setShowPostcode,
-    setAddress,
     setSelectedAddressId,
     setIsAddressModalOpen,
     setAddressModalMode,
@@ -48,7 +48,6 @@ export default function useCheckoutShippingFormState() {
   const { data: userAddresses = [], isPending: isAddressesPending } =
     useUserAddresses();
 
-  const [saveAsDefault, setSaveAsDefault] = useState(false);
   const [didInitDefault, setDidInitDefault] = useState(false);
   const [pendingDefaultId, setPendingDefaultId] = useState<number | null>(null);
   useScrollLock(isAddressModalOpen);
@@ -59,46 +58,34 @@ export default function useCheckoutShippingFormState() {
   const hasDefaultAddress = defaultAddress !== null;
   const selectedAddress =
     userAddresses.find((item) => item.id === selectedAddressId) ?? null;
+  const editingAddress =
+    userAddresses.find((item) => item.id === editingAddressId) ?? null;
   const orderedAddresses = getOrderedCheckoutAddresses(
     userAddresses,
     selectedAddressId,
   );
-  const isUsingSavedAddress =
-    selectedAddressId !== null && addressModalMode === 'saved';
   const hasManualInput = hasAddressFormValues(formState);
-
-  const isAddressReady = isCheckoutAddressReady(formState, validationState);
   const isNewAddressMode = addressModalMode === 'new';
   const isSavedAddressMode = addressModalMode === 'saved';
-  const isEditingAddressMode = editingAddressId !== null;
   const isResolvingInitialAddressSelection =
-    hasSavedAddresses &&
-    selectedAddressId === null &&
-    !hasManualInput &&
-    !formState.address_1;
+    hasSavedAddresses && selectedAddressId === null && !hasManualInput;
   const shouldShowAddressSummarySkeleton =
     isAddressesPending || isResolvingInitialAddressSelection;
 
-  const {
-    resetAddressFormState,
-    setAddressFormState,
-    handleFieldChange,
-    handleBlur,
-    handleAddressComplete,
-  } = useCheckoutAddressFormControls({
-    isUsingSavedAddress,
-    setAddress,
-    setShowPostcode,
-    setFormState,
-    setValidationState,
-    setBlurState,
-    validateField: validateAddressField,
-  });
+  const resetAddressFormState = useCallback(() => {
+    setFormState(createInitialAddressFormState());
+  }, [setFormState]);
+
+  const setAddressFormState = useCallback(
+    (savedAddress: UserAddress) => {
+      setFormState(createFormStateFromSavedAddress(savedAddress));
+    },
+    [setFormState],
+  );
 
   const applySavedAddress = useCallback(
     (savedAddress: UserAddress) => {
       setSelectedAddressId(savedAddress.id);
-      setSaveAsDefault(false);
       setEditingAddressId(null);
       setAddressFormState(savedAddress);
     },
@@ -106,23 +93,17 @@ export default function useCheckoutShippingFormState() {
   );
 
   const handleCloseAddressModal = () => {
-    setShowPostcode(false);
     setEditingAddressId(null);
-    setSaveAsDefault(false);
     setIsAddressModalOpen(false);
   };
 
   const handleSwitchToNewMode = () => {
-    setSaveAsDefault(false);
     setEditingAddressId(null);
-    resetAddressFormState();
     setAddressModalMode('new');
   };
 
   const handleSwitchToSavedMode = () => {
-    setShowPostcode(false);
     setEditingAddressId(null);
-    setSaveAsDefault(false);
     setAddressModalMode('saved');
   };
 
@@ -133,26 +114,21 @@ export default function useCheckoutShippingFormState() {
 
   const handleEditSavedAddress = (savedAddress: UserAddress) => {
     setEditingAddressId(savedAddress.id);
-    setSaveAsDefault(savedAddress.isDefault);
-    setAddressFormState(savedAddress);
     setAddressModalMode('new');
   };
 
   const {
     handleDeleteAddress,
     handleSaveAddress,
+    handleInvalidAddress,
     isDeletingAddress,
     isSavingAddress,
   } = useCheckoutAddressBookActions({
-    formState,
-    isAddressReady,
-    saveAsDefault,
     editingAddressId,
     selectedAddressId,
-    setBlurState,
+    setFormState,
     setSelectedAddressId,
     setPendingDefaultId,
-    setSaveAsDefault,
     setEditingAddressId,
     setAddressModalMode,
     resetAddressFormState,
@@ -269,14 +245,10 @@ export default function useCheckoutShippingFormState() {
 
   return {
     formState,
-    validationState,
-    blurState,
-    showPostcode,
-    address,
-    saveAsDefault,
     isAddressModalOpen,
     selectedAddressId,
     selectedAddress,
+    editingAddress,
     orderedAddresses,
     hasSavedAddresses,
     hasDefaultAddress,
@@ -284,22 +256,15 @@ export default function useCheckoutShippingFormState() {
     isAddressActionBusy,
     isNewAddressMode,
     isSavedAddressMode,
-    isEditingAddressMode,
     isSavingAddress,
-    isAddressReady,
     shouldShowAddressSummarySkeleton,
-    setShowPostcode,
-    setSaveAsDefault,
     handleCloseAddressModal,
     handleSwitchToNewMode,
-    handleSwitchToSavedMode,
     handleSelectSavedAddress,
     handleEditSavedAddress,
     handleDeleteAddress,
     handleSaveAddress,
+    handleInvalidAddress,
     handleCancelAddressFormModal,
-    handleAddressComplete,
-    handleFieldChange,
-    handleBlur,
   };
 }

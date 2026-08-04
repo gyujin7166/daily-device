@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 
+import {
+  adminProductBodySchema,
+  adminProductQuerySchema,
+} from '@features/admin-product/model/schema';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 
 import { revalidatePublicShopPages } from '../revalidation';
-import { adminProductBodySchema, adminProductQuerySchema } from '../schemas';
 import {
   assertAdminReadAccess,
   assertAdminWriteAccess,

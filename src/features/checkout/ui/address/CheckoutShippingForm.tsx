@@ -11,21 +11,13 @@ export default function CheckoutShippingForm() {
   const t = useTranslations('Checkout.shipping.form');
   const {
     formState,
-    validationState,
-    blurState,
-    showPostcode,
-    setShowPostcode,
-    address,
-    saveAsDefault,
-    setSaveAsDefault,
     isAddressModalOpen,
     isSavedAddressMode,
     isNewAddressMode,
-    isEditingAddressMode,
     isSavingAddress,
-    isAddressReady,
     selectedAddressId,
     selectedAddress,
+    editingAddress,
     orderedAddresses,
     hasSavedAddresses,
     hasDefaultAddress,
@@ -38,10 +30,8 @@ export default function CheckoutShippingForm() {
     handleEditSavedAddress,
     handleDeleteAddress,
     handleSaveAddress,
+    handleInvalidAddress,
     handleCancelAddressFormModal,
-    handleAddressComplete,
-    handleFieldChange,
-    handleBlur,
   } = useCheckoutShippingFormState();
 
   const addressSummary = {
@@ -65,44 +55,37 @@ export default function CheckoutShippingForm() {
     onEditSavedAddress: handleEditSavedAddress,
     onDeleteAddress: handleDeleteAddress,
   };
-  const addressFormModalState = {
-    title: isEditingAddressMode ? t('editTitle') : t('createTitle'),
-    isSaving: isSavingAddress,
-    showPostcode,
-    formState,
-    validationState,
-    blurState,
-    address,
-    saveAsDefault,
-    isAddressReady,
-  };
-  const addressFormModalActions = {
-    onClose: handleCloseAddressModal,
-    onCancel: handleCancelAddressFormModal,
-    onSave: handleSaveAddress,
-    onShowPostcodeChange: (isOpen: boolean) => setShowPostcode(isOpen),
-    onSaveAsDefaultChange: (isDefault: boolean) => setSaveAsDefault(isDefault),
-    onAddressComplete: handleAddressComplete,
-    onFieldChange: handleFieldChange,
-    onFieldBlur: handleBlur,
-  };
+  const initialValues = editingAddress
+    ? {
+        name: editingAddress.recipientName,
+        phone_number: editingAddress.recipientPhone,
+        address_1: editingAddress.address1,
+        address_2: editingAddress.address2 ?? '',
+      }
+    : undefined;
 
   return (
-    <form className="grid grid-cols-2 gap-5 lg:gap-[1.563rem]" noValidate>
-      <fieldset className="contents">
-        <div className="col-span-full">
-          <AddressSummarySection summary={addressSummary} />
-        </div>
-      </fieldset>
+    <div className="grid grid-cols-2 gap-5 lg:gap-[1.563rem]">
+      <div className="col-span-full">
+        <AddressSummarySection summary={addressSummary} />
+      </div>
       <CheckoutSavedAddressModal
         state={savedAddressModalState}
         actions={savedAddressModalActions}
       />
-      <AddressFormModal
-        isOpen={isAddressModalOpen && isNewAddressMode}
-        state={addressFormModalState}
-        actions={addressFormModalActions}
-      />
-    </form>
+      {isAddressModalOpen && isNewAddressMode ? (
+        <AddressFormModal
+          key={editingAddress?.id ?? 'new'}
+          title={editingAddress ? t('editTitle') : t('createTitle')}
+          initialValues={initialValues}
+          initialIsDefault={editingAddress?.isDefault}
+          isSaving={isSavingAddress}
+          onClose={handleCloseAddressModal}
+          onCancel={handleCancelAddressFormModal}
+          onSave={handleSaveAddress}
+          onInvalid={handleInvalidAddress}
+        />
+      ) : null}
+    </div>
   );
 }

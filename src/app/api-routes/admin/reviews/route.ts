@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 
+import { adminReviewQuerySchema } from '@features/admin-review/model/schema';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 
-import { adminReviewQuerySchema } from '../schemas';
 import {
   assertAdminReadAccess,
   getAdminReviewSummary,

@@ -1,18 +1,17 @@
-import type { Dispatch, SetStateAction } from 'react';
-
 import { useTranslations } from 'next-intl';
 
 import { inputClass, labelClass } from '@shared/ui/AdminControls';
 
 import type { AdminColor, ProductFormState } from '../model/types';
+import type { UseFormRegister } from 'react-hook-form';
 
 type AdminProductColorFieldsProps = {
-  form: ProductFormState;
   colors: AdminColor[];
+  colorIds: string[];
   selectedFormColors: AdminColor[];
   locale: string;
-  setForm: Dispatch<SetStateAction<ProductFormState>>;
-  onToggleColor: (colorId: string) => void;
+  register: UseFormRegister<ProductFormState>;
+  onToggleColor: (colorId: string, isChecked: boolean) => void;
 };
 
 const getLocalizedColorName = (color: AdminColor, locale: string) =>
@@ -20,11 +19,11 @@ const getLocalizedColorName = (color: AdminColor, locale: string) =>
     ?.name ?? color.name;
 
 export default function AdminProductColorFields({
-  form,
   colors,
+  colorIds,
   selectedFormColors,
   locale,
-  setForm,
+  register,
   onToggleColor,
 }: AdminProductColorFieldsProps) {
   const t = useTranslations('AdminProduct.colors');
@@ -38,7 +37,6 @@ export default function AdminProductColorFields({
         <div className="grid gap-2">
           {colors.map((color) => {
             const colorId = String(color.id);
-            const checked = form.colorIds.includes(colorId);
 
             return (
               <label
@@ -48,8 +46,10 @@ export default function AdminProductColorFields({
                 <input
                   type="checkbox"
                   className="h-4 w-4 accent-primary"
-                  checked={checked}
-                  onChange={() => onToggleColor(colorId)}
+                  checked={colorIds.includes(colorId)}
+                  onChange={(event) =>
+                    onToggleColor(colorId, event.target.checked)
+                  }
                 />
                 <span
                   className="h-4 w-4 shrink-0 rounded-full border border-line dark:border-dark-border"
@@ -73,13 +73,7 @@ export default function AdminProductColorFields({
           {t('defaultColor')}
           <select
             className={inputClass}
-            value={form.defaultColorId}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                defaultColorId: event.target.value,
-              }))
-            }
+            {...register('defaultColorId')}
             required
           >
             {selectedFormColors.map((color) => (

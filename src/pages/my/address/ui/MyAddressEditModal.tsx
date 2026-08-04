@@ -1,35 +1,109 @@
-import type { ChangeEvent, SubmitEvent } from 'react';
-
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  useFormState,
+} from 'react-hook-form';
 
-import type { AddressEditForm } from '@features/my/model/addressManagement';
-
+import { formatAddressPhone } from '@entities/address/model/form';
+import type {
+  AddressFieldName,
+  AddressFormState,
+} from '@entities/address/model/form';
+import { addressFormSchema } from '@entities/address/model/schema';
+import type { AddressFormValues } from '@entities/address/model/schema';
 import type { UserAddress } from '@entities/address/model/types';
 
+import { toast } from '@shared/lib/toast';
+
+import type { FieldErrors } from 'react-hook-form';
+
 type MyAddressEditModalProps = {
-  editingAddress: UserAddress | null;
-  editForm: AddressEditForm;
+  editingAddress: UserAddress;
   isSaving: boolean;
   onClose: () => void;
-  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
-  onFieldChange: (
-    field: keyof AddressEditForm,
-  ) => (event: ChangeEvent<HTMLInputElement>) => void;
+  onSave: (formValues: AddressFormValues) => Promise<void>;
+};
+
+const inputClassName =
+  'w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-hidden transition-colors focus:border-primary aria-invalid:border-danger dark:border-dark-border dark:bg-dark-bg dark:text-surface';
+
+type MyAddressEditFieldProps = {
+  name: AddressFieldName;
+  label: string;
+  type: 'text' | 'tel';
+  placeholder: string;
+  isSaving: boolean;
+  maxLength?: number;
+};
+
+function MyAddressEditField({
+  name,
+  label,
+  type,
+  placeholder,
+  isSaving,
+  maxLength,
+}: MyAddressEditFieldProps) {
+  const { control, register } = useFormContext<AddressFormValues>();
+  const { errors } = useFormState({ control, name, exact: true });
+
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-medium text-ink dark:text-surface">
+        {label}
+      </span>
+      <input
+        {...register(name)}
+        type={type}
+        className={inputClassName}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        disabled={isSaving}
+        aria-invalid={Boolean(errors[name])}
+      />
+    </label>
+  );
+}
+
+const createEditFormValues = (
+  editingAddress: UserAddress,
+): AddressFormState => {
+  return {
+    name: editingAddress.recipientName,
+    phone_number: formatAddressPhone(editingAddress.recipientPhone),
+    address_1: editingAddress.address1,
+    address_2: editingAddress.address2 ?? '',
+  };
 };
 
 export default function MyAddressEditModal({
   editingAddress,
-  editForm,
   isSaving,
   onClose,
-  onSubmit,
-  onFieldChange,
+  onSave,
 }: MyAddressEditModalProps) {
   const t = useTranslations('MyAddress.editModal');
+  const tToast = useTranslations('MyAddress.toast');
+  const methods = useForm<AddressFormValues>({
+    resolver: zodResolver(addressFormSchema),
+    defaultValues: createEditFormValues(editingAddress),
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
-  if (!editingAddress) {
-    return null;
-  }
+  const handleInvalid = (errors: FieldErrors<AddressFormValues>) => {
+    const phoneNumber = methods.getValues('phone_number').trim();
+
+    if (errors.phone_number && phoneNumber) {
+      toast.error(tToast('invalidPhone'));
+      return;
+    }
+
+    toast.error(tToast('required'));
+  };
 
   return (
     <div
@@ -52,83 +126,65 @@ export default function MyAddressEditModal({
           </h2>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink dark:text-surface">
-              {t('recipient')}
-            </span>
-            <input
+        <FormProvider {...methods}>
+          <form
+            onSubmit={methods.handleSubmit(onSave, handleInvalid)}
+            className="space-y-4"
+            noValidate
+          >
+            <MyAddressEditField
+              name="name"
+              label={t('recipient')}
               type="text"
-              value={editForm.recipientName}
-              onChange={onFieldChange('recipientName')}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-hidden transition-colors focus:border-primary dark:border-dark-border dark:bg-dark-bg dark:text-surface"
               placeholder={t('recipientPlaceholder')}
               maxLength={30}
-              disabled={isSaving}
+              isSaving={isSaving}
             />
-          </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink dark:text-surface">
-              {t('phone')}
-            </span>
-            <input
+            <MyAddressEditField
+              name="phone_number"
+              label={t('phone')}
               type="tel"
-              value={editForm.recipientPhone}
-              onChange={onFieldChange('recipientPhone')}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-hidden transition-colors focus:border-primary dark:border-dark-border dark:bg-dark-bg dark:text-surface"
               placeholder="010-1234-5678"
               maxLength={13}
-              disabled={isSaving}
+              isSaving={isSaving}
             />
-          </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink dark:text-surface">
-              {t('address')}
-            </span>
-            <input
+            <MyAddressEditField
+              name="address_1"
+              label={t('address')}
               type="text"
-              value={editForm.address1}
-              onChange={onFieldChange('address1')}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-hidden transition-colors focus:border-primary dark:border-dark-border dark:bg-dark-bg dark:text-surface"
               placeholder={t('addressPlaceholder')}
-              disabled={isSaving}
+              isSaving={isSaving}
             />
-          </label>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink dark:text-surface">
-              {t('addressDetail')}
-            </span>
-            <input
+            <MyAddressEditField
+              name="address_2"
+              label={t('addressDetail')}
               type="text"
-              value={editForm.address2}
-              onChange={onFieldChange('address2')}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-hidden transition-colors focus:border-primary dark:border-dark-border dark:bg-dark-bg dark:text-surface"
               placeholder={t('addressDetailPlaceholder')}
-              disabled={isSaving}
+              isSaving={isSaving}
             />
-          </label>
 
-          <div className="mt-6 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-muted transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover"
-              disabled={isSaving}
-            >
-              {t('cancel')}
-            </button>
-            <button
-              type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={isSaving}
-            >
-              {isSaving ? t('saving') : t('save')}
-            </button>
-          </div>
-        </form>
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-muted transition-colors hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted dark:hover:bg-dark-bg-hover"
+                disabled={isSaving}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSaving}
+              >
+                {isSaving ? t('saving') : t('save')}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );
