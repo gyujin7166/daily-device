@@ -30,6 +30,8 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - TypeScript
 - Tailwind CSS v4
 - TanStack Query v5
+- Zustand v5
+- React Hook Form v7
 - next-intl
 
 ### Backend / Database
@@ -65,7 +67,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - 찜한 상품 추가/삭제, 전체 비우기, 마이페이지 찜 목록
 - 다크모드
 - Daum 우편번호 검색을 이용한 배송지 주소 입력
-- 배송지/상품평 입력 폼 유효성 검사
+- 배송지, 상품평, 관리자 콘텐츠 폼의 상태 관리와 Zod 기반 유효성 검사
 - 로그인, 소셜 로그인, 데모 로그인
 - 한국어·영어 UI와 상품 콘텐츠, locale 기반 라우팅
 - 관리자 페이지
@@ -96,7 +98,9 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
 - App Router는 라우팅 엔트리로 사용하고, 화면 조합과 기능 로직은 FSD 의존 방향에 맞춰 분리했습니다.
 - 공개 쇼핑 화면은 정적 생성·ISR로 최적화하고, 인증과 권한이 필요한 체크아웃·마이페이지·관리자 화면은 동적으로 처리했습니다.
-- TanStack Query의 prefetch/hydration, query key 분리와 낙관적 업데이트로 서버 상태와 클라이언트 UI를 관리했습니다.
+- TanStack Query의 prefetch/hydration, query key 분리와 낙관적 업데이트로 서버 상태를 관리했습니다.
+- Zustand는 장바구니, 체크아웃, 상품 필터와 공통 UI처럼 여러 컴포넌트가 공유하는 클라이언트 상태를 기능별 store로 분리해 관리하고, 비회원 장바구니는 `persist` middleware와 `localStorage`로 유지했습니다.
+- React Hook Form과 Zod resolver를 결합해 폼 상태와 유효성 검사를 관리하고, 일반 HTML 입력은 `register` 기반 비제어 방식으로, 별점·스위치 같은 커스텀 입력은 `Controller`로 연결했습니다.
 - 한국어·영어 UI 메시지와 DB 콘텐츠 번역을 분리하고 locale별 API·캐시·라우팅 기준을 일관되게 유지했습니다.
 - API 입력값은 Zod로 검증하고, 상품평 작성 권한과 주문 상태 같은 도메인 규칙은 서버에서 최종 확인합니다.
 - 주문 상태를 결제·배송·취소·만료 흐름으로 분리하고, 일반 계정의 관리자 조회와 `ADMIN` 쓰기 권한을 구분했습니다.
@@ -111,6 +115,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
 ```txt
 app/                  Next.js App Router 라우팅 엔트리
+pages/                Pages Router가 아닌 안내용 폴더
 src/app/              Provider 등 앱 조립 코드
 src/pages/            FSD pages layer, 페이지 단위 화면 조합
 src/widgets/          여러 페이지에서 재사용되는 큰 UI
