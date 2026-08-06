@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IconMinus, IconPlus } from '@tabler/icons-react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -77,7 +77,7 @@ const toPriceFilterValue = (
   maxPrice: maxPrice >= maxBound ? undefined : maxPrice,
 });
 
-export default function ProductPriceFilterSection({
+function ProductPriceFilterSection({
   priceRange,
   value,
   onChange,
@@ -248,3 +248,5 @@ export default function ProductPriceFilterSection({
     </div>
   );
 }
+
+export default memo(ProductPriceFilterSection);

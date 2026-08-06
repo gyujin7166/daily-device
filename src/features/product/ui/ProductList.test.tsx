@@ -84,4 +84,19 @@ describe('ProductList', () => {
     );
     expect(mocks.productItemRender).toHaveBeenCalledTimes(1);
   });
+
+  it('상품 목록의 표시 상태만 바뀌면 기존 상품 행을 다시 렌더하지 않는다', () => {
+    const products = [product];
+    const { rerender } = render(
+      <ProductList products={products} isPending={false} />,
+    );
+
+    expect(mocks.productItemRender).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <ProductList products={products} isPending={false} isRefreshing />,
+    );
+
+    expect(mocks.productItemRender).toHaveBeenCalledTimes(1);
+  });
 });

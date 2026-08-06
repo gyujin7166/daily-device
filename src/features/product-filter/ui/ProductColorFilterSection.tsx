@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 
 import { IconCheck, IconMinus, IconPlus } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -26,7 +26,7 @@ type ProductColorFilterSectionProps = {
   containerClassName?: string;
 };
 
-export default function ProductColorFilterSection({
+function ProductColorFilterSection({
   colorOptions,
   selectedColorIds,
   onChange,
@@ -133,3 +133,5 @@ export default function ProductColorFilterSection({
     </div>
   );
 }
+
+export default memo(ProductColorFilterSection);

@@ -1,7 +1,5 @@
 import type { MouseEvent } from 'react';
 
-import { useSearchParams } from 'next/navigation';
-
 import { useSession } from 'next-auth/react';
 
 import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
@@ -33,6 +31,18 @@ type UseProductItemActionsParams = {
   fallbackColor?: ProductItemSelectedColor;
 };
 
+const getCurrentProductPath = (pathname: string | null) => {
+  if (typeof window === 'undefined') {
+    return createCurrentPath(pathname, undefined, '/products');
+  }
+
+  return createCurrentPath(
+    window.location.pathname,
+    new URLSearchParams(window.location.search),
+    '/products',
+  );
+};
+
 export const useProductItemActions = ({
   product,
   hasColors,
@@ -41,7 +51,6 @@ export const useProductItemActions = ({
 }: UseProductItemActionsParams) => {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const { openCart } = useCartDrawerStore((state) => state.actions);
   const { handleUpsertCartItem } = useCartActions();
@@ -49,7 +58,6 @@ export const useProductItemActions = ({
   const { mutate: addWishlist } = useUpsertWishlist();
   const { mutate: removeWishlist } = useDeleteWishlist();
 
-  const currentPath = createCurrentPath(pathname, searchParams, '/products');
   const wishlistItem = buildWishlistItem(product);
   const isInWishlist =
     !!wishlistItem && wishlistItems.some((item) => item.id === wishlistItem.id);
@@ -71,9 +79,7 @@ export const useProductItemActions = ({
       : false,
   );
   const canAddToCart =
-    status !== 'loading' &&
-    typeof product.id === 'number' &&
-    !isCartVariantMutationPending;
+    typeof product.id === 'number' && !isCartVariantMutationPending;
 
   const handleToggleWishlist = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -84,7 +90,7 @@ export const useProductItemActions = ({
     }
 
     if (!session?.user) {
-      router.push(getWishlistLoginPath(currentPath));
+      router.push(getWishlistLoginPath(getCurrentProductPath(pathname)));
       return;
     }
 
