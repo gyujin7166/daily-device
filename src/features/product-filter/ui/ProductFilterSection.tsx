@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { memo, useRef } from 'react';
 import type { ChangeEvent, CSSProperties } from 'react';
 
 import { IconCheck, IconMinus, IconPlus } from '@tabler/icons-react';
@@ -25,7 +25,7 @@ type ProductFilterSectionProps = {
   transitionStyles: TransitionStyle;
 };
 
-export default function ProductFilterSection({
+function ProductFilterSection({
   filter,
   isClosed,
   onToggle,
@@ -123,3 +123,32 @@ export default function ProductFilterSection({
     </div>
   );
 }
+
+const areProductFilterSectionPropsEqual = (
+  previous: ProductFilterSectionProps,
+  next: ProductFilterSectionProps,
+) => {
+  if (
+    previous.filter !== next.filter ||
+    previous.isClosed !== next.isClosed ||
+    previous.onToggle !== next.onToggle ||
+    previous.inputIdPrefix !== next.inputIdPrefix ||
+    previous.onCheckboxChange !== next.onCheckboxChange ||
+    previous.sectionTitleClassName !== next.sectionTitleClassName ||
+    previous.optionLabelClassName !== next.optionLabelClassName ||
+    previous.containerClassName !== next.containerClassName ||
+    previous.duration !== next.duration ||
+    previous.defaultStyle !== next.defaultStyle ||
+    previous.transitionStyles !== next.transitionStyles
+  ) {
+    return false;
+  }
+
+  return next.filter.filterOption.every(
+    (option) =>
+      Boolean(previous.effectiveCheckboxStates[option.id]) ===
+      Boolean(next.effectiveCheckboxStates[option.id]),
+  );
+};
+
+export default memo(ProductFilterSection, areProductFilterSectionPropsEqual);

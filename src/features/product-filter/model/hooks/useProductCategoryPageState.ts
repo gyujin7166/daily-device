@@ -77,11 +77,11 @@ export default function useProductCategoryPageState({
     [checkboxStates, filterItems, filtersFromUrl],
   );
 
-  const closeMobileFilterDrawer = () => {
+  const closeMobileFilterDrawer = useCallback(() => {
     setMobileDraftCheckboxStates(null);
     setIsMobileDraftDirty(false);
     setVisibleFilter(false);
-  };
+  }, [setIsMobileDraftDirty, setMobileDraftCheckboxStates, setVisibleFilter]);
   const setFilteredItem: Dispatch<SetStateAction<CatalogProductItem[] | null>> =
     useCallback(
       (next) => {
@@ -98,44 +98,57 @@ export default function useProductCategoryPageState({
       [productListResetKey],
     );
 
-  const updateFilterQuery = (
-    nextCheckboxStates: ProductFilterCheckboxStates,
-    replaceFilters = onReplaceFilters,
-  ) => {
-    const nextFilters = getSelectedProductFilterNames(
-      filterItems,
-      nextCheckboxStates,
-    ).join(',');
-    if (nextFilters === rawFilters) {
-      return;
-    }
+  const updateFilterQuery = useCallback(
+    (
+      nextCheckboxStates: ProductFilterCheckboxStates,
+      replaceFilters = onReplaceFilters,
+    ) => {
+      const nextFilters = getSelectedProductFilterNames(
+        filterItems,
+        nextCheckboxStates,
+      ).join(',');
+      if (nextFilters === rawFilters) {
+        return;
+      }
 
-    replaceFilters(nextFilters);
-  };
+      replaceFilters(nextFilters);
+    },
+    [filterItems, onReplaceFilters, rawFilters],
+  );
 
-  const handleApplyMobileFilters = (
-    replaceFilters?: (nextFilters: string) => void,
-  ) => {
-    const nextCheckboxStates = mobileDraftCheckboxStates ?? checkboxStates;
-    // 모바일 drawer는 적용 전까지 전역 필터를 바꾸지 않는 draft 모델을 사용한다.
-    setCheckboxStates(nextCheckboxStates);
-    updateFilterQuery(nextCheckboxStates, replaceFilters);
-    closeMobileFilterDrawer();
-  };
+  const handleApplyMobileFilters = useCallback(
+    (replaceFilters?: (nextFilters: string) => void) => {
+      const nextCheckboxStates = mobileDraftCheckboxStates ?? checkboxStates;
+      // 모바일 drawer는 적용 전까지 전역 필터를 바꾸지 않는 draft 모델을 사용한다.
+      setCheckboxStates(nextCheckboxStates);
+      updateFilterQuery(nextCheckboxStates, replaceFilters);
+      closeMobileFilterDrawer();
+    },
+    [
+      checkboxStates,
+      closeMobileFilterDrawer,
+      mobileDraftCheckboxStates,
+      setCheckboxStates,
+      updateFilterQuery,
+    ],
+  );
 
   const handleMobileDraftCheckboxStatesChange: Dispatch<
     SetStateAction<ProductFilterCheckboxStates>
-  > = (next) => {
-    setIsMobileDraftDirty(true);
-    setMobileDraftCheckboxStates((prev) =>
-      typeof next === 'function' ? next(prev ?? {}) : next,
-    );
-  };
+  > = useCallback(
+    (next) => {
+      setIsMobileDraftDirty(true);
+      setMobileDraftCheckboxStates((prev) =>
+        typeof next === 'function' ? next(prev ?? {}) : next,
+      );
+    },
+    [setIsMobileDraftDirty, setMobileDraftCheckboxStates],
+  );
 
-  const handleResetMobileDraft = () => {
+  const handleResetMobileDraft = useCallback(() => {
     setIsMobileDraftDirty(true);
     setMobileDraftCheckboxStates({});
-  };
+  }, [setIsMobileDraftDirty, setMobileDraftCheckboxStates]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {

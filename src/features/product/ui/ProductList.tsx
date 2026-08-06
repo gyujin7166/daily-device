@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 
 import { IconArrowUp } from '@tabler/icons-react';
@@ -47,6 +47,26 @@ type ProductListProps = {
   emptyDescription?: string;
   emptyAction?: ReactNode;
 };
+
+type CatalogProductListItemProps = {
+  product: CatalogProductItem;
+  priorityImage: boolean;
+};
+
+const CatalogProductListItem = memo(function CatalogProductListItem({
+  product,
+  priorityImage,
+}: CatalogProductListItemProps) {
+  return (
+    <ProductCard width="w-full">
+      <ProductItem
+        product={product}
+        variant="catalog"
+        priorityImage={priorityImage}
+      />
+    </ProductCard>
+  );
+});
 
 const getAutoLoadScrollRestoreDistance = () =>
   Math.min(
@@ -384,13 +404,11 @@ export default function ProductList({
           )}
         >
           {products.map((item, index) => (
-            <ProductCard key={item.id} width="w-full">
-              <ProductItem
-                product={item}
-                variant="catalog"
-                priorityImage={index < 3}
-              />
-            </ProductCard>
+            <CatalogProductListItem
+              key={item.id}
+              product={item}
+              priorityImage={index < 3}
+            />
           ))}
         </div>
         {isRefreshing ? <ProductListRefreshingOverlay /> : null}

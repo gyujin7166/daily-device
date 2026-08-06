@@ -1,7 +1,6 @@
 import React from 'react';
 
 import type {
-  CatalogProductItem,
   ProductColorFilterOption,
   FilterWithOptions,
 } from '@entities/product/model/types';
@@ -28,10 +27,6 @@ import type {
 type FilterProps = {
   filterItems: FilterWithOptions[] | undefined;
   filterIsPending: boolean;
-  products: CatalogProductItem[];
-  setFilteredItem: React.Dispatch<
-    React.SetStateAction<CatalogProductItem[] | null>
-  >;
   variant?: ProductFilterVariant;
   checkboxStatesOverride?: ProductFilterCheckboxStates;
   onCheckboxStatesChange?: React.Dispatch<
@@ -45,14 +40,11 @@ type FilterProps = {
   onColorChange?: (nextColorIds: number[]) => void;
   onQueryChange?: () => void;
   syncQueryOnChange?: boolean;
-  syncFilteredResultOnChange?: boolean;
 };
 
 export default function ProductFilter({
   filterItems,
   filterIsPending,
-  products,
-  setFilteredItem,
   variant = 'default',
   checkboxStatesOverride,
   onCheckboxStatesChange,
@@ -64,7 +56,6 @@ export default function ProductFilter({
   onColorChange,
   onQueryChange,
   syncQueryOnChange = true,
-  syncFilteredResultOnChange = true,
 }: FilterProps) {
   const sectionContainerClassName =
     variant === 'drawer'
@@ -82,14 +73,11 @@ export default function ProductFilter({
     toggleState,
   } = useProductFilterState({
     filterItems,
-    products,
-    setFilteredItem,
     variant,
     checkboxStatesOverride,
     onCheckboxStatesChange,
     onQueryChange,
     syncQueryOnChange,
-    syncFilteredResultOnChange,
   });
 
   if (filterIsPending) {

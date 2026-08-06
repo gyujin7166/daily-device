@@ -12,13 +12,22 @@ import ProductItem from './ProductItem';
 const mocks = vi.hoisted(() => ({
   handleUpsertCartItem: vi.fn(),
   openCart: vi.fn(),
+  push: vi.fn(),
+  sessionStatus: 'unauthenticated' as
+    | 'loading'
+    | 'unauthenticated'
+    | 'authenticated',
+  useSearchParams: vi.fn(),
   useCartActions: vi.fn(),
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mocks.push }),
   usePathname: () => '/products',
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => {
+    mocks.useSearchParams();
+    return new URLSearchParams(window.location.search);
+  },
 }));
 
 vi.mock('next-intl', () => ({
@@ -39,14 +48,14 @@ vi.mock('@shared/lib/i18n/navigation', () => ({
       {children}
     </a>
   ),
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mocks.push }),
   usePathname: () => '/products',
 }));
 
 vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: null,
-    status: 'unauthenticated',
+    status: mocks.sessionStatus,
   }),
 }));
 
@@ -79,7 +88,60 @@ vi.mock('@entities/wishlist/queries/useDeleteWishlist', () => ({
 describe('ProductItem', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.sessionStatus = 'unauthenticated';
+    window.history.replaceState(null, '', '/products');
     useCartPendingStore.getState().actions.resetPendingState();
+  });
+
+  it('상품 카드마다 필터 search params를 직접 구독하지 않는다', () => {
+    render(
+      <ProductItem
+        variant="catalog"
+        product={{
+          id: 101,
+          name_en: 'Aster Mouse Mini',
+          slug: 'aster-mouse-mini',
+          price: 129_000,
+          priceLabel: '129,000원',
+          image_url: '/images/aster-mouse-mini.webp',
+          category: {
+            name_en: 'Mice',
+            slug: 'mice',
+          },
+        }}
+      />,
+    );
+
+    expect(mocks.useSearchParams).not.toHaveBeenCalled();
+  });
+
+  it('비회원이 찜하기를 누르면 클릭 시점의 필터 URL을 로그인 복귀 경로로 사용한다', async () => {
+    const user = userEvent.setup();
+    window.history.replaceState(null, '', '/products/mice?filters=Bluetooth');
+
+    render(
+      <ProductItem
+        variant="catalog"
+        product={{
+          id: 101,
+          name_en: 'Aster Mouse Mini',
+          slug: 'aster-mouse-mini',
+          price: 129_000,
+          priceLabel: '129,000원',
+          image_url: '/images/aster-mouse-mini.webp',
+          category: {
+            name_en: 'Mice',
+            slug: 'mice',
+          },
+        }}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'wishlistAdd' }));
+
+    expect(mocks.push).toHaveBeenCalledWith(
+      '/login?callbackUrl=%2Fproducts%2Fmice%3Ffilters%3DBluetooth&reason=wishlist',
+    );
   });
 
   it('동일한 상품 props로 부모가 다시 렌더되어도 상품 행 렌더를 생략한다', () => {
@@ -142,6 +204,40 @@ describe('ProductItem', () => {
       }),
     );
     expect(mocks.openCart).toHaveBeenCalledOnce();
+  });
+
+  it('세션 로딩 상태를 초기 버튼 disabled 속성에 반영하지 않는다', async () => {
+    const user = userEvent.setup();
+    mocks.sessionStatus = 'loading';
+
+    render(
+      <ProductItem
+        variant="catalog"
+        product={{
+          id: 101,
+          name_en: 'Aster Mouse Mini',
+          slug: 'aster-mouse-mini',
+          price: 129_000,
+          priceLabel: '129,000원',
+          image_url: '/images/aster-mouse-mini.webp',
+          category: {
+            name_en: 'Mice',
+            slug: 'mice',
+          },
+        }}
+      />,
+    );
+
+    const addToCartButton = screen.getByRole('button', {
+      name: '장바구니에 추가',
+    });
+
+    expect(addToCartButton).toBeEnabled();
+
+    await user.click(addToCartButton);
+
+    expect(mocks.handleUpsertCartItem).not.toHaveBeenCalled();
+    expect(mocks.openCart).not.toHaveBeenCalled();
   });
 
   it('동일 상품이 pending 상태이면 장바구니 버튼을 비활성화한다', () => {

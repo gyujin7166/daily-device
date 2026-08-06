@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { useTranslations } from 'next-intl';
 
 import type { ProductSortOption } from '@entities/product/model/sort';
@@ -16,7 +18,7 @@ type FilterSortBarProps = {
   isSorting?: boolean;
 };
 
-export default function FilterSortBar({
+function FilterSortBar({
   resultCount = 0,
   visibleFilter,
   onToggleFilter,
@@ -47,3 +49,5 @@ export default function FilterSortBar({
     </section>
   );
 }
+
+export default memo(FilterSortBar);

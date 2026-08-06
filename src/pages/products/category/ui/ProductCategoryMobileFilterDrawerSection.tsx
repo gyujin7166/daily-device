@@ -17,8 +17,6 @@ type ProductCategoryMobileFilterDrawerSectionProps = {
   onApply: () => void;
   filterItems: ProductFilterProps['filterItems'];
   filterIsPending: ProductFilterProps['filterIsPending'];
-  products: ProductFilterProps['products'];
-  setFilteredItem: ProductFilterProps['setFilteredItem'];
   priceRange: ProductFilterProps['priceRange'];
   priceValue: ProductFilterProps['priceValue'];
   onPriceChange: ProductFilterProps['onPriceChange'];
@@ -39,8 +37,6 @@ export default function ProductCategoryMobileFilterDrawerSection({
   onApply,
   filterItems,
   filterIsPending,
-  products,
-  setFilteredItem,
   priceRange,
   priceValue,
   onPriceChange,
@@ -100,8 +96,6 @@ export default function ProductCategoryMobileFilterDrawerSection({
             <ProductFilter
               filterItems={filterItems}
               filterIsPending={filterIsPending}
-              products={products}
-              setFilteredItem={setFilteredItem}
               variant="drawer"
               priceRange={priceRange}
               priceValue={priceValue}
@@ -115,7 +109,6 @@ export default function ProductCategoryMobileFilterDrawerSection({
               }
               onCheckboxStatesChange={onMobileDraftCheckboxStatesChange}
               syncQueryOnChange={false}
-              syncFilteredResultOnChange={false}
             />
           </div>
           <div className="border-t border-line bg-surface px-5 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] dark:border-dark-border dark:bg-dark-panel">

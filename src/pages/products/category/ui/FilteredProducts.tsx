@@ -1,15 +1,10 @@
 import type { ComponentProps } from 'react';
 
-import { useParams, useSearchParams } from 'next/navigation';
-
 import { useTranslations } from 'next-intl';
 
 import { ProductList } from '@features/product/ui';
 
 import type { CatalogProductItem } from '@entities/product/model/types';
-
-import { usePathname } from '@shared/lib/i18n/navigation';
-import { useQueryParams } from '@shared/lib/router/useQueryParams';
 
 type FilteredProductsProps = {
   filteredItem: CatalogProductItem[] | null;
@@ -22,6 +17,9 @@ type FilteredProductsProps = {
   isFetchingNextPage?: boolean;
   isRefreshing?: boolean;
   resetKey?: string;
+  categoryLabel: string;
+  hasActiveFilters: boolean;
+  onResetFilters: () => void;
 };
 
 export default function FilteredProducts({
@@ -35,36 +33,12 @@ export default function FilteredProducts({
   isFetchingNextPage = false,
   isRefreshing = false,
   resetKey,
+  categoryLabel,
+  hasActiveFilters,
+  onResetFilters,
 }: FilteredProductsProps) {
   const t = useTranslations('Products.category');
-  const routeParams = useParams<{ category?: string }>();
-  const pathname = usePathname() ?? '/products';
-  const { setParams } = useQueryParams();
-  const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams?.toString());
   const visibleItems = filteredItem ?? products ?? [];
-  const searchFilters = params.get('filters');
-  const searchColors = params.get('colors');
-  const searchMinPrice = params.get('minPrice');
-  const searchMaxPrice = params.get('maxPrice');
-  const categoryLabel =
-    routeParams?.category ??
-    pathname.split('/').filter(Boolean).at(-1) ??
-    'products';
-  const hasActiveFilters = [
-    searchFilters,
-    searchColors,
-    searchMinPrice,
-    searchMaxPrice,
-  ].some((value) => !!value?.trim());
-  const handleResetFilters = () => {
-    setParams({
-      filters: null,
-      colors: null,
-      minPrice: null,
-      maxPrice: null,
-    });
-  };
 
   return (
     <ProductList
@@ -91,7 +65,7 @@ export default function FilteredProducts({
         hasActiveFilters ? (
           <button
             type="button"
-            onClick={handleResetFilters}
+            onClick={onResetFilters}
             className="mt-5 inline-flex h-10 items-center justify-center rounded-full border border-line bg-surface px-5 text-sm font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel-deep dark:text-surface dark:hover:bg-dark-panel-hover"
           >
             {t('resetFilters')}
