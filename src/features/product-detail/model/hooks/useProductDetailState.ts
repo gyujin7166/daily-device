@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useSearchParams } from 'next/navigation';
-
 import { useSession } from 'next-auth/react';
 import { useLocale } from 'next-intl';
 
@@ -40,6 +38,18 @@ type UseProductDetailStateParams = {
   onSelectedColorChange?: (colorId: number | null) => void;
 };
 
+const getCurrentProductPath = (pathname: string | null) => {
+  if (typeof window === 'undefined') {
+    return createCurrentPath(pathname, undefined, '/products');
+  }
+
+  return createCurrentPath(
+    window.location.pathname,
+    new URLSearchParams(window.location.search),
+    '/products',
+  );
+};
+
 export default function useProductDetailState({
   detail,
   onSelectedColorChange,
@@ -47,7 +57,6 @@ export default function useProductDetailState({
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { openCart } = useCartDrawerStore((state) => state.actions);
   const { handleUpsertCartItem } = useCartActions();
   const { data: wishlistItems = [] } = useWishlist();
@@ -71,7 +80,7 @@ export default function useProductDetailState({
   const mainImageUrl =
     getProductThumbnailUrlBySelectedColor(productImages, selectedColor?.id) ??
     productImages?.[0]?.image_url;
-  const currentPath = createCurrentPath(pathname, searchParams, '/products');
+  const productPath = createCurrentPath(pathname, undefined, '/products');
   const sectionIds = getProductDetailSectionIds(productDetails);
   const displayPrice =
     product?.priceLabel ?? formatProductDetailPrice(product?.price, locale);
@@ -90,8 +99,7 @@ export default function useProductDetailState({
         )
       : false,
   );
-  const isAddToCartDisabled =
-    status === 'loading' || isCartVariantMutationPending;
+  const isAddToCartDisabled = isCartVariantMutationPending;
 
   const wishlistItem =
     product?.id && mainImageUrl
@@ -112,7 +120,7 @@ export default function useProductDetailState({
           category: product.category,
           productColor: product.productColor,
           image_url: mainImageUrl,
-          href: currentPath,
+          href: productPath,
           alt: product.name_en,
         })
       : null;
@@ -138,7 +146,7 @@ export default function useProductDetailState({
     }
 
     if (!session?.user) {
-      router.push(getWishlistLoginPath(currentPath));
+      router.push(getWishlistLoginPath(getCurrentProductPath(pathname)));
       return;
     }
 

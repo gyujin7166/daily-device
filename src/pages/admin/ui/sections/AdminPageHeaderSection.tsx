@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { IconMoon, IconRefresh, IconSun } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
@@ -8,9 +10,7 @@ type AdminPageHeaderSectionProps = {
   onRefresh: () => void;
 };
 
-export default function AdminPageHeaderSection({
-  onRefresh,
-}: AdminPageHeaderSectionProps) {
+function AdminPageHeaderSection({ onRefresh }: AdminPageHeaderSectionProps) {
   const t = useTranslations('Admin.header');
   const { mounted, theme, toggleTheme } = useThemeMode();
   const isDarkMode = mounted && theme === 'dark';
@@ -49,3 +49,5 @@ export default function AdminPageHeaderSection({
     </header>
   );
 }
+
+export default memo(AdminPageHeaderSection);

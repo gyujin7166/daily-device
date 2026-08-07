@@ -28,14 +28,14 @@ export default async function MyOverviewPage() {
 
   // 요약 화면에서는 최근 주문 1건만 필요하므로 첫 페이지를 1개만 프리패치한다.
   queryClient.prefetchQuery({
-    queryKey: orderQueryKeys.suspensePaged('all', 1, 1, 'authenticated', true),
+    queryKey: orderQueryKeys.suspensePaged('all', 1, 1),
     queryFn: () => getOrdersResultByMode(userId, 'all', 1, 1),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
   // 기본 배송지 판별은 클라이언트 카드에서 수행하므로 전체 배송지 목록을 캐시에 준비한다.
   queryClient.prefetchQuery({
-    queryKey: addressQueryKeys.suspenseUserAddresses('authenticated', true),
+    queryKey: addressQueryKeys.suspenseUserAddresses(),
     queryFn: () => getAddresses(userId),
     staleTime: 60 * 1000,
   });
@@ -43,7 +43,7 @@ export default async function MyOverviewPage() {
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
       <MyPageShell activeTab="overview">
-        <MyOverviewPageContainer />
+        <MyOverviewPageContainer session={session} />
       </MyPageShell>
     </HydrationBoundary>
   );

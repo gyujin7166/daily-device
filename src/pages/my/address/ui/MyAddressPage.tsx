@@ -25,7 +25,7 @@ export default async function MyAddressPage() {
   const queryClient = new QueryClient();
 
   queryClient.prefetchQuery({
-    queryKey: addressQueryKeys.suspenseUserAddresses('authenticated', true),
+    queryKey: addressQueryKeys.suspenseUserAddresses(),
     queryFn: () => getAddresses(userId),
     staleTime: 60 * 1000,
   });

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 import type { ProductDetailResponse } from '@entities/product/model/types';
@@ -42,9 +42,13 @@ export default function useProductDetailPageState({
     [],
   );
 
-  const visibleRecentlyViewed = recentlyViewed
-    .filter((item) => item.id !== product?.id)
-    .slice(0, RECENTLY_VIEWED_VISIBLE_LIMIT);
+  const visibleRecentlyViewed = useMemo(
+    () =>
+      recentlyViewed
+        .filter((item) => item.id !== product?.id)
+        .slice(0, RECENTLY_VIEWED_VISIBLE_LIMIT),
+    [product?.id, recentlyViewed],
+  );
   const defaultColorId =
     product?.productColor.find((item) => item.isDefault)?.id ??
     product?.productColor[0]?.id;

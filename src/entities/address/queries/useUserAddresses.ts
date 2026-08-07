@@ -24,15 +24,10 @@ export const useUserAddresses = ({
   });
 };
 
-export const useSuspenseUserAddresses = ({
-  enabled = true,
-}: UseUserAddressesOptions = {}) => {
-  const { status } = useSession();
-
-  return useSuspenseQuery({
-    queryKey: addressQueryKeys.suspenseUserAddresses(status, enabled),
+export const useSuspenseUserAddresses = () =>
+  useSuspenseQuery({
+    queryKey: addressQueryKeys.suspenseUserAddresses(),
     queryFn: getUserAddresses,
     staleTime: 60 * 1000,
     retry: shouldRetryQuery,
   });
-};
