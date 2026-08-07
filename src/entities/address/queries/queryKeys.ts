@@ -1,8 +1,8 @@
 export const addressQueryKeys = {
   all: ['address'] as const,
   userAddresses: () => [...addressQueryKeys.all, 'userAddresses'] as const,
-  suspenseUserAddresses: (status: string, enabled: boolean) =>
-    [...addressQueryKeys.userAddresses(), 'suspense', status, enabled] as const,
+  suspenseUserAddresses: () =>
+    [...addressQueryKeys.userAddresses(), 'suspense'] as const,
 };
 
 export const addressMutationKeys = {

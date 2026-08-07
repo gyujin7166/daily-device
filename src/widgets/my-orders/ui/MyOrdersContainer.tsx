@@ -2,7 +2,6 @@
 import { Suspense } from 'react';
 
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
 import { MyPageMobileMenuButton } from '@features/my/ui';
@@ -22,7 +21,6 @@ export function MyOrdersContainer({
   mode = 'all',
 }: MyOrdersContainerProps) {
   const t = useTranslations('MyOrders');
-  const { status } = useSession();
 
   const isReviewWriteMode = mode === 'review';
   const isReviewWrittenMode = mode === 'review-written';
@@ -53,18 +51,6 @@ export function MyOrdersContainer({
       menuButton={embedded ? <MyPageMobileMenuButton /> : undefined}
     />
   );
-
-  if (status === 'loading') {
-    return ordersFallback;
-  }
-
-  if (status !== 'authenticated') {
-    return (
-      <div className="rounded-2xl border border-line bg-surface p-6 text-muted dark:border-dark-border dark:bg-dark-bg dark:text-dark-muted">
-        {t('authRequired')}
-      </div>
-    );
-  }
 
   return (
     <QueryErrorResetBoundary>

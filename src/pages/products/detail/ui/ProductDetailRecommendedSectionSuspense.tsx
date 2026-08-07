@@ -1,4 +1,5 @@
 'use client';
+import { memo } from 'react';
 import type React from 'react';
 
 import { useTranslations } from 'next-intl';
@@ -19,7 +20,7 @@ type ProductDetailRecommendedSectionSuspenseProps = {
   recentlyViewedItems: ProductDetailCarouselItems;
 };
 
-export default function ProductDetailRecommendedSectionSuspense({
+function ProductDetailRecommendedSectionSuspense({
   category,
   excludeId,
   recentlyViewedItems,
@@ -64,3 +65,5 @@ export default function ProductDetailRecommendedSectionSuspense({
     />
   );
 }
+
+export default memo(ProductDetailRecommendedSectionSuspense);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 
 import { useTranslations } from 'next-intl';
@@ -11,10 +12,7 @@ type AdminTabSectionProps = {
   onTabChange: (tab: AdminTab) => void;
 };
 
-export default function AdminTabSection({
-  activeTab,
-  onTabChange,
-}: AdminTabSectionProps) {
+function AdminTabSection({ activeTab, onTabChange }: AdminTabSectionProps) {
   const t = useTranslations('Admin.tabs');
 
   return (
@@ -47,6 +45,8 @@ export default function AdminTabSection({
   );
 }
 
+const MemoizedAdminTabSection = memo(AdminTabSection);
+
 function TabButton({
   active,
   children,
@@ -71,3 +71,5 @@ function TabButton({
     </button>
   );
 }
+
+export default MemoizedAdminTabSection;

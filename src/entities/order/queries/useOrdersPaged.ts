@@ -3,7 +3,6 @@ import {
   useQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
 
 import { getOrdersPaged } from '@entities/order/api/order';
 import type { OrdersMode } from '@entities/order/model/types';
@@ -22,12 +21,9 @@ export const useSuspenseOrdersPaged = ({
   mode = 'all',
   page = 1,
   limit = 2,
-  enabled = true,
 }: UseOrdersPagedParams = {}) => {
-  const { status } = useSession();
-
   return useSuspenseQuery({
-    queryKey: orderQueryKeys.suspensePaged(mode, page, limit, status, enabled),
+    queryKey: orderQueryKeys.suspensePaged(mode, page, limit),
     queryFn: () => getOrdersPaged({ mode, page, limit }),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -41,12 +37,10 @@ export const useOrdersPaged = ({
   limit = 2,
   enabled = true,
 }: UseOrdersPagedParams = {}) => {
-  const { status } = useSession();
-
   return useQuery({
     queryKey: orderQueryKeys.paged(mode, page, limit),
     queryFn: () => getOrdersPaged({ mode, page, limit }),
-    enabled: enabled && status === 'authenticated',
+    enabled,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { memo, Suspense, useState } from 'react';
 import type React from 'react';
 
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
@@ -18,7 +18,7 @@ type ProductDetailTopSectionProps = {
   carouselBaseHeight: number;
 };
 
-export default function ProductDetailTopSection({
+function ProductDetailTopSection({
   detail,
   isDetailInitialLoading,
   carouselColumnRef,
@@ -67,3 +67,5 @@ export default function ProductDetailTopSection({
     </PageWrapper>
   );
 }
+
+export default memo(ProductDetailTopSection);

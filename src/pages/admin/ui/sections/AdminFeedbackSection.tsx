@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import { useTranslations } from 'next-intl';
 
 type AdminFeedbackSectionProps = {
@@ -6,7 +8,7 @@ type AdminFeedbackSectionProps = {
   error: string;
 };
 
-export default function AdminFeedbackSection({
+function AdminFeedbackSection({
   canWriteAdmin,
   message,
   error,
@@ -34,3 +36,5 @@ export default function AdminFeedbackSection({
     </>
   );
 }
+
+export default memo(AdminFeedbackSection);
