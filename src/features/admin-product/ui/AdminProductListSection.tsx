@@ -4,6 +4,7 @@ import { isProductLineValue } from '@shared/constants/productLine';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { cn } from '@shared/lib/utils/style';
 import {
+  DebouncedSearchInput,
   ImageUrlList,
   PaginationControls,
   RowActions,
@@ -78,10 +79,10 @@ export default function AdminProductListSection({
     <div className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
       <TableHeader title={t('title')} count={productPage?.total ?? 0} />
       <div className="grid gap-3 border-b border-line p-4 dark:border-dark-border md:grid-cols-[1fr_180px]">
-        <input
+        <DebouncedSearchInput
           className={inputClass}
           value={params.keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
+          onChange={onKeywordChange}
           placeholder={t('searchPlaceholder')}
         />
         <select
