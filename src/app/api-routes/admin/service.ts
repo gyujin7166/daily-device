@@ -1223,7 +1223,18 @@ export async function getAdminProducts(params: AdminProductListParams) {
     }),
     prisma.color.findMany({
       orderBy: [{ name: 'asc' }, { id: 'asc' }],
-      select: { id: true, name: true, hex: true },
+      select: {
+        id: true,
+        name: true,
+        hex: true,
+        translations: {
+          select: {
+            locale: true,
+            name: true,
+          },
+          orderBy: { locale: 'asc' },
+        },
+      },
     }),
     prisma.product.count({ where }),
     prisma.product.findMany({
