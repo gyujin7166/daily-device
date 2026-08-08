@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { maskEmail, maskName } from '@shared/lib/utils/mask';
 import { cn } from '@shared/lib/utils/style';
 import {
+  DebouncedSearchInput,
   ImageUrlList,
   PaginationControls,
   TableHeader,
@@ -61,10 +62,10 @@ export default function AdminReviewListSection({
     <section className="overflow-hidden rounded-md border border-line bg-surface dark:border-dark-border dark:bg-dark-panel">
       <TableHeader title={t('title')} count={reviewPage?.total ?? 0} />
       <div className="grid gap-3 border-b border-line p-4 dark:border-dark-border md:grid-cols-[1fr_160px]">
-        <input
+        <DebouncedSearchInput
           className={inputClass}
           value={params.keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
+          onChange={onKeywordChange}
           placeholder={t('searchPlaceholder')}
         />
         <select
