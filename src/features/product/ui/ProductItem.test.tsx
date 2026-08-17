@@ -96,7 +96,6 @@ describe('ProductItem', () => {
   it('상품 카드마다 필터 search params를 직접 구독하지 않는다', () => {
     render(
       <ProductItem
-        variant="catalog"
         product={{
           id: 101,
           name_en: 'Aster Mouse Mini',
@@ -121,7 +120,6 @@ describe('ProductItem', () => {
 
     render(
       <ProductItem
-        variant="catalog"
         product={{
           id: 101,
           name_en: 'Aster Mouse Mini',
@@ -157,13 +155,11 @@ describe('ProductItem', () => {
         slug: 'mice',
       },
     };
-    const { rerender } = render(
-      <ProductItem variant="catalog" product={product} />,
-    );
+    const { rerender } = render(<ProductItem product={product} />);
 
     expect(mocks.useCartActions).toHaveBeenCalledTimes(1);
 
-    rerender(<ProductItem variant="catalog" product={product} />);
+    rerender(<ProductItem product={product} />);
 
     expect(mocks.useCartActions).toHaveBeenCalledTimes(1);
   });
@@ -173,7 +169,6 @@ describe('ProductItem', () => {
 
     render(
       <ProductItem
-        variant="catalog"
         product={{
           id: 101,
           name_en: 'Aster Mouse Mini',
@@ -212,7 +207,6 @@ describe('ProductItem', () => {
 
     render(
       <ProductItem
-        variant="catalog"
         product={{
           id: 101,
           name_en: 'Aster Mouse Mini',
@@ -246,7 +240,6 @@ describe('ProductItem', () => {
 
     render(
       <ProductItem
-        variant="catalog"
         product={{
           id: 101,
           name_en: 'Aster Mouse Mini',

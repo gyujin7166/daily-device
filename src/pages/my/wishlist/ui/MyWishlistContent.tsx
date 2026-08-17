@@ -175,10 +175,9 @@ export default function MyWishlistContent() {
           <>
             <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 xl:grid-cols-3">
               {visibleWishlistItems.map((item, index) => (
-                <ProductCard key={item.id} width="w-full">
+                <ProductCard key={item.id}>
                   <ProductItem
                     product={mapWishlistItemToProduct(item)}
-                    variant="catalog"
                     priorityImage={index < 3}
                   />
                 </ProductCard>

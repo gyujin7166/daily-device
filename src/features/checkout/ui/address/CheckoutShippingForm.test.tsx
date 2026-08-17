@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -131,6 +131,24 @@ beforeEach(() => {
 });
 
 describe('CheckoutShippingForm', () => {
+  it('배송지 모달을 열 때 확정 배송지 요약을 다시 렌더하지 않는다', () => {
+    const actions = useCheckoutStore.getState().actions;
+    actions.resetCheckoutState();
+
+    render(<CheckoutShippingForm />);
+
+    const renderCountBeforeModalOpen =
+      mocks.renderAddressSummary.mock.calls.length;
+
+    act(() => {
+      actions.setIsAddressModalOpen(true);
+    });
+
+    expect(mocks.renderAddressSummary).toHaveBeenCalledTimes(
+      renderCountBeforeModalOpen,
+    );
+  });
+
   it('주소 입력 중 확정 배송지 요약을 다시 렌더하지 않는다', async () => {
     const user = userEvent.setup();
     render(<CheckoutShippingForm />);

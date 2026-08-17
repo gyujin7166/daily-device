@@ -189,7 +189,6 @@ export default function SearchPageContainer({
       <PageWrapper className="mt-22.5 flex min-h-[50vh] flex-1 flex-col">
         <SearchHeaderSkeleton />
         <ProductSkeleton
-          variant="product"
           columns="four"
           length={SEARCH_PRODUCT_SKELETON_COUNT}
         />
@@ -227,7 +226,6 @@ export default function SearchPageContainer({
       />
       {showProductsSkeleton ? (
         <ProductSkeleton
-          variant="product"
           columns="four"
           length={SEARCH_PRODUCT_SKELETON_COUNT}
         />
@@ -238,7 +236,6 @@ export default function SearchPageContainer({
       {isFetchingNextPage ? (
         <div className="mt-5">
           <ProductSkeleton
-            variant="product"
             columns="four"
             length={SEARCH_PRODUCT_SKELETON_COUNT}
           />

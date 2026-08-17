@@ -9,6 +9,7 @@
 /.next/
 /.next-playwright/
 /out/
+/storybook-static/
 
 # production
 /build

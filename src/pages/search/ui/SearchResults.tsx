@@ -21,12 +21,8 @@ export default function SearchResults({
   return (
     <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((item, index) => (
-        <ProductCard key={item.id} width="w-full">
-          <ProductItem
-            product={item}
-            variant="catalog"
-            priorityImage={index < 4}
-          />
+        <ProductCard key={item.id}>
+          <ProductItem product={item} priorityImage={index < 4} />
         </ProductCard>
       ))}
     </div>

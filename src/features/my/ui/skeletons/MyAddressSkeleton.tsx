@@ -6,12 +6,10 @@ import MyPageSectionHeaderSkeleton from './MyPageSectionHeaderSkeleton';
 
 type MyAddressSkeletonProps = {
   menuButton?: ReactNode;
-  itemCount?: number;
 };
 
 export default function MyAddressSkeleton({
   menuButton,
-  itemCount = 2,
 }: MyAddressSkeletonProps) {
   const t = useTranslations('MyAddress.page');
 
@@ -26,7 +24,7 @@ export default function MyAddressSkeleton({
       />
 
       <div className="space-y-6">
-        {Array.from({ length: itemCount }).map((_, index) => (
+        {Array.from({ length: 2 }).map((_, index) => (
           <article
             key={`address-skeleton-${index}`}
             className="rounded-3xl border border-line bg-surface px-5 py-6 shadow-xs dark:border-dark-border dark:bg-dark-panel sm:px-7"

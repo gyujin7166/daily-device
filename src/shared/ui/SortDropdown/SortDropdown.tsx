@@ -11,10 +11,7 @@ type SortDropdownProps<T extends string> = {
   options: ReadonlyArray<SortDropdownOption<T>>;
   onChange: (nextValue: T) => void;
   disabled?: boolean;
-  prefixLabel?: string;
   menuWidthClassName?: string;
-  triggerClassName?: string;
-  selectedLabelClassName?: string;
   mobileSheetOnMobile?: boolean;
   mobileSheetTitle?: string;
 };
@@ -24,10 +21,7 @@ const SortDropdown = <T extends string>({
   options,
   onChange,
   disabled = false,
-  prefixLabel,
   menuWidthClassName = 'w-50',
-  triggerClassName = '',
-  selectedLabelClassName = '',
   mobileSheetOnMobile = false,
   mobileSheetTitle,
 }: SortDropdownProps<T>) => {
@@ -39,7 +33,7 @@ const SortDropdown = <T extends string>({
     });
   const selectedLabel =
     options.find((option) => option.value === value)?.label ?? '';
-  const resolvedPrefixLabel = prefixLabel ?? t('prefix');
+  const prefixLabel = t('prefix');
   const resolvedMobileSheetTitle = mobileSheetTitle ?? t('mobileSheetTitle');
 
   const handleSelect = (nextValue: T) => {
@@ -53,11 +47,9 @@ const SortDropdown = <T extends string>({
         disabled={disabled}
         isMobileSheetMode={isMobileSheetMode}
         isOpen={isOpen}
-        prefixLabel={resolvedPrefixLabel}
-        triggerLabel={t('changeLabel', { label: resolvedPrefixLabel })}
+        prefixLabel={prefixLabel}
+        triggerLabel={t('changeLabel', { label: prefixLabel })}
         selectedLabel={selectedLabel}
-        selectedLabelClassName={selectedLabelClassName}
-        triggerClassName={triggerClassName}
         onToggle={() => setIsOpen((prev) => !prev)}
       />
 
@@ -67,7 +59,7 @@ const SortDropdown = <T extends string>({
           options={options}
           isOpen={isOpen}
           mobileSheetTitle={resolvedMobileSheetTitle}
-          listLabel={t('optionsLabel', { label: resolvedPrefixLabel })}
+          listLabel={t('optionsLabel', { label: prefixLabel })}
           closeLabel={t('closeSheet')}
           onClose={() => setIsOpen(false)}
           onSelect={handleSelect}
@@ -78,7 +70,7 @@ const SortDropdown = <T extends string>({
           options={options}
           isOpen={isOpen}
           menuWidthClassName={menuWidthClassName}
-          listLabel={t('optionsLabel', { label: resolvedPrefixLabel })}
+          listLabel={t('optionsLabel', { label: prefixLabel })}
           onSelect={handleSelect}
         />
       )}

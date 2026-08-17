@@ -39,6 +39,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Build Storybook
+        run: npm run build-storybook
+
       - name: Generate Next.js and next-intl types
         run: npx next typegen
 

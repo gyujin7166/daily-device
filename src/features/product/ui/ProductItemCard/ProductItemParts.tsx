@@ -10,14 +10,11 @@ import { Link } from '@shared/lib/i18n/navigation';
 import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
-import type { ProductItemVariant } from '../../model/productItem';
-
 type ProductImageLinkProps = {
   productHref: string;
   imageUrl: string;
   imageAlt: string;
   priorityImage: boolean;
-  variant: ProductItemVariant;
 };
 
 type WishlistButtonProps = {
@@ -32,15 +29,12 @@ export function ProductImageLink({
   imageUrl,
   imageAlt,
   priorityImage,
-  variant,
 }: ProductImageLinkProps) {
-  const isCatalog = variant === 'catalog';
   const [currentImageUrl, setCurrentImageUrl] = useState(imageUrl);
   const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
   const [isPendingImageLoaded, setIsPendingImageLoaded] = useState(false);
-  const imageClassName = isCatalog
-    ? 'object-contain transition-transform duration-300 group-hover:scale-[1.02]'
-    : 'object-contain p-3';
+  const imageClassName =
+    'object-contain transition-transform duration-300 group-hover:scale-[1.02]';
 
   useEffect(() => {
     if (imageUrl === currentImageUrl || imageUrl === pendingImageUrl) {
@@ -55,17 +49,9 @@ export function ProductImageLink({
     <Link
       href={productHref}
       draggable={false}
-      className={cn(
-        isCatalog ? 'group block select-none' : 'block select-none',
-      )}
+      className="group block select-none"
     >
-      <div
-        className={
-          isCatalog
-            ? 'relative aspect-square overflow-hidden rounded-2xl bg-line dark:bg-dark-bg-hover'
-            : 'relative aspect-square overflow-hidden rounded-3xl bg-primary-soft/55 p-4 dark:bg-dark-bg-hover'
-        }
-      >
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-line dark:bg-dark-bg-hover">
         <span className="absolute inset-0">
           <Image
             src={getCloudinaryImageUrl(currentImageUrl, 'productCard')}

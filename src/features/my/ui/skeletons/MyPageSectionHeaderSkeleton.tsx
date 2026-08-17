@@ -7,7 +7,6 @@ type MyPageSectionHeaderSkeletonProps = {
   title: string;
   descriptionClassName?: string;
   actionClassName?: string;
-  className?: string;
   menuButton?: ReactNode;
 };
 
@@ -16,16 +15,10 @@ export default function MyPageSectionHeaderSkeleton({
   title,
   descriptionClassName = 'w-56',
   actionClassName,
-  className,
   menuButton,
 }: MyPageSectionHeaderSkeletonProps) {
   return (
-    <header
-      className={cn(
-        'mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4',
-        className,
-      )}
-    >
+    <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
       <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-end sm:gap-4">
         <div className="flex min-w-0 items-start justify-between gap-3 sm:justify-start">
           <div className="border-l-4 border-primary pl-5">

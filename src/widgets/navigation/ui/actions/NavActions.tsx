@@ -1,7 +1,5 @@
 import { Suspense, useEffect, useRef } from 'react';
 
-import { cn } from '@shared/lib/utils/style';
-
 import useNavActionsState from '../../model/hooks/useNavActionsState';
 import NavAccountMenu from '../account/NavAccountMenu';
 
@@ -13,7 +11,6 @@ import NavThemeButton from './NavThemeButton';
 type NavActionsProps = {
   handleToggleSearch: () => void;
   isSearchOpen: boolean;
-  className?: string;
   closeAccountDropdownSignal?: boolean;
   isOverlayStyle?: boolean;
   isDarkOverlayStyle?: boolean;
@@ -23,7 +20,6 @@ type NavActionsProps = {
 export default function NavActions({
   handleToggleSearch,
   isSearchOpen,
-  className = '',
   closeAccountDropdownSignal = false,
   isOverlayStyle = false,
   isDarkOverlayStyle = false,
@@ -110,10 +106,7 @@ export default function NavActions({
   return (
     <div
       ref={actionsRef}
-      className={cn(
-        'relative flex items-center justify-center gap-x-1 sm:gap-x-1.5',
-        className,
-      )}
+      className="relative flex items-center justify-center gap-x-1 sm:gap-x-1.5"
     >
       <NavSearchButton
         isDarkOverlayStyle={isDarkOverlayStyle}

@@ -13,7 +13,6 @@ export type ProductItemCardProps = {
   viewModel: ProductItemViewModel;
   backgroundClassName: string;
   priorityImage: boolean;
-  showAddToCart: boolean;
   selectedColor: ProductItemSelectedColor | null;
   onColorChange: (color: ProductItemSelectedColor) => void;
   isInWishlist: boolean;

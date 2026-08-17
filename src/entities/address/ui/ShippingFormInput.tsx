@@ -19,7 +19,6 @@ type ShippingFormInputProps = {
   hasBlurred: boolean;
   placeholder?: string;
   onClick: () => void;
-  containerClassName?: string;
 } & Omit<
   ComponentPropsWithoutRef<'input'>,
   'id' | 'name' | 'type' | 'required' | 'placeholder' | 'readOnly' | 'onClick'
@@ -36,7 +35,6 @@ const ShippingFormInput = forwardRef<HTMLInputElement, ShippingFormInputProps>(
       hasBlurred,
       placeholder = '',
       onClick,
-      containerClassName = '',
       ...inputProps
     },
     ref,
@@ -70,12 +68,7 @@ const ShippingFormInput = forwardRef<HTMLInputElement, ShippingFormInputProps>(
       : '';
 
     return (
-      <div
-        className={cn(
-          'col-span-full flex flex-col items-start gap-2.5 sm:gap-2',
-          containerClassName,
-        )}
-      >
+      <div className="col-span-full flex flex-col items-start gap-2.5 sm:gap-2">
         <label
           className="flex items-center gap-1 text-base font-semibold text-ink sm:text-sm dark:text-surface"
           htmlFor={name}

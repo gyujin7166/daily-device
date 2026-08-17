@@ -6,7 +6,7 @@ import { Link } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
 
 type ProductDetailBreadcrumbProps = {
-  detail?: string;
+  detail: string;
 };
 
 export default function ProductDetailBreadcrumb({

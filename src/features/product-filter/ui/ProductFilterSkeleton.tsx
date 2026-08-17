@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 
 type ProductFilterSkeletonProps = {
   className?: string;
-  colorRows?: number;
 };
 
 const skeletonClassName =
@@ -14,7 +13,6 @@ const optionRows = {
 
 export default function ProductFilterSkeleton({
   className,
-  colorRows = 6,
 }: ProductFilterSkeletonProps) {
   return (
     <div className={`w-full space-y-4 ${className ?? ''}`}>
@@ -40,7 +38,7 @@ export default function ProductFilterSkeleton({
         </div>
       </ProductFilterSkeletonCard>
 
-      <ProductFilterOptionSkeleton rows={Math.max(colorRows, 1)} type="color" />
+      <ProductFilterOptionSkeleton rows={6} type="color" />
       <ProductFilterOptionSkeleton rows={3} />
       <ProductFilterOptionSkeleton rows={3} />
     </div>

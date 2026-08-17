@@ -55,8 +55,6 @@ export type ProductItemProduct = {
   alt?: string | null;
 };
 
-export type ProductItemVariant = 'default' | 'search' | 'catalog';
-
 export type ProductItemSelectedColor = {
   id: number;
   name: string;
