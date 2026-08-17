@@ -366,7 +366,7 @@ export const EmptyFilterResults: Story = {
 export const OpenMobileFilters: Story = {
   name: 'Open Mobile Filters',
   globals: {
-    viewport: 'mobile2',
+    viewport: { value: 'mobile2', isRotated: false },
   },
   parameters: {
     msw: {
