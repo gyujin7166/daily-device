@@ -1,5 +1,3 @@
-import type { ComponentProps } from 'react';
-
 import { useTranslations } from 'next-intl';
 
 import { ProductList } from '@features/product/ui';
@@ -10,7 +8,6 @@ type FilteredProductsProps = {
   filteredItem: CatalogProductItem[] | null;
   products: CatalogProductItem[];
   isPending: boolean;
-  columns?: ComponentProps<typeof ProductList>['columns'];
   totalCount?: number;
   hasNextPage?: boolean;
   fetchNextPage?: () => void | Promise<void>;
@@ -26,7 +23,6 @@ export default function FilteredProducts({
   filteredItem,
   products,
   isPending,
-  columns = 'three',
   totalCount = 0,
   hasNextPage = false,
   fetchNextPage,
@@ -44,7 +40,7 @@ export default function FilteredProducts({
     <ProductList
       products={visibleItems}
       isPending={isPending}
-      columns={columns}
+      columns="three"
       totalCount={totalCount}
       hasNextPage={hasNextPage}
       fetchNextPage={fetchNextPage}

@@ -25,12 +25,10 @@ import MyOrdersOrderCard from './parts/MyOrdersOrderCard';
 import MyOrdersPagination from './parts/MyOrdersPagination';
 
 export type MyOrdersContentProps = {
-  embedded?: boolean;
   mode?: MyOrdersMode;
 };
 
 export default function MyOrdersContent({
-  embedded = false,
   mode = 'all',
 }: MyOrdersContentProps) {
   const t = useTranslations('MyOrders');
@@ -51,9 +49,7 @@ export default function MyOrdersContent({
     totalItems,
     totalPages,
   } = useMyOrdersContentState({ mode });
-  const pageClassName = embedded
-    ? 'w-full rounded-2xl lg:pl-4'
-    : 'mx-auto w-full max-w-7xl px-4 pb-16 pt-27.5 sm:px-6';
+  const pageClassName = 'w-full rounded-2xl lg:pl-4';
   const pageMeta = isReviewWriteMode
     ? {
         pageLabel: t('meta.reviewWrite.label'),
@@ -92,7 +88,7 @@ export default function MyOrdersContent({
         pageLabel={pageMeta.pageLabel}
         pageTitle={pageMeta.pageTitle}
         pageDescription={pageMeta.pageDescription}
-        menuButton={embedded ? <MyPageMobileMenuButton /> : undefined}
+        menuButton={<MyPageMobileMenuButton />}
       />
     );
   }

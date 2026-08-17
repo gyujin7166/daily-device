@@ -8,12 +8,10 @@ import MyPageSectionHeaderSkeleton from './MyPageSectionHeaderSkeleton';
 
 type MyWishlistSkeletonProps = {
   menuButton?: ReactNode;
-  itemCount?: number;
 };
 
 export default function MyWishlistSkeleton({
   menuButton,
-  itemCount = 6,
 }: MyWishlistSkeletonProps) {
   const t = useTranslations('MyWishlist.page');
 
@@ -28,7 +26,7 @@ export default function MyWishlistSkeleton({
       />
 
       <div className="relative">
-        <ProductSkeleton variant="product" length={itemCount} />
+        <ProductSkeleton length={6} />
       </div>
     </div>
   );

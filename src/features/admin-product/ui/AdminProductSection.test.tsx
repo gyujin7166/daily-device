@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminProductSection from './AdminProductSection';
 
-import type { AdminProductPayload } from '../model/types';
+import type { AdminProduct, AdminProductPayload } from '../model/types';
 
 const mocks = vi.hoisted(() => ({
   renderProductList: vi.fn(),
@@ -99,9 +99,24 @@ vi.mock('../queries/useAdminProduct', () => ({
 }));
 
 vi.mock('./AdminProductListSection', () => ({
-  default: () => {
+  default: ({
+    products,
+    onDelete,
+  }: {
+    products: AdminProduct[];
+    onDelete: (product: AdminProduct) => void;
+  }) => {
     mocks.renderProductList();
-    return <div>productList</div>;
+    return (
+      <div>
+        productList
+        {products[0] ? (
+          <button type="button" onClick={() => onDelete(products[0])}>
+            deleteProduct
+          </button>
+        ) : null}
+      </div>
+    );
   },
 }));
 
@@ -219,5 +234,38 @@ describe('AdminProductSection', () => {
 
     expect(screen.queryByLabelText('defaultColor')).not.toBeInTheDocument();
     expect(screen.getByLabelText('linkedColor')).toHaveValue('');
+  });
+
+  it('마지막 상품을 삭제하면 신규 상품 폼으로 전환한다', async () => {
+    const user = userEvent.setup();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    render(
+      <AdminProductSection
+        data={data}
+        params={{ page: 1, limit: 20, keyword: '', categoryId: '' }}
+        isPending={false}
+        isFetching={false}
+        canWriteAdmin
+        onKeywordChange={vi.fn()}
+        onCategoryChange={vi.fn()}
+        onPageChange={vi.fn()}
+        onMessage={vi.fn()}
+        onError={vi.fn()}
+        onReadOnlyAction={vi.fn()}
+      />,
+    );
+
+    expect(await screen.findByLabelText('nameKo')).toHaveValue('아스터 마우스');
+
+    await user.click(screen.getByRole('button', { name: 'deleteProduct' }));
+
+    await waitFor(() => {
+      expect(mocks.deleteProduct).toHaveBeenCalledWith(10);
+    });
+    expect(await screen.findByText('createTitle')).toBeVisible();
+    expect(screen.getByLabelText('nameKo')).toHaveValue('');
+
+    confirm.mockRestore();
   });
 });

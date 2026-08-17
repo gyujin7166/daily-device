@@ -10,8 +10,7 @@ import type { HeroNavTone } from '@shared/model/store/heroNavToneStore';
 import type { ImageWithBlur } from '@shared/types/image';
 
 type HeroPosition = 'start' | 'center' | 'end';
-type HeroVerticalPosition = 'start' | 'center' | 'end';
-type HeroContentWidth = '1/3' | '1/2' | '2/3' | 'full';
+type HeroContentWidth = '1/3' | '1/2';
 type HeroTone = HeroNavTone;
 type HeroOverlayTone = 'none' | 'dark' | 'light';
 type HeroImage = ImageWithBlur & {
@@ -24,20 +23,14 @@ type HeroImage = ImageWithBlur & {
 type HeroProps = {
   children: React.ReactNode;
   minHeight: number;
-  maxHeight?: number;
   minHeightClassName?: string;
   imageClassName?: string;
   viewportOffsetTopPx?: number;
-  imgSrc?: string;
   imagesSet?: HeroImage[];
-  textColor?: string;
   position?: HeroPosition;
-  verticalPosition?: HeroVerticalPosition;
   contentWidth?: HeroContentWidth;
   useImagePosition?: boolean;
   defaultTextTone?: HeroTone;
-  defaultNavTone?: HeroTone;
-  defaultOverlayTone?: HeroOverlayTone;
 };
 
 const justifyClasses: Record<HeroPosition, string> = {
@@ -52,15 +45,7 @@ const itemsClasses: Record<HeroPosition, string> = {
   end: 'items-end pe-0 sm:pe-8 lg:pe-20 xl:pe-24',
 };
 
-const verticalClasses: Record<HeroVerticalPosition, string> = {
-  start: 'items-start',
-  center: 'items-center',
-  end: 'items-end',
-};
-
 const widthClasses: Record<HeroContentWidth, string> = {
-  full: 'w-full',
-  '2/3': 'w-full md:w-2/3',
   '1/2': 'w-full md:w-1/2',
   '1/3': 'w-full md:w-2/3 lg:w-1/3',
 };
@@ -100,20 +85,14 @@ const normalizeTone = (
 export default function Hero({
   children,
   minHeight,
-  maxHeight,
   minHeightClassName,
   imageClassName,
   viewportOffsetTopPx = 0,
-  imgSrc,
   imagesSet,
-  textColor,
   position = 'start',
-  verticalPosition = 'center',
   contentWidth = '1/3',
   useImagePosition = true,
   defaultTextTone = 'dark',
-  defaultNavTone = 'light',
-  defaultOverlayTone = 'none',
 }: HeroProps) {
   const setHeroNavTone = useHeroNavToneStore((state) => state.setHeroNavTone);
   const resetHeroNavTone = useHeroNavToneStore(
@@ -122,11 +101,11 @@ export default function Hero({
   const heroImage = imagesSet?.[0];
   const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
   const resolvedTextTone = normalizeTone(heroImage?.textTone, defaultTextTone);
-  const resolvedNavTone = normalizeTone(heroImage?.navTone, defaultNavTone);
+  const resolvedNavTone = normalizeTone(heroImage?.navTone, 'light');
   const resolvedOverlayTone =
     heroImage?.overlayTone === 'dark' || heroImage?.overlayTone === 'light'
       ? heroImage.overlayTone
-      : defaultOverlayTone;
+      : 'none';
   const resolvedPosition = useImagePosition
     ? normalizePosition(heroImage?.position, position)
     : position;
@@ -141,7 +120,6 @@ export default function Hero({
 
   const fallbackStyle: CSSProperties = {
     minHeight: minHeightClassName ? undefined : `${minHeight}vh`,
-    maxHeight: maxHeight ? `${maxHeight}vh` : undefined,
   };
 
   const fallbackElement = (
@@ -156,11 +134,6 @@ export default function Hero({
 
   const renderImage = () => {
     if (heroImage && failedImageSrc !== heroImage.image_url) {
-      const imageStyle: CSSProperties = {
-        minHeight: minHeightClassName ? undefined : `${minHeight}vh`,
-        maxHeight: maxHeight ? `${maxHeight}vh` : undefined,
-      };
-
       return (
         <div
           key={heroImage.id}
@@ -168,7 +141,7 @@ export default function Hero({
             'relative w-full bg-canvas dark:bg-dark-bg',
             minHeightClassName ?? '',
           )}
-          style={imageStyle}
+          style={fallbackStyle}
         >
           {heroImage.blurHash ? (
             <div
@@ -192,30 +165,6 @@ export default function Hero({
       );
     }
 
-    if (imgSrc && failedImageSrc !== imgSrc) {
-      return (
-        <div
-          className={cn(
-            'relative w-full bg-canvas dark:bg-dark-bg',
-            minHeightClassName ?? '',
-          )}
-          style={fallbackStyle}
-        >
-          <Image
-            src={imgSrc}
-            alt=""
-            fill
-            quality={90}
-            className={cn('object-cover object-center', imageClassName ?? '')}
-            draggable={false}
-            priority
-            sizes="100vw"
-            onError={() => setFailedImageSrc(imgSrc)}
-          />
-        </div>
-      );
-    }
-
     return fallbackElement;
   };
 
@@ -233,7 +182,7 @@ export default function Hero({
         <section
           className={cn(
             'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10',
-            textColor ?? textToneClasses[resolvedTextTone],
+            textToneClasses[resolvedTextTone],
           )}
           style={
             viewportOffsetTopPx > 0
@@ -248,7 +197,7 @@ export default function Hero({
             className={cn(
               'flex h-full w-full',
               justifyClasses[resolvedPosition],
-              verticalClasses[verticalPosition],
+              'items-center',
               'py-10 sm:py-14 md:py-20',
             )}
           >

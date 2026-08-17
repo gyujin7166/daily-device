@@ -16,10 +16,7 @@ import type { MyOrdersContentProps } from './MyOrdersContent';
 
 type MyOrdersContainerProps = MyOrdersContentProps;
 
-export function MyOrdersContainer({
-  embedded = false,
-  mode = 'all',
-}: MyOrdersContainerProps) {
+export function MyOrdersContainer({ mode = 'all' }: MyOrdersContainerProps) {
   const t = useTranslations('MyOrders');
 
   const isReviewWriteMode = mode === 'review';
@@ -39,16 +36,14 @@ export function MyOrdersContainer({
     : isReviewWrittenMode
       ? t('meta.reviewWritten.description')
       : t('meta.all.description');
-  const pageClassName = embedded
-    ? 'w-full rounded-2xl lg:pl-4'
-    : 'mx-auto w-full max-w-7xl px-4 pb-16 pt-27.5 sm:px-6';
+  const pageClassName = 'w-full rounded-2xl lg:pl-4';
   const ordersFallback = (
     <MyPageOrdersSkeleton
       pageClassName={pageClassName}
       pageLabel={pageLabel}
       pageTitle={pageTitle}
       pageDescription={pageDescription}
-      menuButton={embedded ? <MyPageMobileMenuButton /> : undefined}
+      menuButton={<MyPageMobileMenuButton />}
     />
   );
 
@@ -65,7 +60,7 @@ export function MyOrdersContainer({
           )}
         >
           <Suspense fallback={ordersFallback}>
-            <MyOrdersContent embedded={embedded} mode={mode} />
+            <MyOrdersContent mode={mode} />
           </Suspense>
         </ErrorBoundary>
       )}

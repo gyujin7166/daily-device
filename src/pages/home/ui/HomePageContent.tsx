@@ -43,7 +43,6 @@ export default function HomePageContent() {
         viewportOffsetTopPx={90}
         imageClassName="object-[58%_center]"
         position="start"
-        verticalPosition="center"
         contentWidth="1/2"
         useImagePosition={false}
         defaultTextTone="light"

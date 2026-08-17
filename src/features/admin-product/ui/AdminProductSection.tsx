@@ -136,7 +136,7 @@ export default function AdminProductSection({
         const nextProduct =
           products.find((item) => item.id !== product.id) ?? null;
         setEditingProduct(nextProduct);
-        setIsCreatingProduct(false);
+        setIsCreatingProduct(nextProduct === null);
         setFormVersion((version) => version + 1);
       }
       onMessage(

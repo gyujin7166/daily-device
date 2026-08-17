@@ -17,7 +17,6 @@ export default function CatalogProductItemCard({
   viewModel,
   backgroundClassName,
   priorityImage,
-  showAddToCart,
   selectedColor,
   onColorChange,
   hasWishlistItem,
@@ -57,7 +56,6 @@ export default function CatalogProductItemCard({
           imageUrl={imageUrl}
           imageAlt={imageAlt}
           priorityImage={priorityImage}
-          variant="catalog"
         />
         <WishlistButton
           visible={hasWishlistItem}
@@ -120,17 +118,15 @@ export default function CatalogProductItemCard({
             <span aria-hidden className="block min-h-10" />
           )}
 
-          {showAddToCart ? (
-            <button
-              type="button"
-              onClick={onAddToCart}
-              disabled={!canAddToCart}
-              className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-surface transition duration-200 hover:bg-primary-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text dark:bg-primary dark:hover:bg-primary-hover"
-              aria-label={t('addToCart')}
-            >
-              <IconShoppingBag size={18} stroke={2} />
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={onAddToCart}
+            disabled={!canAddToCart}
+            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-surface transition duration-200 hover:bg-primary-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text dark:bg-primary dark:hover:bg-primary-hover"
+            aria-label={t('addToCart')}
+          >
+            <IconShoppingBag size={18} stroke={2} />
+          </button>
         </div>
       </div>
     </article>

@@ -4,15 +4,7 @@ import ProductSkeleton from '@entities/product/ui/ProductSkeleton';
 
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
-type ProductCategoryLoadingStateProps = {
-  hasActiveFilterBar?: boolean;
-  colorRows?: number;
-};
-
-export default function ProductCategoryLoadingState({
-  hasActiveFilterBar = false,
-  colorRows,
-}: ProductCategoryLoadingStateProps) {
+export default function ProductCategoryLoadingState() {
   return (
     <>
       <section className="w-full border-b border-line bg-surface text-sm dark:border-dark-border dark:bg-dark-bg">
@@ -29,17 +21,11 @@ export default function ProductCategoryLoadingState({
         <PageWrapper>
           <div className="flex flex-col gap-8 lg:flex-row">
             <aside className="hidden w-full shrink-0 lg:block lg:w-65">
-              <ProductFilterSkeleton colorRows={colorRows} />
+              <ProductFilterSkeleton />
             </aside>
 
             <div className="min-w-0 flex-1">
-              {hasActiveFilterBar ? (
-                <div className="mb-5 flex flex-wrap gap-2">
-                  <div className="h-9 w-36 animate-pulse rounded-full bg-line dark:bg-dark-bg-hover" />
-                  <div className="h-9 w-20 animate-pulse rounded-full bg-line dark:bg-dark-bg-hover" />
-                </div>
-              ) : null}
-              <ProductSkeleton variant="product" length={6} />
+              <ProductSkeleton length={6} />
             </div>
           </div>
         </PageWrapper>

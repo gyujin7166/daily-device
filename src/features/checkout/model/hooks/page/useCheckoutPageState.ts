@@ -25,9 +25,6 @@ export default function useCheckoutPageState() {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
   const { setParam } = useQueryParams();
-  const isAddressModalOpen = useCheckoutStore(
-    (state) => state.isAddressModalOpen,
-  );
   const {
     resetCheckoutState,
     setIsAddressModalOpen,
@@ -92,12 +89,6 @@ export default function useCheckoutPageState() {
       : !hasCheckoutItems && !orderNumber && checkoutEntry === 'direct'
         ? 'empty'
         : 'checkout';
-
-  const handleOpenAddressModal = () => {
-    setEditingAddressId(null);
-    setAddressModalMode('saved');
-    setIsAddressModalOpen(true);
-  };
 
   const handleGoHome = () => {
     router.push('/');
@@ -190,7 +181,6 @@ export default function useCheckoutPageState() {
   ]);
 
   return {
-    isAddressModalOpen,
     orderNumber,
     hasCheckoutItems,
     totalQuantity,
@@ -205,7 +195,6 @@ export default function useCheckoutPageState() {
     selectedMethod,
     setSelectedMethod,
     checkoutViewState,
-    handleOpenAddressModal,
     handleGoHome,
   };
 }

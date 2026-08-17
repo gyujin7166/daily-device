@@ -34,7 +34,7 @@ export default async function MyOrdersPage() {
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
       <MyPageShell activeTab="orders">
-        <MyOrdersContainer embedded />
+        <MyOrdersContainer />
       </MyPageShell>
     </HydrationBoundary>
   );

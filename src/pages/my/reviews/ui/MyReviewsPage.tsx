@@ -34,7 +34,7 @@ export default async function MyReviewsPage() {
   return (
     <HydrationBoundary state={dehydrateWithPending(queryClient)}>
       <MyPageShell activeTab="reviews">
-        <MyOrdersContainer embedded mode="review-written" />
+        <MyOrdersContainer mode="review-written" />
       </MyPageShell>
     </HydrationBoundary>
   );

@@ -7,7 +7,6 @@ import { cn } from '@shared/lib/utils/style';
 type QueryErrorFallbackProps = {
   title: string;
   description?: string;
-  retryLabel?: string;
   onRetry: () => void;
   className?: string;
 };
@@ -15,13 +14,11 @@ type QueryErrorFallbackProps = {
 export default function QueryErrorFallback({
   title,
   description,
-  retryLabel,
   onRetry,
   className = '',
 }: QueryErrorFallbackProps) {
   const t = useTranslations('Common.queryError');
   const resolvedDescription = description ?? t('description');
-  const resolvedRetryLabel = retryLabel ?? t('retry');
 
   return (
     <div
@@ -50,7 +47,7 @@ export default function QueryErrorFallback({
           className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full bg-ink px-5 text-sm font-semibold text-surface transition-colors hover:bg-ink/90 dark:bg-surface dark:text-ink dark:hover:bg-surface/90"
         >
           <IconRefresh size={16} />
-          {resolvedRetryLabel}
+          {t('retry')}
         </button>
       </div>
     </div>

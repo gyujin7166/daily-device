@@ -69,7 +69,7 @@ describe('서버에서 보호되는 마이페이지 컨테이너', () => {
     ['overview', () => <MyOverviewPageContainer session={session} />],
     ['address', () => <MyAddressContainer />],
     ['wishlist', () => <MyWishlistContainer />],
-    ['orders', () => <MyOrdersContainer embedded />],
+    ['orders', () => <MyOrdersContainer />],
   ])(
     '클라이언트 세션 로딩과 무관하게 %s hydration 콘텐츠를 표시한다',
     (page, createView) => {

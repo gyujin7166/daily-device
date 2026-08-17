@@ -10,7 +10,6 @@ type MyPageSectionHeaderProps = {
   description?: ReactNode;
   action?: ReactNode;
   className?: string;
-  menuButton?: ReactNode;
 };
 
 export default function MyPageSectionHeader({
@@ -19,7 +18,6 @@ export default function MyPageSectionHeader({
   description,
   action,
   className,
-  menuButton = <MyPageMobileMenuButton />,
 }: MyPageSectionHeaderProps) {
   return (
     <header
@@ -38,7 +36,7 @@ export default function MyPageSectionHeader({
               {title}
             </h1>
           </div>
-          {menuButton}
+          <MyPageMobileMenuButton />
         </div>
         {description ? (
           <p className="text-sm text-muted dark:text-dark-muted sm:pb-1">

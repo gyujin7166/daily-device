@@ -6,13 +6,13 @@ import CheckoutOrderComplete from '../complete/CheckoutOrderComplete';
 
 import CheckoutFlowOrderItemsSection from './CheckoutFlowOrderItemsSection';
 import CheckoutFlowPaymentPanel from './CheckoutFlowPaymentPanel';
+import CheckoutFlowShippingColumn from './CheckoutFlowShippingColumn';
 import CheckoutFlowShippingSection from './CheckoutFlowShippingSection';
 
 import type { CheckoutPaymentMethod } from '../../model/payment';
 
 type CheckoutFlowSectionProps = {
   orderNumber: string | null;
-  isAddressModalOpen: boolean;
   hasCheckoutItems: boolean;
   totalQuantity: number;
   checkoutItems: UserCartItem[];
@@ -25,12 +25,10 @@ type CheckoutFlowSectionProps = {
   selectedMethod: CheckoutPaymentMethod;
   onSelectMethod: Dispatch<SetStateAction<CheckoutPaymentMethod>>;
   onPay: () => void;
-  onOpenAddressModal: () => void;
 };
 
 export default function CheckoutFlowSection({
   orderNumber,
-  isAddressModalOpen,
   hasCheckoutItems,
   totalQuantity,
   checkoutItems,
@@ -43,15 +41,10 @@ export default function CheckoutFlowSection({
   selectedMethod,
   onSelectMethod,
   onPay,
-  onOpenAddressModal,
 }: CheckoutFlowSectionProps) {
   const rootClassName = `grid items-start gap-6 pb-12 md:pb-16 lg:pb-24 ${
     !orderNumber ? 'xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)]' : ''
   }`;
-  const shippingColumnClassName = `grid gap-y-5 xl:sticky xl:top-10 xl:gap-y-6 xl:self-start ${
-    isAddressModalOpen ? 'xl:z-150' : 'xl:z-10'
-  }`;
-
   return (
     <div className={rootClassName}>
       {orderNumber ? (
@@ -60,10 +53,8 @@ export default function CheckoutFlowSection({
         </div>
       ) : (
         <>
-          <div className={shippingColumnClassName}>
-            <CheckoutFlowShippingSection
-              onOpenAddressModal={onOpenAddressModal}
-            />
+          <CheckoutFlowShippingColumn>
+            <CheckoutFlowShippingSection />
             <CheckoutFlowPaymentPanel
               selectedMethod={selectedMethod}
               onSelectMethod={onSelectMethod}
@@ -74,7 +65,7 @@ export default function CheckoutFlowSection({
               onPay={onPay}
               className="hidden xl:grid xl:gap-y-6"
             />
-          </div>
+          </CheckoutFlowShippingColumn>
           {hasCheckoutItems ? (
             <div className="flex flex-col gap-y-5 lg:gap-y-6">
               <CheckoutFlowOrderItemsSection

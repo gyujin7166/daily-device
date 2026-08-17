@@ -2,7 +2,7 @@ import { cn } from '@shared/lib/utils/style';
 
 type SpinnerProps = {
   size?: 'sm' | 'md' | 'lg';
-  variant?: 'primary' | 'inverse' | 'muted' | 'current';
+  variant?: 'primary' | 'inverse' | 'current';
   className?: string;
 };
 
@@ -19,7 +19,6 @@ export default function Spinner({
   const spinnerVariant = {
     primary: 'text-line fill-primary dark:text-dark-muted',
     inverse: 'text-surface/35 fill-surface',
-    muted: 'text-line fill-muted dark:text-dark-muted dark:fill-dark-muted',
     current: 'text-current fill-current',
   };
 

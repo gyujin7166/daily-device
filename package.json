@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "start": "next start",
     "db:seed": "ts-node prisma/seeds/seeds.ts",
     "db:seed:category": "ts-node prisma/seeds/seed-product-category.ts",
@@ -62,6 +64,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
+    "@storybook/addon-a11y": "^10.5.7",
+    "@storybook/addon-docs": "^10.5.7",
+    "@storybook/addon-themes": "^10.5.7",
+    "@storybook/nextjs-vite": "^10.5.7",
     "@tailwindcss/postcss": "^4.3.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -78,9 +84,11 @@
     "eslint-plugin-import": "^2.32.0",
     "jsdom": "^29.1.1",
     "msw": "^2.14.6",
+    "msw-storybook-addon": "^3.0.0",
     "postcss": "^8.5.15",
     "prettier": "^3.8.3",
     "prisma": "6.17.0",
+    "storybook": "^10.5.7",
     "tailwindcss": "^4.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
@@ -88,5 +96,10 @@
   },
   "overrides": {
     "postcss": "$postcss"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

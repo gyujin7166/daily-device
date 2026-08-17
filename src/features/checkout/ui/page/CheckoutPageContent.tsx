@@ -24,7 +24,6 @@ function CheckoutDemoNotice() {
 export default function CheckoutPageContent() {
   const t = useTranslations('Checkout.page');
   const {
-    isAddressModalOpen,
     orderNumber,
     hasCheckoutItems,
     totalQuantity,
@@ -39,7 +38,6 @@ export default function CheckoutPageContent() {
     selectedMethod,
     setSelectedMethod,
     checkoutViewState,
-    handleOpenAddressModal,
     handleGoHome,
   } = useCheckoutPageState();
 
@@ -64,7 +62,6 @@ export default function CheckoutPageContent() {
                 {!orderNumber ? <CheckoutDemoNotice /> : null}
                 <CheckoutFlowSection
                   orderNumber={orderNumber}
-                  isAddressModalOpen={isAddressModalOpen}
                   hasCheckoutItems={hasCheckoutItems}
                   totalQuantity={totalQuantity}
                   checkoutItems={effectiveCheckoutItems}
@@ -77,7 +74,6 @@ export default function CheckoutPageContent() {
                   selectedMethod={selectedMethod}
                   onSelectMethod={setSelectedMethod}
                   onPay={handlePay}
-                  onOpenAddressModal={handleOpenAddressModal}
                 />
               </>
             )}

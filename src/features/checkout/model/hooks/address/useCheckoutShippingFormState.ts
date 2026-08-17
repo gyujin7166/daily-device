@@ -45,8 +45,7 @@ export default function useCheckoutShippingFormState() {
     setEditingAddressId,
   } = useCheckoutStore((state) => state.actions);
 
-  const { data: userAddresses = [], isPending: isAddressesPending } =
-    useUserAddresses();
+  const { data: userAddresses = [] } = useUserAddresses();
 
   const [didInitDefault, setDidInitDefault] = useState(false);
   const [pendingDefaultId, setPendingDefaultId] = useState<number | null>(null);
@@ -67,10 +66,6 @@ export default function useCheckoutShippingFormState() {
   const hasManualInput = hasAddressFormValues(formState);
   const isNewAddressMode = addressModalMode === 'new';
   const isSavedAddressMode = addressModalMode === 'saved';
-  const isResolvingInitialAddressSelection =
-    hasSavedAddresses && selectedAddressId === null && !hasManualInput;
-  const shouldShowAddressSummarySkeleton =
-    isAddressesPending || isResolvingInitialAddressSelection;
 
   const resetAddressFormState = useCallback(() => {
     setFormState(createInitialAddressFormState());
@@ -244,10 +239,8 @@ export default function useCheckoutShippingFormState() {
   }, [applySavedAddress, pendingDefaultId, selectedAddressId, userAddresses]);
 
   return {
-    formState,
     isAddressModalOpen,
     selectedAddressId,
-    selectedAddress,
     editingAddress,
     orderedAddresses,
     hasSavedAddresses,
@@ -257,7 +250,6 @@ export default function useCheckoutShippingFormState() {
     isNewAddressMode,
     isSavedAddressMode,
     isSavingAddress,
-    shouldShowAddressSummarySkeleton,
     handleCloseAddressModal,
     handleSwitchToNewMode,
     handleSelectSavedAddress,

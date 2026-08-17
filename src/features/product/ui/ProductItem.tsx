@@ -12,22 +12,17 @@ import ProductItemCard from './ProductItemCard/ProductItemCard';
 import type {
   ProductItemProduct,
   ProductItemSelectedColor,
-  ProductItemVariant,
 } from '../model/productItem';
 
 type ProductItemProps = {
   product: ProductItemProduct;
   backgroundClassName?: string;
-  variant?: ProductItemVariant;
-  showAddToCart?: boolean;
   priorityImage?: boolean;
 };
 
 function ProductItem({
   product,
   backgroundClassName = 'bg-surface dark:bg-dark-panel',
-  variant = 'default',
-  showAddToCart = true,
   priorityImage = false,
 }: ProductItemProps) {
   const [selectedColor, setSelectedColor] =
@@ -53,7 +48,6 @@ function ProductItem({
     viewModel,
     backgroundClassName,
     priorityImage,
-    showAddToCart,
     selectedColor,
     onColorChange: setSelectedColor,
     hasWishlistItem: !!wishlistItem,
@@ -63,7 +57,7 @@ function ProductItem({
     onAddToCart: handleAddToCart,
   };
 
-  return <ProductItemCard variant={variant} {...cardProps} />;
+  return <ProductItemCard {...cardProps} />;
 }
 
 export default memo(ProductItem);

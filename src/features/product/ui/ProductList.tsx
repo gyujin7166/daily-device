@@ -58,12 +58,8 @@ const CatalogProductListItem = memo(function CatalogProductListItem({
   priorityImage,
 }: CatalogProductListItemProps) {
   return (
-    <ProductCard width="w-full">
-      <ProductItem
-        product={product}
-        variant="catalog"
-        priorityImage={priorityImage}
-      />
+    <ProductCard>
+      <ProductItem product={product} priorityImage={priorityImage} />
     </ProductCard>
   );
 });
@@ -362,13 +358,7 @@ export default function ProductList({
   };
 
   if (isPending) {
-    return (
-      <ProductSkeleton
-        variant="product"
-        columns={skeletonColumns}
-        length={pageSize}
-      />
-    );
+    return <ProductSkeleton columns={skeletonColumns} length={pageSize} />;
   }
 
   if (products.length === 0) {
@@ -417,7 +407,6 @@ export default function ProductList({
       {shouldShowAppendSkeleton ? (
         <div className="mt-5">
           <ProductSkeleton
-            variant="product"
             columns={skeletonColumns}
             length={nextSkeletonCount}
           />

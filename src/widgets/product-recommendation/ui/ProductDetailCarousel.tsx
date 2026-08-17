@@ -177,7 +177,6 @@ export default function ProductDetailCarousel({
                     { image_url: item.image_url },
                   ],
                 }}
-                variant="catalog"
                 backgroundClassName={productBackgroundClassName}
                 priorityImage={index < 5}
               />

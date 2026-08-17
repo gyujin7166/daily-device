@@ -286,6 +286,8 @@ export default defineConfig([
     '.next-playwright/**',
     'node_modules/**',
     'playwright-report/**',
+    'public/mockServiceWorker.js',
+    'storybook-static/**',
     'test-results/**',
     'out/**',
     'build/**',

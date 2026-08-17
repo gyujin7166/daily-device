@@ -9,8 +9,6 @@ type SortDropdownTriggerProps = {
   prefixLabel: string;
   triggerLabel: string;
   selectedLabel: string;
-  selectedLabelClassName: string;
-  triggerClassName: string;
   onToggle: () => void;
 };
 
@@ -21,8 +19,6 @@ export default function SortDropdownTrigger({
   prefixLabel,
   triggerLabel,
   selectedLabel,
-  selectedLabelClassName,
-  triggerClassName,
   onToggle,
 }: SortDropdownTriggerProps) {
   return (
@@ -30,21 +26,14 @@ export default function SortDropdownTrigger({
       type="button"
       onClick={onToggle}
       disabled={disabled}
-      className={cn(
-        'inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover',
-        triggerClassName,
-      )}
+      className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-full border border-line bg-surface px-3 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60 dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover"
       aria-label={triggerLabel}
       aria-expanded={isOpen}
       aria-haspopup={isMobileSheetMode ? 'dialog' : 'listbox'}
     >
       <IconArrowsSort size={14} stroke={2.1} />
       <span className="text-muted dark:text-dark-muted">{prefixLabel}:</span>
-      <span
-        className={cn('text-ink dark:text-surface', selectedLabelClassName)}
-      >
-        {selectedLabel}
-      </span>
+      <span className="text-ink dark:text-surface">{selectedLabel}</span>
       <IconChevronDown
         size={14}
         className={cn(

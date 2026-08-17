@@ -16,11 +16,7 @@ export default function ProductAllLoadingState() {
       </section>
 
       <PageWrapper as="section" className="py-8 sm:py-10">
-        <ProductSkeleton
-          variant="product"
-          columns="four"
-          length={PRODUCT_GRID_PAGE_SIZE}
-        />
+        <ProductSkeleton columns="four" length={PRODUCT_GRID_PAGE_SIZE} />
       </PageWrapper>
     </>
   );

@@ -36,7 +36,6 @@ import type { SubmitErrorHandler } from 'react-hook-form';
 
 type AddressFormModalProps = {
   title?: string;
-  description?: string;
   initialValues?: AddressFormValues;
   initialIsDefault?: boolean;
   isSaving: boolean;
@@ -139,14 +138,12 @@ function AddressFormFooter({
       isSaving={isSaving}
       isAddressReady={isValid}
       onCancel={onCancel}
-      submit
     />
   );
 }
 
 export default function AddressFormModal({
   title,
-  description,
   initialValues,
   initialIsDefault = false,
   isSaving,
@@ -197,7 +194,7 @@ export default function AddressFormModal({
         <div className="relative z-130 flex h-svh w-screen flex-col overflow-hidden rounded-none bg-surface sm:h-auto sm:w-full sm:max-h-[61.5vh] sm:max-w-140 sm:rounded-2xl sm:shadow-lg dark:bg-dark-panel">
           <AddressFormModalHeader
             title={title ?? t('title')}
-            description={description ?? t('description')}
+            description={t('description')}
             isSaving={isSaving}
             onClose={onClose}
           />
