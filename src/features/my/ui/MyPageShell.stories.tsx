@@ -84,7 +84,7 @@ export const Default: Story = {};
 export const MobileMenuOpen: Story = {
   name: 'Mobile Menu Open',
   globals: {
-    viewport: 'mobile2',
+    viewport: { value: 'mobile2', isRotated: false },
   },
   play: async ({ canvas }) => {
     await userEvent.click(
