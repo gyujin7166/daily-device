@@ -54,7 +54,6 @@ export const loadingHandlers = [
   homeHandler,
   productsHandler,
   reviewsHandler,
-  reviewsHandler,
 ];
 
 export const updateHeroHandlers = [
