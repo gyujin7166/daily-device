@@ -86,6 +86,7 @@ export default function AdminProductListSection({
           placeholder={t('searchPlaceholder')}
         />
         <select
+          aria-label={t('category')}
           className={inputClass}
           value={params.categoryId}
           onChange={(event) => onCategoryChange(event.target.value)}

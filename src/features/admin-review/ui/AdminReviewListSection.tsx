@@ -69,6 +69,7 @@ export default function AdminReviewListSection({
           placeholder={t('searchPlaceholder')}
         />
         <select
+          aria-label={t('status')}
           className={inputClass}
           value={params.status}
           onChange={(event) =>
