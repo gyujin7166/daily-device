@@ -50,7 +50,9 @@ export const ToggleDefaultAddress: Story = {
     initialValues: editingAddress,
   },
   play: async ({ canvas }) => {
-    const defaultSwitch = canvas.getByRole('switch');
+    const defaultSwitch = canvas.getByRole('switch', {
+      name: /기본 배송지로 설정|Set as default address/,
+    });
 
     await expect(defaultSwitch).toHaveAttribute('aria-checked', 'false');
     await userEvent.click(defaultSwitch);

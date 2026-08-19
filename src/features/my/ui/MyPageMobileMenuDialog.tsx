@@ -37,6 +37,7 @@ export default function MyPageMobileMenuDialog({
       )}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="my-page-mobile-menu-title"
       id="my-page-mobile-menu"
     >
       <button
@@ -56,7 +57,10 @@ export default function MyPageMobileMenuDialog({
         )}
       >
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-base font-semibold text-ink dark:text-surface">
+          <p
+            id="my-page-mobile-menu-title"
+            className="text-base font-semibold text-ink dark:text-surface"
+          >
             {t('selectMenu')}
           </p>
           <button

@@ -91,7 +91,9 @@ export const MobileMenuOpen: Story = {
       canvas.getByRole('button', { name: /메뉴 열기|Open .* menu/i }),
     );
 
-    await expect(canvas.getByRole('dialog')).toBeVisible();
+    await expect(
+      canvas.getByRole('dialog', { name: /메뉴 선택|Select menu/ }),
+    ).toBeVisible();
     await expect(
       canvas.getByRole('link', { name: /주문 목록|Orders/i }),
     ).toBeVisible();

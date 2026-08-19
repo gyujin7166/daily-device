@@ -14,18 +14,18 @@ export default function ProductDetailSpecificationGroups({
       {groups.map((group) => (
         <div key={group.id} className="pb-6 last:pb-0">
           {group.titleMiddle ? (
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-primary dark:text-primary">
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.26em] text-primary dark:text-primary">
               {group.titleMiddle}
-            </h4>
+            </h2>
           ) : null}
 
           <div className="space-y-5">
             {group.items.map((item) => (
               <div key={item.id} className="min-w-0">
                 {item.title_sub ? (
-                  <h5 className="text-base font-semibold leading-[1.45] text-ink dark:text-surface">
+                  <h3 className="text-base font-semibold leading-[1.45] text-ink dark:text-surface">
                     {item.title_sub}
-                  </h5>
+                  </h3>
                 ) : null}
 
                 {item.specifications.length > 0 ? (

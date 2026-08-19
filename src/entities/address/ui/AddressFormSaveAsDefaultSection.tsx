@@ -28,6 +28,7 @@ export default function AddressFormSaveAsDefaultSection({
       <button
         type="button"
         role="switch"
+        aria-label={t('saveAsDefault')}
         aria-checked={saveAsDefault}
         onClick={() => onSaveAsDefaultChange(!saveAsDefault)}
         className={cn(

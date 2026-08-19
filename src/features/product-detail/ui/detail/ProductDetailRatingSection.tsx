@@ -32,14 +32,15 @@ export default function ProductDetailRatingSection({
   const emptyStarCount = 5 - fullStarCount - (hasHalfStar ? 1 : 0);
 
   return (
-    <div className="mt-1 flex items-center gap-3">
-      <div
-        className="flex items-center"
-        aria-label={t('ariaLabel', {
-          rating: roundedAverageRating,
-          count: safeReviewCount,
-        })}
-      >
+    <div
+      className="mt-1 flex items-center gap-3"
+      role="img"
+      aria-label={t('ariaLabel', {
+        rating: roundedAverageRating,
+        count: safeReviewCount,
+      })}
+    >
+      <div className="flex items-center">
         {Array.from({ length: fullStarCount }).map((_, idx) => (
           <IconStarFilled
             key={`full-star-${idx}`}

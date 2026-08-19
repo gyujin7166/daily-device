@@ -219,5 +219,14 @@ export const OpenSpecification: Story = {
     await waitFor(async () => {
       await expect(canvas.getByText(/Compact 75%/)).toBeVisible();
     });
+    await expect(
+      canvas.getByRole('heading', { level: 2, name: 'KEYBOARD' }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole('heading', {
+        level: 3,
+        name: 'Core specifications',
+      }),
+    ).toBeVisible();
   },
 };

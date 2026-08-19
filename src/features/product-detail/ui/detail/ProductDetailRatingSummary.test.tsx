@@ -86,6 +86,9 @@ describe('ProductDetailRatingSummary', () => {
     const { container, rerender } = render(renderRating('ko'));
 
     expect(await screen.findByText('12 reviews')).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Rating 4.5, 12 reviews' }),
+    ).toBeInTheDocument();
 
     rerender(renderRating('en'));
 
