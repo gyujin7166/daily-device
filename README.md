@@ -4,6 +4,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
 [![Quality Check](https://github.com/gyujin7166/daily-device/actions/workflows/quality.yml/badge.svg)](https://github.com/gyujin7166/daily-device/actions/workflows/quality.yml)
 [![End-to-End Tests](https://github.com/gyujin7166/daily-device/actions/workflows/e2e.yml/badge.svg)](https://github.com/gyujin7166/daily-device/actions/workflows/e2e.yml)
+[![Chromatic](https://github.com/gyujin7166/daily-device/actions/workflows/chromatic.yml/badge.svg)](https://github.com/gyujin7166/daily-device/actions/workflows/chromatic.yml)
 
 상품 탐색, 장바구니, 체크아웃, 주문 관리, 상품평, 찜하기, 관리자 페이지까지 이어지는 이커머스 흐름을 구현했습니다. 라우팅은 Next.js App Router의 `app/`에서 담당하고, 화면 조합과 기능 로직은 FSD 구조에 맞춰 `src/` 하위 레이어로 분리했습니다.
 
@@ -13,6 +14,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 
 - 배포 사이트: https://daily-device.vercel.app
 - 관리자 페이지: https://daily-device.vercel.app/admin
+- Storybook: https://main--6a82c7831d958c38f95c9b50.chromatic.com/
 - 데모 로그인: 로그인 페이지의 데모 로그인 버튼 사용
 
 관리자 권한은 DB의 `User.role` 값으로 판단합니다.
@@ -48,6 +50,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 ### Infra / External
 
 - Vercel
+- Storybook / Chromatic
 - Cloudinary
 - Toss Payments
 
@@ -105,6 +108,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - API 입력값은 Zod로 검증하고, 상품평 작성 권한과 주문 상태 같은 도메인 규칙은 서버에서 최종 확인합니다.
 - 주문 상태를 결제·배송·취소·만료 흐름으로 분리하고, 일반 계정의 관리자 조회와 `ADMIN` 쓰기 권한을 구분했습니다.
 - Cloudinary 업로드 규칙, base64 blurDataURL과 색상별 이미지 fallback으로 이미지 로딩 경험을 개선했습니다.
+- Storybook과 Chromatic으로 컴포넌트 상태·상호작용을 문서화하고 시각적 변경을 검토합니다.
 - Vitest·RTL·MSW·Playwright와 GitHub Actions를 사용해 로직부터 핵심 구매 흐름까지 검증합니다.
 
 ## 회고
@@ -127,7 +131,8 @@ src/i18n/             next-intl 요청별 메시지 설정
 messages/             한국어·영어 UI 메시지 카탈로그
 prisma/               Prisma schema와 seed, seed 이미지 업로드 스크립트
 public/               로고, fallback, 홈/카테고리 등 정적 UI 이미지
-.github/workflows/     Quality Check와 Playwright E2E workflow
+.storybook/            Storybook 전역 provider, theme, locale, MSW 설정
+.github/workflows/     Quality Check, Playwright E2E, Chromatic workflow
 ```
 
 ## 실행
@@ -156,6 +161,26 @@ npm run dev
 ```txt
 http://localhost:3000
 ```
+
+## Storybook
+
+컴포넌트의 주요 상태와 사용자 상호작용은 Storybook에서 독립적으로 확인할 수 있습니다. API 응답이 필요한 스토리는 MSW fixture를 사용하며 실제 OAuth, 결제, 외부 API 또는 운영 DB를 호출하지 않습니다.
+
+```bash
+npm run storybook
+```
+
+```txt
+http://localhost:6006
+```
+
+정적 Storybook 빌드는 다음 명령으로 확인합니다.
+
+```bash
+npm run build-storybook
+```
+
+branch가 GitHub에 push되면 Chromatic workflow가 Storybook을 배포하고 시각적 변경과 `play` 상호작용을 검사합니다. Chromatic 프로젝트 토큰은 코드나 환경 변수 예제에 기록하지 않고 GitHub Actions Repository Secret `CHROMATIC_PROJECT_TOKEN`으로만 관리합니다.
 
 ## 환경 변수
 
@@ -229,16 +254,20 @@ UI 메시지의 key와 ICU placeholder 일치 여부를 테스트하고, API·Ta
 - Vitest: 가격 계산, 장바구니 variant, checkout 조건과 같은 순수 로직 및 hook 테스트
 - React Testing Library: 사용자에게 보이는 컴포넌트 상태와 상호작용 테스트
 - MSW: 장바구니, 찜, 주문 API의 성공, 실패, 빈 응답에 따른 클라이언트 통합 테스트
+- Storybook: 컴포넌트의 주요 variant, 빈 상태, 오류 상태와 사용자 상호작용 확인
+- Chromatic: 배포된 Storybook의 시각적 변경과 `play` 상호작용 검사
 - Playwright: 실제 Chromium에서 라우팅, 인증 상태, 저장소와 핵심 사용자 흐름을 검증하는 E2E 테스트
 
 버그 수정이나 로직·사용자 상호작용 변경에는 가능한 한 실패하는 재현 테스트를 먼저 확인하고, 최소 구현과 리팩터링 후 다시 검증합니다.
 
-| 명령어                | 검증 범위                                   |
-| --------------------- | ------------------------------------------- |
-| `npm run test:unit`   | Vitest 단위·컴포넌트·클라이언트 통합 테스트 |
-| `npm run test:e2e`    | Playwright Chromium 핵심 사용자 흐름        |
-| `npm run test:visual` | `@visual` 태그 기반 시각 회귀 테스트        |
-| `npm run test:all`    | Vitest 실행 후 Playwright E2E 실행          |
+| 명령어                    | 검증 범위                                   |
+| ------------------------- | ------------------------------------------- |
+| `npm run test:unit`       | Vitest 단위·컴포넌트·클라이언트 통합 테스트 |
+| `npm run test:e2e`        | Playwright Chromium 핵심 사용자 흐름        |
+| `npm run test:visual`     | `@visual` 태그 기반 시각 회귀 테스트        |
+| `npm run test:all`        | Vitest 실행 후 Playwright E2E 실행          |
+| `npm run storybook`       | 로컬 Storybook 개발 서버                    |
+| `npm run build-storybook` | 정적 Storybook 빌드                         |
 
 현재 E2E 테스트는 다음 흐름을 검증합니다.
 
@@ -262,6 +291,7 @@ npm run db:prepare:e2e
 | 시점               | 검증 및 배포                                                          |
 | ------------------ | --------------------------------------------------------------------- |
 | Pull request       | format·unit·type·lint, production build, Chromium E2E, Vercel Preview |
+| Branch push        | Chromatic Storybook 배포 및 UI 검사                                   |
 | `main` 브랜치 반영 | 동일한 GitHub Actions 재검증 후 Vercel Production 배포                |
 
 - E2E는 운영 DB와 분리된 전용 TiDB의 스키마와 seed 상태를 준비한 뒤 실행합니다.
