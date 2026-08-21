@@ -13,7 +13,7 @@ type MyOrdersEmptyStateProps = {
 };
 
 const emptyActionClassName =
-  'inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-surface shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover';
+  'inline-flex h-10 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-on-primary shadow-[0_14px_26px_-18px_rgba(37,99,235,0.75)] transition-colors hover:bg-primary-hover';
 
 export default function MyOrdersEmptyState({
   isReviewWriteMode,

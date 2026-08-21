@@ -33,7 +33,7 @@ export default function CartHeader() {
               {t('title')}
             </h2>
             {totalQuantity > 0 && (
-              <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-sm font-semibold text-surface">
+              <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-primary px-2 text-sm font-semibold text-on-primary">
                 {totalQuantity}
               </span>
             )}

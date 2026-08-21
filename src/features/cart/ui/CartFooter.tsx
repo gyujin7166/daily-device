@@ -107,7 +107,7 @@ export default function CartFooter() {
             'mt-5 inline-flex h-13 w-full items-center justify-center rounded-xl text-base font-semibold transition-colors',
             isCheckoutButtonDisabled
               ? 'cursor-not-allowed bg-disabled-bg text-disabled-text dark:bg-dark-bg-hover dark:text-dark-muted'
-              : 'bg-primary text-surface hover:bg-primary-hover',
+              : 'bg-primary text-on-primary hover:bg-primary-hover',
           )}
         >
           {shouldShowSyncSpinner ? (

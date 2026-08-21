@@ -539,7 +539,7 @@ export default function AdminHeroFormSection({
               : true) ||
             (isProductHero && !targetCategoryId)
           }
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-on-primary transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
           {t('form.save')}

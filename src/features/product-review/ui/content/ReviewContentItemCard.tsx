@@ -162,7 +162,7 @@ export default function ReviewContentItemCard({
               className={cn(
                 'inline-flex h-10 min-w-17 items-center justify-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-[background-color,border-color,color,transform,box-shadow]',
                 isHelpfulActive
-                  ? 'border-primary bg-primary text-surface shadow-[0_8px_18px_-12px_rgba(37,99,235,0.75)]'
+                  ? 'border-primary bg-primary text-on-primary shadow-[0_8px_18px_-12px_rgba(37,99,235,0.75)]'
                   : 'border-line bg-surface text-muted hover:bg-line hover:text-ink dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted dark:hover:bg-dark-panel-hover dark:hover:text-surface',
                 isHelpfulAnimating
                   ? 'motion-safe:animate-review-helpful-pop motion-safe:will-change-transform'

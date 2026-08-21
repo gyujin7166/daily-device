@@ -88,7 +88,7 @@ export default function ReviewContentControls({
               className={cn(
                 'h-8 rounded-full px-3 text-sm font-semibold transition-colors',
                 reviewFilter === 'all'
-                  ? 'bg-primary text-surface'
+                  ? 'bg-primary text-on-primary'
                   : 'text-muted hover:text-ink dark:text-dark-muted dark:hover:text-surface',
               )}
               disabled={isRefreshing}
@@ -101,7 +101,7 @@ export default function ReviewContentControls({
               className={cn(
                 'h-8 rounded-full px-3 text-sm font-semibold transition-colors',
                 reviewFilter === 'with_images'
-                  ? 'bg-primary text-surface'
+                  ? 'bg-primary text-on-primary'
                   : 'text-muted hover:text-ink dark:text-dark-muted dark:hover:text-surface',
               )}
               disabled={isRefreshing}

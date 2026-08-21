@@ -26,7 +26,7 @@ export default function AddressFormModalFooter({
       <button
         type="submit"
         disabled={!isAddressReady || isSaving}
-        className="inline-flex h-13.5 min-w-42 items-center justify-center rounded-2xl bg-primary px-8 text-base font-bold leading-6 text-surface shadow-[0_10px_24px_rgba(24,116,209,0.28)] transition enabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text disabled:shadow-none sm:h-12 sm:min-w-37 sm:rounded-xl sm:px-7 sm:text-base sm:leading-5"
+        className="inline-flex h-13.5 min-w-42 items-center justify-center rounded-2xl bg-primary px-8 text-base font-bold leading-6 text-on-primary shadow-[0_10px_24px_rgba(24,116,209,0.28)] transition enabled:hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text disabled:shadow-none sm:h-12 sm:min-w-37 sm:rounded-xl sm:px-7 sm:text-base sm:leading-5"
       >
         {isSaving ? t('saving') : t('save')}
       </button>

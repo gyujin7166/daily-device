@@ -528,7 +528,7 @@ function HomeSectionForm({
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-on-primary transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
           {t('save')}
@@ -1103,7 +1103,7 @@ function HomeSectionItemForm({
         <button
           type="submit"
           disabled={isSaving}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-surface transition hover:bg-primary-hover disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-on-primary transition hover:bg-primary-hover disabled:opacity-60"
         >
           <IconDeviceFloppy size={18} />
           {initialValues.id ? t('cardForm.save') : t('cardForm.add')}

@@ -9,9 +9,13 @@
   --color-canvas: var(--color-gray-100);
   --color-surface: var(--color-white);
   --color-ink: var(--color-gray-900);
-  --color-muted: var(--color-gray-500);
+  --color-muted: color-mix(
+    in oklch,
+    var(--color-gray-500) 70%,
+    var(--color-gray-600)
+  );
   --color-line: var(--color-gray-200);
-  --color-danger: var(--color-red-600);
+  --color-danger: var(--color-red-700);
   --color-warning: var(--color-amber-500);
   --color-success: var(--color-green-700);
   --color-info: var(--color-blue-500);
@@ -34,6 +38,7 @@
   --color-primary-soft: var(--color-blue-50);
   --color-primary: var(--color-blue-600);
   --color-primary-hover: var(--color-blue-700);
+  --color-on-primary: var(--color-white);
   --color-dark-bg: var(--color-slate-800);
   --color-dark-bg-hover: var(--color-slate-700);
   --color-dark-panel: var(--color-slate-900);
@@ -41,7 +46,11 @@
   --color-dark-panel-deep: var(--color-slate-950);
   --color-dark-elevated: var(--color-slate-950);
   --color-dark-border: var(--color-slate-700);
-  --color-dark-muted: var(--color-slate-400);
+  --color-dark-muted: color-mix(
+    in oklch,
+    var(--color-slate-400) 75%,
+    var(--color-slate-300)
+  );
   --color-disabled-bg: var(--color-gray-300);
   --color-disabled-text: var(--color-slate-400);
 
@@ -235,8 +244,10 @@ html.dark {
     var(--color-blue-400) 16%,
     transparent
   );
-  --color-primary: var(--color-blue-400);
-  --color-primary-hover: var(--color-blue-500);
+  --color-primary: var(--color-blue-300);
+  --color-primary-hover: var(--color-blue-400);
+  --color-on-primary: var(--color-gray-900);
+  --color-danger: var(--color-red-400);
   color-scheme: dark;
 }
 

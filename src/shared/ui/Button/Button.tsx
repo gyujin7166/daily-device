@@ -26,7 +26,7 @@ export default function Button({
         primary:
           'justify-center text-ink dark:text-surface bg-surface dark:bg-dark-bg border-2 border-surface hover:bg-transparent hover:text-surface',
         secondary:
-          'justify-center text-surface bg-primary border-2 border-primary enabled:hover:bg-primary-hover enabled:hover:border-primary-hover',
+          'justify-center text-on-primary bg-primary border-2 border-primary enabled:hover:bg-primary-hover enabled:hover:border-primary-hover',
       },
       size: {
         md: 'px-8 py-4 text-sm',

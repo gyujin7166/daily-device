@@ -106,7 +106,7 @@ export default function ProductDetailPurchaseSection({
           type="button"
           onClick={onAddToCart}
           disabled={isAddToCartDisabled}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-lg font-semibold text-surface transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-lg font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-disabled-bg disabled:text-disabled-text"
         >
           <IconShoppingBag size={18} />
           {t('addToCart')}

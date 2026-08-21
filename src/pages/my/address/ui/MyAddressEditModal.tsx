@@ -177,7 +177,7 @@ export default function MyAddressEditModal({
               </button>
               <button
                 type="submit"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isSaving}
               >
                 {isSaving ? t('saving') : t('save')}

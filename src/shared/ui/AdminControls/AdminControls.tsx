@@ -244,7 +244,7 @@ export function PaginationControls({
           className={cn(
             'h-9 min-w-9 rounded-md border px-3 text-sm font-bold',
             pageNumber === page
-              ? 'border-primary bg-primary text-surface'
+              ? 'border-primary bg-primary text-on-primary'
               : 'border-line bg-surface text-ink dark:border-dark-border dark:bg-dark-panel dark:text-surface',
           )}
         >

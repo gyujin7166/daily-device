@@ -10,7 +10,7 @@ type CheckoutOrderCompleteFooterProps = {
 const ACTION_LINK_BASE_CLASS =
   'inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold';
 const SECONDARY_ACTION_LINK_CLASS = `${ACTION_LINK_BASE_CLASS} border border-line bg-surface text-ink hover:bg-canvas dark:border-dark-border dark:bg-dark-bg-hover dark:text-surface dark:hover:bg-dark-bg-hover`;
-const PRIMARY_ACTION_LINK_CLASS = `${ACTION_LINK_BASE_CLASS} bg-primary text-surface hover:bg-primary-hover`;
+const PRIMARY_ACTION_LINK_CLASS = `${ACTION_LINK_BASE_CLASS} bg-primary text-on-primary hover:bg-primary-hover`;
 
 export default function CheckoutOrderCompleteFooter({
   orderNumber,

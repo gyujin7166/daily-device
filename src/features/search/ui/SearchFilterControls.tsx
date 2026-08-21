@@ -80,7 +80,7 @@ export default function SearchFilterControls({
                 className={cn(
                   'inline-flex h-8 items-center rounded-full px-3 text-sm font-semibold transition-colors',
                   isSelected
-                    ? 'bg-primary text-surface'
+                    ? 'bg-primary text-on-primary'
                     : 'bg-info-soft text-muted hover:text-ink dark:bg-dark-bg-hover dark:text-dark-muted dark:hover:text-surface',
                 )}
               >

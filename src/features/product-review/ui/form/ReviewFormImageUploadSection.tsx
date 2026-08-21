@@ -148,7 +148,7 @@ export default function ReviewFormImageUploadSection({
           </span>
         ) : null}
 
-        <p className="text-[11px] italic text-disabled-text dark:text-dark-muted">
+        <p className="text-[11px] italic text-muted dark:text-dark-muted">
           {t('uploadGuide', {
             maxCount: MAX_REVIEW_IMAGES,
             maxSize: CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB,

@@ -72,7 +72,7 @@ export default function ReviewGalleryDetailInfoPanel({
             className={cn(
               'inline-flex h-8 shrink-0 items-center gap-1 rounded-full border px-2.5 text-xs font-semibold transition-[background-color,border-color,color,transform,box-shadow] lg:hidden',
               isHelpfulActive
-                ? 'border-primary bg-primary text-surface shadow-[0_8px_18px_-12px_rgba(37,99,235,0.75)]'
+                ? 'border-primary bg-primary text-on-primary shadow-[0_8px_18px_-12px_rgba(37,99,235,0.75)]'
                 : 'border-line bg-canvas text-muted hover:bg-primary-soft hover:text-primary dark:border-dark-border dark:bg-dark-panel-hover dark:text-dark-muted dark:hover:bg-dark-bg-hover dark:hover:text-surface',
               isHelpfulAnimating
                 ? 'motion-safe:animate-review-helpful-pop motion-safe:will-change-transform'
@@ -186,7 +186,7 @@ export default function ReviewGalleryDetailInfoPanel({
           className={cn(
             'inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition-[background-color,border-color,color,transform,box-shadow] sm:h-14 sm:text-base',
             isHelpfulActive
-              ? 'bg-primary text-surface shadow-[0_10px_22px_-14px_rgba(37,99,235,0.8)] hover:bg-primary/90'
+              ? 'bg-primary text-on-primary shadow-[0_10px_22px_-14px_rgba(37,99,235,0.8)] hover:bg-primary/90'
               : 'bg-ink text-surface shadow-xs hover:bg-ink/90 dark:border-dark-border dark:bg-dark-bg-hover dark:text-surface dark:hover:border-surface/20 dark:hover:bg-dark-bg',
             isHelpfulAnimating
               ? 'motion-safe:animate-review-helpful-pop motion-safe:will-change-transform'
