@@ -36,7 +36,7 @@ export default function CheckoutPageEmptyState({
               size="md"
               transition="enabled"
               onClick={onGoHome}
-              className="h-12 items-center gap-2.5 rounded-xl border-primary bg-primary px-10 text-surface hover:bg-primary-hover hover:text-surface dark:border-primary dark:bg-primary dark:text-surface dark:hover:bg-primary-hover"
+              className="h-12 items-center gap-2.5 rounded-xl border-primary bg-primary px-10 text-on-primary hover:bg-primary-hover hover:text-on-primary dark:border-primary dark:bg-primary dark:text-on-primary dark:hover:bg-primary-hover"
             >
               <span>
                 <IconArrowLeft size={20} />

@@ -405,7 +405,9 @@ export const OpenProductsTab: Story = {
     );
 
     await expect(
-      await canvas.findByText(/^상품 목록$|^Product list$/),
+      await canvas.findByRole('heading', {
+        name: /^상품 목록$|^Products$/,
+      }),
     ).toBeVisible();
   },
 };

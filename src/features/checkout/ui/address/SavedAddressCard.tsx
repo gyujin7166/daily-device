@@ -55,7 +55,7 @@ export default function SavedAddressCard({
       />
 
       {isSelected ? (
-        <span className="absolute -right-3 -top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-surface bg-primary text-surface shadow-xs sm:-right-2 sm:-top-2 sm:h-7 sm:w-7 sm:border">
+        <span className="absolute -right-3 -top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-surface bg-primary text-on-primary shadow-xs sm:-right-2 sm:-top-2 sm:h-7 sm:w-7 sm:border">
           <IconCheck stroke={3} className="h-5 w-5 sm:h-4 sm:w-4" />
         </span>
       ) : null}
@@ -67,13 +67,13 @@ export default function SavedAddressCard({
           </span>
           <div className="flex shrink-0 items-center gap-2">
             {item.isDefault ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary dark:bg-primary/20 dark:text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary dark:bg-dark-panel dark:text-primary">
                 <IconDiscountCheckFilled size={14} />
                 {t('defaultBadge')}
               </span>
             ) : null}
             {!item.isDefault && isRecentBadgeTarget ? (
-              <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary-soft px-2.5 py-1 text-xs font-semibold leading-4 text-primary sm:rounded-md sm:px-2 sm:py-0.5 sm:text-xs dark:bg-primary/20 dark:text-primary">
+              <span className="inline-flex items-center rounded-full border border-primary/25 bg-primary-soft px-2.5 py-1 text-xs font-semibold leading-4 text-primary sm:rounded-md sm:px-2 sm:py-0.5 sm:text-xs dark:bg-dark-panel dark:text-primary">
                 {t('recentBadge')}
               </span>
             ) : null}
@@ -101,7 +101,7 @@ export default function SavedAddressCard({
           <button
             type="button"
             onClick={(event) => onDeleteAddress(event, item.id)}
-            className="text-base font-semibold leading-6 text-muted transition hover:text-ink disabled:cursor-not-allowed disabled:text-disabled-text dark:text-dark-muted sm:text-sm dark:hover:text-surface"
+            className="text-base font-semibold leading-6 text-muted transition hover:text-ink disabled:cursor-not-allowed disabled:text-disabled-text dark:text-slate-300 sm:text-sm dark:hover:text-surface"
             disabled={isAddressActionBusy}
           >
             {t('delete')}

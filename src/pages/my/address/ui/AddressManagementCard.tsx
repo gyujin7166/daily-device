@@ -61,7 +61,7 @@ export default function MyAddressCard({
   const AddressIcon = getAddressIcon(address);
   const updatedAtText = useAddressUpdatedAtText(address.updatedAt);
   const addressIconClassName = address.isDefault
-    ? 'bg-primary text-surface'
+    ? 'bg-primary text-on-primary'
     : 'border border-line bg-info-soft text-primary dark:border-dark-border dark:bg-dark-panel-hover dark:text-primary';
   const actionIconClassName = address.isDefault
     ? 'text-primary'
@@ -99,7 +99,7 @@ export default function MyAddressCard({
               {address.isDefault ? (
                 <span
                   className={cn(
-                    'inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-surface',
+                    'inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-on-primary',
                     isAnimatedDefault
                       ? 'motion-safe:animate-address-badge-pop'
                       : '',

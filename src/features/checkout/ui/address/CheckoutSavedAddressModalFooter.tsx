@@ -18,7 +18,7 @@ export default function CheckoutSavedAddressModalFooter({
         type="button"
         variant="secondary"
         onClick={onSwitchToNewMode}
-        className="h-14 w-full items-center justify-center gap-2 rounded-2xl !border-primary !bg-primary !text-base !font-semibold !leading-6 !text-surface shadow-[0_8px_18px_rgba(24,116,209,0.26)] enabled:hover:!border-primary-hover enabled:hover:!bg-primary-hover enabled:hover:!text-surface sm:h-13 sm:rounded-xl"
+        className="h-14 w-full items-center justify-center gap-2 rounded-2xl !border-primary !bg-primary !text-base !font-semibold !leading-6 !text-on-primary shadow-[0_8px_18px_rgba(24,116,209,0.26)] enabled:hover:!border-primary-hover enabled:hover:!bg-primary-hover enabled:hover:!text-on-primary sm:h-13 sm:rounded-xl"
       >
         <IconMapPinPlus size={19} />
         {t('addNew')}

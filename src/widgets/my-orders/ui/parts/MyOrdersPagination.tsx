@@ -45,7 +45,7 @@ export default function MyOrdersPagination({
           className={cn(
             'inline-flex h-10 min-w-10 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors',
             currentPage === page
-              ? 'border-primary bg-primary text-surface'
+              ? 'border-primary bg-primary text-on-primary'
               : 'border-line bg-surface text-ink hover:bg-canvas dark:border-dark-border dark:bg-dark-panel dark:text-surface dark:hover:bg-dark-bg-hover',
             'disabled:cursor-not-allowed disabled:opacity-50',
           )}

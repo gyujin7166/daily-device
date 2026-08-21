@@ -14,7 +14,7 @@ export default function NoReviewProduct() {
               stroke={1.8}
               className="text-primary dark:text-blue-300"
             />
-            <div className="absolute right-9 top-8 flex h-10 w-10 animate-bounce items-center justify-center rounded-xl bg-primary text-surface shadow-lg [animation-duration:1.7s] motion-reduce:animate-none">
+            <div className="absolute right-9 top-8 flex h-10 w-10 animate-bounce items-center justify-center rounded-xl bg-primary text-on-primary shadow-lg [animation-duration:1.7s] motion-reduce:animate-none">
               <IconStarFilled size={18} />
             </div>
             <div className="absolute bottom-9 flex gap-2">

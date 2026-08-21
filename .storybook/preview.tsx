@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import localFont from 'next/font/local';
@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from 'next-intl';
 
 import messagesEn from '../messages/en.json';
 import messagesKo from '../messages/ko.json';
+import { applyTheme, THEME_STORAGE_KEY } from '../src/shared/lib/theme/theme';
 
 import type { Preview } from '@storybook/nextjs-vite';
 import '../src/app/styles/globals.css';
@@ -30,6 +31,19 @@ const messagesByLocale = {
 type StorybookProvidersProps = PropsWithChildren<{
   locale: keyof typeof messagesByLocale;
 }>;
+
+type StorybookThemeSyncProps = PropsWithChildren<{
+  theme: 'dark' | 'light';
+}>;
+
+function StorybookThemeSync({ children, theme }: StorybookThemeSyncProps) {
+  useLayoutEffect(() => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    applyTheme(theme);
+  }, [theme]);
+
+  return children;
+}
 
 function StorybookProviders({ children, locale }: StorybookProvidersProps) {
   const [queryClient] = useState(
@@ -98,11 +112,14 @@ const preview: Preview = {
     }),
     (Story, context) => {
       const locale = context.globals.locale === 'en' ? 'en' : 'ko';
+      const theme = context.globals.theme === 'dark' ? 'dark' : 'light';
 
       return (
-        <StorybookProviders key={`${context.id}-${locale}`} locale={locale}>
-          <Story />
-        </StorybookProviders>
+        <StorybookThemeSync theme={theme}>
+          <StorybookProviders key={`${context.id}-${locale}`} locale={locale}>
+            <Story />
+          </StorybookProviders>
+        </StorybookThemeSync>
       );
     },
   ],

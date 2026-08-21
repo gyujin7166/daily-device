@@ -123,7 +123,7 @@ export default function ProductCategoryMobileFilterDrawerSection({
               <button
                 type="button"
                 onClick={onApply}
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-surface transition-colors hover:bg-primary/90"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-on-primary transition-colors hover:bg-primary/90"
               >
                 {t('apply')}
               </button>

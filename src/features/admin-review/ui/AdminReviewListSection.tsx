@@ -145,7 +145,7 @@ export default function AdminReviewListSection({
                     <p className="font-semibold">
                       {getLocalizedProductName(review, locale)}
                     </p>
-                    <p className="text-xs text-muted dark:text-dark-mute">
+                    <p className="text-xs text-muted dark:text-dark-muted">
                       {review.product.slug}
                     </p>
                     {reviewColorName ? (

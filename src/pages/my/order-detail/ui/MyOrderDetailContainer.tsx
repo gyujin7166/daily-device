@@ -134,7 +134,7 @@ export default function MyOrderDetailContainer({
               </p>
               <Link
                 href="/products"
-                className="mt-6 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-surface transition-colors hover:bg-primary-hover"
+                className="mt-6 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
               >
                 {t('state.startShopping')}
               </Link>

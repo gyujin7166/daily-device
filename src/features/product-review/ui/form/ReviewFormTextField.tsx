@@ -78,7 +78,7 @@ export default function ReviewFormTextField({
         ) : (
           <span />
         )}
-        <span className="text-[11px] text-disabled-text dark:text-dark-muted">
+        <span className="text-[11px] text-muted dark:text-dark-muted">
           {t('characterCount', {
             count: format.number(value.length),
             max: format.number(maxLength),
