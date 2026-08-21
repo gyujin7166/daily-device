@@ -109,6 +109,8 @@ export default function Hero({
   const resolvedPosition = useImagePosition
     ? normalizePosition(heroImage?.position, position)
     : position;
+  const isFallbackVisible =
+    !heroImage || failedImageSrc === heroImage.image_url;
 
   useEffect(() => {
     setHeroNavTone(resolvedNavTone);
@@ -133,7 +135,7 @@ export default function Hero({
   );
 
   const renderImage = () => {
-    if (heroImage && failedImageSrc !== heroImage.image_url) {
+    if (heroImage && !isFallbackVisible) {
       return (
         <div
           key={heroImage.id}
@@ -183,6 +185,7 @@ export default function Hero({
           className={cn(
             'mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10',
             textToneClasses[resolvedTextTone],
+            isFallbackVisible && 'dark:text-surface',
           )}
           style={
             viewportOffsetTopPx > 0

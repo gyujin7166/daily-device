@@ -59,14 +59,14 @@ export default function MyOrdersItemRow({
           </div>
 
           <div className="flex min-h-26 min-w-0 flex-1 flex-col justify-between sm:min-h-30.5 max-[359px]:min-h-0 max-[359px]:w-full">
-            <h3 className="line-clamp-2 text-lg font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-2xl">
+            <h2 className="line-clamp-2 text-lg font-extrabold leading-[1.2] tracking-[-0.01em] sm:text-2xl">
               <Link
                 href={productHref}
                 className="text-ink transition-colors hover:text-primary dark:text-surface dark:hover:text-blue-300"
               >
                 {item.productName}
               </Link>
-            </h3>
+            </h2>
 
             <div className="space-y-1.5 text-xs text-muted dark:text-dark-muted sm:text-base">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -123,14 +123,14 @@ export default function MyOrdersItemRow({
             />
           </div>
           <div className="min-w-0">
-            <h3 className="line-clamp-2 text-base font-semibold leading-6 tracking-[-0.01em]">
+            <h2 className="line-clamp-2 text-base font-semibold leading-6 tracking-[-0.01em]">
               <Link
                 href={productHref}
                 className="text-ink transition-colors hover:text-primary dark:text-surface dark:hover:text-blue-300"
               >
                 {item.productName}
               </Link>
-            </h3>
+            </h2>
           </div>
         </div>
 

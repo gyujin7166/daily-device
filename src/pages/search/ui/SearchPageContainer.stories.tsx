@@ -278,7 +278,7 @@ export const SortResults: Story = {
     );
 
     await waitFor(async () => {
-      const productHeadings = canvas.getAllByRole('heading', { level: 3 });
+      const productHeadings = canvas.getAllByRole('heading', { level: 2 });
 
       await expect(productHeadings[0]).toHaveTextContent(
         'Daily Device Wireless Mouse',

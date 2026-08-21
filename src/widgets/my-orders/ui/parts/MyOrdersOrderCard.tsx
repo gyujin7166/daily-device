@@ -63,7 +63,7 @@ export default function MyOrdersOrderCard({
                 href={orderDetailHref}
                 className="min-w-0 truncate text-sm font-semibold tracking-[0.02em] text-muted transition-colors hover:text-primary dark:text-dark-muted"
               >
-                <span className="text-muted/80 dark:text-dark-muted">
+                <span className="text-muted dark:text-dark-muted">
                   {t('labels.orderNumber')}
                 </span>{' '}
                 <span className="font-bold text-ink dark:text-surface">

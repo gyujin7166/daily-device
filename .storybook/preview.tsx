@@ -126,7 +126,7 @@ const preview: Preview = {
   loaders: [mswLoader()],
   parameters: {
     a11y: {
-      test: 'todo',
+      test: 'error',
     },
     controls: {
       matchers: {
