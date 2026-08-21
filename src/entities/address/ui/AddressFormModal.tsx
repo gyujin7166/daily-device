@@ -203,7 +203,10 @@ export default function AddressFormModal({
             onSubmit={methods.handleSubmit(handleSave, handleInvalid)}
             noValidate
           >
-            <div className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-5 sm:px-6 sm:py-5">
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-5 sm:px-6 sm:py-5"
+              tabIndex={0}
+            >
               <div
                 className={cn(
                   'grid grid-cols-1',

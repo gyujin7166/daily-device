@@ -124,9 +124,9 @@ export default function ReviewWritePageContainer({
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="mb-3 line-clamp-2 text-lg font-bold text-ink dark:text-surface">
+              <h2 className="mb-3 line-clamp-2 text-lg font-bold text-ink dark:text-surface">
                 {orderItem.productName}
-              </h3>
+              </h2>
               <dl className="space-y-1">
                 <div className="flex items-baseline gap-2">
                   <dt className="w-12 shrink-0 text-sm text-muted dark:text-dark-muted">
@@ -134,7 +134,7 @@ export default function ReviewWritePageContainer({
                   </dt>
                   <dd className="text-sm font-medium text-ink dark:text-surface">
                     {formatCurrency(totalPrice)}
-                    <span className="ml-1 text-disabled-text dark:text-dark-muted">
+                    <span className="ml-1 text-muted dark:text-dark-muted">
                       (
                       {t('summary.unitPrice', {
                         price: formatCurrency(unitPrice),

@@ -75,9 +75,9 @@ export default function CatalogProductItemCard({
         ) : null}
 
         <Link href={productHref} className="mt-1 block">
-          <h3 className="line-clamp-2 text-base font-semibold leading-[1.32] tracking-[-0.014em] text-ink sm:text-lg dark:text-surface">
+          <h2 className="line-clamp-2 text-base font-semibold leading-[1.32] tracking-[-0.014em] text-ink sm:text-lg dark:text-surface">
             {productName}
-          </h3>
+          </h2>
           {description ? (
             <p className="mt-1.5 line-clamp-1 min-h-[1.45em] text-xs leading-[1.45] text-muted sm:text-sm dark:text-dark-muted">
               {description}

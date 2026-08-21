@@ -31,10 +31,12 @@ export default function ProductDetailBreadcrumb({
             Home
           </Link>
         </li>
-        <IconChevronRight
-          size={14}
-          className="text-disabled-text dark:text-dark-muted"
-        />
+        <li aria-hidden="true">
+          <IconChevronRight
+            size={14}
+            className="text-disabled-text dark:text-dark-muted"
+          />
+        </li>
         <li>
           <Link
             href={getCategoryHref(category.slug)}
@@ -43,10 +45,12 @@ export default function ProductDetailBreadcrumb({
             {category.name_en}
           </Link>
         </li>
-        <IconChevronRight
-          size={14}
-          className="text-disabled-text dark:text-dark-muted"
-        />
+        <li aria-hidden="true">
+          <IconChevronRight
+            size={14}
+            className="text-disabled-text dark:text-dark-muted"
+          />
+        </li>
         <li className="font-semibold text-primary dark:text-primary">
           {productDescription.product.name_en}
         </li>

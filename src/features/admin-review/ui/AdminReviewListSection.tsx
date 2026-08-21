@@ -123,10 +123,7 @@ export default function AdminReviewListSection({
               return (
                 <tr
                   key={review.id}
-                  className={cn(
-                    'border-t border-line dark:border-dark-border',
-                    review.adminHiddenAt ? 'opacity-55' : '',
-                  )}
+                  className="border-t border-line dark:border-dark-border"
                 >
                   <td className="px-3 py-3 font-semibold">{review.id}</td>
                   <td className="px-3 py-3">
@@ -134,7 +131,7 @@ export default function AdminReviewListSection({
                       className={cn(
                         'inline-flex min-w-10 justify-center rounded-full px-2 py-1 text-xs font-bold',
                         review.adminHiddenAt
-                          ? 'bg-disabled-bg text-muted'
+                          ? 'bg-disabled-bg text-ink dark:bg-dark-bg-hover dark:text-surface'
                           : 'bg-success-soft text-success',
                       )}
                     >

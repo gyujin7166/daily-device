@@ -31,9 +31,11 @@ export default function ProductCategoryHeroSection({
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="mb-1 break-keep text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-          {heroContent?.name_en}
-        </h1>
+        {heroContent?.name_en ? (
+          <h1 className="mb-1 break-keep text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            {heroContent.name_en}
+          </h1>
+        ) : null}
         <div className="mb-7.5">
           <span className="text-base leading-snug sm:text-base">
             {heroContent?.description}

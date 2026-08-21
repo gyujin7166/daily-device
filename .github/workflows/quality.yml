@@ -50,3 +50,27 @@ jobs:
 
       - name: Run lint
         run: npm run lint
+
+  storybook-a11y:
+    name: Storybook A11y
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Storybook accessibility tests
+        run: npm run test:storybook

@@ -11,7 +11,7 @@ export const myOrdersReviewEditButtonClassName =
 
 export const getMyOrdersStatusBadgeClass = (status: OrderStatus) => {
   if (status === 'SHIPPED') {
-    return 'border border-warning/35 bg-warning-soft text-warning';
+    return 'border border-warning/35 bg-warning-soft text-amber-700 dark:border-warning/50 dark:bg-dark-panel dark:text-amber-300';
   }
 
   if (status === 'CONFIRMED') {
@@ -19,11 +19,11 @@ export const getMyOrdersStatusBadgeClass = (status: OrderStatus) => {
   }
 
   if (status === 'DELIVERED') {
-    return 'border border-primary/25 bg-primary-soft text-primary';
+    return 'border border-primary/25 bg-primary-soft text-primary dark:border-primary/40 dark:bg-dark-panel dark:text-primary';
   }
 
   if (status === 'CANCELLED') {
-    return 'border border-danger/25 bg-danger/5 text-danger dark:border-danger/50 dark:bg-danger/20 dark:text-danger dark:translate-y-[1.5px]';
+    return 'border border-danger/25 bg-danger/5 text-danger dark:translate-y-[1.5px] dark:border-danger/50 dark:bg-dark-panel dark:text-danger';
   }
 
   return 'border border-line bg-surface text-muted dark:border-dark-border dark:bg-dark-panel dark:text-dark-muted';

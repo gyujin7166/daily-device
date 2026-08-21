@@ -145,7 +145,7 @@ export default function MyAddressCard({
             className={cn('mt-1 shrink-0', actionIconClassName)}
           />
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted/80 dark:text-dark-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted dark:text-dark-muted">
               {t('address')}
             </p>
             <p className="mt-1 keep-all text-sm leading-6 text-ink dark:text-surface">
@@ -165,7 +165,7 @@ export default function MyAddressCard({
             className={cn('mt-1 shrink-0', actionIconClassName)}
           />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted/80 dark:text-dark-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted dark:text-dark-muted">
               {t('phone')}
             </p>
             <p className="mt-1 text-sm font-semibold tracking-[0.01em] text-ink dark:text-surface">
