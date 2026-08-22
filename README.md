@@ -180,6 +180,14 @@ http://localhost:6006
 npm run build-storybook
 ```
 
+로컬 Storybook 접근성 검사는 다음 명령으로 실행합니다.
+
+```bash
+npm run test:storybook
+```
+
+Storybook Vitest addon과 Playwright browser provider가 Chromium에서 각 Story를 light/dark theme으로 실행합니다. 접근성 검사에서 위반이 발견되면 테스트가 실패합니다.
+
 branch가 GitHub에 push되면 Chromatic workflow가 Storybook을 배포하고 시각적 변경과 `play` 상호작용을 검사합니다. Chromatic 프로젝트 토큰은 코드나 환경 변수 예제에 기록하지 않고 GitHub Actions Repository Secret `CHROMATIC_PROJECT_TOKEN`으로만 관리합니다.
 
 ## 환경 변수
@@ -260,14 +268,15 @@ UI 메시지의 key와 ICU placeholder 일치 여부를 테스트하고, API·Ta
 
 버그 수정이나 로직·사용자 상호작용 변경에는 가능한 한 실패하는 재현 테스트를 먼저 확인하고, 최소 구현과 리팩터링 후 다시 검증합니다.
 
-| 명령어                    | 검증 범위                                   |
-| ------------------------- | ------------------------------------------- |
-| `npm run test:unit`       | Vitest 단위·컴포넌트·클라이언트 통합 테스트 |
-| `npm run test:e2e`        | Playwright Chromium 핵심 사용자 흐름        |
-| `npm run test:visual`     | `@visual` 태그 기반 시각 회귀 테스트        |
-| `npm run test:all`        | Vitest 실행 후 Playwright E2E 실행          |
-| `npm run storybook`       | 로컬 Storybook 개발 서버                    |
-| `npm run build-storybook` | 정적 Storybook 빌드                         |
+| 명령어                    | 검증 범위                                     |
+| ------------------------- | --------------------------------------------- |
+| `npm run test:unit`       | Vitest 단위·컴포넌트·클라이언트 통합 테스트   |
+| `npm run test:storybook`  | Chromium에서 Storybook light/dark 접근성 검사 |
+| `npm run test:e2e`        | Playwright Chromium 핵심 사용자 흐름          |
+| `npm run test:visual`     | `@visual` 태그 기반 시각 회귀 테스트          |
+| `npm run test:all`        | Vitest 실행 후 Playwright E2E 실행            |
+| `npm run storybook`       | 로컬 Storybook 개발 서버                      |
+| `npm run build-storybook` | 정적 Storybook 빌드                           |
 
 현재 E2E 테스트는 다음 흐름을 검증합니다.
 
@@ -288,12 +297,14 @@ npm run db:prepare:e2e
 
 ## CI/CD
 
-| 시점               | 검증 및 배포                                                          |
-| ------------------ | --------------------------------------------------------------------- |
-| Pull request       | format·unit·type·lint, production build, Chromium E2E, Vercel Preview |
-| Branch push        | Chromatic Storybook 배포 및 UI 검사                                   |
-| `main` 브랜치 반영 | 동일한 GitHub Actions 재검증 후 Vercel Production 배포                |
+| 시점               | 검증 및 배포                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
+| Pull request       | format·unit·type·lint, Storybook light/dark 접근성, production build, Chromium E2E, Vercel Preview |
+| Branch push        | Chromatic Storybook 배포 및 UI 검사                                                                |
+| `main` 브랜치 반영 | format·unit·type·lint와 Storybook light/dark 접근성 재검증 후 Vercel Production 배포               |
 
+- Quality Check workflow는 `Unit, Type, Lint`와 `Storybook A11y` job으로 구성되며 pull request와 `main` push에서 실행됩니다.
+- `Storybook A11y` job은 의존성과 Chromium을 설치한 뒤 `npm run test:storybook`을 실행합니다.
 - E2E는 운영 DB와 분리된 전용 TiDB의 스키마와 seed 상태를 준비한 뒤 실행합니다.
 - `E2E_BUILD=true`에서는 테스트에 필요한 대표 상품과 카테고리만 정적 생성하고, 로컬·Vercel build는 전체 경로를 생성합니다.
 - GitHub Actions와 Vercel의 Preview·Production 환경 변수 및 Secret은 서로 분리합니다.
