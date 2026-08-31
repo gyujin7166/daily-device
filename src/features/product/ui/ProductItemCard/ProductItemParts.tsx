@@ -7,7 +7,10 @@ import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
 import { Link } from '@shared/lib/i18n/navigation';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 type ProductImageLinkProps = {
@@ -57,6 +60,7 @@ export function ProductImageLink({
             src={getCloudinaryImageUrl(currentImageUrl, 'productCard')}
             alt={imageAlt}
             fill
+            unoptimized={isCloudinaryImageUrl(currentImageUrl)}
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
             className={imageClassName}
             draggable={false}
@@ -84,6 +88,7 @@ export function ProductImageLink({
               src={getCloudinaryImageUrl(pendingImageUrl, 'productCard')}
               alt={imageAlt}
               fill
+              unoptimized={isCloudinaryImageUrl(pendingImageUrl)}
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
               className={imageClassName}
               draggable={false}

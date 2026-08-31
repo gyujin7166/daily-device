@@ -7,7 +7,10 @@ import { useTranslations } from 'next-intl';
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 import type {
@@ -83,6 +86,7 @@ function HomeCategoryCarouselItemCard({
               src={getCloudinaryImageUrl(imageSrc, 'homeCard')}
               alt={hasImage ? item.imageAlt : t('imageFallbackAlt')}
               fill
+              unoptimized={isCloudinaryImageUrl(imageSrc)}
               sizes="(max-width: 1024px) 100vw, 50vw"
               className={cn(
                 'transition duration-700 group-hover:scale-105 group-focus-within:scale-105',

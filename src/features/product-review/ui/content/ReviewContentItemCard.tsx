@@ -8,7 +8,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { MAX_REVIEW_IMAGES } from '@entities/review/model/constants';
 import type { ProductReviewListItem } from '@entities/review/model/types';
 
-import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryReviewImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 import type { ReviewContentCardImage } from '../../model/reviewContent';
@@ -129,6 +132,7 @@ export default function ReviewContentItemCard({
                 alt={t('gallery.reviewImageAlt')}
                 width={112}
                 height={112}
+                unoptimized={isCloudinaryImageUrl(image.image_url)}
                 sizes="(min-width: 768px) 6vw, 22vw"
                 className="h-full w-full select-none object-cover"
                 draggable={false}

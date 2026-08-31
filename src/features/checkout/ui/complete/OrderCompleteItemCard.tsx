@@ -4,7 +4,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import type { OrderItem } from '@entities/order/model/types';
 
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 type OrderCompleteItemCardProps = {
@@ -36,6 +39,9 @@ export default function OrderCompleteItemCard({
             alt={item.productName}
             width={0}
             height={0}
+            unoptimized={isCloudinaryImageUrl(
+              item.product?.ProductImage?.[0]?.image_url || '',
+            )}
             sizes="(max-width: 640px) 112px, 144px"
             className="h-full w-full object-cover"
           />

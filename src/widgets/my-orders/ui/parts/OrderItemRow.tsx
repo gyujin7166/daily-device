@@ -10,7 +10,10 @@ import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/p
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { Link } from '@shared/lib/i18n/navigation';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 
 type MyOrdersItemRowProps = {
   item: OrderItem;
@@ -53,6 +56,7 @@ export default function MyOrdersItemRow({
               src={getCloudinaryImageUrl(imageUrl, 'orderThumbnail')}
               alt={item.productName}
               fill
+              unoptimized={isCloudinaryImageUrl(imageUrl)}
               sizes="122px"
               className="object-cover"
             />
@@ -118,6 +122,7 @@ export default function MyOrdersItemRow({
               src={getCloudinaryImageUrl(imageUrl, 'orderThumbnail')}
               alt={item.productName}
               fill
+              unoptimized={isCloudinaryImageUrl(imageUrl)}
               sizes="80px"
               className="object-cover"
             />

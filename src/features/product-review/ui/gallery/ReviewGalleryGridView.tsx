@@ -7,7 +7,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
-import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryReviewImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 
 type ReviewGalleryGridViewProps = {
   images: ProductReviewGalleryImage[];
@@ -68,6 +71,7 @@ export default function ReviewGalleryGridView({
                   alt={t('detailAria', { index: idx + 1 })}
                   width={220}
                   height={220}
+                  unoptimized={isCloudinaryImageUrl(image.image_url)}
                   sizes="(min-width: 1280px) 168px, (min-width: 1024px) 156px, (min-width: 768px) 170px, (min-width: 640px) 150px, 140px"
                   className="h-full w-full select-none rounded-xl object-cover transition-transform duration-200 group-hover:scale-[1.02]"
                   draggable={false}

@@ -4,7 +4,10 @@ import { useFormatter, useTranslations } from 'next-intl';
 
 import type { ProductReviewGalleryImage } from '@entities/review/model/types';
 
-import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryReviewImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 
 type ReviewGalleryPreviewSectionProps = {
   totalReviewImageCount: number;
@@ -67,6 +70,7 @@ export default function ReviewGalleryPreviewSection({
                   alt={t('imageAlt')}
                   width={124}
                   height={124}
+                  unoptimized={isCloudinaryImageUrl(image.image_url)}
                   sizes="124px"
                   className="h-full w-full select-none rounded-xl object-cover"
                   draggable={false}

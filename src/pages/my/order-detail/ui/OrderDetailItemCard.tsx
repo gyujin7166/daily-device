@@ -6,7 +6,10 @@ import type { OrderItem } from '@entities/order/model/types';
 import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/productImages';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 import type { CSSVariableStyle } from '@shared/lib/utils/style';
 
@@ -41,6 +44,7 @@ export default function MyOrderDetailOrderItemCard({
             src={getCloudinaryImageUrl(imageUrl, 'orderThumbnail')}
             alt={item.productName}
             fill
+            unoptimized={isCloudinaryImageUrl(imageUrl)}
             sizes="104px"
             className="object-cover"
           />

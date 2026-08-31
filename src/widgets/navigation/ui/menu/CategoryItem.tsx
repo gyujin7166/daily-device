@@ -4,7 +4,10 @@ import type { CategoryItems } from '@entities/category/model/types';
 
 import { Link } from '@shared/lib/i18n/navigation';
 import { getCategoryHref } from '@shared/lib/routes/productRoutes';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 type CategoryItemProps = {
@@ -30,6 +33,7 @@ export default function CategoryItem({
               )}
               alt={category.name_ko}
               fill
+              unoptimized={isCloudinaryImageUrl(category.image_url)}
               sizes="(min-width: 1280px) 240px, (min-width: 1024px) 20vw, 0px"
               className="select-none object-contain"
               draggable={false}

@@ -11,7 +11,10 @@ import { getProductThumbnailUrlBySelectedColor } from '@entities/product/model/p
 import type { ProductReviewEditItem } from '@entities/review/model/types';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import type { CSSVariableStyle } from '@shared/lib/utils/style';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
@@ -119,6 +122,7 @@ export default function ReviewWritePageContainer({
                 src={getCloudinaryImageUrl(productImageUrl, 'orderThumbnail')}
                 alt={orderItem.productName || ''}
                 fill
+                unoptimized={isCloudinaryImageUrl(productImageUrl)}
                 sizes="128px"
                 className="object-cover"
               />

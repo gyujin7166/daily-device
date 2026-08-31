@@ -6,7 +6,10 @@ import type { UserCartItem } from '@entities/cart/model/types';
 
 import { Link } from '@shared/lib/i18n/navigation';
 import { getOptionalProductHref } from '@shared/lib/routes/productRoutes';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 
 type CheckoutOrderItemsProps = {
   items: UserCartItem[];
@@ -48,6 +51,9 @@ export default function CheckoutOrderItems({ items }: CheckoutOrderItemsProps) {
                   alt={item.product.name_en}
                   width={0}
                   height={0}
+                  unoptimized={isCloudinaryImageUrl(
+                    item.product.image_url ?? '',
+                  )}
                   sizes="100vw"
                   className="h-full w-full object-contain"
                 />

@@ -3,7 +3,10 @@ import Image from 'next/image';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
-import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryReviewImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 import type { ReviewGalleryDetailImageItem } from '../../model/reviewGalleryDetail';
@@ -38,6 +41,7 @@ export default function ReviewGalleryDetailImagePanel({
               src={getCloudinaryReviewImageUrl(detailImage.image_url, 'detail')}
               alt={t('selectedImageAlt', { index: detailImageIndex + 1 })}
               fill
+              unoptimized={isCloudinaryImageUrl(detailImage.image_url)}
               sizes="(min-width: 1280px) 520px, (min-width: 1024px) 50vw, 90vw"
               className="select-none rounded-xl"
               draggable={false}
@@ -86,6 +90,7 @@ export default function ReviewGalleryDetailImagePanel({
                       )}
                       alt={t('thumbnailAlt', { index: idx + 1 })}
                       fill
+                      unoptimized={isCloudinaryImageUrl(image.image_url)}
                       sizes="56px"
                       className="select-none rounded-[10px] object-cover"
                       draggable={false}

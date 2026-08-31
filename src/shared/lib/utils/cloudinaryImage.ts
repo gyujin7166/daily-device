@@ -33,7 +33,7 @@ const REVIEW_IMAGE_VARIANT_MAP: Record<
   detail: 'reviewDetail',
 };
 
-const isCloudinaryImageUrl = (imageUrl: string) => {
+export const isCloudinaryImageUrl = (imageUrl: string) => {
   try {
     const url = new URL(imageUrl);
 
