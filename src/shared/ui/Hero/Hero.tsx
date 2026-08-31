@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 
 import Image from 'next/image';
 
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 import { useHeroNavToneStore } from '@shared/model/store/heroNavToneStore';
 import type { HeroNavTone } from '@shared/model/store/heroNavToneStore';
@@ -153,10 +157,11 @@ export default function Hero({
             />
           ) : null}
           <Image
-            src={heroImage.image_url}
+            src={getCloudinaryImageUrl(heroImage.image_url, 'hero')}
             alt=""
             fill
             quality={90}
+            unoptimized={isCloudinaryImageUrl(heroImage.image_url)}
             className={cn('object-cover object-center', imageClassName ?? '')}
             draggable={false}
             priority

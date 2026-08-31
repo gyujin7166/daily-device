@@ -12,6 +12,18 @@ describe('cloudinaryImage', () => {
     );
   });
 
+  it('전체 폭 Hero 이미지에 1920px transformation을 적용한다', () => {
+    expect(getCloudinaryImageUrl(cloudinaryUrl, 'hero')).toBe(
+      'https://res.cloudinary.com/daily-device/image/upload/c_limit,w_1920,q_auto,f_auto/v123/products/mouse.jpg',
+    );
+  });
+
+  it('로컬 fallback URL은 원본을 유지한다', () => {
+    expect(getCloudinaryImageUrl('/images/fallback.webp', 'homeCard')).toBe(
+      '/images/fallback.webp',
+    );
+  });
+
   it.each([
     cloudinaryUrl,
     'https://res.cloudinary.com/daily-device/image/upload/c_limit,w_640,q_auto,f_auto/v123/products/mouse.jpg',
