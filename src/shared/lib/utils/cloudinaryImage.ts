@@ -1,5 +1,6 @@
 export type CloudinaryImageVariant =
   | 'categoryThumbnail'
+  | 'hero'
   | 'homeCard'
   | 'orderThumbnail'
   | 'productCard'
@@ -15,6 +16,7 @@ const CLOUDINARY_UPLOAD_PATH = '/image/upload/';
 const CLOUDINARY_IMAGE_TRANSFORMATIONS: Record<CloudinaryImageVariant, string> =
   {
     categoryThumbnail: 'c_limit,w_480,q_auto,f_auto',
+    hero: 'c_limit,w_1920,q_auto,f_auto',
     homeCard: 'c_limit,w_1200,q_auto,f_auto',
     orderThumbnail: 'c_limit,w_320,q_auto,f_auto',
     productCard: 'c_limit,w_640,q_auto,f_auto',

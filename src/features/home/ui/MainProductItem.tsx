@@ -10,6 +10,10 @@ import type { HomeSection } from '@entities/home/model/types';
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
 import { Link } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 import PageWrapper from '@shared/ui/Wrapper/PageWrapper';
 
@@ -103,10 +107,11 @@ function MainProductCard({
       >
         <div className="relative aspect-4/3 overflow-hidden rounded-[22px] bg-line dark:bg-dark-bg-hover">
           <Image
-            src={imageSrc}
+            src={getCloudinaryImageUrl(imageSrc, 'homeCard')}
             alt={item.imageAlt}
             fill
             priority={priorityImage}
+            unoptimized={isCloudinaryImageUrl(imageSrc)}
             sizes="(max-width: 768px) 100vw, 33vw"
             className={cn(
               'transition duration-500 group-hover:scale-105',
