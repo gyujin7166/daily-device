@@ -10,7 +10,10 @@ import type { ProductImageItem } from '@entities/product/model/types';
 import { useProductImages } from '@entities/product/queries/useProductImages';
 
 import { IMAGE_FALLBACK_URL } from '@shared/constants/images';
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 import ProductCarouselSkeleton from './ProductCarouselSkeleton';
@@ -358,6 +361,7 @@ export default function ProductImageCarousel({
                       alt={t('imageAlt', { index: index + 1 })}
                       width={760}
                       height={760}
+                      unoptimized={isCloudinaryImageUrl(item.image_url)}
                       sizes="(max-width: 1024px) 100vw, 760px"
                       className="h-full w-full select-none object-cover"
                       draggable={false}
@@ -397,6 +401,7 @@ export default function ProductImageCarousel({
                     alt={t('thumbnailAlt', { index: index + 1 })}
                     width={104}
                     height={104}
+                    unoptimized={isCloudinaryImageUrl(item.image_url)}
                     sizes="(min-width: 640px) 104px, 88px"
                     className="h-full w-full select-none object-contain"
                     draggable={false}
@@ -441,6 +446,7 @@ function PendingProductImagesPreloader({
             alt=""
             width={760}
             height={760}
+            unoptimized={isCloudinaryImageUrl(imageUrl)}
             sizes="(max-width: 1024px) 100vw, 760px"
             className="h-px w-px object-cover"
             draggable={false}

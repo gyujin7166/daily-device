@@ -12,7 +12,10 @@ import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore
 import { useCartQuantityStore } from '@entities/cart/model/store/cartQuantityStore';
 import type { LocalCartItem, UserCartItem } from '@entities/cart/model/types';
 
-import { getCloudinaryImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import { cn } from '@shared/lib/utils/style';
 
 type CartContentProps = {
@@ -44,6 +47,7 @@ function CartContent({ item }: CartContentProps) {
             alt={item.product.name_en}
             width={0}
             height={0}
+            unoptimized={isCloudinaryImageUrl(item.product.image_url)}
             sizes="15vw"
             className="h-full w-full object-contain"
             loading="eager"

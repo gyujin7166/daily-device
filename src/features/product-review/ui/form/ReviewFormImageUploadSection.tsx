@@ -8,7 +8,10 @@ import { useTranslations } from 'next-intl';
 import { MAX_REVIEW_IMAGES } from '@entities/review/model/constants';
 
 import { CLOUDINARY_REVIEW_UPLOAD_MAX_SIZE_MB } from '@shared/lib/cloudinary/uploadImage';
-import { getCloudinaryReviewImageUrl } from '@shared/lib/utils/cloudinaryImage';
+import {
+  getCloudinaryReviewImageUrl,
+  isCloudinaryImageUrl,
+} from '@shared/lib/utils/cloudinaryImage';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
 
 import ReviewFormSection from './ReviewFormSection';
@@ -78,6 +81,7 @@ export default function ReviewFormImageUploadSection({
                   alt={t('existingImageAlt', { index: index + 1 })}
                   width={200}
                   height={200}
+                  unoptimized={isCloudinaryImageUrl(img.image_url)}
                   className="h-full w-full select-none object-cover"
                   draggable={false}
                 />
