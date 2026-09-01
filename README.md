@@ -97,7 +97,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 | ----------------------------------------------- | -------------------------------------------------- |
 | ![메인 PC 화면](./docs/images/home-desktop.png) | ![메인 모바일 화면](./docs/images/home-mobile.png) |
 
-## 기술적 하이라이트
+## 설계 및 구현
 
 - App Router는 라우팅 엔트리로 사용하고, 화면 조합과 기능 로직은 FSD 의존 방향에 맞춰 분리했습니다.
 - 공개 쇼핑 화면은 정적 생성·ISR로 최적화하고, 인증과 권한이 필요한 체크아웃·마이페이지·관리자 화면은 동적으로 처리했습니다.
@@ -110,6 +110,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다.
 - Cloudinary 업로드 규칙, base64 blurDataURL과 색상별 이미지 fallback으로 이미지 로딩 경험을 개선했습니다.
 - Storybook과 Chromatic으로 컴포넌트 상태·상호작용을 문서화하고 시각적 변경을 검토합니다.
 - Vitest·RTL·MSW·Playwright와 GitHub Actions를 사용해 로직부터 핵심 구매 흐름까지 검증합니다.
+- Cloudinary에서 용도별 resize·`q_auto`·`f_auto` 변환을 적용하고, Cloudinary 이미지는 Vercel Image Optimization을 다시 거치지 않도록 분리해 중복 변환과 Image Transformations 사용량을 줄였습니다.
 
 ## 회고
 
