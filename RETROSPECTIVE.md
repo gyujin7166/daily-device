@@ -87,3 +87,13 @@ Zod schema에서 폼 값 타입을 추론하도록 하면서 타입과 검증 �
 테마 값은 `localStorage`에 저장되어 있어 서버가 초기 렌더링 시점에 사용자의 테마를 알 수 없었습니다. 이를 줄이기 위해 root layout의 `<head>`에 인라인 테마 초기화 스크립트를 넣고, hydration 전에 `<html>` 클래스가 먼저 적용되도록 처리했습니다.
 
 `dangerouslySetInnerHTML`은 사용자 입력이나 외부 데이터를 그대로 넣으면 XSS 위험이 있지만, 이 경우에는 제가 작성한 고정 스크립트만 삽입하고 사용자 입력을 문자열로 합성하지 않기 때문에 위험이 낮다고 판단했습니다.
+
+## Cloudinary와 Vercel 이미지 최적화 중복 제거
+
+Cloudinary에서 이미 resize·`q_auto`·`f_auto` 변환을 적용한 이미지를 다시 `next/image`로 최적화하면서 Vercel Image Transformations 사용량이 증가했고, 한도 초과 후 일부 이미지 요청이 402로 실패하는 문제가 발생했습니다.
+
+`minimumCacheTTL` 조정보다 중복 최적화를 제거하는 쪽이 현재 구조에 더 적합하다고 판단해, Cloudinary 이미지에만 조건부 `unoptimized`를 적용하고 비-Cloudinary 이미지는 기존 Next.js 최적화를 유지했습니다.
+
+처음에는 Cloudinary URL 변환 함수의 사용처만 검사해 일부 직접 렌더링 경로가 누락됐습니다. 이후 모든 `next/image` 사용처를 기준으로 다시 점검해 누락된 경로를 보완했습니다.
+
+최종적으로 Cloudinary 이미지는 Cloudinary transformation URL을 브라우저가 직접 요청하도록 정리했고, 외부 이미지 CDN과 프레임워크 이미지 최적화를 함께 사용할 때 중복 처리와 각 서비스의 사용량 정책을 함께 확인해야 한다는 점을 확인했습니다.
