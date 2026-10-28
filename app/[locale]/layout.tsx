@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 
 import localFont from 'next/font/local';
 import { notFound } from 'next/navigation';
+import Script from 'next/script';
 
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -14,6 +15,8 @@ import Providers from '@app/providers';
 import ThemeInitScriptInjection from '@app/theme/ThemeInitScriptInjection';
 
 import { routing } from '../../src/i18n/routing';
+
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
 const pretendard = localFont({
   src: [
@@ -81,6 +84,22 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
+        {googleAnalyticsId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(googleAnalyticsId)}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', ${JSON.stringify(googleAnalyticsId).replace(/</g, '\\u003c')});
+              `}
+            </Script>
+          </>
+        ) : null}
       </body>
     </html>
   );
