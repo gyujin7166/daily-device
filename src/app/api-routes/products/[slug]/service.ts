@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import type { ProductDetailResponse } from '@entities/product/model/types';
 
 import {
@@ -10,7 +12,7 @@ import { getProductPriceInfo } from '@shared/lib/price/discount';
 
 import prisma from 'prisma/prismaClientSingleton';
 
-export async function getProductDetailBySlug(
+async function fetchProductDetailBySlug(
   slug: string,
   localeValue?: string,
 ): Promise<ProductDetailResponse> {
@@ -163,3 +165,5 @@ export async function getProductDetailBySlug(
     }),
   };
 }
+
+export const getProductDetailBySlug = cache(fetchProductDetailBySlug);

@@ -41,7 +41,7 @@ export default async function ProductCategoryPage({
   const normalizedCategory = decodeURIComponent(category).trim();
   const [productCategory, filterItems, priceRange, colorOptions] =
     await Promise.all([
-      getProductCategoryBySlug(normalizedCategory),
+      getProductCategoryBySlug(normalizedCategory, locale),
       getFilterList(normalizedCategory, locale),
       getProductPriceRange(normalizedCategory),
       getProductColorFilterOptions(normalizedCategory, locale),
