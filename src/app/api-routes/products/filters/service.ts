@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import type {
   FilterWithOptions,
   ProductColorFilterOption,
@@ -12,16 +14,33 @@ import {
 
 import prisma from 'prisma/prismaClientSingleton';
 
-export async function getProductCategoryBySlug(categorySlug: string) {
-  return prisma.productCategory.findUnique({
-    where: {
-      slug: categorySlug,
-    },
-    select: {
-      id: true,
-    },
-  });
-}
+export const getProductCategoryBySlug = cache(
+  async (categorySlug: string, localeValue?: string) => {
+    const { locale, localeFallbacks } = getTranslationContext(localeValue);
+    const category = await prisma.productCategory.findUnique({
+      where: {
+        slug: categorySlug,
+      },
+      select: {
+        id: true,
+        name_en: true,
+        translations: {
+          where: { locale: { in: localeFallbacks } },
+          select: { locale: true, name: true },
+        },
+      },
+    });
+
+    return category
+      ? {
+          id: category.id,
+          name:
+            pickTranslation(category.translations, locale)?.name ??
+            category.name_en,
+        }
+      : null;
+  },
+);
 
 export async function getFilterList(
   categoryName: string,

@@ -30,7 +30,10 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Daily Device',
+  title: {
+    default: 'Daily Device',
+    template: '%s | Daily Device',
+  },
   description: 'Daily Device',
   icons: {
     icon: [

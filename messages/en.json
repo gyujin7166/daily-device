@@ -1,4 +1,21 @@
 {
+  "Metadata": {
+    "homeDescription": "Discover mice, keyboards, headsets, and accessories that make everyday life easier at Daily Device.",
+    "categoryDescription": "Explore {category} at Daily Device and find the right gear for you.",
+    "search": "Search",
+    "login": "Login",
+    "checkout": "Checkout",
+    "paymentSuccess": "Payment Complete",
+    "paymentFail": "Payment Failed",
+    "my": "My Page",
+    "orders": "Orders",
+    "orderDetail": "Order Details",
+    "wishlist": "Wishlist",
+    "address": "Shipping Addresses",
+    "reviews": "My Reviews",
+    "reviewWrite": "Write a Review",
+    "admin": "Admin"
+  },
   "Navigation": {
     "menu": {
       "products": "Products",
