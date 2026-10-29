@@ -1,6 +1,12 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import {
+  BUY_NOW_CHECKOUT_STORAGE_KEY,
+  CHECKOUT_ENTRY_STORAGE_KEY,
+} from '@shared/constants/checkout';
+
+import { cartItemFixture } from '../../../../../../test/mocks/handlers';
 import { useCheckoutStore } from '../../store/checkoutStore';
 
 import useCheckoutPageState from './useCheckoutPageState';
@@ -48,6 +54,8 @@ describe('useCheckoutPageState', () => {
     useCheckoutStore.getState().actions.resetCheckoutState();
   });
 
+  afterEach(() => vi.unstubAllGlobals());
+
   it('배송지 모달 상태 변경을 페이지 수준에서 구독하지 않는다', async () => {
     let renderCount = 0;
     const { result } = renderHook(() => {
@@ -65,5 +73,25 @@ describe('useCheckoutPageState', () => {
     });
 
     expect(renderCount).toBe(renderCountBeforeModalOpen);
+  });
+
+  it('저장된 checkout을 mount하거나 새로고침해도 begin_checkout을 다시 전송하지 않는다', async () => {
+    const gtag = vi.fn();
+    vi.stubGlobal('gtag', gtag);
+    window.sessionStorage.setItem(CHECKOUT_ENTRY_STORAGE_KEY, 'buyNow');
+    window.sessionStorage.setItem(
+      BUY_NOW_CHECKOUT_STORAGE_KEY,
+      JSON.stringify([cartItemFixture]),
+    );
+    const firstVisit = renderHook(useCheckoutPageState);
+    await waitFor(() =>
+      expect(firstVisit.result.current.checkoutViewState).toBe('checkout'),
+    );
+    firstVisit.unmount();
+    const refresh = renderHook(useCheckoutPageState);
+    await waitFor(() =>
+      expect(refresh.result.current.checkoutViewState).toBe('checkout'),
+    );
+    expect(gtag).not.toHaveBeenCalled();
   });
 });

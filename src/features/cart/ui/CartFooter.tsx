@@ -14,6 +14,10 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import {
+  toEcommerceItem,
+  trackEcommerceEvent,
+} from '@shared/lib/analytics/ecommerce';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import { cn } from '@shared/lib/utils/style';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
@@ -40,7 +44,7 @@ export default function CartFooter() {
   const hasInvalidQuantities = combinedCartItems.some((item) => {
     const variantKey = getCartVariantKey(item);
     const quantity = quantities[variantKey] ?? item.quantity;
-    return quantity <= 0 || quantity > 10;
+    return !Number.isInteger(quantity) || quantity <= 0 || quantity > 10;
   });
   const isCartMutating = cartUpsertMutationCount > 0 || isCartSyncPending;
   const subtotal = combinedCartItems.reduce((total, item) => {
@@ -68,6 +72,15 @@ export default function CartFooter() {
     }
 
     startCheckoutRouting(() => {
+      trackEcommerceEvent(
+        'begin_checkout',
+        combinedCartItems.map((item) =>
+          toEcommerceItem({
+            ...item,
+            quantity: quantities[getCartVariantKey(item)] ?? item.quantity,
+          }),
+        ),
+      );
       router.push('/checkout');
     });
   };

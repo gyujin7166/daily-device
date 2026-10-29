@@ -2,11 +2,23 @@ import { useRef } from 'react';
 
 import { useSession } from 'next-auth/react';
 
-import { getCartVariantKey } from '@entities/cart/lib/cartItemVariant';
-import { bumpCartVariantMutationRevision } from '@entities/cart/lib/cartMutationRevision';
+import {
+  getCartVariantKey,
+  isSameCartVariant,
+} from '@entities/cart/lib/cartItemVariant';
+import {
+  bumpCartVariantMutationRevision,
+  isCartVariantMutationCurrent,
+} from '@entities/cart/lib/cartMutationRevision';
+import { useCartLocalStore } from '@entities/cart/model/store/cartLocalStore';
 import { useCartPendingStore } from '@entities/cart/model/store/cartPendingStore';
 import { useCartQuantityStore } from '@entities/cart/model/store/cartQuantityStore';
 import type { LocalCartItem } from '@entities/cart/model/types';
+
+import {
+  toEcommerceItem,
+  trackEcommerceEvent,
+} from '@shared/lib/analytics/ecommerce';
 
 import { useAddToCart } from '../../queries/useAddToCart';
 import { useDeleteCartItem } from '../../queries/useDeleteCartItem';
@@ -45,6 +57,7 @@ export default function useCartActions() {
     product,
     isDirectInput = false,
     skipIfPending = false,
+    trackAddToCart = false,
     event,
   }: Pick<CartItem, 'productId'> &
     Partial<Pick<CartItem, 'quantity'>> & {
@@ -54,6 +67,7 @@ export default function useCartActions() {
       product?: LocalCartItem['product'];
       isDirectInput?: boolean;
       skipIfPending?: boolean;
+      trackAddToCart?: boolean;
       event?: React.ChangeEvent<HTMLInputElement>;
     }) => {
     const variantKey = getCartVariantKey({
@@ -113,6 +127,15 @@ export default function useCartActions() {
       return;
     }
 
+    const trackAddedItem = (item: LocalCartItem, previousQuantity: number) => {
+      const addedQuantity = item.quantity - previousQuantity;
+      if (trackAddToCart && addedQuantity > 0) {
+        trackEcommerceEvent('add_to_cart', [
+          toEcommerceItem({ ...item, quantity: addedQuantity }),
+        ]);
+      }
+    };
+
     setQuantity(variantKey, nextQuantity);
 
     const isNewItem =
@@ -142,7 +165,7 @@ export default function useCartActions() {
 
         void (async () => {
           try {
-            await addToCartMutateAsync({
+            const nextCart = await addToCartMutateAsync({
               productId,
               quantity: nextQuantity,
               cartItemId,
@@ -150,6 +173,20 @@ export default function useCartActions() {
               colorName,
               clientRevision,
             });
+            if (isCartVariantMutationCurrent(variantKey, clientRevision)) {
+              const addedItem = nextCart.items.find((item) =>
+                isSameCartVariant(item, {
+                  productId,
+                  productColorId,
+                  colorName,
+                }),
+              );
+              if (addedItem) {
+                trackAddedItem(addedItem, currentQuantity);
+              }
+            }
+          } catch {
+            // useAddToCart의 onError에서 rollback을 처리한다.
           } finally {
             const latestRevision = cartSyncRevisionRef.current[variantKey] ?? 0;
             if (latestRevision === nextRevision) {
@@ -160,6 +197,11 @@ export default function useCartActions() {
         })();
       }, CART_SYNC_DEBOUNCE_MS);
     } else if (status === 'unauthenticated') {
+      const previousLocalQuantity =
+        useCartLocalStore
+          .getState()
+          .localCartItems.find((item) => getCartVariantKey(item) === variantKey)
+          ?.quantity ?? 0;
       updateLocalCart({
         productId,
         quantity: nextQuantity,
@@ -168,6 +210,12 @@ export default function useCartActions() {
         colorName,
         product,
       });
+      const addedItem = useCartLocalStore
+        .getState()
+        .localCartItems.find((item) => getCartVariantKey(item) === variantKey);
+      if (addedItem) {
+        trackAddedItem(addedItem, previousLocalQuantity);
+      }
     }
   };
 
