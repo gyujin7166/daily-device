@@ -148,6 +148,7 @@ export const useProductItemActions = ({
           : undefined,
       },
       skipIfPending: true,
+      trackAddToCart: true,
     });
 
     openCart();

@@ -190,6 +190,7 @@ describe('ProductItem', () => {
       expect.objectContaining({
         productId: 101,
         quantity: 1,
+        trackAddToCart: true,
         product: expect.objectContaining({
           id: 101,
           name_en: 'Aster Mouse Mini',

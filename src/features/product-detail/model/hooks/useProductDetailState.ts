@@ -22,6 +22,10 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import {
+  toEcommerceItem,
+  trackEcommerceEvent,
+} from '@shared/lib/analytics/ecommerce';
 import { usePathname, useRouter } from '@shared/lib/i18n/navigation';
 import { createCurrentPath } from '@shared/lib/router/currentPath';
 
@@ -62,7 +66,8 @@ export default function useProductDetailState({
   const { data: wishlistItems = [] } = useWishlist();
   const { mutate: addWishlist } = useUpsertWishlist();
   const { mutate: removeWishlist } = useDeleteWishlist();
-  const { data, isPending } = useProductDescription(detail);
+  const { data, isPending, isSuccess, isPlaceholderData } =
+    useProductDescription(detail);
   const { data: productImages } = useProductImages(detail);
   const { data: session, status } = useSession();
 
@@ -77,6 +82,7 @@ export default function useProductDetailState({
   const [quantity, setQuantity] = useState(1);
   const productDetails = data?.productDetails ?? [];
   const product = data?.product;
+  const viewedProductRef = useRef({ detail, tracked: false });
   const mainImageUrl =
     getProductThumbnailUrlBySelectedColor(productImages, selectedColor?.id) ??
     productImages?.[0]?.image_url;
@@ -225,6 +231,7 @@ export default function useProductDetailState({
           : undefined,
       },
       skipIfPending: true,
+      trackAddToCart: true,
     });
     openCart();
   };
@@ -249,8 +256,41 @@ export default function useProductDetailState({
       window.sessionStorage.setItem(CHECKOUT_ENTRY_STORAGE_KEY, 'buyNow');
     }
 
+    trackEcommerceEvent('begin_checkout', [toEcommerceItem(buyNowItem)]);
     router.push('/checkout');
   };
+
+  useEffect(() => {
+    if (viewedProductRef.current.detail !== detail) {
+      viewedProductRef.current = { detail, tracked: false };
+    }
+
+    if (
+      !isSuccess ||
+      isPlaceholderData ||
+      !product ||
+      product.slug !== decodeURIComponent(detail) ||
+      viewedProductRef.current.tracked
+    ) {
+      return;
+    }
+
+    const sendViewItem = () => {
+      const sent = trackEcommerceEvent('view_item', [
+        toEcommerceItem({ productId: product.id, product, quantity: 1 }),
+      ]);
+      viewedProductRef.current.tracked = sent;
+      return sent;
+    };
+
+    if (sendViewItem()) {
+      return;
+    }
+
+    // 최초 hydration에서는 루트의 afterInteractive 태그 초기화가 뒤따를 수 있다.
+    const timer = setTimeout(sendViewItem, 0);
+    return () => clearTimeout(timer);
+  }, [detail, isPlaceholderData, isSuccess, product]);
 
   useEffect(() => {
     if (!product?.productColor?.length) {
