@@ -4,6 +4,8 @@ import { OrderStatus } from '@prisma/client';
 
 import { expirePendingOrders } from '@app/api-routes/orders/expirePendingOrders';
 
+import type { OrderPurchaseSummary } from '@entities/order/model/types';
+
 import {
   BadRequestError,
   ConflictError,
@@ -86,8 +88,28 @@ export async function confirmTossPaymentForUser({
     throw new ForbiddenError();
   }
 
+  const calculatedAmount = order.orderItems.reduce(
+    (sum, item) => sum + Number(item.price) * item.quantity,
+    0,
+  );
+  const purchaseSummary: OrderPurchaseSummary = {
+    orderNumber: order.orderNumber,
+    status: OrderStatus.CONFIRMED,
+    totalAmount: calculatedAmount,
+    items: order.orderItems.map((item) => ({
+      productId: item.productId,
+      productName: item.productName,
+      colorName: item.colorName,
+      price: Number(item.price),
+      quantity: item.quantity,
+    })),
+  };
+
   if (order.status === OrderStatus.CONFIRMED) {
-    return { status: 200, body: { message: 'Order already confirmed' } };
+    return {
+      status: 200,
+      body: { items: purchaseSummary, message: 'Order already confirmed' },
+    };
   }
 
   if (order.status !== OrderStatus.PENDING) {
@@ -96,11 +118,6 @@ export async function confirmTossPaymentForUser({
 
   const isBuyNowOrder =
     Boolean(order.isBuyNow) || order.orderNumber.startsWith('BN-');
-
-  const calculatedAmount = order.orderItems.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
-    0,
-  );
 
   if (amountValue !== calculatedAmount) {
     throw new BadRequestError('Amount mismatch');
@@ -182,6 +199,6 @@ export async function confirmTossPaymentForUser({
 
   return {
     status: 200,
-    body: { items: data, message: 'Payment confirmed' },
+    body: { items: purchaseSummary, message: 'Payment confirmed' },
   };
 }

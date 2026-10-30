@@ -3,7 +3,11 @@ import 'server-only';
 import { OrderStatus, ReviewStatus } from '@prisma/client';
 
 import { generateOrderNumber } from '@entities/order/lib/generateOrderNumber';
-import type { OrderListItem, OrdersMode } from '@entities/order/model/types';
+import type {
+  OrderListItem,
+  OrdersMode,
+  OrderPurchaseSummary,
+} from '@entities/order/model/types';
 
 import {
   BadRequestError,
@@ -316,11 +320,8 @@ type CreateOrderParams = {
   status?: OrderStatus;
 };
 
-type CreateOrderResult = {
+type CreateOrderResult = OrderPurchaseSummary & {
   id: number;
-  orderNumber: string;
-  status: OrderStatus;
-  totalAmount: number;
 };
 
 export async function assertUserAddressOwnership(
@@ -534,6 +535,13 @@ export async function createOrderForUser(
       orderNumber: order.orderNumber,
       status: order.status,
       totalAmount,
+      items: validatedItems.map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        colorName: item.colorName,
+        price: item.price,
+        quantity: item.quantity,
+      })),
     };
   });
 }

@@ -1,13 +1,12 @@
 import type {
   CreateOrderRequest,
   OrderResponse,
+  OrderPurchaseSummary,
   OrdersMode,
 } from '@entities/order/model/types';
 
 import { fetchApi, fetchApiResponse } from '@shared/api/fetchApi';
 import type { ApiResponse } from '@shared/types/api';
-
-import type { OrderStatus } from '@prisma/client';
 
 type OrdersPagedResponse = ApiResponse<
   OrderResponse[],
@@ -19,11 +18,8 @@ type OrdersPagedResponse = ApiResponse<
   }
 >;
 
-type CreateOrderResponse = {
+type CreateOrderResponse = OrderPurchaseSummary & {
   id: number;
-  orderNumber: string;
-  status: OrderStatus;
-  totalAmount: number;
 };
 
 type OrderActionResponse = {

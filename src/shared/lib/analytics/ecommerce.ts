@@ -20,12 +20,32 @@ type EcommerceItemInput = {
   quantity: number;
 };
 
+type PurchaseEventInput = {
+  transactionId: string;
+  value: number;
+  items: Array<{
+    productId: number;
+    productName: string;
+    colorName?: string | null;
+    price: number;
+    quantity: number;
+  }>;
+};
+
+// Storage can be unavailable in restricted browser contexts.
+const purchasesWithoutStorage = new Set<string>();
+
 declare global {
   interface Window {
     gtag?: (
       command: 'event',
-      event: EcommerceEventName,
-      parameters: { currency: 'KRW'; value: number; items: EcommerceItem[] },
+      event: EcommerceEventName | 'purchase',
+      parameters: {
+        currency: 'KRW';
+        value: number;
+        items: EcommerceItem[];
+        transaction_id?: string;
+      },
     ) => void;
   }
 }
@@ -66,4 +86,55 @@ export function trackEcommerceEvent(
     items,
   });
   return true;
+}
+
+export function trackPurchaseEvent({
+  transactionId,
+  value,
+  items,
+}: PurchaseEventInput): boolean {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    if (
+      typeof window.gtag !== 'function' ||
+      !transactionId?.trim() ||
+      !Number.isFinite(value) ||
+      value < 0 ||
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      purchasesWithoutStorage.has(transactionId)
+    )
+      return false;
+
+    const marker = `ga4:purchase:${transactionId}`;
+    try {
+      if (window.sessionStorage.getItem(marker)) return false;
+    } catch {
+      /* Analytics must not block payment when storage is restricted. */
+    }
+
+    window.gtag('event', 'purchase', {
+      transaction_id: transactionId,
+      currency: 'KRW',
+      value,
+      items: items.map((item) =>
+        toEcommerceItem({
+          productId: item.productId,
+          product: { name_en: item.productName, price: item.price },
+          colorName: item.colorName,
+          quantity: item.quantity,
+        }),
+      ),
+    });
+
+    try {
+      window.sessionStorage.setItem(marker, '1');
+    } catch {
+      purchasesWithoutStorage.add(transactionId);
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
