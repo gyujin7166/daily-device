@@ -1,8 +1,10 @@
+import { hydrate } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HttpError } from '@shared/lib/errors/httpError';
+import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 
 import { orderFixture, TEST_API_URL } from '../../../../test/mocks/handlers';
 import { server } from '../../../../test/mocks/server';
@@ -10,6 +12,7 @@ import {
   createQueryWrapper,
   createTestQueryClient,
 } from '../../../../test/render';
+import { getOrdersPaged } from '../api/order';
 
 import { orderQueryKeys } from './queryKeys';
 import { useCancelOrder } from './useCancelOrder';
@@ -17,6 +20,8 @@ import { useConfirmDelivery } from './useConfirmDelivery';
 import { useHideOrder } from './useHideOrder';
 import { useOrders } from './useOrders';
 import { useOrdersPaged } from './useOrdersPaged';
+
+import type { OrdersMode } from '../model/types';
 
 const mocks = vi.hoisted(() => ({
   sessionStatus: 'authenticated',
@@ -150,6 +155,102 @@ describe('order queries', () => {
     expect(result.current.fetchStatus).toBe('idle');
     expect(result.current.data).toBeUndefined();
   });
+});
+
+describe('주문·상품평 첫 페이지 hydration 캐시', () => {
+  const cases = (['all', 'review-written', 'review'] as const).flatMap(
+    (mode) => [
+      { mode, empty: false },
+      { mode, empty: true },
+    ],
+  );
+
+  it.each(cases)(
+    '$mode prefetch 완료 후 empty=$empty 상태로 첫 렌더를 시작한다',
+    async ({ mode, empty }) => {
+      let requests = 0;
+      const page = {
+        items: empty ? [] : [orderFixture],
+        total: empty ? 0 : 1,
+        page: 1,
+        limit: 5,
+        totalPages: 1,
+      };
+      server.use(
+        http.get(`${TEST_API_URL}/api/orders`, () => {
+          requests += 1;
+          return HttpResponse.json(page);
+        }),
+      );
+      const serverClient = createTestQueryClient();
+      await serverClient.prefetchQuery({
+        queryKey: orderQueryKeys.paged(mode, 1, 5),
+        queryFn: () => getOrdersPaged({ mode, page: 1, limit: 5 }),
+        staleTime: 5 * 60 * 1000,
+      });
+
+      const client = createTestQueryClient();
+      hydrate(client, dehydrateWithPending(serverClient));
+      const { result, unmount } = renderHook(
+        () => useOrdersPaged({ mode, page: 1, limit: 5 }),
+        {
+          wrapper: createQueryWrapper(client),
+        },
+      );
+
+      expect(result.current.isPending).toBe(false);
+      expect(result.current.data).toEqual(page);
+      expect(result.current.fetchStatus).toBe('idle');
+      expect(requests).toBe(1);
+      unmount();
+      serverClient.clear();
+      client.clear();
+    },
+  );
+
+  it.each<OrdersMode>(['all', 'review-written', 'review'])(
+    '%s 데이터가 늦게 도착하면 loading에서 빈 상태로 전환한다',
+    async (mode) => {
+      let requestStarted = false;
+      let releaseResponse!: () => void;
+      const responseReady = new Promise<void>((resolve) => {
+        releaseResponse = resolve;
+      });
+      server.use(
+        http.get(`${TEST_API_URL}/api/orders`, async () => {
+          requestStarted = true;
+          await responseReady;
+          return HttpResponse.json({
+            items: [],
+            total: 0,
+            page: 1,
+            limit: 5,
+            totalPages: 1,
+          });
+        }),
+      );
+      const { result, unmount, queryClient } = renderOrderHook(() =>
+        useOrdersPaged({ mode, page: 1, limit: 5 }),
+      );
+
+      try {
+        await waitFor(() => {
+          expect(requestStarted).toBe(true);
+        });
+        expect(result.current.isPending).toBe(true);
+        expect(result.current.data).toBeUndefined();
+      } finally {
+        releaseResponse();
+      }
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.isPending).toBe(false);
+      expect(result.current.data?.items).toEqual([]);
+      unmount();
+      queryClient.clear();
+    },
+  );
 });
 
 const mutationCases = [
