@@ -24,7 +24,7 @@ export default async function MyOrdersPage() {
 
   const queryClient = new QueryClient();
 
-  queryClient.prefetchQuery({
+  await queryClient.prefetchQuery({
     queryKey: orderQueryKeys.paged('all', 1, 5),
     queryFn: () => getOrdersResultByMode(userId, 'all', 1, 5),
     staleTime: 5 * 60 * 1000,
