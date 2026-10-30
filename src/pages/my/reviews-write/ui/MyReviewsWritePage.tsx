@@ -24,7 +24,7 @@ export default async function MyReviewsWritePage() {
 
   const queryClient = new QueryClient();
 
-  queryClient.prefetchQuery({
+  await queryClient.prefetchQuery({
     queryKey: orderQueryKeys.paged('review', 1, 5),
     queryFn: () => getOrdersResultByMode(userId, 'review', 1, 5),
     staleTime: 5 * 60 * 1000,
