@@ -60,26 +60,27 @@ jobs:
         run: |
           set -o pipefail
           build_log="$RUNNER_TEMP/next-build.log"
+          transient_db_pattern="P1001|Can't reach database server|Error opening a TLS connection.*unexpected EOF"
 
-          for attempt in 1 2; do
+          for attempt in 1 2 3; do
             if npm run build 2>&1 | tee "$build_log"; then
               rm -f "$build_log"
               exit 0
             fi
 
-            if ! grep -Eq "P1001|Can't reach database server" "$build_log"; then
+            if ! grep -Eqi "$transient_db_pattern" "$build_log"; then
               rm -f "$build_log"
               echo "::error::Production build failed with a non-transient error."
               exit 1
             fi
 
-            if [ "$attempt" -eq 2 ]; then
+            if [ "$attempt" -eq 3 ]; then
               rm -f "$build_log"
-              echo "::error::Production build still cannot reach the E2E database after one retry."
+              echo "::error::Production build still cannot connect reliably to the E2E database after retries."
               exit 1
             fi
 
-            echo "::warning::Production build could not reach the E2E database. Retrying in 10 seconds."
+            echo "::warning::Production build hit a transient E2E database/TLS connection error. Retrying in 10 seconds. (attempt $attempt/3)"
             sleep 10
           done
 
