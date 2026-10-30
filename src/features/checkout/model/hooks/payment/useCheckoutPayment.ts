@@ -12,6 +12,7 @@ import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { trackPurchaseEvent } from '@shared/lib/analytics/ecommerce';
 import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import { toast } from '@shared/lib/toast';
@@ -191,7 +192,14 @@ export function useCheckoutPayment(options: UseCheckoutPaymentOptions) {
     try {
       setIsDemoProcessing(true);
       // 데모 결제는 외부 승인 단계가 없으므로 주문을 바로 확정 상태로 생성한다.
-      await mutateAsync(buildOrderPayload('CONFIRMED'));
+      const order = await mutateAsync(buildOrderPayload('CONFIRMED'));
+      if (order?.status === 'CONFIRMED') {
+        trackPurchaseEvent({
+          transactionId: order.orderNumber,
+          value: order.totalAmount,
+          items: order.items,
+        });
+      }
       window.sessionStorage.removeItem(CHECKOUT_ENTRY_STORAGE_KEY);
       window.sessionStorage.removeItem(BUY_NOW_CHECKOUT_STORAGE_KEY);
       toast.success(t('toast.demoCompleted'));

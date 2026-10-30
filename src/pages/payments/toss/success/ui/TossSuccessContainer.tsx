@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
@@ -9,11 +9,14 @@ import {
 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
+import type { OrderPurchaseSummary } from '@entities/order/model/types';
+
 import { fetchApi } from '@shared/api/fetchApi';
 import {
   BUY_NOW_CHECKOUT_STORAGE_KEY,
   CHECKOUT_ENTRY_STORAGE_KEY,
 } from '@shared/constants/checkout';
+import { trackPurchaseEvent } from '@shared/lib/analytics/ecommerce';
 import { getApiErrorMessage } from '@shared/lib/errors/apiErrorMessage';
 import { useRouter } from '@shared/lib/i18n/navigation';
 import Spinner from '@shared/ui/Loading/Spinner/Spinner';
@@ -31,6 +34,7 @@ export default function TossSuccessContainer() {
   const amount = Number(params.get('amount'));
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState<string>('');
+  const requestedCallback = useRef<string | null>(null);
   const content =
     status === 'confirming' || status === 'idle'
       ? {
@@ -48,20 +52,40 @@ export default function TossSuccessContainer() {
           };
 
   useEffect(() => {
-    if (!paymentKey || !orderId || !amount) {
+    if (
+      !paymentKey?.trim() ||
+      !orderId?.trim() ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
       setStatus('error');
       setMessage(t('error.invalidResponse'));
       return;
     }
 
+    const callbackKey = JSON.stringify([paymentKey, orderId, amount]);
+    if (requestedCallback.current === callbackKey) return;
+    requestedCallback.current = callbackKey;
+
     const confirmPayment = async () => {
       try {
         setStatus('confirming');
-        await fetchApi('/api/payments/toss/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentKey, orderId, amount }),
-        });
+        const order = await fetchApi<OrderPurchaseSummary>(
+          '/api/payments/toss/confirm',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentKey, orderId, amount }),
+          },
+        );
+
+        if (order?.status === 'CONFIRMED') {
+          trackPurchaseEvent({
+            transactionId: order.orderNumber,
+            value: order.totalAmount,
+            items: order.items,
+          });
+        }
 
         setStatus('done');
         window.sessionStorage.removeItem(CHECKOUT_ENTRY_STORAGE_KEY);

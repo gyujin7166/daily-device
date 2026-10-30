@@ -10,6 +10,20 @@ export type OrderResponse = OrderListItem;
 
 export type OrdersMode = 'all' | 'review' | 'review-written';
 
+export type OrderPurchaseSummary = {
+  orderNumber: string;
+  status: PrismaOrderStatus;
+  totalAmount: number;
+  items: Array<
+    Pick<
+      PrismaOrderItem,
+      'productId' | 'productName' | 'colorName' | 'quantity'
+    > & {
+      price: number;
+    }
+  >;
+};
+
 export type CreateOrderRequest = {
   items: Array<{
     productId: number;
