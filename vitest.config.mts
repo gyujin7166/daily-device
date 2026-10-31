@@ -13,6 +13,11 @@ const unitProject = {
   test: {
     name: 'unit',
     environment: 'jsdom',
+    server: {
+      deps: {
+        inline: ['next-intl'],
+      },
+    },
     setupFiles: ['./test/setup.ts'],
     include: [
       'src/**/*.{test,spec}.{ts,tsx}',
