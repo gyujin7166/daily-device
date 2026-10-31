@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { getTranslations } from 'next-intl/server';
 
+import { getPageAlternates } from '@app/metadata/alternates';
+
 import type { Locale } from 'next-intl';
 
 export { default } from '@pages/home';
@@ -20,5 +22,6 @@ export async function generateMetadata({
   return {
     title: { absolute: 'Daily Device' },
     description: t('homeDescription'),
+    alternates: getPageAlternates(locale, '/'),
   };
 }

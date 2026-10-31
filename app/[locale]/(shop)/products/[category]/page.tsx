@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 
 import { getProductCategoryBySlug } from '@app/api-routes/products/filters/service';
+import { getPageAlternates } from '@app/metadata/alternates';
 
 import type { Locale } from 'next-intl';
 
@@ -18,8 +19,9 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale; category: string }>;
 }): Promise<Metadata> {
   const { locale, category } = await params;
+  const normalizedCategory = decodeURIComponent(category).trim();
   const productCategory = await getProductCategoryBySlug(
-    decodeURIComponent(category).trim(),
+    normalizedCategory,
     locale,
   );
 
@@ -32,5 +34,9 @@ export async function generateMetadata({
   return {
     title: productCategory.name,
     description: t('categoryDescription', { category: productCategory.name }),
+    alternates: getPageAlternates(
+      locale,
+      `/products/${encodeURIComponent(normalizedCategory)}`,
+    ),
   };
 }

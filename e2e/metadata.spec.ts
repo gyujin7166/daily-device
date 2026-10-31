@@ -2,8 +2,43 @@ import enMessages from '../messages/en.json';
 import koMessages from '../messages/ko.json';
 import prisma from '../prisma/prismaClientSingleton';
 import { routing } from '../src/shared/config/i18n/routing';
+import { SITE_ORIGIN } from '../src/shared/config/site';
 
 import { expect, test } from './fixtures/productTest';
+
+import type { Locale } from '../src/shared/config/i18n/routing';
+import type { Page } from '@playwright/test';
+
+async function expectPublicAlternates(
+  page: Page,
+  locale: Locale,
+  pathname: string,
+) {
+  const urls = {
+    ko: `${SITE_ORIGIN}${pathname}`,
+    en: `${SITE_ORIGIN}/en${pathname === '/' ? '' : pathname}`,
+  };
+  const canonical = page.locator('head link[rel="canonical"]');
+
+  await expect(canonical).toHaveCount(1);
+  await expect(canonical).toHaveAttribute('href', urls[locale]);
+  await expect(
+    page.locator('head link[rel="alternate"][hreflang]'),
+  ).toHaveCount(2);
+  for (const language of routing.locales) {
+    const alternate = page.locator(
+      `head link[rel="alternate"][hreflang="${language}"]`,
+    );
+
+    await expect(alternate).toHaveCount(1);
+    await expect(alternate).toHaveAttribute('href', urls[language]);
+  }
+}
+
+async function expectNoAlternates(page: Page) {
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+}
 
 test.beforeEach(async ({ context }) => {
   // Metadata tests must not send analytics or contact a real payment provider.
@@ -20,7 +55,7 @@ for (const locale of routing.locales) {
       ? href
       : `/${locale}${href === '/' ? '' : href}`;
 
-  test(`${locale} 공개 페이지와 검색·로그인에 고유 HTML title을 표시한다`, async ({
+  test(`${locale} 공개 페이지의 HTML title·canonical·hreflang과 검색·로그인의 noindex를 표시한다`, async ({
     page,
   }) => {
     test.setTimeout(180_000);
@@ -61,10 +96,12 @@ for (const locale of routing.locales) {
             'content',
             'noindex, nofollow',
           );
+          await expectNoAlternates(page);
         } else {
           await expect(
             page.locator('meta[name="robots"][content*="noindex"]'),
           ).toHaveCount(0);
+          await expectPublicAlternates(page, locale, routeCase.href);
         }
       });
     }
@@ -88,10 +125,10 @@ for (const locale of routing.locales) {
     const translation = product.translations.find(
       (translation) => translation.locale === locale,
     )!;
-    const categoryHref = path(`/products/${e2eProduct.categorySlug}`);
-    const productHref = path(
-      `/products/${e2eProduct.categorySlug}/${e2eProduct.productSlug}`,
-    );
+    const categoryPathname = `/products/${e2eProduct.categorySlug}`;
+    const productPathname = `${categoryPathname}/${e2eProduct.productSlug}`;
+    const categoryHref = path(categoryPathname);
+    const productHref = path(productPathname);
 
     await page.goto(categoryHref);
     await expect(page).toHaveTitle(`${categoryName} | Daily Device`);
@@ -102,6 +139,13 @@ for (const locale of routing.locales) {
     await expect(
       page.locator('meta[name="robots"][content*="noindex"]'),
     ).toHaveCount(0);
+    await expectPublicAlternates(page, locale, categoryPathname);
+
+    await page.goto(`${categoryHref}?sort=price_asc`);
+    await expect(page).toHaveURL(
+      (url) => url.searchParams.get('sort') === 'price_asc',
+    );
+    await expectPublicAlternates(page, locale, categoryPathname);
 
     // Check crawler-facing metadata on a direct product load.
     await page.goto(productHref);
@@ -113,6 +157,7 @@ for (const locale of routing.locales) {
     await expect(
       page.locator('meta[name="robots"][content*="noindex"]'),
     ).toHaveCount(0);
+    await expectPublicAlternates(page, locale, productPathname);
 
     // Also verify document.title updates during client navigation to another product.
     await page.locator(`a[href="${categoryHref}"]`).first().click();
@@ -142,6 +187,7 @@ for (const locale of routing.locales) {
         'content',
         /noindex/,
       );
+      await expectNoAlternates(page);
     }
   });
 
@@ -177,6 +223,7 @@ for (const locale of routing.locales) {
           'content',
           'noindex, nofollow',
         );
+        await expectNoAlternates(page);
       });
     }
   });
