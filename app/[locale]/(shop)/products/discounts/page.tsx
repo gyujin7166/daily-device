@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { getTranslations } from 'next-intl/server';
 
+import { getPageAlternates } from '@app/metadata/alternates';
+
 import { ProductDiscountsPage } from '@pages/products/all';
 
 import type { Locale } from 'next-intl';
@@ -24,5 +26,6 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    alternates: getPageAlternates(locale, '/products/discounts'),
   };
 }

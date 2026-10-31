@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { getTranslations } from 'next-intl/server';
 
+import { getPageAlternates } from '@app/metadata/alternates';
+
 import type { Locale } from 'next-intl';
 
 export { default } from '@pages/policy/cookies';
@@ -19,5 +21,6 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    alternates: getPageAlternates(locale, '/cookies'),
   };
 }
