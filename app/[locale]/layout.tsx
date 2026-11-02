@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     template: '%s | Daily Device',
   },
   description: 'Daily Device',
+  verification: {
+    google: 'Rkyg2nxiEOtQGq5iLfzC09rUSVKWcK27oAPLftVTHt8',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
