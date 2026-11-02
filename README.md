@@ -45,7 +45,8 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다. �
   - Hero·상품·홈 섹션·홈 카드의 추가·수정·삭제, 상품평 공개/숨김, `ADMIN` 쓰기 권한
 - **분석과 SEO**
   - GA4 전자상거래 퍼널(`view_item → add_to_cart → begin_checkout → purchase`) 추적, 서버 확정 주문 기준의 구매 집계와 중복 전송 방지
-  - 한국어·영어 페이지별 metadata와 검색 노출이 필요하지 않은 화면의 `noindex`
+  - 한국어·영어 페이지별 metadata와 검색 노출이 필요하지 않은 화면의 `noindex`, sitemap·robots, self canonical·ko/en hreflang
+  - 실제 상품 데이터 기반 Product JSON-LD 서버 렌더링과 Google Rich Results Test 검증, Search Console 소유권 확인·sitemap 제출
 
 ## 주요 화면
 
@@ -72,7 +73,9 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다. �
 - **폼과 서버 검증:** React Hook Form과 Zod로 배송지·상품평·관리자 폼의 상태와 입력 검증을 구성했습니다. route param·query string·request body와 상품평 작성 권한·주문 상태 같은 규칙은 Route Handler에서 최종 확인합니다.
 - **GA4 구매 분석:** 상품 조회·장바구니 추가·체크아웃 시작에 맞춰 이벤트를 기록합니다. 데모 결제는 `CONFIRMED` 주문 생성 후, Toss 결제는 승인·서버 confirm 후 `CONFIRMED` 응답의 주문번호·총액·상품 정보로 `purchase`를 전송합니다. 주문번호를 기준으로 세션 내 중복 전송을 막고, 분석 오류나 태그 부재가 주문·결제 완료를 방해하지 않도록 분리했습니다.
 - **국제화:** next-intl의 한국어·영어 UI 메시지와 Prisma의 locale별 DB 콘텐츠를 구분했습니다. URL·API·TanStack Query key·prefetch와 hydration에서도 같은 locale을 사용합니다.
-- **Metadata와 SEO:** Next.js Metadata API로 한국어·영어 title·description을 구성하고 상품·카테고리의 locale별 DB 콘텐츠를 재사용합니다. 검색·로그인·체크아웃·마이페이지·관리자 등 검색 노출이 필요하지 않은 화면은 `noindex`로 설정했습니다. 페이지별 제목은 GA4 자동 `page_view`의 `page_title`에도 반영됩니다.
+- **Metadata와 SEO:** Next.js Metadata API로 한국어·영어 title·description을 구성하고 상품·카테고리의 locale별 DB 콘텐츠를 재사용합니다. 검색·로그인·체크아웃·마이페이지·관리자 등 검색 노출이 필요하지 않은 화면은 `noindex`로 설정했습니다. Metadata Route 기반 `/sitemap.xml`에 공개 URL을 제공하고, `/robots.txt`는 공개 페이지 크롤링을 허용하며 production sitemap URL을 안내합니다. 공개 페이지에는 locale별 self canonical과 ko/en hreflang을 적용하며, sitemap과 canonical 모두 한국어는 `/ko` 없이, 영어는 `/en`을 사용하는 URL 정책을 따릅니다. 페이지별 제목은 GA4 자동 `page_view`의 `page_title`에도 반영됩니다.
+- **Product JSON-LD:** 상품 상세 초기 HTML에 locale별 상품명·설명·카테고리와 실제 이미지를 담은 `Product` JSON-LD를 서버 렌더링합니다. 기존 상품 데이터와 이미지 query cache를 재사용해 추가 DB 조회 없이 구성하고, 할인 적용 후 실제 판매 가격과 `KRW` 통화를 사용합니다. 상품 URL은 canonical과 일치시키며, 브랜드·재고 등 근거 없는 속성은 추정하지 않습니다.
+- **검색엔진 검증:** 배포된 영어 상품 상세를 Google Rich Results Test로 검사해 제품 스니펫·판매자 목록이 모두 유효하게 인식되는 것을 확인했습니다. 선택 속성 경고는 남아 있습니다. Google Search Console은 HTML 태그 방식으로 소유권 확인을 완료했고, sitemap 제출 상태가 `성공`이며 현재 데이터 기준 한국어·영어 공개 URL 342개가 발견된 것을 확인했습니다. 현재는 실제 크롤링·색인 상태를 관찰하고 있습니다.
 - **테스트 전략:** Vitest·RTL·MSW로 로직과 API 상태별 UI를 검증하고, Storybook·Chromatic으로 컴포넌트 상태·interaction·접근성을 확인합니다. Playwright는 로그인부터 테스트 결제와 주문 확인까지 핵심 흐름을 담당합니다.
 - **이미지 처리:** Cloudinary에서 용도별 resize·`q_auto`·`f_auto` 변환을 적용합니다. Cloudinary URL은 조건부로 Vercel Image Optimization을 건너뛰고, 그 밖의 이미지는 기존 `next/image` 최적화를 유지합니다.
 
