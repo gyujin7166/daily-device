@@ -10,6 +10,7 @@ import { getProductDetailBySlug } from '@app/api-routes/products/[slug]/service'
 import { getRecommendedProductsList } from '@app/api-routes/products/recommended/service';
 import { getStaticProductDetailParams } from '@app/api-routes/products/static-params/service';
 
+import type { ProductImageItem } from '@entities/product/model/types';
 import { productQueryKeys } from '@entities/product/queries/queryKeys';
 import { PRODUCT_REVIEW_GALLERY_PAGE_SIZE } from '@entities/review/api/review';
 import { PRODUCT_REVIEW_PER_PAGE } from '@entities/review/model/constants';
@@ -18,6 +19,11 @@ import { productReviewQueryKeys } from '@entities/review/queries/queryKeys';
 
 import { dehydrateWithPending } from '@shared/lib/query/dehydrateWithPending';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
+
+import {
+  createProductJsonLd,
+  serializeProductJsonLd,
+} from '../lib/productJsonLd';
 
 import ProductDetailPageContainer from './ProductDetailPageContainer';
 
@@ -60,12 +66,18 @@ export default async function ProductDetailPage({
   }
 
   const excludeId = productDetail.product.id;
+  const imageQueryKey = productQueryKeys.images(slug);
 
   await queryClient.prefetchQuery({
-    queryKey: productQueryKeys.images(slug),
+    queryKey: imageQueryKey,
     queryFn: () => getProductImageListBySlug(slug),
     staleTime: 60 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
+  });
+  const productJsonLd = createProductJsonLd({
+    locale,
+    product: productDetail.product,
+    images: queryClient.getQueryData<ProductImageItem[]>(imageQueryKey) ?? [],
   });
 
   await Promise.all([
@@ -133,12 +145,22 @@ export default async function ProductDetailPage({
   ]);
 
   return (
-    <HydrationBoundary state={dehydrateWithPending(queryClient)}>
-      <ProductDetailPageContainer
-        category={category}
-        detail={detail}
-        currentPath={currentPath}
-      />
-    </HydrationBoundary>
+    <>
+      {productJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeProductJsonLd(productJsonLd),
+          }}
+        />
+      ) : null}
+      <HydrationBoundary state={dehydrateWithPending(queryClient)}>
+        <ProductDetailPageContainer
+          category={category}
+          detail={detail}
+          currentPath={currentPath}
+        />
+      </HydrationBoundary>
+    </>
   );
 }

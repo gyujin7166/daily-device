@@ -3,6 +3,7 @@ import koMessages from '../messages/ko.json';
 import prisma from '../prisma/prismaClientSingleton';
 import { routing } from '../src/shared/config/i18n/routing';
 import { SITE_ORIGIN } from '../src/shared/config/site';
+import { getProductPriceInfo } from '../src/shared/lib/price/discount';
 
 import { expect, test } from './fixtures/productTest';
 
@@ -38,6 +39,21 @@ async function expectPublicAlternates(
 async function expectNoAlternates(page: Page) {
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+}
+
+async function readProductJsonLd(page: Page, html?: string) {
+  return page.evaluate((source) => {
+    const root =
+      source === undefined
+        ? document
+        : new DOMParser().parseFromString(source, 'text/html');
+
+    return Array.from(
+      root.querySelectorAll('script[type="application/ld+json"]'),
+    )
+      .map((script) => JSON.parse(script.textContent ?? 'null'))
+      .filter((jsonLd) => jsonLd?.['@type'] === 'Product');
+  }, html);
 }
 
 test.beforeEach(async ({ context }) => {
@@ -107,7 +123,7 @@ for (const locale of routing.locales) {
     }
   });
 
-  test(`${locale} DB 번역명과 상품 설명을 metadata에 사용하고 잘못된 상품은 404 처리한다`, async ({
+  test(`${locale} 상품 metadata와 초기 HTML의 Product JSON-LD를 검증하고 잘못된 상품은 404 처리한다`, async ({
     page,
     e2eProduct,
   }) => {
@@ -117,6 +133,7 @@ for (const locale of routing.locales) {
       include: {
         translations: true,
         category: { include: { translations: true } },
+        ProductImage: { select: { image_url: true } },
       },
     });
     const categoryName = product.category.translations.find(
@@ -148,7 +165,7 @@ for (const locale of routing.locales) {
     await expectPublicAlternates(page, locale, categoryPathname);
 
     // Check crawler-facing metadata on a direct product load.
-    await page.goto(productHref);
+    const productResponse = await page.goto(productHref);
     await expect(page).toHaveTitle(`${translation.name} | Daily Device`);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       'content',
@@ -158,6 +175,49 @@ for (const locale of routing.locales) {
       page.locator('meta[name="robots"][content*="noindex"]'),
     ).toHaveCount(0);
     await expectPublicAlternates(page, locale, productPathname);
+
+    const priceInfo = getProductPriceInfo(
+      Number(product.price),
+      product.discountRate,
+      locale,
+    );
+    const canonical = await page
+      .locator('head link[rel="canonical"]')
+      .getAttribute('href');
+    const productImageUrls = product.ProductImage.map(({ image_url }) =>
+      image_url.trim(),
+    ).filter(Boolean);
+    const structuredData = await readProductJsonLd(page);
+
+    expect(structuredData).toHaveLength(1);
+    expect(structuredData[0]).toMatchObject({
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      '@id': `${canonical}#product`,
+      url: canonical,
+      name: translation.name,
+      description: translation.description,
+      category: categoryName,
+      offers: {
+        '@type': 'Offer',
+        url: canonical,
+        price: priceInfo.price,
+        priceCurrency: 'KRW',
+      },
+    });
+    expect(productImageUrls.length).toBeGreaterThan(0);
+    expect(structuredData[0].image).toEqual(
+      expect.arrayContaining(productImageUrls),
+    );
+    expect(structuredData[0].image).toHaveLength(
+      new Set(productImageUrls).size,
+    );
+    expect(
+      await readProductJsonLd(page, await productResponse!.text()),
+    ).toEqual(structuredData);
+    await expect(
+      page.getByText(priceInfo.priceLabel, { exact: true }).first(),
+    ).toBeVisible();
 
     // Also verify document.title updates during client navigation to another product.
     await page.locator(`a[href="${categoryHref}"]`).first().click();
@@ -188,6 +248,7 @@ for (const locale of routing.locales) {
         /noindex/,
       );
       await expectNoAlternates(page);
+      expect(await readProductJsonLd(page)).toHaveLength(0);
     }
   });
 
