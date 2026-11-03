@@ -1417,6 +1417,7 @@
     }
   },
   "Footer": {
+    "demoNotice": "Daily Device is a demo project built to showcase e-commerce functionality. No real products are sold, charged, or shipped.",
     "navigationLabel": "Footer navigation",
     "navigation": {
       "about": "About",

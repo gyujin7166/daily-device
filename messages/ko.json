@@ -1417,6 +1417,7 @@
     }
   },
   "Footer": {
+    "demoNotice": "Daily Device는 이커머스 기능 구현을 위한 데모 프로젝트이며 실제 상품 판매·결제·배송은 이루어지지 않습니다.",
     "navigationLabel": "푸터 메뉴",
     "navigation": {
       "about": "서비스 소개",
