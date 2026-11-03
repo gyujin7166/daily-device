@@ -53,6 +53,9 @@ export default function Footer() {
   return (
     <footer className="mt-auto bg-footer-bg">
       <div className="mx-auto w-full max-w-7xl">
+        <p className="border-b border-surface/20 px-6 py-4 text-sm leading-relaxed text-surface/90 sm:px-10 lg:px-14">
+          {t('demoNotice')}
+        </p>
         <div className="rounded-xs bg-footer-bg px-6 pb-9 pt-9 text-surface sm:px-10 sm:pt-16 lg:px-14">
           <div className="flex flex-col gap-8">
             <div className="min-w-0">
