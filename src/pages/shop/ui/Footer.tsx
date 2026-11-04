@@ -51,90 +51,99 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-auto bg-footer-bg">
-      <div className="mx-auto w-full max-w-7xl">
-        <p className="border-b border-surface/20 px-6 py-4 text-sm leading-relaxed text-surface/90 sm:px-10 lg:px-14">
-          {t('demoNotice')}
-        </p>
-        <div className="rounded-xs bg-footer-bg px-6 pb-9 pt-9 text-surface sm:px-10 sm:pt-16 lg:px-14">
-          <div className="flex flex-col gap-8">
-            <div className="min-w-0">
-              <Link
-                href="/"
-                aria-label={t('homeAriaLabel')}
-                draggable={false}
-                className="inline-block select-none leading-0"
-              >
-                <Image
-                  src={DAILY_DEVICE_SYMBOL_SRC}
-                  alt="Daily Device"
-                  width={DAILY_DEVICE_SYMBOL_SIZE.width}
-                  height={DAILY_DEVICE_SYMBOL_SIZE.height}
-                  sizes="52px"
-                  className={FOOTER_SYMBOL_CLASS}
-                  draggable={false}
-                  loading="eager"
-                />
-                <Image
-                  src={DAILY_DEVICE_LOGO_SRC}
-                  alt="Daily Device"
-                  width={DAILY_DEVICE_LOGO_SIZE.width}
-                  height={DAILY_DEVICE_LOGO_SIZE.height}
-                  sizes="100vw"
-                  className={FOOTER_LOGO_CLASS}
-                  draggable={false}
-                  loading="eager"
-                />
-              </Link>
+    <footer className="mt-auto">
+      {/* Portfolio Demo 안내 영역 */}
+      <div className="w-full bg-muted text-surface">
+        <div className="mx-auto w-full max-w-7xl px-6 py-1.5 sm:px-10 lg:px-14">
+          <p className="text-sm leading-relaxed">{t('demoNotice')}</p>
+        </div>
+      </div>
 
-              <div className="mt-8 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8">
-                <nav aria-label={t('navigationLabel')}>
-                  <ul className="flex flex-wrap gap-x-7 gap-y-3 lg:flex-nowrap">
-                    {NAV_LINK_KEYS.map((key) => (
-                      <li key={key}>
-                        <button
-                          type="button"
-                          className={FOOTER_NAV_LINK_CLASS}
-                          onClick={handleUnavailableMenuClick}
-                        >
-                          {t(`navigation.${key}`)}
-                        </button>
-                      </li>
+      {/* 기존 Footer 영역 */}
+      <div className="w-full bg-footer-bg">
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="rounded-xs px-6 pb-9 pt-9 text-surface sm:px-10 sm:pt-16 lg:px-14">
+            <div className="flex flex-col gap-8">
+              <div className="min-w-0">
+                <Link
+                  href="/"
+                  aria-label={t('homeAriaLabel')}
+                  draggable={false}
+                  className="inline-block select-none leading-0"
+                >
+                  <Image
+                    src={DAILY_DEVICE_SYMBOL_SRC}
+                    alt="Daily Device"
+                    width={DAILY_DEVICE_SYMBOL_SIZE.width}
+                    height={DAILY_DEVICE_SYMBOL_SIZE.height}
+                    sizes="52px"
+                    className={FOOTER_SYMBOL_CLASS}
+                    draggable={false}
+                    loading="eager"
+                  />
+
+                  <Image
+                    src={DAILY_DEVICE_LOGO_SRC}
+                    alt="Daily Device"
+                    width={DAILY_DEVICE_LOGO_SIZE.width}
+                    height={DAILY_DEVICE_LOGO_SIZE.height}
+                    sizes="100vw"
+                    className={FOOTER_LOGO_CLASS}
+                    draggable={false}
+                    loading="eager"
+                  />
+                </Link>
+
+                <div className="mt-8 flex flex-col gap-5 lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8">
+                  <nav aria-label={t('navigationLabel')}>
+                    <ul className="flex flex-wrap gap-x-7 gap-y-3 lg:flex-nowrap">
+                      {NAV_LINK_KEYS.map((key) => (
+                        <li key={key}>
+                          <button
+                            type="button"
+                            className={FOOTER_NAV_LINK_CLASS}
+                            onClick={handleUnavailableMenuClick}
+                          >
+                            {t(`navigation.${key}`)}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+
+                  <div className="flex items-center gap-3 self-start lg:justify-end lg:self-auto">
+                    {SOCIAL_LINKS.map(({ label, icon: Icon }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-label={label}
+                        className={FOOTER_SOCIAL_BUTTON_CLASS}
+                        onClick={handleUnavailableMenuClick}
+                      >
+                        <Icon size={18} stroke={1.8} />
+                      </button>
                     ))}
-                  </ul>
-                </nav>
-
-                <div className="flex items-center gap-3 self-start lg:justify-end lg:self-auto">
-                  {SOCIAL_LINKS.map(({ label, icon: Icon }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      aria-label={label}
-                      className={FOOTER_SOCIAL_BUTTON_CLASS}
-                      onClick={handleUnavailableMenuClick}
-                    >
-                      <Icon size={18} stroke={1.8} />
-                    </button>
-                  ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 border-t border-surface/20 pt-5 sm:pt-6 lg:mt-12 lg:pt-8">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <p className="text-sm text-surface/90">
-                © {currentYear} Daily Device. All rights reserved.
-              </p>
-              <ul className="flex flex-wrap items-center gap-5">
-                {POLICY_LINKS.map(({ key, href }) => (
-                  <li key={key}>
-                    <Link href={href} className={FOOTER_POLICY_LINK_CLASS}>
-                      {t(`legal.${key}`)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            <div className="mt-6 border-t border-surface/20 pt-5 sm:pt-6 lg:mt-12 lg:pt-8">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <p className="text-sm text-surface/90">
+                  © {currentYear} Daily Device. All rights reserved.
+                </p>
+
+                <ul className="flex flex-wrap items-center gap-5">
+                  {POLICY_LINKS.map(({ key, href }) => (
+                    <li key={key}>
+                      <Link href={href} className={FOOTER_POLICY_LINK_CLASS}>
+                        {t(`legal.${key}`)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
