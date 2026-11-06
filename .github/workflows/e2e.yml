@@ -60,7 +60,7 @@ jobs:
         run: |
           set -o pipefail
           build_log="$RUNNER_TEMP/next-build.log"
-          transient_db_pattern="P1001|Can't reach database server|Error opening a TLS connection.*unexpected EOF"
+          transient_db_pattern="P1001|Can't reach database server|Server has closed the connection|Error opening a TLS connection.*unexpected EOF"
 
           for attempt in 1 2 3; do
             if npm run build 2>&1 | tee "$build_log"; then
