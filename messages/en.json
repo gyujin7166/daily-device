@@ -167,6 +167,19 @@
       "emptyDescription": "Try searching with another term."
     }
   },
+  "AiProductAssistant": {
+    "title": "AI Product Assistant",
+    "description": "Describe your needs and how you plan to use the product for general selection guidance. This assistant is currently not connected to Daily Device's actual product data.",
+    "promptLabel": "What kind of product are you looking for?",
+    "placeholder": "I need a comfortable mouse for long office work.",
+    "privacy": "Do not enter personal or sensitive information, including order, payment, or shipping details. Your question will be sent to the Google Gemini API to generate an answer.",
+    "characterCount": "{count, number} / {max, number} characters",
+    "submit": "Ask AI",
+    "loading": "Generating an answer...",
+    "answerTitle": "AI Selection Guide",
+    "error": "Could not generate an AI answer. Please try again shortly.",
+    "loginRequired": "Log in to use the AI Product Assistant."
+  },
   "Home": {
     "hero": {
       "viewAllProducts": "View all products"

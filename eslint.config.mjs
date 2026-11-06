@@ -89,6 +89,7 @@ const featureSliceEntries = [
   '@features/admin-home',
   '@features/admin-product',
   '@features/admin-review',
+  '@features/ai-product-assistant',
   '@features/auth',
   '@features/cart',
   '@features/checkout',
