@@ -66,7 +66,7 @@ describe('POST /api/ai/product-assistant', () => {
     expect(mocks.generateGeminiText).not.toHaveBeenCalled();
   });
 
-  it('공백을 제거한 질문과 상품 데이터 제약을 Gemini에 전달한다', async () => {
+  it('질문을 low thinking으로 보내고 짧은 plain text 답변을 요청한다', async () => {
     const response = await POST(
       createRequest({
         prompt: '  I need a comfortable mouse.  ',
@@ -88,7 +88,15 @@ describe('POST /api/ai/product-assistant', () => {
     expect(prompt).toContain('prices');
     expect(prompt).toContain('Do not claim to have searched');
     expect(prompt).toContain('same language as the user');
-    expect(prompt).toContain('User question:\nI need a comfortable mouse.');
+    expect(prompt).toMatch(/short and direct/i);
+    expect(prompt).toMatch(/at most 3 short points/i);
+    expect(prompt).toMatch(/do not write a long buying guide/i);
+    expect(prompt).toMatch(/plain text only/i);
+    expect(prompt).toMatch(/do not use markdown/i);
+    expect(mocks.generateGeminiText).toHaveBeenCalledWith(
+      expect.stringContaining('User question:\nI need a comfortable mouse.'),
+      { thinkingLevel: 'low' },
+    );
     expect(prompt).not.toMatch(/private-|injected-user-id|private@example/);
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
