@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { GoogleGenAI } from '@google/genai';
+import { z } from 'zod';
 
 import type { Interactions } from '@google/genai';
 
@@ -20,9 +21,10 @@ function createGeminiClient() {
   return new GoogleGenAI({ apiKey });
 }
 
-export async function generateGeminiText(
+async function requestGeminiText(
   prompt: string,
   { thinkingLevel }: GenerateGeminiTextOptions = {},
+  responseFormat?: Interactions.TextResponseFormat,
 ): Promise<string> {
   const client = createGeminiClient();
   const model = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
@@ -34,6 +36,7 @@ export async function generateGeminiText(
     ...(thinkingLevel
       ? { generation_config: { thinking_level: thinkingLevel } }
       : {}),
+    ...(responseFormat ? { response_format: responseFormat } : {}),
   });
 
   if (interaction.status !== 'completed') {
@@ -47,4 +50,37 @@ export async function generateGeminiText(
   }
 
   return text;
+}
+
+export function generateGeminiText(
+  prompt: string,
+  options?: GenerateGeminiTextOptions,
+): Promise<string> {
+  return requestGeminiText(prompt, options);
+}
+
+export async function generateGeminiStructuredOutput<TSchema extends z.ZodType>(
+  prompt: string,
+  schema: TSchema,
+  options?: GenerateGeminiTextOptions,
+): Promise<z.output<TSchema>> {
+  const text = await requestGeminiText(prompt, options, {
+    type: 'text',
+    mime_type: 'application/json',
+    schema: z.toJSONSchema(schema),
+  });
+
+  let value: unknown;
+  try {
+    value = JSON.parse(text);
+  } catch {
+    throw new Error('Gemini returned invalid JSON.');
+  }
+
+  const parsed = schema.safeParse(value);
+  if (!parsed.success) {
+    throw new Error('Gemini response did not match the schema.');
+  }
+
+  return parsed.data;
 }

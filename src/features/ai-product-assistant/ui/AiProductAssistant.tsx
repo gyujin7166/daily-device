@@ -114,10 +114,10 @@ export default function AiProductAssistant() {
         {data ? (
           <div className="mt-5 rounded-xl bg-info-soft p-4 dark:bg-dark-panel-deep">
             <h3 className="text-sm font-semibold text-ink dark:text-surface">
-              {t('answerTitle')}
+              {t('analysisTitle')}
             </h3>
             <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-ink dark:text-surface">
-              {data.answer}
+              {data.intent.summary}
             </p>
           </div>
         ) : null}

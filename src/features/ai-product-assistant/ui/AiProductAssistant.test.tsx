@@ -23,6 +23,22 @@ const messagesByLocale = { ko: koMessages, en: enMessages };
 const endpoint = `${TEST_API_URL}/api/ai/product-assistant`;
 const t = koMessages.AiProductAssistant;
 
+function intentResponse(summary: string) {
+  return HttpResponse.json({
+    items: {
+      intent: {
+        categoryHint: 'mouse',
+        hardRequirements: ['large hand size'],
+        preferences: [],
+        priority: ['large hand size'],
+        priceRange: { min: null, max: null, currency: null },
+        summary,
+      },
+    },
+    message: 'Success',
+  });
+}
+
 function renderAssistant(locale: Locale = 'ko') {
   const queryClient = createTestQueryClient();
   const user = userEvent.setup();
@@ -70,9 +86,7 @@ describe('AiProductAssistant', () => {
   it.each(['', '   ', 'a'.repeat(501)])(
     '유효하지 않은 질문은 전송하지 않는다',
     async (prompt) => {
-      const request = vi.fn(() =>
-        HttpResponse.json({ items: { answer: 'Unexpected answer' } }),
-      );
+      const request = vi.fn(() => intentResponse('Unexpected summary'));
       server.use(http.post(endpoint, request));
       const { input } = renderAssistant();
       fireEvent.change(input, { target: { value: prompt } });
@@ -84,7 +98,7 @@ describe('AiProductAssistant', () => {
     },
   );
 
-  it('질문만 전송하고 loading 중 중복 submit을 막은 뒤 일반 텍스트를 표시한다', async () => {
+  it('질문만 전송하고 loading 중 중복 submit을 막은 뒤 의도 요약만 표시한다', async () => {
     let resolveResponse!: () => void;
     let sentBody: unknown;
     const responseReady = new Promise<void>((resolve) => {
@@ -93,10 +107,9 @@ describe('AiProductAssistant', () => {
     const request = vi.fn(async ({ request }: { request: Request }) => {
       sentBody = await request.json();
       await responseReady;
-      return HttpResponse.json({
-        items: { answer: 'Comfort first.\n<script>not executable</script>' },
-        message: 'Success',
-      });
+      return intentResponse(
+        'Looking for a comfortable mouse.\n<script>not executable</script>',
+      );
     });
     server.use(http.post(endpoint, request));
     const { user, input } = renderAssistant();
@@ -117,39 +130,39 @@ describe('AiProductAssistant', () => {
       resolveResponse();
     }
 
-    expect(await screen.findByText(/Comfort first\./)).toHaveTextContent(
-      '<script>not executable</script>',
+    expect(
+      await screen.findByText(/Looking for a comfortable mouse\./),
+    ).toHaveTextContent('<script>not executable</script>');
+    expect(screen.getByRole('status')).toHaveTextContent(t.analysisTitle);
+    expect(screen.getByRole('status')).not.toHaveTextContent(
+      /categoryHint|large hand size|priceRange/,
     );
-    expect(screen.getByRole('status')).toHaveTextContent(t.answerTitle);
     expect(document.querySelector('script')).toBeNull();
     expect(screen.getByRole('button', { name: t.submit })).toBeEnabled();
   });
 
-  it('키보드로 submit하고 새 답변으로 교체하며 이전 대화는 전송하지 않는다', async () => {
+  it('키보드로 submit하고 새 요약으로 교체하며 이전 대화는 전송하지 않는다', async () => {
     const bodies: unknown[] = [];
     server.use(
       http.post(endpoint, async ({ request }) => {
         bodies.push(await request.json());
-        return HttpResponse.json({
-          items: {
-            answer: bodies.length === 1 ? 'First guide' : 'Second guide',
-          },
-          message: 'Success',
-        });
+        return intentResponse(
+          bodies.length === 1 ? 'First summary' : 'Second summary',
+        );
       }),
     );
     const { user, input } = renderAssistant();
     await user.type(input, 'First question');
     await user.tab();
     await user.keyboard('{Enter}');
-    expect(await screen.findByText('First guide')).toBeVisible();
+    expect(await screen.findByText('First summary')).toBeVisible();
 
     await user.clear(input);
     await user.type(input, 'Second question');
     await user.click(screen.getByRole('button', { name: t.submit }));
 
-    expect(await screen.findByText('Second guide')).toBeVisible();
-    expect(screen.queryByText('First guide')).not.toBeInTheDocument();
+    expect(await screen.findByText('Second summary')).toBeVisible();
+    expect(screen.queryByText('First summary')).not.toBeInTheDocument();
     expect(bodies).toEqual([
       { prompt: 'First question' },
       { prompt: 'Second question' },
@@ -185,16 +198,9 @@ describe('AiProductAssistant', () => {
     await user.click(screen.getByRole('button', { name: t.submit }));
     expect(await screen.findByRole('alert')).toHaveTextContent(t.error);
 
-    server.use(
-      http.post(endpoint, () =>
-        HttpResponse.json({
-          items: { answer: 'Recovered guide' },
-          message: 'Success',
-        }),
-      ),
-    );
+    server.use(http.post(endpoint, () => intentResponse('Recovered summary')));
     await user.click(screen.getByRole('button', { name: t.submit }));
-    expect(await screen.findByText('Recovered guide')).toBeVisible();
+    expect(await screen.findByText('Recovered summary')).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
