@@ -29,7 +29,7 @@ describe('generateGeminiText', () => {
     vi.unstubAllEnvs();
   });
 
-  it('서버 API key로 client를 만들고 기본 모델에 prompt를 전달한다', async () => {
+  it('옵션이 없으면 기존 요청 형식으로 기본 모델에 prompt를 전달한다', async () => {
     await expect(generateGeminiText('Say hello.')).resolves.toBe(
       'Connection works.',
     );
@@ -40,6 +40,17 @@ describe('generateGeminiText', () => {
       model: 'gemini-3.8-flash',
       input: 'Say hello.',
       store: false,
+    });
+  });
+
+  it('호출별 thinking level을 Interactions 설정에 전달한다', async () => {
+    await generateGeminiText('Say hello.', { thinkingLevel: 'low' });
+
+    expect(mocks.create).toHaveBeenCalledWith({
+      model: 'gemini-3.8-flash',
+      input: 'Say hello.',
+      store: false,
+      generation_config: { thinking_level: 'low' },
     });
   });
 

@@ -278,7 +278,13 @@ export const SortResults: Story = {
     );
 
     await waitFor(async () => {
-      const productHeadings = canvas.getAllByRole('heading', { level: 2 });
+      const productHeadings = canvas
+        .getAllByRole('heading', { level: 2 })
+        .filter((heading) =>
+          searchResults.some(
+            (product) => product.name_en === heading.textContent,
+          ),
+        );
 
       await expect(productHeadings[0]).toHaveTextContent(
         'Daily Device Wireless Mouse',

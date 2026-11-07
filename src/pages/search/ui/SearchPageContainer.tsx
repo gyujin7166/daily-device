@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { AiProductAssistant } from '@features/ai-product-assistant/ui';
 import type { SearchSortOption } from '@features/search/model/types';
 import { useSearchResult } from '@features/search/queries/useSearchResult';
 import {
@@ -188,6 +189,7 @@ export default function SearchPageContainer({
     return (
       <PageWrapper className="mt-22.5 flex min-h-[50vh] flex-1 flex-col">
         <SearchHeaderSkeleton />
+        <AiProductAssistant />
         <ProductSkeleton
           columns="four"
           length={SEARCH_PRODUCT_SKELETON_COUNT}
@@ -208,6 +210,7 @@ export default function SearchPageContainer({
         totalItems={displayTotal}
         baseTotalItems={displayBaseTotal}
       />
+      <AiProductAssistant />
       <SearchFilterControls
         categories={displayCategories}
         selectedCategories={selectedCategories}
