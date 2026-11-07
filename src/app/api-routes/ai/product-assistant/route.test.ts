@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { productSearchIntentSchema } from '@features/ai-product-assistant/model/productSearchIntent';
+
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { UnauthorizedError } from '@shared/lib/errors/httpError';
 
@@ -7,7 +9,7 @@ import { POST } from './route';
 
 const mocks = vi.hoisted(() => ({
   getRequiredUserId: vi.fn(),
-  generateGeminiText: vi.fn(),
+  generateGeminiStructuredOutput: vi.fn(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -15,8 +17,17 @@ vi.mock('@shared/lib/api/getRequiredUserId', () => ({
   getRequiredUserId: mocks.getRequiredUserId,
 }));
 vi.mock('@shared/lib/gemini/generateGeminiText', () => ({
-  generateGeminiText: mocks.generateGeminiText,
+  generateGeminiStructuredOutput: mocks.generateGeminiStructuredOutput,
 }));
+
+const mouseIntent = {
+  categoryHint: 'mouse',
+  hardRequirements: ['large hand size', 'asymmetric shape'],
+  preferences: [],
+  priority: ['large hand size', 'asymmetric shape'],
+  priceRange: { min: null, max: null, currency: null },
+  summary: '큰 손에 잘 맞는 비대칭형 마우스를 찾고 있습니다.',
+};
 
 const createRequest = (body: unknown) =>
   new Request('http://localhost/api/ai/product-assistant', {
@@ -28,7 +39,7 @@ const createRequest = (body: unknown) =>
 describe('POST /api/ai/product-assistant', () => {
   beforeEach(() => {
     mocks.getRequiredUserId.mockResolvedValue('private-user-id');
-    mocks.generateGeminiText.mockResolvedValue('Choose a comfortable shape.');
+    mocks.generateGeminiStructuredOutput.mockResolvedValue(mouseIntent);
   });
 
   it('로그인하지 않은 요청은 Gemini 호출 전에 거부한다', async () => {
@@ -39,7 +50,7 @@ describe('POST /api/ai/product-assistant', () => {
     );
 
     expect(response.status).toBe(401);
-    expect(mocks.generateGeminiText).not.toHaveBeenCalled();
+    expect(mocks.generateGeminiStructuredOutput).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -53,7 +64,7 @@ describe('POST /api/ai/product-assistant', () => {
     const response = await POST(createRequest(body));
 
     expect(response.status).toBe(400);
-    expect(mocks.generateGeminiText).not.toHaveBeenCalled();
+    expect(mocks.generateGeminiStructuredOutput).not.toHaveBeenCalled();
   });
 
   it('JSON이 아닌 body는 공용 parser로 거부한다', async () => {
@@ -63,13 +74,13 @@ describe('POST /api/ai/product-assistant', () => {
     });
 
     expect((await POST(request)).status).toBe(400);
-    expect(mocks.generateGeminiText).not.toHaveBeenCalled();
+    expect(mocks.generateGeminiStructuredOutput).not.toHaveBeenCalled();
   });
 
-  it('질문을 low thinking으로 보내고 짧은 plain text 답변을 요청한다', async () => {
+  it('질문만 전달하고 한 번의 low thinking 호출로 전체 의도를 반환한다', async () => {
     const response = await POST(
       createRequest({
-        prompt: '  I need a comfortable mouse.  ',
+        prompt: '  손이 큰데 비대칭인 마우스를 찾습니다.  ',
         userId: 'injected-user-id',
         email: 'private@example.test',
         session: { token: 'private-session' },
@@ -78,29 +89,30 @@ describe('POST /api/ai/product-assistant', () => {
     );
 
     expect(mocks.getRequiredUserId).toHaveBeenCalledOnce();
-    expect(mocks.generateGeminiText).toHaveBeenCalledOnce();
-    const [prompt] = mocks.generateGeminiText.mock.calls[0] as [string];
-    expect(prompt).toContain('Daily Device');
-    expect(prompt).toContain(
-      'not connected to the actual Daily Device product database',
-    );
-    expect(prompt).toContain('Do not invent');
-    expect(prompt).toContain('prices');
-    expect(prompt).toContain('Do not claim to have searched');
-    expect(prompt).toContain('same language as the user');
-    expect(prompt).toMatch(/short and direct/i);
-    expect(prompt).toMatch(/at most 3 short points/i);
-    expect(prompt).toMatch(/do not write a long buying guide/i);
-    expect(prompt).toMatch(/plain text only/i);
-    expect(prompt).toMatch(/do not use markdown/i);
-    expect(mocks.generateGeminiText).toHaveBeenCalledWith(
-      expect.stringContaining('User question:\nI need a comfortable mouse.'),
+    expect(
+      mocks.generateGeminiStructuredOutput,
+    ).toHaveBeenCalledExactlyOnceWith(
+      expect.stringContaining(
+        'User question:\n손이 큰데 비대칭인 마우스를 찾습니다.',
+      ),
+      productSearchIntentSchema,
       { thinkingLevel: 'low' },
     );
+    const [prompt] = mocks.generateGeminiStructuredOutput.mock.calls[0] as [
+      string,
+    ];
+    expect(prompt).toMatch(/no access to the Daily Device product database/i);
+    expect(prompt).toMatch(/do not recommend products/i);
+    expect(prompt).toMatch(/do not invent .*IDs/i);
+    expect(prompt).toMatch(/do not guess/i);
+    expect(prompt).toMatch(/lowercase English product type/i);
+    expect(prompt).toMatch(/general purpose.*condition arrays empty/i);
+    expect(prompt).toMatch(/without converting currency/i);
+    expect(prompt).toMatch(/same language as the user/i);
     expect(prompt).not.toMatch(/private-|injected-user-id|private@example/);
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
-      items: { answer: 'Choose a comfortable shape.' },
+      items: { intent: mouseIntent },
       message: API_MESSAGE.SUCCESS,
     });
   });
@@ -109,14 +121,14 @@ describe('POST /api/ai/product-assistant', () => {
     const response = await POST(createRequest({ prompt: 'a'.repeat(500) }));
 
     expect(response.status).toBe(200);
-    expect(mocks.generateGeminiText).toHaveBeenCalledOnce();
+    expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledOnce();
   });
 
   it('Gemini 오류의 원문을 응답이나 로그에 노출하지 않는다', async () => {
     const sensitiveError = new Error(
       'private-api-key private-prompt private-answer private-session',
     );
-    mocks.generateGeminiText.mockRejectedValue(sensitiveError);
+    mocks.generateGeminiStructuredOutput.mockRejectedValue(sensitiveError);
     const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const response = await POST(
