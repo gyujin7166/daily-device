@@ -34,6 +34,15 @@ function intentResponse(summary: string) {
         priceRange: { min: null, max: null, currency: null },
         summary,
       },
+      mapping: {
+        category: { id: 1, slug: 'mice' },
+        hardRequirements: [
+          { requirement: 'large hand size', filterId: 2, filterOptionId: 9 },
+        ],
+        preferences: [],
+        unmatchedHardRequirements: [],
+        unmatchedPreferences: [],
+      },
     },
     message: 'Success',
   });
@@ -135,7 +144,7 @@ describe('AiProductAssistant', () => {
     ).toHaveTextContent('<script>not executable</script>');
     expect(screen.getByRole('status')).toHaveTextContent(t.analysisTitle);
     expect(screen.getByRole('status')).not.toHaveTextContent(
-      /categoryHint|large hand size|priceRange/,
+      /categoryHint|large hand size|priceRange|filterOptionId/,
     );
     expect(document.querySelector('script')).toBeNull();
     expect(screen.getByRole('button', { name: t.submit })).toBeEnabled();
