@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { z } from 'zod';
 
-import type { ProductSearchIntent } from '@features/ai-product-assistant/model/productSearchIntent';
+import type { ProductAssistantResult } from '@features/ai-product-assistant/model/productSearchCandidate';
 import { productSearchAnalysisSchema } from '@features/ai-product-assistant/model/productSearchMapping';
-import type { ProductSearchMapping } from '@features/ai-product-assistant/model/productSearchMapping';
 
+import { routing } from '@shared/config/i18n/routing';
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { getRequiredUserId } from '@shared/lib/api/getRequiredUserId';
 import { handleRouteError } from '@shared/lib/api/handleRouteError';
@@ -16,12 +16,14 @@ import { generateGeminiStructuredOutput } from '@shared/lib/gemini/generateGemin
 import type { ApiResponse } from '@shared/types/api';
 
 import {
+  getProductSearchCandidates,
   getProductSearchCatalog,
   resolveProductSearchMapping,
 } from './service';
 
 const requestSchema = z.object({
   prompt: z.string().trim().min(1).max(500),
+  locale: z.enum(routing.locales).default(routing.defaultLocale),
 });
 
 const ASSISTANT_INSTRUCTIONS = [
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
   try {
     await getRequiredUserId();
     const body = await readJsonBody(request);
-    const { prompt } = parseWithSchema(requestSchema, body);
+    const { prompt, locale } = parseWithSchema(requestSchema, body);
     const catalog = await getProductSearchCatalog();
     const { intent, mappingDraft } = await generateGeminiStructuredOutput(
       `${ASSISTANT_INSTRUCTIONS}\n\nCatalog:\n${JSON.stringify(catalog)}\n\nUser question:\n${prompt}`,
@@ -55,11 +57,13 @@ export async function POST(request: Request) {
       { thinkingLevel: 'low' },
     );
     const mapping = resolveProductSearchMapping(intent, mappingDraft, catalog);
-    const response: ApiResponse<{
-      intent: ProductSearchIntent;
-      mapping: ProductSearchMapping;
-    }> = {
-      items: { intent, mapping },
+    const candidates = await getProductSearchCandidates(
+      mapping,
+      intent.priceRange,
+      locale,
+    );
+    const response: ApiResponse<ProductAssistantResult> = {
+      items: { intent, mapping, candidates },
       message: API_MESSAGE.SUCCESS,
     };
 

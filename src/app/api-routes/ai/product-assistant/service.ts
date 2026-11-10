@@ -1,12 +1,19 @@
 import 'server-only';
 
+import type { ProductSearchCandidate } from '@features/ai-product-assistant/model/productSearchCandidate';
 import type { ProductSearchIntent } from '@features/ai-product-assistant/model/productSearchIntent';
 import type {
   ProductSearchMapping,
   ProductSearchMappingDraft,
 } from '@features/ai-product-assistant/model/productSearchMapping';
 
+import type { Locale } from '@shared/config/i18n/routing';
+
 import prisma from 'prisma/prismaClientSingleton';
+
+import { getProductsPage } from '../../products/service';
+
+const MAX_PRODUCT_CANDIDATES = 12;
 
 export async function getProductSearchCatalog() {
   const categories = await prisma.productCategory.findMany({
@@ -126,4 +133,70 @@ export function resolveProductSearchMapping(
     unmatchedHardRequirements: hardRequirements.unmatched,
     unmatchedPreferences: preferences.unmatched,
   };
+}
+
+export async function getProductSearchCandidates(
+  { category, hardRequirements, preferences }: ProductSearchMapping,
+  { min, max, currency }: ProductSearchIntent['priceRange'],
+  locale: Locale,
+): Promise<ProductSearchCandidate[]> {
+  if (!category) return [];
+
+  // Fetch the full narrowed set before checking exact options, sale prices and preferences.
+  const { items } = await getProductsPage(
+    category.slug,
+    undefined,
+    undefined,
+    'relevance',
+    hardRequirements.map(({ filterOptionId }) => String(filterOptionId)),
+    {},
+    {},
+    {},
+    locale,
+  );
+
+  const candidates: ProductSearchCandidate[] = [];
+  for (const product of items) {
+    if (product.category.id !== category.id || !product.category.isVisible)
+      continue;
+
+    const hasOption = ({
+      filterId,
+      filterOptionId,
+    }: ProductSearchMapping['hardRequirements'][number]) =>
+      product.filter.some((group) => group[filterId]?.includes(filterOptionId));
+
+    if (!hardRequirements.every(hasOption)) continue;
+
+    const { discountedPrice } = product;
+    if (
+      currency === 'KRW' &&
+      ((min !== null && discountedPrice < min) ||
+        (max !== null && discountedPrice > max))
+    )
+      continue;
+
+    const matchedPreferences = preferences
+      .filter(hasOption)
+      .map(({ requirement }) => requirement);
+    candidates.push({
+      id: product.id,
+      name: product.name_en, // The catalog service places the localized name here.
+      slug: product.slug,
+      description: product.description,
+      categorySlug: product.category.slug,
+      originalPrice: product.originalPrice,
+      discountedPrice,
+      discountRate: product.discountRate,
+      matchedPreferences: [...new Set(matchedPreferences)],
+    });
+  }
+
+  return candidates
+    .sort(
+      (left, right) =>
+        right.matchedPreferences.length - left.matchedPreferences.length ||
+        left.id - right.id,
+    )
+    .slice(0, MAX_PRODUCT_CANDIDATES);
 }
