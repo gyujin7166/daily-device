@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   generateGeminiStructuredOutput: vi.fn(),
   findCategories: vi.fn(),
   findFilters: vi.fn(),
+  getProductsPage: vi.fn(),
 }));
 
 vi.mock('server-only', () => ({}));
@@ -26,6 +27,9 @@ vi.mock('prisma/prismaClientSingleton', () => ({
     productCategory: { findMany: mocks.findCategories },
     filter: { findMany: mocks.findFilters },
   },
+}));
+vi.mock('../../products/service', () => ({
+  getProductsPage: mocks.getProductsPage,
 }));
 
 const categories = [
@@ -82,6 +86,7 @@ describe('POST /api/ai/product-assistant', () => {
   beforeEach(() => {
     mocks.getRequiredUserId.mockResolvedValue('private-user-id');
     mocks.findCategories.mockResolvedValue(categories);
+    mocks.getProductsPage.mockResolvedValue({ items: [] });
     const filterRows = filters.map(({ options, ...filter }) => ({
       ...filter,
       filterOption: options.map((option) => ({
@@ -121,9 +126,10 @@ describe('POST /api/ai/product-assistant', () => {
     { prompt: '   ' },
     { prompt: 'a'.repeat(501) },
     { prompt: 123 },
+    { prompt: 'A mouse', locale: 'fr' },
     {},
     null,
-  ])('유효하지 않은 prompt를 400으로 거부한다 (%j)', async (body) => {
+  ])('유효하지 않은 요청을 400으로 거부한다 (%j)', async (body) => {
     const response = await POST(createRequest(body));
 
     expect(response.status).toBe(400);
@@ -142,6 +148,21 @@ describe('POST /api/ai/product-assistant', () => {
   });
 
   it('공개 catalog와 질문만 전달하고 한 번의 low thinking 호출로 실제 ID를 반환한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({
+      items: [
+        {
+          id: 20,
+          name_en: 'Large mouse',
+          slug: 'large-mouse',
+          description: 'English description',
+          category: { id: 1, slug: 'mice', isVisible: true },
+          filter: [{ 2: [9], 4: [15] }],
+          originalPrice: 120000,
+          discountedPrice: 90000,
+          discountRate: 25,
+        },
+      ],
+    });
     mocks.generateGeminiStructuredOutput.mockResolvedValue(
       productSearchAnalysisSchema.parse({
         intent: mouseIntent,
@@ -151,6 +172,7 @@ describe('POST /api/ai/product-assistant', () => {
     const response = await POST(
       createRequest({
         prompt: '  손이 큰데 비대칭인 마우스를 찾습니다.  ',
+        locale: 'en',
         userId: 'injected-user-id',
         email: 'private@example.test',
         session: { token: 'private-session' },
@@ -215,6 +237,17 @@ describe('POST /api/ai/product-assistant', () => {
       }),
     );
     expect(response.status).toBe(200);
+    expect(mocks.getProductsPage).toHaveBeenCalledExactlyOnceWith(
+      'mice',
+      undefined,
+      undefined,
+      'relevance',
+      ['9', '15'],
+      {},
+      {},
+      {},
+      'en',
+    );
     expect(await response.json()).toEqual({
       items: {
         intent: mouseIntent,
@@ -232,6 +265,19 @@ describe('POST /api/ai/product-assistant', () => {
           unmatchedHardRequirements: [],
           unmatchedPreferences: [],
         },
+        candidates: [
+          {
+            id: 20,
+            name: 'Large mouse',
+            slug: 'large-mouse',
+            description: 'English description',
+            categorySlug: 'mice',
+            originalPrice: 120000,
+            discountedPrice: 90000,
+            discountRate: 25,
+            matchedPreferences: [],
+          },
+        ],
       },
       message: API_MESSAGE.SUCCESS,
     });
@@ -282,7 +328,10 @@ describe('POST /api/ai/product-assistant', () => {
       );
 
       expect(response.status).toBe(200);
-      expect((await response.json()).items.mapping).toEqual({
+      expect(mocks.getProductsPage).not.toHaveBeenCalled();
+      const { items } = await response.json();
+      expect(items.candidates).toEqual([]);
+      expect(items.mapping).toEqual({
         category: null,
         hardRequirements: [],
         preferences: [],
@@ -293,6 +342,21 @@ describe('POST /api/ai/product-assistant', () => {
   );
 
   it('필수 조건과 선호 조건을 구분하고 누락된 조건과 가격을 보존한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({
+      items: [
+        {
+          id: 20,
+          name_en: '큰 마우스',
+          slug: 'large-mouse',
+          description: '한국어 설명',
+          category: { id: 1, slug: 'mice', isVisible: true },
+          filter: [{ 2: [9] }],
+          originalPrice: 120000,
+          discountedPrice: 90000,
+          discountRate: 25,
+        },
+      ],
+    });
     const intent = {
       ...mouseIntent,
       hardRequirements: ['large hand size', 'solar charging'],
@@ -312,6 +376,17 @@ describe('POST /api/ai/product-assistant', () => {
     );
 
     expect(response.status).toBe(200);
+    expect(mocks.getProductsPage).toHaveBeenCalledExactlyOnceWith(
+      'mice',
+      undefined,
+      undefined,
+      'relevance',
+      ['9'],
+      {},
+      {},
+      {},
+      'ko',
+    );
     expect((await response.json()).items).toEqual({
       intent,
       mapping: {
@@ -325,6 +400,19 @@ describe('POST /api/ai/product-assistant', () => {
         unmatchedHardRequirements: ['solar charging'],
         unmatchedPreferences: ['black color'],
       },
+      candidates: [
+        {
+          id: 20,
+          name: '큰 마우스',
+          slug: 'large-mouse',
+          description: '한국어 설명',
+          categorySlug: 'mice',
+          originalPrice: 120000,
+          discountedPrice: 90000,
+          discountRate: 25,
+          matchedPreferences: [],
+        },
+      ],
     });
   });
 
@@ -332,6 +420,7 @@ describe('POST /api/ai/product-assistant', () => {
     const response = await POST(createRequest({ prompt: 'a'.repeat(500) }));
 
     expect(response.status).toBe(200);
+    expect((await response.json()).items.candidates).toEqual([]);
     expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledOnce();
   });
 

@@ -43,6 +43,19 @@ function intentResponse(summary: string) {
         unmatchedHardRequirements: [],
         unmatchedPreferences: [],
       },
+      candidates: [
+        {
+          id: 20,
+          name: 'Candidate-only mouse',
+          slug: 'large-mouse',
+          description: 'Candidate description',
+          categorySlug: 'mice',
+          originalPrice: 120000,
+          discountedPrice: 90000,
+          discountRate: 25,
+          matchedPreferences: [],
+        },
+      ],
     },
     message: 'Success',
   });
@@ -107,7 +120,7 @@ describe('AiProductAssistant', () => {
     },
   );
 
-  it('질문만 전송하고 loading 중 중복 submit을 막은 뒤 의도 요약만 표시한다', async () => {
+  it('질문과 화면 locale을 전송하고 loading 중 중복 submit을 막은 뒤 요약만 표시한다', async () => {
     let resolveResponse!: () => void;
     let sentBody: unknown;
     const responseReady = new Promise<void>((resolve) => {
@@ -121,7 +134,8 @@ describe('AiProductAssistant', () => {
       );
     });
     server.use(http.post(endpoint, request));
-    const { user, input } = renderAssistant();
+    const { user, input } = renderAssistant('en');
+    const t = enMessages.AiProductAssistant;
 
     try {
       await user.type(input, '  A comfortable mouse for small hands?  ');
@@ -134,6 +148,7 @@ describe('AiProductAssistant', () => {
       expect(request).toHaveBeenCalledOnce();
       expect(sentBody).toEqual({
         prompt: 'A comfortable mouse for small hands?',
+        locale: 'en',
       });
     } finally {
       resolveResponse();
@@ -144,7 +159,7 @@ describe('AiProductAssistant', () => {
     ).toHaveTextContent('<script>not executable</script>');
     expect(screen.getByRole('status')).toHaveTextContent(t.analysisTitle);
     expect(screen.getByRole('status')).not.toHaveTextContent(
-      /categoryHint|large hand size|priceRange|filterOptionId/,
+      /categoryHint|large hand size|priceRange|filterOptionId|Candidate-only mouse/,
     );
     expect(document.querySelector('script')).toBeNull();
     expect(screen.getByRole('button', { name: t.submit })).toBeEnabled();
@@ -173,8 +188,8 @@ describe('AiProductAssistant', () => {
     expect(await screen.findByText('Second summary')).toBeVisible();
     expect(screen.queryByText('First summary')).not.toBeInTheDocument();
     expect(bodies).toEqual([
-      { prompt: 'First question' },
-      { prompt: 'Second question' },
+      { prompt: 'First question', locale: 'ko' },
+      { prompt: 'Second question', locale: 'ko' },
     ]);
   });
 

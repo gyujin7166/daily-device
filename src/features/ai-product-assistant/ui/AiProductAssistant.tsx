@@ -4,7 +4,7 @@ import { useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { HttpError } from '@shared/lib/errors/httpError';
 import Button from '@shared/ui/Button/Button';
@@ -15,6 +15,7 @@ const MAX_PROMPT_LENGTH = 500;
 
 export default function AiProductAssistant() {
   const t = useTranslations('AiProductAssistant');
+  const locale = useLocale();
   const id = useId();
   const isRequestingRef = useRef(false);
   const [prompt, setPrompt] = useState('');
@@ -36,11 +37,14 @@ export default function AiProductAssistant() {
     }
 
     isRequestingRef.current = true;
-    mutate(question, {
-      onSettled: () => {
-        isRequestingRef.current = false;
+    mutate(
+      { prompt: question, locale },
+      {
+        onSettled: () => {
+          isRequestingRef.current = false;
+        },
       },
-    });
+    );
   };
 
   return (
