@@ -11,6 +11,8 @@ import Button from '@shared/ui/Button/Button';
 
 import { askProductAssistant } from '../api/productAssistant';
 
+import ProductRecommendationResult from './ProductRecommendationResult';
+
 const MAX_PROMPT_LENGTH = 500;
 
 export default function AiProductAssistant() {
@@ -115,16 +117,7 @@ export default function AiProductAssistant() {
             {t('loading')}
           </p>
         ) : null}
-        {data ? (
-          <div className="mt-5 rounded-xl bg-info-soft p-4 dark:bg-dark-panel-deep">
-            <h3 className="text-sm font-semibold text-ink dark:text-surface">
-              {t('analysisTitle')}
-            </h3>
-            <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-ink dark:text-surface">
-              {data.intent.summary}
-            </p>
-          </div>
-        ) : null}
+        {data ? <ProductRecommendationResult {...data} /> : null}
       </div>
     </section>
   );
