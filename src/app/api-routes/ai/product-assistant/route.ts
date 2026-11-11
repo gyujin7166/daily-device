@@ -16,6 +16,7 @@ import { generateGeminiStructuredOutput } from '@shared/lib/gemini/generateGemin
 import type { ApiResponse } from '@shared/types/api';
 
 import {
+  getProductRecommendation,
   getProductSearchCandidates,
   getProductSearchCatalog,
   resolveProductSearchMapping,
@@ -32,7 +33,10 @@ const ASSISTANT_INSTRUCTIONS = [
   'Choose categoryId and filterOptionId only from the supplied catalog. Do not invent IDs, slugs, or product names.',
   'Use only the lowercase English product type in categoryHint, such as "keyboard" for a quiet wireless keyboard. Leave features, brands, and use cases out of this field.',
   'categoryHint is a semantic hint, not a Daily Device category slug. Use null if no specific product type is given or clearly implied.',
-  'Extract only explicit or clearly implied conditions. Use short English phrases. Put clear must-have conditions in hardRequirements and optional ones in preferences.',
+  'Extract only explicit or clearly implied conditions. Use short English phrases.',
+  'First extract intent from the user question independently of the catalog. Preserve every explicit product condition even when the catalog has no matching filter option.',
+  'Treat explicitly requested product attributes as hardRequirements. Use preferences only when the user clearly describes a condition as optional, preferred, or nice to have.',
+  'Never omit or downgrade an explicit requirement to preferences because it cannot be mapped. Keep it in intent so the server can mark it unmatched. Resolve catalog matches only in mappingDraft.',
   'For priority, reuse only entries from hardRequirements or preferences. Put the most important first, or keep the order from the question if importance is unclear.',
   'Record only stated price bounds and their currency without converting currency. Use null for each unstated bound and for an unknown currency.',
   'Do not guess missing details. Use empty arrays when there are no conditions for a field.',
@@ -62,8 +66,14 @@ export async function POST(request: Request) {
       intent.priceRange,
       locale,
     );
+    const recommendation = await getProductRecommendation(
+      prompt,
+      intent,
+      mapping,
+      candidates,
+    );
     const response: ApiResponse<ProductAssistantResult> = {
-      items: { intent, mapping, candidates },
+      items: { intent, mapping, candidates, recommendation },
       message: API_MESSAGE.SUCCESS,
     };
 

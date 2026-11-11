@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { productRecommendationSchema } from '@features/ai-product-assistant/model/productRecommendation';
 import { productSearchAnalysisSchema } from '@features/ai-product-assistant/model/productSearchMapping';
 
 import { API_MESSAGE } from '@shared/constants/apiMessage';
@@ -75,6 +76,23 @@ const mouseDraft = {
   preferences: [],
 };
 
+const catalogMouse = {
+  id: 20,
+  name_en: 'Large mouse',
+  slug: 'large-mouse',
+  description: 'English description',
+  category: { id: 1, slug: 'mice', isVisible: true },
+  filter: [{ 2: [9], 4: [15] }],
+  originalPrice: 120000,
+  discountedPrice: 90000,
+  discountRate: 25,
+};
+
+const mouseRecommendation = {
+  answer: '확인된 조건에 맞는 후보를 추천합니다.',
+  recommendations: [{ productId: 20, reason: '큰 손 조건을 충족합니다.' }],
+};
+
 const createRequest = (body: unknown) =>
   new Request('http://localhost/api/ai/product-assistant', {
     method: 'POST',
@@ -103,7 +121,7 @@ describe('POST /api/ai/product-assistant', () => {
       categoryName: 'keyboards',
     });
     mocks.findFilters.mockResolvedValue(filterRows);
-    mocks.generateGeminiStructuredOutput.mockResolvedValue({
+    mocks.generateGeminiStructuredOutput.mockReset().mockResolvedValue({
       intent: mouseIntent,
       mappingDraft: mouseDraft,
     });
@@ -147,28 +165,25 @@ describe('POST /api/ai/product-assistant', () => {
     expect(mocks.generateGeminiStructuredOutput).not.toHaveBeenCalled();
   });
 
-  it('공개 catalog와 질문만 전달하고 한 번의 low thinking 호출로 실제 ID를 반환한다', async () => {
+  it('분석과 추천을 각각 한 번 호출하고 후보 밖 ID와 중복 추천을 제거한다', async () => {
     mocks.getProductsPage.mockResolvedValue({
-      items: [
-        {
-          id: 20,
-          name_en: 'Large mouse',
-          slug: 'large-mouse',
-          description: 'English description',
-          category: { id: 1, slug: 'mice', isVisible: true },
-          filter: [{ 2: [9], 4: [15] }],
-          originalPrice: 120000,
-          discountedPrice: 90000,
-          discountRate: 25,
-        },
-      ],
+      items: [catalogMouse],
     });
-    mocks.generateGeminiStructuredOutput.mockResolvedValue(
-      productSearchAnalysisSchema.parse({
-        intent: mouseIntent,
-        mappingDraft: mouseDraft,
-      }),
-    );
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce(
+        productSearchAnalysisSchema.parse({
+          intent: mouseIntent,
+          mappingDraft: mouseDraft,
+        }),
+      )
+      .mockResolvedValueOnce({
+        ...mouseRecommendation,
+        recommendations: [
+          ...mouseRecommendation.recommendations,
+          { productId: 9999, reason: 'Unknown candidate' },
+          { productId: 20, reason: 'Duplicate candidate' },
+        ],
+      });
     const response = await POST(
       createRequest({
         prompt: '  손이 큰데 비대칭인 마우스를 찾습니다.  ',
@@ -181,9 +196,9 @@ describe('POST /api/ai/product-assistant', () => {
     );
 
     expect(mocks.getRequiredUserId).toHaveBeenCalledOnce();
-    expect(
-      mocks.generateGeminiStructuredOutput,
-    ).toHaveBeenCalledExactlyOnceWith(
+    expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledTimes(2);
+    expect(mocks.generateGeminiStructuredOutput).toHaveBeenNthCalledWith(
+      1,
       expect.stringContaining(
         'User question:\n손이 큰데 비대칭인 마우스를 찾습니다.',
       ),
@@ -200,11 +215,69 @@ describe('POST /api/ai/product-assistant', () => {
     expect(prompt).toMatch(/do not recommend products/i);
     expect(prompt).toMatch(/only .*catalog/i);
     expect(prompt).toMatch(/do not guess/i);
+    expect(prompt).toMatch(/extract intent.*independently of the catalog/i);
+    expect(prompt).toMatch(
+      /preserve every explicit product condition.*no matching filter option/i,
+    );
+    expect(prompt).toMatch(
+      /explicitly requested product attributes.*hardRequirements/i,
+    );
+    expect(prompt).toMatch(/preferences only.*optional.*preferred/i);
+    expect(prompt).toMatch(
+      /never omit or downgrade.*preferences.*cannot be mapped/i,
+    );
+    expect(prompt).toMatch(/keep it in intent.*server.*unmatched/i);
     expect(prompt).toMatch(/lowercase English product type/i);
     expect(prompt).toMatch(/general purpose.*condition arrays empty/i);
     expect(prompt).toMatch(/without converting currency/i);
     expect(prompt).toMatch(/same language as the user/i);
     expect(prompt).not.toMatch(/private-|injected-user-id|private@example/);
+    const [recommendationPrompt, recommendationSchema, recommendationOptions] =
+      mocks.generateGeminiStructuredOutput.mock.calls[1];
+    expect(recommendationSchema).toBe(productRecommendationSchema);
+    expect(recommendationOptions).toEqual({ thinkingLevel: 'minimal' });
+    expect(recommendationPrompt).toMatch(/only.*candidates/i);
+    expect(recommendationPrompt).toMatch(/language.*userQuestion/i);
+    expect(recommendationPrompt).toMatch(/unmatchedHardRequirements/i);
+    expect(recommendationPrompt).toMatch(
+      /do not repeat warnings.*unmatched.*unverifiable.*answer/i,
+    );
+    expect(recommendationPrompt).toMatch(/UI.*warnings separately/i);
+    expect(recommendationPrompt).toMatch(
+      /do not say.*no matching product information.*no matching products exist.*conditions cannot be satisfied/i,
+    );
+    expect(recommendationPrompt).toMatch(
+      /recommendation positively and accurately.*verified conditions/i,
+    );
+    expect(recommendationPrompt).toMatch(
+      /never claim.*satisfies any unmatchedHardRequirements/i,
+    );
+    expect(recommendationPrompt).not.toMatch(
+      /private-|injected-user-id|private@example|Catalog:|filterOptionId|large-mouse/,
+    );
+    const recommendationInput = JSON.parse(
+      recommendationPrompt.split('\n\nInput:\n')[1],
+    );
+    expect(recommendationInput).toEqual({
+      userQuestion: '손이 큰데 비대칭인 마우스를 찾습니다.',
+      intent: {
+        hardRequirements: mouseIntent.hardRequirements,
+        preferences: [],
+        priority: mouseIntent.priority,
+        priceRange: mouseIntent.priceRange,
+      },
+      verifiedRequirements: mouseIntent.hardRequirements,
+      unmatchedHardRequirements: [],
+      priceRangeApplied: false,
+      candidates: [
+        {
+          id: 20,
+          description: 'English description',
+          discountedPrice: 90000,
+          matchedPreferences: [],
+        },
+      ],
+    });
     expect(mocks.findCategories).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         where: {
@@ -278,6 +351,7 @@ describe('POST /api/ai/product-assistant', () => {
             matchedPreferences: [],
           },
         ],
+        recommendation: mouseRecommendation,
       },
       message: API_MESSAGE.SUCCESS,
     });
@@ -331,6 +405,8 @@ describe('POST /api/ai/product-assistant', () => {
       expect(mocks.getProductsPage).not.toHaveBeenCalled();
       const { items } = await response.json();
       expect(items.candidates).toEqual([]);
+      expect(items.recommendation).toBeNull();
+      expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledOnce();
       expect(items.mapping).toEqual({
         category: null,
         hardRequirements: [],
@@ -363,13 +439,17 @@ describe('POST /api/ai/product-assistant', () => {
       preferences: ['asymmetric shape', 'black color'],
       priceRange: { min: null, max: 100000, currency: 'KRW' },
     };
-    mocks.generateGeminiStructuredOutput.mockResolvedValue({
-      intent,
-      mappingDraft: {
-        ...mouseDraft,
-        preferences: [{ requirement: 'asymmetric shape', filterOptionId: 15 }],
-      },
-    });
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({
+        intent,
+        mappingDraft: {
+          ...mouseDraft,
+          preferences: [
+            { requirement: 'asymmetric shape', filterOptionId: 15 },
+          ],
+        },
+      })
+      .mockResolvedValueOnce(mouseRecommendation);
 
     const response = await POST(
       createRequest({ prompt: 'A mouse under 100000 KRW?' }),
@@ -387,6 +467,15 @@ describe('POST /api/ai/product-assistant', () => {
       {},
       'ko',
     );
+    const recommendationPrompt: string =
+      mocks.generateGeminiStructuredOutput.mock.calls[1][0];
+    const recommendationInput = JSON.parse(
+      recommendationPrompt.split('\n\nInput:\n')[1],
+    );
+    expect(recommendationInput.unmatchedHardRequirements).toEqual([
+      'solar charging',
+    ]);
+    expect(recommendationInput.priceRangeApplied).toBe(true);
     expect((await response.json()).items).toEqual({
       intent,
       mapping: {
@@ -413,6 +502,7 @@ describe('POST /api/ai/product-assistant', () => {
           matchedPreferences: [],
         },
       ],
+      recommendation: mouseRecommendation,
     });
   });
 
@@ -420,9 +510,71 @@ describe('POST /api/ai/product-assistant', () => {
     const response = await POST(createRequest({ prompt: 'a'.repeat(500) }));
 
     expect(response.status).toBe(200);
-    expect((await response.json()).items.candidates).toEqual([]);
+    expect((await response.json()).items).toMatchObject({
+      candidates: [],
+      recommendation: null,
+    });
     expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledOnce();
   });
+
+  it('12개 후보 중 선택된 3개의 추천 순서를 유지한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({
+      items: Array.from({ length: 12 }, (_, index) => ({
+        ...catalogMouse,
+        id: 20 + index,
+      })),
+    });
+    const recommendations = [31, 20, 27].map((productId) => ({
+      productId,
+      reason: 'Verified candidate.',
+    }));
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({ intent: mouseIntent, mappingDraft: mouseDraft })
+      .mockResolvedValueOnce({
+        answer: 'Compare these choices.',
+        recommendations,
+      });
+
+    const response = await POST(createRequest({ prompt: 'A large mouse?' }));
+
+    expect(response.status).toBe(200);
+    const { items } = await response.json();
+    expect(items.candidates).toHaveLength(12);
+    expect(items.recommendation.recommendations).toEqual(recommendations);
+  });
+
+  it.each(['invalid IDs', 'provider error'])(
+    '두 번째 Gemini 호출이 실패하면 안전한 500을 반환한다 (%s)',
+    async (failure) => {
+      mocks.getProductsPage.mockResolvedValue({ items: [catalogMouse] });
+      mocks.generateGeminiStructuredOutput.mockResolvedValueOnce({
+        intent: mouseIntent,
+        mappingDraft: mouseDraft,
+      });
+      if (failure === 'invalid IDs') {
+        mocks.generateGeminiStructuredOutput.mockResolvedValueOnce({
+          answer: 'Unknown product.',
+          recommendations: [{ productId: 9999, reason: 'Unknown.' }],
+        });
+      } else {
+        mocks.generateGeminiStructuredOutput.mockRejectedValueOnce(
+          new Error('private-provider-output'),
+        );
+      }
+      const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const response = await POST(createRequest({ prompt: 'A large mouse?' }));
+
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({
+        message: API_MESSAGE.INTERNAL_SERVER_ERROR,
+      });
+      expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledTimes(2);
+      expect(errorLog.mock.calls.flat().map(String).join(' ')).not.toContain(
+        'private-provider-output',
+      );
+    },
+  );
 
   it('Gemini 오류의 원문을 응답이나 로그에 노출하지 않는다', async () => {
     const sensitiveError = new Error(

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { productRecommendationSchema } from '@features/ai-product-assistant/model/productRecommendation';
 import { productSearchIntentSchema } from '@features/ai-product-assistant/model/productSearchIntent';
 
 import { generateGeminiStructuredOutput } from '@shared/lib/gemini/generateGeminiText';
@@ -23,6 +24,11 @@ const keyboardIntent = {
     '10만 원 이하의 무선 키보드를 찾고 있으며, 조용한 제품을 선호합니다.',
 };
 
+const recommendation = {
+  answer: 'This candidate matches the verified requirements.',
+  recommendations: [{ productId: 20, reason: 'Meets the requested budget.' }],
+};
+
 describe('generateGeminiStructuredOutput', () => {
   beforeEach(() => {
     vi.stubEnv('GEMINI_API_KEY', 'test-gemini-key');
@@ -31,6 +37,76 @@ describe('generateGeminiStructuredOutput', () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  it.each([
+    {
+      caseName: 'invalid JSON',
+      output: '{private-output',
+      error: 'Gemini returned invalid JSON.',
+    },
+    ...[
+      {
+        caseName: 'empty recommendations',
+        value: { ...recommendation, recommendations: [] },
+      },
+      {
+        caseName: 'more than three recommendations',
+        value: {
+          ...recommendation,
+          recommendations: [20, 21, 22, 23].map((productId) => ({
+            productId,
+            reason: 'Matches a verified condition.',
+          })),
+        },
+      },
+      {
+        caseName: 'invalid product ID',
+        value: {
+          ...recommendation,
+          recommendations: [{ productId: 0, reason: 'Invalid candidate.' }],
+        },
+      },
+      { caseName: 'blank answer', value: { ...recommendation, answer: '   ' } },
+      {
+        caseName: 'overlong answer',
+        value: { ...recommendation, answer: 'a'.repeat(501) },
+      },
+      {
+        caseName: 'Markdown reason',
+        value: {
+          ...recommendation,
+          recommendations: [{ productId: 20, reason: '**Highlighted**' }],
+        },
+      },
+      {
+        caseName: 'HTML answer',
+        value: { ...recommendation, answer: '<b>Marked up</b>' },
+      },
+      {
+        caseName: 'overlong reason',
+        value: {
+          ...recommendation,
+          recommendations: [{ productId: 20, reason: 'a'.repeat(281) }],
+        },
+      },
+    ].map(({ caseName, value }) => ({
+      caseName,
+      output: JSON.stringify(value),
+      error: 'Gemini response did not match the schema.',
+    })),
+  ])('잘못된 추천 결과를 거부한다 ($caseName)', async ({ output, error }) => {
+    createInteraction.mockResolvedValue({
+      status: 'completed',
+      output_text: output,
+    });
+
+    await expect(
+      generateGeminiStructuredOutput(
+        'Recommend a candidate.',
+        productRecommendationSchema,
+      ),
+    ).rejects.toThrow(error);
   });
 
   it('JSON 응답 형식과 low thinking을 요청하고 검증한 의도를 반환한다', async () => {
