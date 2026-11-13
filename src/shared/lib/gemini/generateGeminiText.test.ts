@@ -37,7 +37,7 @@ describe('generateGeminiText', () => {
       apiKey: 'test-gemini-key',
     });
     expect(mocks.create).toHaveBeenCalledWith({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-3.5-flash-lite',
       input: 'Say hello.',
       store: false,
     });
@@ -47,7 +47,7 @@ describe('generateGeminiText', () => {
     await generateGeminiText('Say hello.', { thinkingLevel: 'low' });
 
     expect(mocks.create).toHaveBeenCalledWith({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-3.5-flash-lite',
       input: 'Say hello.',
       store: false,
       generation_config: { thinking_level: 'low' },
@@ -85,7 +85,7 @@ describe('generateGeminiText', () => {
       await generateGeminiText('Say hello.');
 
       expect(mocks.create).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'gemini-3.8-flash' }),
+        expect.objectContaining({ model: 'gemini-3.5-flash-lite' }),
       );
     },
   );

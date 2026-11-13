@@ -23,7 +23,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다. �
 - **상태·폼:** TanStack Query v5, Zustand v5, React Hook Form v7, Zod
 - **서버·데이터:** Next.js Route Handlers, Prisma, TiDB / MySQL
 - **인증·국제화:** Auth.js (NextAuth v5), next-intl
-- **외부 서비스:** Vercel, Cloudinary, Toss Payments, Google Analytics 4
+- **외부 서비스:** Vercel, Cloudinary, Toss Payments, Google Analytics 4, Google Gemini
 - **검증:** Vitest, React Testing Library, MSW, Storybook, Chromatic, Playwright, GitHub Actions
 
 ## 주요 기능
@@ -31,6 +31,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다. �
 - **상품 탐색**
   - 카테고리별 상품 목록과 상세, 검색·필터·정렬, 추천 검색어와 무한 스크롤
   - 색상 선택에 따른 이미지 전환, 추천 상품, `localStorage` 기반 최근 본 상품
+  - 자연어 조건을 Gemini로 분석해 실제 카테고리·필터와 연결하는 AI 상품 도우미, DB 상품 최대 3개 추천과 미확인 조건 안내
 - **구매 흐름**
   - 회원·비회원 장바구니와 바로 구매, 배송지 선택, 주문 생성, Toss Payments 테스트 결제
   - 주문 목록·상세, 주문 취소, 배송 완료와 결제 대기 주문 만료 처리
@@ -71,6 +72,7 @@ Next.js App Router 기반 이커머스 포트폴리오 프로젝트입니다. �
 - **TanStack Query 서버 상태:** 상품 상세의 상품·이미지·상품평·추천 데이터를 서버에서 prefetch한 뒤 hydration합니다. 도메인별 query key와 무효화 범위를 나누고, 장바구니 수량과 찜 변경에는 실패 시 롤백하는 낙관적 업데이트를 적용했습니다.
 - **Zustand 클라이언트 상태:** 장바구니·체크아웃·상품 필터·공통 UI 상태를 기능별 store로 분리했습니다. 서버 데이터는 TanStack Query에 남기고, 비회원 장바구니만 `persist` middleware와 `localStorage`로 유지합니다.
 - **폼과 서버 검증:** React Hook Form과 Zod로 배송지·상품평·관리자 폼의 상태와 입력 검증을 구성했습니다. route param·query string·request body와 상품평 작성 권한·주문 상태 같은 규칙은 Route Handler에서 최종 확인합니다.
+- **AI 상품 추천:** 자연어 요청을 Gemini Structured Output으로 받아 intent와 mapping draft를 생성합니다. 서버가 draft의 카테고리·필터 ID를 실제 catalog와 대조하고, DB 상품의 조건을 재검증해 후보를 추립니다. 실제 후보만 2차 Gemini에 전달해 최대 3개를 선택하며, 후보 밖·중복 `productId`를 제거한 뒤 DB의 상품명·판매가·상세 링크로 표시합니다. 후보가 없으면 2차 호출을 생략하고, 상품 데이터에서 확인할 수 없는 조건은 `unmatched`로 분리해 안내합니다. 기본 모델은 `gemini-3.5-flash-lite`이며, 1차 intent/mapping은 `low`, 2차 최종 추천은 `minimal`을 사용하고 두 호출 모두 `store: false`를 적용합니다.
 - **GA4 구매 분석:** 상품 조회·장바구니 추가·체크아웃 시작에 맞춰 이벤트를 기록합니다. 데모 결제는 `CONFIRMED` 주문 생성 후, Toss 결제는 승인·서버 confirm 후 `CONFIRMED` 응답의 주문번호·총액·상품 정보로 `purchase`를 전송합니다. 주문번호를 기준으로 세션 내 중복 전송을 막고, 분석 오류나 태그 부재가 주문·결제 완료를 방해하지 않도록 분리했습니다.
 - **국제화:** next-intl의 한국어·영어 UI 메시지와 Prisma의 locale별 DB 콘텐츠를 구분했습니다. URL·API·TanStack Query key·prefetch와 hydration에서도 같은 locale을 사용합니다.
 - **Metadata와 SEO:** Next.js Metadata API로 한국어·영어 title·description을 구성하고 상품·카테고리의 locale별 DB 콘텐츠를 재사용합니다. 검색·로그인·체크아웃·마이페이지·관리자 등 검색 노출이 필요하지 않은 화면은 `noindex`로 설정했습니다. Metadata Route 기반 `/sitemap.xml`에 공개 URL을 제공하고, `/robots.txt`는 공개 페이지 크롤링을 허용하며 production sitemap URL을 안내합니다. 공개 페이지에는 locale별 self canonical과 ko/en hreflang을 적용하며, sitemap과 canonical 모두 한국어는 `/ko` 없이, 영어는 `/en`을 사용하는 URL 정책을 따릅니다. 페이지별 제목은 GA4 자동 `page_view`의 `page_title`에도 반영됩니다.
@@ -107,6 +109,8 @@ cp .env.example .env.local
 ```
 
 `.env.local`에는 DB, Auth와 사용할 기능의 Cloudinary·Toss Payments 설정이 필요합니다. GA4는 `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`를 설정한 경우에 활성화됩니다. 실제 Secret은 저장소에 포함하지 않으며, 브라우저 번들에 노출되는 `NEXT_PUBLIC_*` 변수에는 Secret을 넣지 않습니다. 전체 변수와 placeholder는 `.env.example`에서 확인할 수 있습니다.
+
+AI 상품 도우미를 사용하려면 서버 환경변수 `GEMINI_API_KEY`가 필요합니다. `GEMINI_MODEL`을 생략하면 `gemini-3.5-flash-lite`를 사용하며, 값을 지정하면 해당 모델이 기본값을 덮어씁니다.
 
 비어 있는 개발 DB를 사용할 때만 아래 명령으로 스키마와 기본·번역 seed를 준비합니다. `DATABASE_URL`이 가리키는 DB를 직접 변경하므로 운영 DB에는 실행하지 않습니다. 이미 준비된 개발 DB라면 이 단계는 생략할 수 있습니다.
 

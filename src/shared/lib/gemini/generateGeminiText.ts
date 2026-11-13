@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import type { Interactions } from '@google/genai';
 
-const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
 type GenerateGeminiTextOptions = {
   thinkingLevel?: Interactions.ThinkingLevel;
