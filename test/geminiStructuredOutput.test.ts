@@ -39,6 +39,27 @@ describe('generateGeminiStructuredOutput', () => {
     vi.unstubAllEnvs();
   });
 
+  it('GEMINI_MODEL이 없으면 Flash-Lite 기본 모델을 사용한다', async () => {
+    vi.stubEnv('GEMINI_MODEL', undefined);
+    createInteraction.mockResolvedValue({
+      status: 'completed',
+      output_text: JSON.stringify(keyboardIntent),
+    });
+
+    await expect(
+      generateGeminiStructuredOutput(
+        'A wireless keyboard?',
+        productSearchIntentSchema,
+      ),
+    ).resolves.toEqual(keyboardIntent);
+    expect(createInteraction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        model: 'gemini-3.5-flash-lite',
+        store: false,
+      }),
+    );
+  });
+
   it.each([
     {
       caseName: 'invalid JSON',
