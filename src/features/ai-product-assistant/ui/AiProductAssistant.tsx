@@ -10,10 +10,9 @@ import { HttpError } from '@shared/lib/errors/httpError';
 import Button from '@shared/ui/Button/Button';
 
 import { askProductAssistant } from '../api/productAssistant';
+import { MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH } from '../model/constants';
 
 import ProductRecommendationResult from './ProductRecommendationResult';
-
-const MAX_PROMPT_LENGTH = 500;
 
 export default function AiProductAssistant() {
   const t = useTranslations('AiProductAssistant');
@@ -28,7 +27,8 @@ export default function AiProductAssistant() {
   });
   const question = prompt.trim();
   const isValidPrompt =
-    question.length > 0 && question.length <= MAX_PROMPT_LENGTH;
+    question.length > 0 &&
+    question.length <= MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH;
   const isUnauthorized = error instanceof HttpError && error.status === 401;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -75,7 +75,7 @@ export default function AiProductAssistant() {
           id={`${id}-prompt`}
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          maxLength={MAX_PROMPT_LENGTH}
+          maxLength={MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH}
           rows={3}
           disabled={isPending}
           aria-describedby={`${id}-privacy`}
@@ -92,7 +92,7 @@ export default function AiProductAssistant() {
           <p className="text-xs text-muted dark:text-dark-muted">
             {t('characterCount', {
               count: prompt.length,
-              max: MAX_PROMPT_LENGTH,
+              max: MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH,
             })}
           </p>
           <Button

@@ -10,7 +10,7 @@ const getProductsPage = vi.hoisted(() => vi.fn());
 
 vi.mock('server-only', () => ({}));
 vi.mock('prisma/prismaClientSingleton', () => ({ default: {} }));
-vi.mock('../../products/service', () => ({ getProductsPage }));
+vi.mock('@app/api-routes/products/service', () => ({ getProductsPage }));
 
 const mapping: ProductSearchMapping = {
   category: { id: 1, slug: 'mice' },
