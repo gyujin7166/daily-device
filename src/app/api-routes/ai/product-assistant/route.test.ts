@@ -29,7 +29,7 @@ vi.mock('prisma/prismaClientSingleton', () => ({
     filter: { findMany: mocks.findFilters },
   },
 }));
-vi.mock('../../products/service', () => ({
+vi.mock('@app/api-routes/products/service', () => ({
   getProductsPage: mocks.getProductsPage,
 }));
 
