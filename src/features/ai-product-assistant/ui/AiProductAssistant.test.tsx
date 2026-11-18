@@ -227,9 +227,13 @@ describe('AiProductAssistant', () => {
     ]);
   });
 
-  it.each([401, 500])(
-    '%s 오류를 번역된 안내로 표시하고 내부 오류는 숨긴다',
-    async (status) => {
+  it.each([
+    { status: 401, expected: t.loginRequired },
+    { status: 429, expected: t.rateLimited },
+    { status: 500, expected: t.error },
+  ])(
+    '$status 오류를 번역된 안내로 표시하고 내부 오류는 숨긴다',
+    async ({ status, expected }) => {
       server.use(
         http.post(endpoint, () =>
           HttpResponse.json({ message: 'private-provider-error' }, { status }),
@@ -239,9 +243,7 @@ describe('AiProductAssistant', () => {
       await user.type(input, 'A comfortable mouse?');
       await user.click(screen.getByRole('button', { name: t.submit }));
 
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        status === 401 ? t.loginRequired : t.error,
-      );
+      expect(await screen.findByRole('alert')).toHaveTextContent(expected);
       expect(
         screen.queryByText('private-provider-error'),
       ).not.toBeInTheDocument();

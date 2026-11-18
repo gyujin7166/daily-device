@@ -183,7 +183,8 @@
     "unverifiedRequirements": "Some requested conditions can't be verified from current product data, so the results use the conditions we can confirm.",
     "unappliedBudget": "We only filter by budgets in Korean won. Your price range wasn't applied.",
     "error": "Could not load recommendations. Please try again shortly.",
-    "loginRequired": "Log in to use the AI Product Assistant."
+    "loginRequired": "Log in to use the AI Product Assistant.",
+    "rateLimited": "The AI assistant is receiving too many requests. Please try again in about a minute."
   },
   "Home": {
     "hero": {

@@ -29,7 +29,13 @@ export default function AiProductAssistant() {
   const isValidPrompt =
     question.length > 0 &&
     question.length <= MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH;
-  const isUnauthorized = error instanceof HttpError && error.status === 401;
+  const errorStatus = error instanceof HttpError ? error.status : undefined;
+
+  const getErrorMessage = (status: number | undefined) => {
+    if (status === 401) return t('loginRequired');
+    if (status === 429) return t('rateLimited');
+    return t('error');
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -108,7 +114,7 @@ export default function AiProductAssistant() {
 
       {error ? (
         <p role="alert" className="mt-4 text-sm text-danger">
-          {isUnauthorized ? t('loginRequired') : t('error')}
+          {getErrorMessage(errorStatus)}
         </p>
       ) : null}
       <div role="status" aria-live="polite" aria-atomic="true">

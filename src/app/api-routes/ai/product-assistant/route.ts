@@ -22,6 +22,12 @@ const requestSchema = z.object({
   locale: z.enum(routing.locales).default(routing.defaultLocale),
 });
 
+const LOG_MESSAGE = '[POST /api/ai/product-assistant] failed:';
+const RATE_LIMITED_RESPONSE: ApiResponse<never, { code: string }> = {
+  message: 'Too Many Requests',
+  code: 'AI_RATE_LIMITED',
+};
+
 function getSafeErrorLogDetails(error: unknown) {
   if (error instanceof GeminiError) {
     const { reason, status, providerErrorName } = error;
@@ -56,16 +62,24 @@ export async function POST(request: Request) {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (error) {
-    // Provider errors may contain input, output, or credentials. Log only a safe error.
-    const safeError =
-      error instanceof HttpError
-        ? error
-        : new Error('AI product assistant request failed.', {
-            cause: getSafeErrorLogDetails(error),
-          });
+    if (error instanceof HttpError) {
+      return handleRouteError(error);
+    }
 
-    return handleRouteError(safeError, {
-      logMessage: '[POST /api/ai/product-assistant] failed:',
+    // Provider errors may contain input, output, or credentials. Log only a safe error.
+    const safeError = new Error('AI product assistant request failed.', {
+      cause: getSafeErrorLogDetails(error),
     });
+
+    if (error instanceof GeminiError && error.reason === 'rate_limited') {
+      console.error(LOG_MESSAGE, safeError);
+
+      return NextResponse.json(RATE_LIMITED_RESPONSE, {
+        status: 429,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+
+    return handleRouteError(safeError, { logMessage: LOG_MESSAGE });
   }
 }
