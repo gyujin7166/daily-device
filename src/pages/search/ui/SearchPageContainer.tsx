@@ -76,7 +76,10 @@ export default function SearchPageContainer({
     ? stableMeta.categories
     : (availableCategories ?? []);
   const shouldApplyBottomPadding =
-    !hasNextPage && !showProductsSkeleton && displayTotal > 0;
+    !showInitialSkeleton &&
+    !hasNextPage &&
+    !showProductsSkeleton &&
+    displayTotal > 0;
 
   useEffect(() => {
     setSelectedCategories([]);
@@ -185,19 +188,6 @@ export default function SearchPageContainer({
     showProductsSkeleton,
   ]);
 
-  if (showInitialSkeleton) {
-    return (
-      <PageWrapper className="mt-22.5 flex min-h-[50vh] flex-1 flex-col">
-        <SearchHeaderSkeleton />
-        <AiProductAssistant />
-        <ProductSkeleton
-          columns="four"
-          length={SEARCH_PRODUCT_SKELETON_COUNT}
-        />
-      </PageWrapper>
-    );
-  }
-
   return (
     <PageWrapper
       className={cn(
@@ -205,51 +195,67 @@ export default function SearchPageContainer({
         shouldApplyBottomPadding ? 'pb-16' : '',
       )}
     >
-      <SearchHeader
-        decodedQuery={decodedQuery}
-        totalItems={displayTotal}
-        baseTotalItems={displayBaseTotal}
-      />
+      {showInitialSkeleton ? (
+        <SearchHeaderSkeleton />
+      ) : (
+        <SearchHeader
+          decodedQuery={decodedQuery}
+          totalItems={displayTotal}
+          baseTotalItems={displayBaseTotal}
+        />
+      )}
+      {/* Render once so its prompt and result survive the initial loading switch. */}
       <AiProductAssistant />
-      <SearchFilterControls
-        categories={displayCategories}
-        selectedCategories={selectedCategories}
-        onToggleCategory={(category) =>
-          setSelectedCategories((prev) =>
-            prev.includes(category)
-              ? prev.filter((item) => item !== category)
-              : [...prev, category],
-          )
-        }
-        onClearCategories={() => setSelectedCategories([])}
-        sortOption={sortOption}
-        onSortChange={setSortOption}
-        visibleCount={displayVisibleCount}
-        totalCount={displayTotal}
-      />
-      {showProductsSkeleton ? (
+      {showInitialSkeleton ? (
         <ProductSkeleton
           columns="four"
           length={SEARCH_PRODUCT_SKELETON_COUNT}
         />
       ) : (
-        <SearchResults items={items} searchTerm={decodedQuery} />
-      )}
-
-      {isFetchingNextPage ? (
-        <div className="mt-5">
-          <ProductSkeleton
-            columns="four"
-            length={SEARCH_PRODUCT_SKELETON_COUNT}
+        <>
+          <SearchFilterControls
+            categories={displayCategories}
+            selectedCategories={selectedCategories}
+            onToggleCategory={(category) =>
+              setSelectedCategories((prev) =>
+                prev.includes(category)
+                  ? prev.filter((item) => item !== category)
+                  : [...prev, category],
+              )
+            }
+            onClearCategories={() => setSelectedCategories([])}
+            sortOption={sortOption}
+            onSortChange={setSortOption}
+            visibleCount={displayVisibleCount}
+            totalCount={displayTotal}
           />
-        </div>
-      ) : null}
+          {showProductsSkeleton ? (
+            <ProductSkeleton
+              columns="four"
+              length={SEARCH_PRODUCT_SKELETON_COUNT}
+            />
+          ) : (
+            <SearchResults items={items} searchTerm={decodedQuery} />
+          )}
 
-      <div
-        ref={loadMoreRef}
-        aria-hidden
-        className={hasNextPage && !showProductsSkeleton ? 'h-40 w-full' : 'h-0'}
-      />
+          {isFetchingNextPage ? (
+            <div className="mt-5">
+              <ProductSkeleton
+                columns="four"
+                length={SEARCH_PRODUCT_SKELETON_COUNT}
+              />
+            </div>
+          ) : null}
+
+          <div
+            ref={loadMoreRef}
+            aria-hidden
+            className={
+              hasNextPage && !showProductsSkeleton ? 'h-40 w-full' : 'h-0'
+            }
+          />
+        </>
+      )}
     </PageWrapper>
   );
 }
