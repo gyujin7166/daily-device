@@ -12,6 +12,7 @@ import { handleRouteError } from '@shared/lib/api/handleRouteError';
 import { parseWithSchema } from '@shared/lib/api/parseWithSchema';
 import { readJsonBody } from '@shared/lib/api/readJsonBody';
 import { HttpError } from '@shared/lib/errors/httpError';
+import { GeminiError, getSafeErrorName } from '@shared/lib/gemini/geminiError';
 import type { ApiResponse } from '@shared/types/api';
 
 import { getProductAssistantResult } from './service';
@@ -20,6 +21,25 @@ const requestSchema = z.object({
   prompt: z.string().trim().min(1).max(MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH),
   locale: z.enum(routing.locales).default(routing.defaultLocale),
 });
+
+function getSafeErrorLogDetails(error: unknown) {
+  if (error instanceof GeminiError) {
+    const { reason, status, providerErrorName } = error;
+
+    return {
+      reason,
+      ...(status === undefined ? {} : { status }),
+      ...(providerErrorName === undefined ? {} : { providerErrorName }),
+    };
+  }
+
+  const errorName = getSafeErrorName(error);
+
+  return {
+    reason: 'unexpected',
+    ...(errorName === undefined ? {} : { errorName }),
+  };
+}
 
 export async function POST(request: Request) {
   try {
@@ -40,7 +60,9 @@ export async function POST(request: Request) {
     const safeError =
       error instanceof HttpError
         ? error
-        : new Error('AI product assistant request failed.');
+        : new Error('AI product assistant request failed.', {
+            cause: getSafeErrorLogDetails(error),
+          });
 
     return handleRouteError(safeError, {
       logMessage: '[POST /api/ai/product-assistant] failed:',

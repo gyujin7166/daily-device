@@ -1,3 +1,5 @@
+import { inspect } from 'node:util';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { productRecommendationSchema } from '@features/ai-product-assistant/model/productRecommendation';
@@ -5,6 +7,7 @@ import { productSearchAnalysisSchema } from '@features/ai-product-assistant/mode
 
 import { API_MESSAGE } from '@shared/constants/apiMessage';
 import { UnauthorizedError } from '@shared/lib/errors/httpError';
+import { GeminiError } from '@shared/lib/gemini/geminiError';
 
 import { POST } from './route';
 
@@ -593,8 +596,71 @@ describe('POST /api/ai/product-assistant', () => {
     });
     expect(errorLog).toHaveBeenCalledOnce();
     for (const value of errorLog.mock.calls.flat()) {
-      expect(String(value)).not.toContain('private-');
+      expect(inspect(value, { depth: Infinity })).not.toContain('private-');
       expect(value).not.toBe(sensitiveError);
     }
+  });
+
+  it.each([
+    {
+      label: '요청 한도 초과',
+      error: new GeminiError('rate_limited', {
+        status: 429,
+        providerErrorName: 'RateLimitError',
+      }),
+      details: {
+        reason: 'rate_limited',
+        status: 429,
+        providerErrorName: 'RateLimitError',
+      },
+    },
+    {
+      label: '스키마 불일치',
+      error: new GeminiError('schema_mismatch'),
+      details: { reason: 'schema_mismatch' },
+    },
+  ])(
+    'Gemini $label 오류는 응답을 바꾸지 않고 원인 코드만 로그에 남긴다',
+    async ({ error, details }) => {
+      mocks.generateGeminiStructuredOutput.mockRejectedValue(error);
+      const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const response = await POST(
+        createRequest({ prompt: 'A comfortable mouse?' }),
+      );
+
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({
+        message: API_MESSAGE.INTERNAL_SERVER_ERROR,
+      });
+      expect(errorLog).toHaveBeenCalledOnce();
+      const [, loggedError] = errorLog.mock.calls[0] ?? [];
+      expect(loggedError).toBeInstanceOf(Error);
+      expect((loggedError as Error).cause).toEqual(details);
+    },
+  );
+
+  it('Gemini 외 오류는 오류 이름만 unexpected 원인으로 남긴다', async () => {
+    mocks.findCategories.mockRejectedValue(
+      Object.assign(new Error('private-database-detail'), {
+        name: 'PrismaClientKnownRequestError',
+        meta: { target: 'private-column' },
+      }),
+    );
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await POST(
+      createRequest({ prompt: 'A comfortable mouse?' }),
+    );
+
+    expect(response.status).toBe(500);
+    const [, loggedError] = errorLog.mock.calls[0] ?? [];
+    expect((loggedError as Error).cause).toEqual({
+      reason: 'unexpected',
+      errorName: 'PrismaClientKnownRequestError',
+    });
+    expect(inspect(errorLog.mock.calls, { depth: Infinity })).not.toContain(
+      'private-',
+    );
   });
 });
