@@ -601,44 +601,54 @@ describe('POST /api/ai/product-assistant', () => {
     }
   });
 
-  it.each([
-    {
-      label: '요청 한도 초과',
-      error: new GeminiError('rate_limited', {
+  it('Gemini 요청 한도 초과는 429와 고정 코드로 응답하고 원인 코드를 로그에 남긴다', async () => {
+    mocks.generateGeminiStructuredOutput.mockRejectedValue(
+      new GeminiError('rate_limited', {
         status: 429,
         providerErrorName: 'RateLimitError',
       }),
-      details: {
-        reason: 'rate_limited',
-        status: 429,
-        providerErrorName: 'RateLimitError',
-      },
-    },
-    {
-      label: '스키마 불일치',
-      error: new GeminiError('schema_mismatch'),
-      details: { reason: 'schema_mismatch' },
-    },
-  ])(
-    'Gemini $label 오류는 응답을 바꾸지 않고 원인 코드만 로그에 남긴다',
-    async ({ error, details }) => {
-      mocks.generateGeminiStructuredOutput.mockRejectedValue(error);
-      const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
+    );
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const response = await POST(
-        createRequest({ prompt: 'A comfortable mouse?' }),
-      );
+    const response = await POST(
+      createRequest({ prompt: 'A comfortable mouse?' }),
+    );
 
-      expect(response.status).toBe(500);
-      expect(await response.json()).toEqual({
-        message: API_MESSAGE.INTERNAL_SERVER_ERROR,
-      });
-      expect(errorLog).toHaveBeenCalledOnce();
-      const [, loggedError] = errorLog.mock.calls[0] ?? [];
-      expect(loggedError).toBeInstanceOf(Error);
-      expect((loggedError as Error).cause).toEqual(details);
-    },
-  );
+    expect(response.status).toBe(429);
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(await response.json()).toEqual({
+      message: 'Too Many Requests',
+      code: 'AI_RATE_LIMITED',
+    });
+    expect(errorLog).toHaveBeenCalledOnce();
+    const [, loggedError] = errorLog.mock.calls[0] ?? [];
+    expect(loggedError).toBeInstanceOf(Error);
+    expect((loggedError as Error).cause).toEqual({
+      reason: 'rate_limited',
+      status: 429,
+      providerErrorName: 'RateLimitError',
+    });
+  });
+
+  it('그 외 Gemini 오류는 일반 500으로 응답하고 원인 코드만 로그에 남긴다', async () => {
+    mocks.generateGeminiStructuredOutput.mockRejectedValue(
+      new GeminiError('schema_mismatch'),
+    );
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await POST(
+      createRequest({ prompt: 'A comfortable mouse?' }),
+    );
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({
+      message: API_MESSAGE.INTERNAL_SERVER_ERROR,
+    });
+    expect(errorLog).toHaveBeenCalledOnce();
+    const [, loggedError] = errorLog.mock.calls[0] ?? [];
+    expect(loggedError).toBeInstanceOf(Error);
+    expect((loggedError as Error).cause).toEqual({ reason: 'schema_mismatch' });
+  });
 
   it('Gemini 외 오류는 오류 이름만 unexpected 원인으로 남긴다', async () => {
     mocks.findCategories.mockRejectedValue(
