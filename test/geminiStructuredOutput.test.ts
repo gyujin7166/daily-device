@@ -185,11 +185,20 @@ describe('generateGeminiStructuredOutput', () => {
   });
 
   it.each([
-    { output: '   ', error: 'Gemini returned an empty text response.' },
-    { output: '{private-invalid-json', error: 'Gemini returned invalid JSON.' },
+    {
+      output: '   ',
+      error: 'Gemini returned an empty text response.',
+      reason: 'empty_response',
+    },
+    {
+      output: '{private-invalid-json',
+      error: 'Gemini returned invalid JSON.',
+      reason: 'invalid_json',
+    },
     {
       output: JSON.stringify({ ...keyboardIntent, summary: undefined }),
       error: 'Gemini response did not match the schema.',
+      reason: 'schema_mismatch',
     },
     {
       output: JSON.stringify({
@@ -197,6 +206,7 @@ describe('generateGeminiStructuredOutput', () => {
         priceRange: { min: null, max: '100000', currency: 'KRW' },
       }),
       error: 'Gemini response did not match the schema.',
+      reason: 'schema_mismatch',
     },
     {
       output: JSON.stringify({
@@ -204,10 +214,11 @@ describe('generateGeminiStructuredOutput', () => {
         productId: 'private-invented-id',
       }),
       error: 'Gemini response did not match the schema.',
+      reason: 'schema_mismatch',
     },
   ])(
     '형식이 잘못된 Gemini 응답을 거부한다 ($error)',
-    async ({ output, error }) => {
+    async ({ output, error, reason }) => {
       createInteraction.mockResolvedValue({
         status: 'completed',
         output_text: output,
@@ -218,7 +229,7 @@ describe('generateGeminiStructuredOutput', () => {
           'A wireless keyboard?',
           productSearchIntentSchema,
         ),
-      ).rejects.toThrow(new Error(error));
+      ).rejects.toMatchObject({ name: 'GeminiError', message: error, reason });
     },
   );
 });

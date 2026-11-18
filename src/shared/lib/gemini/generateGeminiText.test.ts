@@ -1,3 +1,5 @@
+import { inspect } from 'node:util';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { generateGeminiText } from './generateGeminiText';
@@ -115,10 +117,74 @@ describe('generateGeminiText', () => {
     );
   });
 
-  it('SDK 요청 실패를 호출자에게 전달한다', async () => {
-    const error = new Error('Request failed');
-    mocks.create.mockRejectedValue(error);
+  it('완료되지 않은 응답은 incomplete 원인으로 구분한다', async () => {
+    mocks.create.mockResolvedValue({ status: 'incomplete', output_text: '' });
 
-    await expect(generateGeminiText('Say hello.')).rejects.toBe(error);
+    await expect(generateGeminiText('Say hello.')).rejects.toMatchObject({
+      name: 'GeminiError',
+      reason: 'incomplete',
+    });
+  });
+
+  it.each([
+    {
+      label: '요청 한도 초과',
+      error: Object.assign(new Error('429 private-quota-detail'), {
+        name: 'RateLimitError',
+        status: 429,
+      }),
+      expected: {
+        reason: 'rate_limited',
+        status: 429,
+        providerErrorName: 'RateLimitError',
+      },
+    },
+    {
+      label: '타임아웃',
+      error: Object.assign(new Error('private-timeout-detail'), {
+        name: 'APIConnectionTimeoutError',
+      }),
+      expected: {
+        reason: 'timeout',
+        status: undefined,
+        providerErrorName: 'APIConnectionTimeoutError',
+      },
+    },
+    {
+      label: '기타 provider 오류',
+      error: Object.assign(new Error('private-server-detail'), {
+        name: 'CreateInteractionServerError',
+        statusCode: 503,
+        body: 'private-response-body',
+      }),
+      expected: {
+        reason: 'provider_error',
+        status: 503,
+        providerErrorName: 'CreateInteractionServerError',
+      },
+    },
+  ])(
+    'SDK $label 오류를 안전한 원인 정보만 가진 GeminiError로 바꾼다',
+    async ({ error, expected }) => {
+      mocks.create.mockRejectedValue(error);
+
+      const thrown = await generateGeminiText('Say hello.').catch(
+        (reason: unknown) => reason,
+      );
+
+      expect(thrown).toMatchObject({ name: 'GeminiError', ...expected });
+      expect(inspect(thrown, { depth: Infinity })).not.toContain('private-');
+    },
+  );
+
+  it('provider 오류 이름이 식별자 형식이 아니면 남기지 않는다', async () => {
+    mocks.create.mockRejectedValue(
+      Object.assign(new Error('failed'), { name: 'private name <value>' }),
+    );
+
+    await expect(generateGeminiText('Say hello.')).rejects.toMatchObject({
+      reason: 'provider_error',
+      providerErrorName: undefined,
+    });
   });
 });

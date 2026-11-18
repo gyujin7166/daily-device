@@ -16,6 +16,7 @@ import type {
 } from '@features/ai-product-assistant/model/productSearchMapping';
 
 import type { Locale } from '@shared/config/i18n/routing';
+import { GeminiError } from '@shared/lib/gemini/geminiError';
 import { generateGeminiStructuredOutput } from '@shared/lib/gemini/generateGeminiText';
 
 import prisma from 'prisma/prismaClientSingleton';
@@ -295,7 +296,7 @@ export async function getProductRecommendation(
   );
 
   if (verifiedRecommendations.length === 0) {
-    throw new Error('Gemini did not select a valid product candidate.');
+    throw new GeminiError('invalid_recommendation');
   }
 
   return { answer, recommendations: verifiedRecommendations };
