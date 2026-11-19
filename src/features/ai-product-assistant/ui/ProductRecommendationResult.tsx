@@ -4,7 +4,7 @@ import { Link } from '@shared/lib/i18n/navigation';
 import { getProductPriceInfo } from '@shared/lib/price/discount';
 import { getProductHref } from '@shared/lib/routes/productRoutes';
 
-import type { ProductAssistantResult } from '../model/productSearchCandidate';
+import type { ProductAssistantResult } from '../model/productAssistantResult';
 
 export default function ProductRecommendationResult({
   intent,

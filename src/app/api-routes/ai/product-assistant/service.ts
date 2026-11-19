@@ -2,12 +2,10 @@ import 'server-only';
 
 import { getProductsPage } from '@app/api-routes/products/service';
 
+import type { ProductAssistantResult } from '@features/ai-product-assistant/model/productAssistantResult';
 import { productRecommendationSchema } from '@features/ai-product-assistant/model/productRecommendation';
 import type { ProductRecommendation } from '@features/ai-product-assistant/model/productRecommendation';
-import type {
-  ProductAssistantResult,
-  ProductSearchCandidate,
-} from '@features/ai-product-assistant/model/productSearchCandidate';
+import type { ProductSearchCandidate } from '@features/ai-product-assistant/model/productSearchCandidate';
 import type { ProductSearchIntent } from '@features/ai-product-assistant/model/productSearchIntent';
 import { productSearchAnalysisSchema } from '@features/ai-product-assistant/model/productSearchMapping';
 import type {

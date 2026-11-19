@@ -1,7 +1,7 @@
 import { fetchApi } from '@shared/api/fetchApi';
 import type { Locale } from '@shared/config/i18n/routing';
 
-import type { ProductAssistantResult } from '../model/productSearchCandidate';
+import type { ProductAssistantResult } from '../model/productAssistantResult';
 
 export const askProductAssistant = ({
   prompt,
