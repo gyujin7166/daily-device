@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { MAX_PRODUCT_ASSISTANT_PROMPT_LENGTH } from '@features/ai-product-assistant/model/constants';
-import type { ProductAssistantResult } from '@features/ai-product-assistant/model/productSearchCandidate';
+import type { ProductAssistantResult } from '@features/ai-product-assistant/model/productAssistantResult';
 
 import { routing } from '@shared/config/i18n/routing';
 import { API_MESSAGE } from '@shared/constants/apiMessage';

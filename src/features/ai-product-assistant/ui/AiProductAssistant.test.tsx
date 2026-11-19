@@ -17,7 +17,7 @@ import {
 
 import AiProductAssistant from './AiProductAssistant';
 
-import type { ProductAssistantResult } from '../model/productSearchCandidate';
+import type { ProductAssistantResult } from '../model/productAssistantResult';
 import type { Locale } from 'next-intl';
 
 const messagesByLocale = { ko: koMessages, en: enMessages };
