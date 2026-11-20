@@ -13,6 +13,7 @@
     "chromatic": "chromatic",
     "start": "next start",
     "ai:check": "node --conditions=react-server -r ts-node/register scripts/checkGemini.ts",
+    "ai:eval": "node --conditions=react-server -r ts-node/register scripts/evalProductAssistant.ts",
     "db:seed": "ts-node prisma/seeds/seeds.ts",
     "db:seed:category": "ts-node prisma/seeds/seed-product-category.ts",
     "db:seed:hero": "ts-node prisma/seeds/seed-hero.ts",
