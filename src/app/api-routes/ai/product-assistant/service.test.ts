@@ -21,6 +21,7 @@ const mapping: ProductSearchMapping = {
   preferences: [
     { requirement: 'asymmetric shape', filterId: 4, filterOptionId: 15 },
   ],
+  colors: [],
   unmatchedHardRequirements: ['solar charging'],
   unmatchedPreferences: [],
 };
@@ -96,6 +97,25 @@ describe('getProductSearchCandidates', () => {
       {},
       'en',
     );
+  });
+
+  it('검증된 필수 색상을 중복 없이 색상 필터로 전달한다', async () => {
+    getProductsPage.mockResolvedValue({ items: [product(1)] });
+
+    await getProductSearchCandidates(
+      {
+        ...mapping,
+        colors: [
+          { requirement: 'lilac or pink', colorId: 7 },
+          { requirement: 'lilac or pink', colorId: 12 },
+          { requirement: 'lilac body', colorId: 7 },
+        ],
+      },
+      noBudget,
+      'ko',
+    );
+
+    expect(getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7, 12] });
   });
 
   it('KRW 예산의 경계를 할인 판매가로 확인한다', async () => {
