@@ -8,12 +8,18 @@ const mappedConditionSchema = z.strictObject({
   filterOptionId: z.int().positive(),
 });
 
+const mappedColorSchema = z.strictObject({
+  requirement: z.string().min(1),
+  colorId: z.int().positive(),
+});
+
 export const productSearchMappingSchema = z.strictObject({
   category: z
     .strictObject({ id: z.int().positive(), slug: z.string().min(1) })
     .nullable(),
   hardRequirements: z.array(mappedConditionSchema),
   preferences: z.array(mappedConditionSchema),
+  colors: z.array(mappedColorSchema),
   unmatchedHardRequirements: z.array(z.string().min(1)),
   unmatchedPreferences: z.array(z.string().min(1)),
 });
@@ -26,12 +32,18 @@ const optionSelectionSchema = z.object({
   filterOptionId: z.int(),
 });
 
+const colorSelectionSchema = z.object({
+  requirement: z.string().min(1),
+  colorId: z.int(),
+});
+
 export const productSearchAnalysisSchema = z.strictObject({
   intent: productSearchIntentSchema,
   mappingDraft: z.strictObject({
     categoryId: z.int().nullable(),
     hardRequirements: z.array(optionSelectionSchema),
     preferences: z.array(optionSelectionSchema),
+    colors: z.array(colorSelectionSchema),
   }),
 });
 

@@ -17,6 +17,7 @@ const mapping: ProductAssistantResult['mapping'] = {
   preferences: [
     { requirement: 'quiet clicks', filterId: 4, filterOptionId: 15 },
   ],
+  colors: [],
   unmatchedHardRequirements: [],
   unmatchedPreferences: [],
 };
