@@ -143,15 +143,22 @@ function analyzeProductSearchRequest(
   );
 }
 
+type MappedCondition = ProductSearchMapping['hardRequirements'][number];
+type OptionMatch = Omit<MappedCondition, 'requirement'>;
+
+const normalizeLabel = (label: string) =>
+  label
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, ' ');
+
 function resolveConditions(
   requirements: string[],
   selections: ProductSearchMappingDraft['hardRequirements'],
   filterIdsByOptionId: Map<number, number>,
+  optionsByLabel: Map<string, OptionMatch | null>,
 ) {
-  const matches = new Map<
-    string,
-    ProductSearchMapping['hardRequirements'][number]
-  >();
+  const matches = new Map<string, MappedCondition>();
 
   for (const { requirement, filterOptionId } of selections) {
     const filterId = filterIdsByOptionId.get(filterOptionId);
@@ -164,7 +171,10 @@ function resolveConditions(
   const unmatched: string[] = [];
 
   for (const requirement of requirements) {
-    const match = matches.get(requirement);
+    // Gemini sometimes skips an option whose label is the requirement itself.
+    const option = optionsByLabel.get(normalizeLabel(requirement));
+    const match =
+      matches.get(requirement) ?? (option ? { requirement, ...option } : null);
     if (match) matched.push(match);
     else unmatched.push(requirement);
   }
@@ -210,11 +220,24 @@ export function resolveProductSearchMapping(
       ? undefined
       : catalog.categories.find(({ id }) => id === draft.categoryId);
   const filterIdsByOptionId = new Map<number, number>();
+  // A label shared by different options is ambiguous, so it is stored as null.
+  const optionsByLabel = new Map<string, OptionMatch | null>();
 
   for (const filter of catalog.filters) {
     if (filter.categoryName !== category?.slug) continue;
     for (const option of filter.options) {
       filterIdsByOptionId.set(option.id, filter.id);
+
+      for (const label of new Set(
+        [option.name_ko, option.name_en].map(normalizeLabel),
+      )) {
+        optionsByLabel.set(
+          label,
+          optionsByLabel.has(label)
+            ? null
+            : { filterId: filter.id, filterOptionId: option.id },
+        );
+      }
     }
   }
 
@@ -222,6 +245,7 @@ export function resolveProductSearchMapping(
     intent.hardRequirements,
     draft.hardRequirements,
     filterIdsByOptionId,
+    optionsByLabel,
   );
   const colors = resolveColors(
     hardRequirements.unmatched,
@@ -235,6 +259,7 @@ export function resolveProductSearchMapping(
     intent.preferences,
     draft.preferences,
     filterIdsByOptionId,
+    optionsByLabel,
   );
 
   return {
