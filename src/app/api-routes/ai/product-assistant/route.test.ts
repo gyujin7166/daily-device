@@ -634,6 +634,80 @@ describe('POST /api/ai/product-assistant', () => {
     });
   });
 
+  it('Gemini가 빠뜨린 조건도 선택한 카테고리의 같은 이름 옵션으로 검증한다', async () => {
+    mocks.generateGeminiStructuredOutput.mockResolvedValue({
+      intent: {
+        ...mouseIntent,
+        hardRequirements: ['Large', '비대칭', 'other category option'],
+        preferences: ['ASYMMETRIC'],
+      },
+      mappingDraft: { ...mouseDraft, hardRequirements: [] },
+    });
+
+    const response = await POST(createRequest({ prompt: '큰 마우스' }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.getProductsPage.mock.calls[0][4]).toEqual(['9', '15']);
+    expect((await response.json()).items.mapping).toMatchObject({
+      hardRequirements: [
+        { requirement: 'Large', filterId: 2, filterOptionId: 9 },
+        { requirement: '비대칭', filterId: 4, filterOptionId: 15 },
+      ],
+      preferences: [
+        { requirement: 'ASYMMETRIC', filterId: 4, filterOptionId: 15 },
+      ],
+      unmatchedHardRequirements: ['other category option'],
+    });
+  });
+
+  it('이름이 일부만 같거나 여러 옵션과 겹치는 조건은 이름으로 검증하지 않는다', async () => {
+    mocks.findFilters.mockResolvedValue([
+      ...['손 크기', '모양'].map((name, index) => ({
+        id: index + 2,
+        name,
+        categoryName: 'mice',
+        filterOption: [
+          {
+            id: index + 30,
+            name_en: 'other',
+            name_ko: '기타',
+            filterId: index + 2,
+            categoryName: 'mice',
+          },
+        ],
+      })),
+      {
+        id: 5,
+        name: '크기',
+        categoryName: 'mice',
+        filterOption: [
+          {
+            id: 9,
+            name_en: 'large',
+            name_ko: '큼',
+            filterId: 5,
+            categoryName: 'mice',
+          },
+        ],
+      },
+    ]);
+    mocks.generateGeminiStructuredOutput.mockResolvedValue({
+      intent: {
+        ...mouseIntent,
+        hardRequirements: ['large hand size', 'other'],
+      },
+      mappingDraft: { ...mouseDraft, hardRequirements: [] },
+    });
+
+    const response = await POST(createRequest({ prompt: '큰 손 마우스' }));
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).items.mapping).toMatchObject({
+      hardRequirements: [],
+      unmatchedHardRequirements: ['large hand size', 'other'],
+    });
+  });
+
   it('500자 질문을 허용한다', async () => {
     const response = await POST(createRequest({ prompt: 'a'.repeat(500) }));
 
