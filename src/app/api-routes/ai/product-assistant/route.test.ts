@@ -84,6 +84,7 @@ const mouseDraft = {
   ],
   preferences: [],
   colors: [],
+  unavailableColors: [],
 };
 
 const catalogMouse = {
@@ -235,6 +236,9 @@ describe('POST /api/ai/product-assistant', () => {
       /required color.*catalog color.*mappingDraft\.colors/i,
     );
     expect(prompt).not.toMatch(/leave .*color conditions out/i);
+    expect(prompt).toMatch(/no catalog color.*same color family.*similar/i);
+    expect(prompt).toMatch(/only close in brightness or tone/i);
+    expect(prompt).toMatch(/neither exact nor similar.*unavailableColors/i);
     expect(prompt).toMatch(/do not recommend products/i);
     expect(prompt).toMatch(/only .*catalog/i);
     expect(prompt).toMatch(/do not guess/i);
@@ -290,6 +294,7 @@ describe('POST /api/ai/product-assistant', () => {
         priceRange: mouseIntent.priceRange,
       },
       verifiedRequirements: mouseIntent.hardRequirements,
+      similarColors: [],
       unmatchedHardRequirements: [],
       priceRangeApplied: false,
       candidates: [
@@ -372,6 +377,7 @@ describe('POST /api/ai/product-assistant', () => {
           ],
           preferences: [],
           colors: [],
+          unavailableColors: [],
           unmatchedHardRequirements: [],
           unmatchedPreferences: [],
         },
@@ -449,6 +455,7 @@ describe('POST /api/ai/product-assistant', () => {
         hardRequirements: [],
         preferences: [],
         colors: [],
+        unavailableColors: [],
         unmatchedHardRequirements: mouseIntent.hardRequirements,
         unmatchedPreferences: [],
       });
@@ -525,6 +532,7 @@ describe('POST /api/ai/product-assistant', () => {
           { requirement: 'asymmetric shape', filterId: 4, filterOptionId: 15 },
         ],
         colors: [],
+        unavailableColors: [],
         unmatchedHardRequirements: ['solar charging'],
         unmatchedPreferences: ['black color'],
       },
@@ -561,10 +569,10 @@ describe('POST /api/ai/product-assistant', () => {
             { requirement: 'small hand size', filterOptionId: 9 },
           ],
           colors: [
-            { requirement: 'lilac color', colorId: 7 },
-            { requirement: 'lilac color', colorId: 7 },
-            { requirement: 'lilac color', colorId: 99999 },
-            { requirement: 'not requested', colorId: 8 },
+            { requirement: 'lilac color', colorId: 7, match: 'exact' },
+            { requirement: 'lilac color', colorId: 7, match: 'exact' },
+            { requirement: 'lilac color', colorId: 99999, match: 'exact' },
+            { requirement: 'not requested', colorId: 8, match: 'exact' },
           ],
         },
       })
@@ -602,7 +610,16 @@ describe('POST /api/ai/product-assistant', () => {
       hardRequirements: [
         { requirement: 'small hand size', filterId: 2, filterOptionId: 9 },
       ],
-      colors: [{ requirement: 'lilac color', colorId: 7 }],
+      colors: [
+        {
+          requirement: 'lilac color',
+          colorId: 7,
+          match: 'exact',
+          name_ko: '라일락',
+          name_en: 'lilac',
+        },
+      ],
+      unavailableColors: [],
       unmatchedHardRequirements: [],
     });
   });
@@ -617,8 +634,8 @@ describe('POST /api/ai/product-assistant', () => {
       mappingDraft: {
         ...mouseDraft,
         colors: [
-          { requirement: 'gold color', colorId: 99999 },
-          { requirement: 'lilac color', colorId: 7 },
+          { requirement: 'gold color', colorId: 99999, match: 'exact' },
+          { requirement: 'lilac color', colorId: 7, match: 'exact' },
         ],
       },
     });
@@ -631,6 +648,162 @@ describe('POST /api/ai/product-assistant', () => {
       colors: [],
       unmatchedHardRequirements: ['gold color'],
       unmatchedPreferences: ['lilac color'],
+    });
+  });
+
+  it('비슷한 계열 색상은 대체 색상으로 조회하고 추천 단계에 요청 색상과 구분해 전달한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({ items: [catalogMouse] });
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({
+        intent: {
+          ...mouseIntent,
+          hardRequirements: ['large hand size', 'purple color'],
+        },
+        mappingDraft: {
+          ...mouseDraft,
+          hardRequirements: [
+            { requirement: 'large hand size', filterOptionId: 9 },
+          ],
+          colors: [
+            { requirement: 'purple color', colorId: 7, match: 'similar' },
+          ],
+        },
+      })
+      .mockResolvedValueOnce(mouseRecommendation);
+
+    const response = await POST(createRequest({ prompt: '보라색 큰 마우스' }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7] });
+    const recommendationPrompt: string =
+      mocks.generateGeminiStructuredOutput.mock.calls[1][0];
+    expect(recommendationPrompt).toMatch(
+      /similarColors.*never claim .*requested color/i,
+    );
+    const recommendationInput = JSON.parse(
+      recommendationPrompt.split('\n\nInput:\n')[1],
+    );
+    expect(recommendationInput.verifiedRequirements).toEqual([
+      'large hand size',
+    ]);
+    expect(recommendationInput.similarColors).toEqual([
+      { requirement: 'purple color', name_ko: '라일락', name_en: 'lilac' },
+    ]);
+    expect((await response.json()).items.mapping).toMatchObject({
+      colors: [
+        {
+          requirement: 'purple color',
+          colorId: 7,
+          match: 'similar',
+          name_ko: '라일락',
+          name_en: 'lilac',
+        },
+      ],
+      unavailableColors: [],
+      unmatchedHardRequirements: [],
+    });
+  });
+
+  it('같거나 비슷한 색상이 없는 필수 색상만 있으면 상품 조회와 추천을 건너뛴다', async () => {
+    mocks.generateGeminiStructuredOutput.mockResolvedValue({
+      intent: {
+        ...mouseIntent,
+        hardRequirements: ['large hand size', 'gold color'],
+        preferences: ['silver color'],
+      },
+      mappingDraft: {
+        ...mouseDraft,
+        unavailableColors: [
+          'gold color',
+          'gold color',
+          'silver color',
+          'not requested',
+        ],
+      },
+    });
+
+    const response = await POST(createRequest({ prompt: '금색 큰 마우스' }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.getProductsPage).not.toHaveBeenCalled();
+    expect(mocks.generateGeminiStructuredOutput).toHaveBeenCalledOnce();
+    const { items } = await response.json();
+    expect(items.candidates).toEqual([]);
+    expect(items.recommendation).toBeNull();
+    expect(items.mapping).toMatchObject({
+      colors: [],
+      unavailableColors: ['gold color'],
+      unmatchedHardRequirements: [],
+      unmatchedPreferences: ['silver color'],
+    });
+  });
+
+  it('일부 필수 색상만 없으면 남은 색상으로 추천하고 없는 색상은 충족한다고 말하지 않게 한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({ items: [catalogMouse] });
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({
+        intent: {
+          ...mouseIntent,
+          hardRequirements: ['gold or lilac color'],
+        },
+        mappingDraft: {
+          ...mouseDraft,
+          hardRequirements: [],
+          colors: [
+            { requirement: 'gold or lilac color', colorId: 7, match: 'exact' },
+          ],
+          // A color already matched is not reported as unavailable.
+          unavailableColors: ['gold or lilac color'],
+        },
+      })
+      .mockResolvedValueOnce(mouseRecommendation);
+
+    const response = await POST(createRequest({ prompt: '금색이나 라일락' }));
+
+    expect(response.status).toBe(200);
+    expect(mocks.getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7] });
+    expect((await response.json()).items.mapping).toMatchObject({
+      unavailableColors: [],
+      unmatchedHardRequirements: [],
+    });
+  });
+
+  it('없는 색상과 남은 색상이 함께 있으면 없는 색상을 추천 단계의 미확인 조건으로 전달한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({ items: [catalogMouse] });
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({
+        intent: {
+          ...mouseIntent,
+          hardRequirements: ['gold color', 'lilac color', 'solar charging'],
+        },
+        mappingDraft: {
+          ...mouseDraft,
+          hardRequirements: [],
+          colors: [{ requirement: 'lilac color', colorId: 7, match: 'exact' }],
+          unavailableColors: ['gold color'],
+        },
+      })
+      .mockResolvedValueOnce(mouseRecommendation);
+
+    const response = await POST(
+      createRequest({ prompt: '금색이나 라일락 태양광 마우스' }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7] });
+    const recommendationInput = JSON.parse(
+      mocks.generateGeminiStructuredOutput.mock.calls[1][0].split(
+        '\n\nInput:\n',
+      )[1],
+    );
+    expect(recommendationInput.verifiedRequirements).toEqual(['lilac color']);
+    expect(recommendationInput.unmatchedHardRequirements).toEqual([
+      'solar charging',
+      'gold color',
+    ]);
+    expect((await response.json()).items.mapping).toMatchObject({
+      unavailableColors: ['gold color'],
+      unmatchedHardRequirements: ['solar charging'],
     });
   });
 
