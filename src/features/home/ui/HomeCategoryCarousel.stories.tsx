@@ -1,4 +1,4 @@
-import { expect, userEvent } from 'storybook/test';
+import { expect, userEvent, waitFor } from 'storybook/test';
 
 import type { HomeSection } from '@entities/home/model/types';
 
@@ -6,7 +6,12 @@ import HomeCategoryCarousel from './HomeCategoryCarousel';
 
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 
-const imageSrc = '/images/storybook/category-mice.webp';
+const imageSources = [
+  '/images/storybook/category-mice.webp',
+  '/images/storybook/category-cameras.webp',
+  '/images/storybook/category-tablet-keyboards.webp',
+  '/images/storybook/category-security-cameras.webp',
+];
 
 const sampleSection: HomeSection = {
   id: 1,
@@ -15,14 +20,14 @@ const sampleSection: HomeSection = {
   title: 'Find your daily setup',
   subtitle: 'Explore devices organized for work, play, and everyday use.',
   displayOrder: 1,
-  items: Array.from({ length: 8 }, (_, index) => ({
+  items: Array.from({ length: 12 }, (_, index) => ({
     id: index + 1,
     label: `Category ${index + 1}`,
     title: `Category ${index + 1}`,
     description: null,
     cta: 'Explore',
     href: '/products',
-    image_url: imageSrc,
+    image_url: imageSources[index % imageSources.length],
     imageAlt: `Category ${index + 1}`,
     displayOrder: index + 1,
     layoutGroup: Math.floor(index / 4) + 1,
@@ -56,11 +61,16 @@ export const Default: Story = {};
 export const GoToNextSlide: Story = {
   name: 'Go To Next Slide',
   play: async ({ canvas }) => {
-    const secondSlideButton = await canvas.findByRole('button', {
-      name: /2번 카테고리 슬라이드로 이동|Go to category slide 2/,
+    const previousButton = await canvas.findByRole('button', {
+      name: /이전 카테고리 슬라이드|Previous category slide/,
+    });
+    const nextButton = await canvas.findByRole('button', {
+      name: /다음 카테고리 슬라이드|Next category slide/,
     });
 
-    await userEvent.click(secondSlideButton);
-    await expect(secondSlideButton).toHaveAttribute('aria-current', 'true');
+    await expect(previousButton).toBeDisabled();
+    await waitFor(() => expect(nextButton).toBeEnabled());
+    await userEvent.click(nextButton);
+    await waitFor(() => expect(previousButton).toBeEnabled());
   },
 };

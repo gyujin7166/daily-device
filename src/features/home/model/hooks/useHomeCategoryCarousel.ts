@@ -8,18 +8,15 @@ export const useHomeCategoryCarousel = () => {
     loop: false,
     containScroll: 'trimSnaps',
     dragFree: false,
+    slidesToScroll: 'auto',
   });
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const syncState = useCallback(() => {
     if (!emblaApi) {
       return;
     }
 
-    setScrollSnaps(emblaApi.scrollSnapList());
-    setSelectedIndex(emblaApi.selectedScrollSnap());
     setPrevBtnDisabled(!emblaApi.canScrollPrev());
     setNextBtnDisabled(!emblaApi.canScrollNext());
   }, [emblaApi]);
@@ -31,13 +28,6 @@ export const useHomeCategoryCarousel = () => {
   const scrollNext = useCallback(() => {
     emblaApi?.scrollNext();
   }, [emblaApi]);
-
-  const scrollTo = useCallback(
-    (index: number) => {
-      emblaApi?.scrollTo(index);
-    },
-    [emblaApi],
-  );
 
   useEffect(() => {
     if (!emblaApi) {
@@ -56,15 +46,10 @@ export const useHomeCategoryCarousel = () => {
 
   return {
     emblaRef,
-    selectedIndex,
-    scrollSnaps,
     prevBtnDisabled,
     nextBtnDisabled,
-    showPrevButton: selectedIndex > 0,
-    showNextButton:
-      scrollSnaps.length > 0 && selectedIndex < scrollSnaps.length - 1,
+    canScroll: !prevBtnDisabled || !nextBtnDisabled,
     scrollPrev,
     scrollNext,
-    scrollTo,
   };
 };

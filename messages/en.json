@@ -200,11 +200,10 @@
       "eyebrow": "Categories",
       "title": "Product lines for every setup",
       "subtitle": "Browse product groups that match your environment and workflow.",
-      "viewCta": "View {label}",
+      "viewCta": "Explore",
       "imageFallbackAlt": "Product image coming soon",
       "previousSlide": "Previous category slide",
       "nextSlide": "Next category slide",
-      "goToSlide": "Go to category slide {page, number}",
       "notImplemented": "This feature is coming soon.",
       "fallbackItems": {
         "miceAndKeyboards": "Mice & Keyboards",
