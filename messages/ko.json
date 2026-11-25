@@ -200,11 +200,10 @@
       "eyebrow": "Categories",
       "title": "원하는 환경에 맞는 제품군",
       "subtitle": "원하는 환경과 사용 흐름에 맞는 제품군을 빠르게 둘러보세요.",
-      "viewCta": "{label} 보기",
+      "viewCta": "둘러보기",
       "imageFallbackAlt": "상품 이미지 준비 중",
       "previousSlide": "이전 카테고리 슬라이드",
       "nextSlide": "다음 카테고리 슬라이드",
-      "goToSlide": "{page, number}번 카테고리 슬라이드로 이동",
       "notImplemented": "현재 준비 중인 기능입니다.",
       "fallbackItems": {
         "miceAndKeyboards": "마우스 & 키보드",
