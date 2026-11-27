@@ -17,6 +17,7 @@ const mocks = vi.hoisted(() => ({
   findCategories: vi.fn(),
   findFilters: vi.fn(),
   findColors: vi.fn(),
+  findProductDetails: vi.fn(),
   getProductsPage: vi.fn(),
 }));
 
@@ -32,6 +33,7 @@ vi.mock('prisma/prismaClientSingleton', () => ({
     productCategory: { findMany: mocks.findCategories },
     filter: { findMany: mocks.findFilters },
     color: { findMany: mocks.findColors },
+    productDetail: { findMany: mocks.findProductDetails },
   },
 }));
 vi.mock('@app/api-routes/products/service', () => ({
@@ -101,7 +103,9 @@ const catalogMouse = {
 
 const mouseRecommendation = {
   answer: '확인된 조건에 맞는 후보를 추천합니다.',
-  recommendations: [{ productId: 20, reason: '큰 손 조건을 충족합니다.' }],
+  recommendations: [
+    { productId: 20, reason: '큰 손 조건을 충족합니다.', specEvidence: [] },
+  ],
 };
 
 const createRequest = (body: unknown) =>
@@ -116,6 +120,7 @@ describe('POST /api/ai/product-assistant', () => {
     mocks.getRequiredUserId.mockResolvedValue('private-user-id');
     mocks.findCategories.mockResolvedValue(categories);
     mocks.getProductsPage.mockResolvedValue({ items: [] });
+    mocks.findProductDetails.mockReset().mockResolvedValue([]);
     const filterRows = filters.map(({ options, ...filter }) => ({
       ...filter,
       filterOption: options.map((option) => ({
@@ -296,6 +301,7 @@ describe('POST /api/ai/product-assistant', () => {
       verifiedRequirements: mouseIntent.hardRequirements,
       similarColors: [],
       unmatchedHardRequirements: [],
+      specCheckRequirements: [],
       priceRangeApplied: false,
       candidates: [
         {
@@ -303,9 +309,12 @@ describe('POST /api/ai/product-assistant', () => {
           description: 'English description',
           discountedPrice: 90000,
           matchedPreferences: [],
+          specifications: [],
         },
       ],
     });
+    // Product specifications are read only when a condition is left for them.
+    expect(mocks.findProductDetails).not.toHaveBeenCalled();
     expect(mocks.findCategories).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         where: {
@@ -833,6 +842,82 @@ describe('POST /api/ai/product-assistant', () => {
     });
   });
 
+  it('필터로 확인하지 못한 조건은 상품 사양 줄을 그대로 인용한 근거만 인정한다', async () => {
+    mocks.getProductsPage.mockResolvedValue({ items: [catalogMouse] });
+    mocks.findProductDetails.mockResolvedValue([
+      {
+        productId: 20,
+        specification: '["Windows 10 이상", "macOS 12 이상"]',
+        translations: [
+          {
+            locale: 'en',
+            specification: '["Windows 10 or later", "macOS  12 or later"]',
+          },
+        ],
+      },
+      { productId: 20, specification: 'not json', translations: [] },
+    ]);
+    mocks.generateGeminiStructuredOutput
+      .mockResolvedValueOnce({
+        intent: {
+          ...mouseIntent,
+          hardRequirements: [...mouseIntent.hardRequirements, 'macOS support'],
+        },
+        mappingDraft: mouseDraft,
+      })
+      .mockResolvedValueOnce({
+        ...mouseRecommendation,
+        recommendations: [
+          {
+            productId: 20,
+            reason: 'Listed for macOS.',
+            specEvidence: [
+              // Not a line of this product, so it is dropped.
+              { requirement: 'macOS support', quote: 'macOS 13 or later' },
+              // A real line, but large hand size was already verified by a filter.
+              { requirement: 'large hand size', quote: 'not json' },
+              { requirement: 'macOS support', quote: ' macOS 12 or later ' },
+              // Only one quote is kept per condition.
+              { requirement: 'macOS support', quote: 'Windows 10 or later' },
+            ],
+          },
+        ],
+      });
+
+    const response = await POST(
+      createRequest({ prompt: 'A mac mouse', locale: 'en' }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.findProductDetails).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ where: { productId: { in: [20] } } }),
+    );
+    const recommendationPrompt: string =
+      mocks.generateGeminiStructuredOutput.mock.calls[1][0];
+    const recommendationInput = JSON.parse(
+      recommendationPrompt.split('\n\nInput:\n')[1],
+    );
+    expect(recommendationInput.specCheckRequirements).toEqual([
+      'macOS support',
+    ]);
+    expect(recommendationInput.candidates[0].specifications).toEqual([
+      'Windows 10 or later',
+      'macOS 12 or later',
+      'not json',
+    ]);
+    expect(
+      (await response.json()).items.recommendation.recommendations,
+    ).toEqual([
+      {
+        productId: 20,
+        reason: 'Listed for macOS.',
+        specEvidence: [
+          { requirement: 'macOS support', quote: 'macOS 12 or later' },
+        ],
+      },
+    ]);
+  });
+
   it('이름이 일부만 같거나 여러 옵션과 겹치는 조건은 이름으로 검증하지 않는다', async () => {
     mocks.findFilters.mockResolvedValue([
       ...['손 크기', '모양'].map((name, index) => ({
@@ -902,6 +987,7 @@ describe('POST /api/ai/product-assistant', () => {
     const recommendations = [31, 20, 27].map((productId) => ({
       productId,
       reason: 'Verified candidate.',
+      specEvidence: [],
     }));
     mocks.generateGeminiStructuredOutput
       .mockResolvedValueOnce({ intent: mouseIntent, mappingDraft: mouseDraft })

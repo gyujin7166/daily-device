@@ -16,6 +16,8 @@ import type {
 import type { Locale } from '@shared/config/i18n/routing';
 import { GeminiError } from '@shared/lib/gemini/geminiError';
 import { generateGeminiStructuredOutput } from '@shared/lib/gemini/generateGeminiText';
+import { getLocaleFallbacks } from '@shared/lib/i18n/locale';
+import { pickTranslation } from '@shared/lib/i18n/translation';
 
 import prisma from 'prisma/prismaClientSingleton';
 
@@ -53,7 +55,9 @@ const RECOMMENDATION_INSTRUCTIONS = [
   'Use only candidates[].id as productId. Never invent a product or choose an outside product.',
   'The server has checked verifiedRequirements for every candidate. Consider intent.priority and prefer candidates with more matchedPreferences.',
   'All discountedPrice values are sale prices in KRW. Claim a budget match only when priceRangeApplied is true. Do not convert currencies.',
-  'Never claim a candidate satisfies any unmatchedHardRequirements or repeat those conditions in the answer or reasons. Use matchedPreferences as evidence of preferences and treat missing evidence as unknown.',
+  'specCheckRequirements are required conditions that no filter verified. For each recommended candidate, add a specEvidence entry for such a condition only when one line in the specifications of that candidate explicitly states it, and copy that whole line exactly as quote. Related or general wording is not evidence. Otherwise leave specEvidence empty.',
+  'Prefer candidates whose specifications explicitly state more specCheckRequirements.',
+  'Never claim a candidate satisfies any unmatchedHardRequirements unless its specEvidence cites that condition, and do not repeat the other ones in the answer or reasons. Use matchedPreferences as evidence of preferences and treat missing evidence as unknown.',
   'Candidates for each similarColors entry have the listed similar catalog color instead of the requested one. Never claim a candidate has the requested color. You may mention the similar color by name.',
   'Do not repeat warnings about unmatched or unverifiable requirements in the answer. The UI displays those warnings separately.',
   'The supplied candidates are valid database products. Do not say that no matching product information was found, no matching products exist, or the requested conditions cannot be satisfied.',
@@ -362,13 +366,95 @@ export async function getProductSearchCandidates(
     .slice(0, MAX_PRODUCT_CANDIDATES);
 }
 
+const parseSpecificationLines = (specification: string | null) => {
+  if (!specification) return [];
+
+  try {
+    const lines: unknown = JSON.parse(specification);
+    return Array.isArray(lines)
+      ? lines.filter((line): line is string => typeof line === 'string')
+      : [specification];
+  } catch {
+    return [specification];
+  }
+};
+
+const normalizeSpecLine = (line: string) => line.trim().replace(/\s+/g, ' ');
+
+// Specification lines per product, in the requested language where translated.
+export async function getCandidateSpecifications(
+  productIds: number[],
+  locale: Locale,
+) {
+  const details = await prisma.productDetail.findMany({
+    where: { productId: { in: productIds } },
+    select: {
+      productId: true,
+      specification: true,
+      translations: {
+        where: { locale: { in: getLocaleFallbacks(locale) } },
+        select: { locale: true, specification: true },
+      },
+    },
+    orderBy: { id: 'asc' },
+  });
+  const linesByProductId = new Map<number, string[]>();
+
+  for (const { productId, specification, translations } of details) {
+    const translated = pickTranslation(translations, locale)?.specification;
+    const lines = parseSpecificationLines(translated ?? specification)
+      .map(normalizeSpecLine)
+      .filter(Boolean);
+    linesByProductId.set(productId, [
+      ...(linesByProductId.get(productId) ?? []),
+      ...lines,
+    ]);
+  }
+
+  return linesByProductId;
+}
+
+// Keeps one quote per requested condition, and only quotes that are real lines of the product.
+function verifySpecEvidence(
+  specEvidence: ProductRecommendation['recommendations'][number]['specEvidence'],
+  specCheckRequirements: string[],
+  specificationLines: string[],
+) {
+  const lines = new Set(specificationLines);
+  const seen = new Set<string>();
+
+  return specEvidence.flatMap(({ requirement, quote }) => {
+    const line = normalizeSpecLine(quote);
+    if (
+      !specCheckRequirements.includes(requirement) ||
+      !lines.has(line) ||
+      seen.has(requirement)
+    )
+      return [];
+
+    seen.add(requirement);
+    return [{ requirement, quote: line }];
+  });
+}
+
 export async function getProductRecommendation(
   userQuestion: string,
   { hardRequirements, preferences, priority, priceRange }: ProductSearchIntent,
   mapping: ProductSearchMapping,
   candidates: ProductSearchCandidate[],
+  locale: Locale,
 ): Promise<ProductRecommendation | null> {
   if (candidates.length === 0) return null;
+
+  // Colors are checked through product colors, so only the other conditions are looked up in text.
+  const specCheckRequirements = mapping.unmatchedHardRequirements;
+  const specificationsById =
+    specCheckRequirements.length > 0
+      ? await getCandidateSpecifications(
+          candidates.map(({ id }) => id),
+          locale,
+        )
+      : new Map<number, string[]>();
 
   const exactColors = mapping.colors.filter(({ match }) => match === 'exact');
   const verified = new Set(
@@ -393,6 +479,7 @@ export async function getProductRecommendation(
       ...mapping.unmatchedHardRequirements,
       ...mapping.unavailableColors,
     ],
+    specCheckRequirements,
     priceRangeApplied:
       priceRange.currency === 'KRW' &&
       (priceRange.min !== null || priceRange.max !== null),
@@ -402,6 +489,7 @@ export async function getProductRecommendation(
         description,
         discountedPrice,
         matchedPreferences,
+        specifications: specificationsById.get(id) ?? [],
       }),
     ),
   };
@@ -413,9 +501,16 @@ export async function getProductRecommendation(
 
   // Deleting an ID also prevents the same product from being recommended twice.
   const remainingCandidateIds = new Set(candidates.map(({ id }) => id));
-  const verifiedRecommendations = recommendations.filter(({ productId }) =>
-    remainingCandidateIds.delete(productId),
-  );
+  const verifiedRecommendations = recommendations
+    .filter(({ productId }) => remainingCandidateIds.delete(productId))
+    .map(({ specEvidence = [], ...recommendation }) => ({
+      ...recommendation,
+      specEvidence: verifySpecEvidence(
+        specEvidence,
+        specCheckRequirements,
+        specificationsById.get(recommendation.productId) ?? [],
+      ),
+    }));
 
   if (verifiedRecommendations.length === 0) {
     throw new GeminiError('invalid_recommendation');
@@ -444,6 +539,7 @@ export async function getProductAssistantResult(
     intent,
     mapping,
     candidates,
+    locale,
   );
 
   return { intent, mapping, candidates, recommendation };
