@@ -60,10 +60,12 @@ export const recommendedResult: ProductAssistantResult = {
         productId: 102,
         reason:
           '무선 연결을 지원하고, 현재 할인 중이라 예산 안에서 구매할 수 있어요.',
+        specEvidence: [],
       },
       {
         productId: 104,
         reason: '저소음 클릭을 지원해 조용한 사무실에서 쓰기 좋아요.',
+        specEvidence: [],
       },
     ],
   },
@@ -115,6 +117,7 @@ export const similarColorResult: ProductAssistantResult = {
       {
         productId: 104,
         reason: '블루 색상이고 저소음 클릭을 지원해요.',
+        specEvidence: [],
       },
     ],
   },
@@ -129,4 +132,27 @@ export const unavailableColorResult: ProductAssistantResult = {
   mapping: { ...mapping, unavailableColors: ['gold color'] },
   candidates: [],
   recommendation: null,
+};
+
+export const specEvidenceResult: ProductAssistantResult = {
+  ...recommendedResult,
+  intent: {
+    ...intent,
+    hardRequirements: ['wireless', 'macOS support'],
+    priority: ['wireless', 'macOS support'],
+  },
+  mapping: { ...mapping, unmatchedHardRequirements: ['macOS support'] },
+  recommendation: {
+    answer:
+      '무선 연결을 확인했고, 상품 사양에서 macOS 지원도 확인한 마우스를 골랐어요.',
+    recommendations: [
+      {
+        productId: 102,
+        reason: '무선 연결을 지원하고 사양에 macOS 지원이 적혀 있어요.',
+        specEvidence: [
+          { requirement: 'macOS support', quote: 'macOS 12 이상' },
+        ],
+      },
+    ],
+  },
 };

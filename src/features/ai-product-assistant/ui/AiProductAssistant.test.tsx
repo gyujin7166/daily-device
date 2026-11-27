@@ -76,7 +76,11 @@ function recommendationResponse(
       recommendation: {
         answer,
         recommendations: [
-          { productId: 20, reason: 'Matches the verified hand size.' },
+          {
+            productId: 20,
+            reason: 'Matches the verified hand size.',
+            specEvidence: [],
+          },
         ],
       },
       ...overrides,
@@ -429,5 +433,63 @@ describe('AiProductAssistant', () => {
     expect(await screen.findByText(t.partlyUnavailableColors)).toBeVisible();
     expect(screen.getByText('Lilac choices')).toBeVisible();
     expect(screen.queryByText(t.similarColors)).not.toBeInTheDocument();
+  });
+
+  const macMapping = {
+    category: { id: 1, slug: 'mice' },
+    hardRequirements: [],
+    preferences: [],
+    colors: [],
+    unavailableColors: [],
+    unmatchedHardRequirements: ['macOS support'],
+    unmatchedPreferences: [],
+  };
+  const macRecommendation = (
+    specEvidence: { requirement: string; quote: string }[],
+  ) => ({
+    answer: 'Spec choices',
+    recommendations: [
+      { productId: 20, reason: 'Listed for macOS.', specEvidence },
+    ],
+  });
+
+  it('사양에서 확인한 문구를 보여주고 모든 추천이 확인하면 미확인 안내를 숨긴다', async () => {
+    server.use(
+      http.post(endpoint, () =>
+        recommendationResponse('Spec choices', {
+          mapping: macMapping,
+          recommendation: macRecommendation([
+            { requirement: 'macOS support', quote: 'macOS 12 이상' },
+          ]),
+        }),
+      ),
+    );
+    const { user, input } = renderAssistant();
+    await user.type(input, '맥에서 쓸 마우스');
+    await user.click(screen.getByRole('button', { name: t.submit }));
+
+    expect(
+      await screen.findByText('사양에서 확인: “macOS 12 이상”'),
+    ).toBeVisible();
+    expect(
+      screen.queryByText(t.unverifiedRequirements),
+    ).not.toBeInTheDocument();
+  });
+
+  it('사양 근거가 없는 추천이 있으면 미확인 안내를 유지한다', async () => {
+    server.use(
+      http.post(endpoint, () =>
+        recommendationResponse('Spec choices', {
+          mapping: macMapping,
+          recommendation: macRecommendation([]),
+        }),
+      ),
+    );
+    const { user, input } = renderAssistant();
+    await user.type(input, '맥에서 쓸 마우스');
+    await user.click(screen.getByRole('button', { name: t.submit }));
+
+    expect(await screen.findByText(t.unverifiedRequirements)).toBeVisible();
+    expect(screen.queryByText(/사양에서 확인/)).not.toBeInTheDocument();
   });
 });

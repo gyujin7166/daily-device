@@ -21,6 +21,16 @@ export const productRecommendationSchema = z.strictObject({
       z.strictObject({
         productId: z.int().positive(),
         reason: plainText(280),
+        // The server keeps an entry only when quote is one of the product's specification lines.
+        specEvidence: z
+          .array(
+            z.strictObject({
+              requirement: z.string().trim().min(1),
+              quote: z.string().trim().min(1).max(200),
+            }),
+          )
+          .max(5)
+          .default([]),
       }),
     )
     .min(1)

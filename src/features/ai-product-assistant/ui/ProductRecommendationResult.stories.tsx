@@ -3,6 +3,7 @@ import {
   recommendedResult,
   resultWithNotices,
   similarColorResult,
+  specEvidenceResult,
   unavailableColorResult,
 } from './AiProductAssistant.storyFixtures';
 import ProductRecommendationResult from './ProductRecommendationResult';
@@ -52,4 +53,9 @@ export const SimilarColors: Story = {
 export const UnavailableColors: Story = {
   name: 'Unavailable Colors',
   args: unavailableColorResult,
+};
+
+export const SpecEvidence: Story = {
+  name: 'Spec Evidence',
+  args: specEvidenceResult,
 };
