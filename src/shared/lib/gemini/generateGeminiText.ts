@@ -9,6 +9,9 @@ import type { Interactions } from '@google/genai';
 
 const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
 
+// A plain prompt, or text and image blocks for one multimodal request.
+type GeminiInput = string | Interactions.Content[];
+
 type GenerateGeminiTextOptions = {
   thinkingLevel?: Interactions.ThinkingLevel;
 };
@@ -24,7 +27,7 @@ function createGeminiClient() {
 }
 
 async function requestGeminiText(
-  prompt: string,
+  input: GeminiInput,
   { thinkingLevel }: GenerateGeminiTextOptions = {},
   responseFormat?: Interactions.TextResponseFormat,
 ): Promise<string> {
@@ -33,7 +36,7 @@ async function requestGeminiText(
   const interaction = await client.interactions
     .create({
       model,
-      input: prompt,
+      input,
       // Disables interaction storage; Google's Free Tier data-use terms still apply.
       store: false,
       ...(thinkingLevel
@@ -66,11 +69,11 @@ export function generateGeminiText(
 }
 
 export async function generateGeminiStructuredOutput<TSchema extends z.ZodType>(
-  prompt: string,
+  input: GeminiInput,
   schema: TSchema,
   options?: GenerateGeminiTextOptions,
 ): Promise<z.output<TSchema>> {
-  const text = await requestGeminiText(prompt, options, {
+  const text = await requestGeminiText(input, options, {
     type: 'text',
     mime_type: 'application/json',
     schema: z.toJSONSchema(schema),
