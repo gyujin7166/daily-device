@@ -918,6 +918,44 @@ describe('POST /api/ai/product-assistant', () => {
     ]);
   });
 
+  it('공백과 % 표기만 다른 조건도 같은 이름 옵션으로 검증한다', async () => {
+    mocks.findFilters.mockResolvedValue([
+      {
+        id: 6,
+        name: '배열',
+        categoryName: 'keyboards',
+        filterOption: [
+          {
+            id: 40,
+            name_en: '65-percent',
+            name_ko: '65% 배열',
+            filterId: 6,
+            categoryName: 'keyboards',
+          },
+        ],
+      },
+    ]);
+    mocks.generateGeminiStructuredOutput.mockResolvedValue({
+      intent: {
+        ...mouseIntent,
+        categoryHint: 'keyboard',
+        hardRequirements: ['65배열', '75배열'],
+        priority: ['65배열', '75배열'],
+      },
+      mappingDraft: { ...mouseDraft, categoryId: 2, hardRequirements: [] },
+    });
+
+    const response = await POST(createRequest({ prompt: '65배열 키보드' }));
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).items.mapping).toMatchObject({
+      hardRequirements: [
+        { requirement: '65배열', filterId: 6, filterOptionId: 40 },
+      ],
+      unmatchedHardRequirements: ['75배열'],
+    });
+  });
+
   it('이름이 일부만 같거나 여러 옵션과 겹치는 조건은 이름으로 검증하지 않는다', async () => {
     mocks.findFilters.mockResolvedValue([
       ...['손 크기', '모양'].map((name, index) => ({
