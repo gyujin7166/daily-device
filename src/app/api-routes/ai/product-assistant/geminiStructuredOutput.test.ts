@@ -60,6 +60,23 @@ describe('generateGeminiStructuredOutput', () => {
     );
   });
 
+  it('텍스트와 이미지 블록을 한 요청의 input으로 전달한다', async () => {
+    const input = [
+      { type: 'text' as const, text: 'Which layout is this keyboard?' },
+      { type: 'image' as const, data: 'aW1hZ2U=', mime_type: 'image/jpeg' },
+    ];
+    createInteraction.mockResolvedValue({
+      status: 'completed',
+      output_text: JSON.stringify(keyboardIntent),
+    });
+
+    await generateGeminiStructuredOutput(input, productSearchIntentSchema);
+
+    expect(createInteraction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ input }),
+    );
+  });
+
   it.each([
     {
       caseName: 'invalid JSON',

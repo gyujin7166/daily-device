@@ -23,6 +23,7 @@ const filterEnglishNameByKorean: Record<string, string> = {
   기능: 'Features',
   길이: 'Length',
   '마이크 형태': 'Microphone Type',
+  배열: 'Layout',
   '손 크기': 'Hand Size',
   '설치 방식': 'Mounting Style',
   '설치 위치': 'Placement',
@@ -48,6 +49,8 @@ const filterEnglishNameByKorean: Record<string, string> = {
 
 const filterOptionEnglishNameBySlug: Record<string, string> = {
   '2-1-channel': '2.1 Channel',
+  '65-percent': '65%',
+  'full-size': 'Full-size',
   '2-channel': '2 Channel',
   '3-5mm': '3.5 mm',
   'usb-c': 'USB-C',

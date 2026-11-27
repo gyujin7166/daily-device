@@ -1,0 +1,155 @@
+{
+  "category": "keyboards",
+  "products": {
+    "aster-keys-mini": {
+      "name": "Aster Keys Mini",
+      "layout": "65-percent",
+      "confidence": "high",
+      "evidence": "이미지에서 펑션 행이 없고 방향키와 오른쪽에 한 열의 내비게이션 키가 있는 65퍼센트 레이아웃이 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:40:41.795Z",
+      "reviewed": true
+    },
+    "beacon-keys-flex": {
+      "name": "Beacon Keys Flex",
+      "layout": "tenkeyless",
+      "confidence": "high",
+      "evidence": "이미지에서 숫자 패드가 없고 독립된 네비게이션 키 블록과 펑션 행이 있는 텐키리스 레이아웃이 선명하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:43:25.249Z",
+      "reviewed": true
+    },
+    "breeze-keys-desk": {
+      "name": "Breeze Keys Desk",
+      "layout": "tenkeyless",
+      "confidence": "high",
+      "evidence": "이미지에서 숫자 패드가 없고, 펑션열과 별도의 내비게이션 키 및 방향키가 분리되어 있는 텐키리스 배열이 선명하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:21.232Z",
+      "reviewed": true
+    },
+    "civic-keys-studio": {
+      "name": "Civic Keys Studio",
+      "layout": "tenkeyless",
+      "confidence": "high",
+      "evidence": "이미지에서 숫자 패드가 없고 분리된 내비게이션 블록과 방향키가 있는 텐키리스 레이아웃이 선명하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:41:44.577Z",
+      "reviewed": true
+    },
+    "frame-keys-lite": {
+      "name": "Frame Keys Lite",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 별도의 숫자 패드와 방향키, 그리고 펑션 행이 모두 선명하게 확인되므로 풀사이즈 레이아웃입니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:57.657Z",
+      "reviewed": true
+    },
+    "harbor-keys-max": {
+      "name": "Harbor Keys Max",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "Gemini는 텐키리스로 답했지만, 대표 이미지 오른쪽에 숫자 패드가 있어 검토 중 풀배열로 수정했습니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:38.779Z",
+      "reviewed": true
+    },
+    "kindle-keys-one": {
+      "name": "Kindle Keys One",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 오른쪽에 별도의 숫자 패드가 존재하고 펑션 행 및 네비게이션 블록이 모두 확인되므로 풀사이즈 레이아웃입니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:43:06.748Z",
+      "reviewed": true
+    },
+    "lumen-keys-slim": {
+      "name": "Lumen Keys Slim",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 별도의 숫자 패드가 오른쪽에 명확하게 존재하고 펑션 행과 네비게이션 블록이 모두 확인되므로 풀사이즈 레이아웃입니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:41:00.240Z",
+      "reviewed": true
+    },
+    "mellow-keys-pro": {
+      "name": "Mellow Keys Pro",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 우측에 별도의 숫자 패드가 있고, 방향키와 내비게이션 키 블록이 모두 명확하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:41:53.428Z",
+      "reviewed": true
+    },
+    "nook-keys-core": {
+      "name": "Nook Keys Core",
+      "layout": "65-percent",
+      "confidence": "high",
+      "evidence": "이미지에서 펑션열이 없고 오른쪽에 방향키와 한 줄의 내비게이션 키가 배치된 65퍼센트 레이아웃이 선명하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:30.012Z",
+      "reviewed": true
+    },
+    "nova-keys-air": {
+      "name": "Nova Keys Air",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 우측에 숫자 키패드가 있고, 별도의 내비게이션 키와 펑션 행이 모두 확인되므로 풀사이즈 레이아웃입니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:40:50.846Z",
+      "reviewed": true
+    },
+    "orbit-keys-plus": {
+      "name": "Orbit Keys Plus",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 우측에 숫자 패드가 존재하고 기능 키와 방향키가 모두 확인되므로 풀사이즈 레이아웃입니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:02.880Z",
+      "reviewed": true
+    },
+    "pixel-keys-flow": {
+      "name": "Pixel Keys Flow",
+      "layout": "65-percent",
+      "confidence": "high",
+      "evidence": "이미지에서 펑션열이 없고 방향키와 우측에 한 줄의 네비게이션 키가 있는 65퍼센트 레이아웃이 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:47.951Z",
+      "reviewed": true
+    },
+    "slate-keys-go": {
+      "name": "Slate Keys Go",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 별도의 숫자 패드와 방향키, 기능열이 모두 포함된 전체 크기 키보드 레이아웃이 선명하게 확인됩니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:42:12.518Z",
+      "reviewed": true
+    },
+    "studio-keys-touch": {
+      "name": "Studio Keys Touch",
+      "layout": "full-size",
+      "confidence": "high",
+      "evidence": "이미지에서 우측에 숫자 패드가 존재하고 펑션열 및 네비게이션 블록이 모두 확인되어 풀 사이즈 배열임을 알 수 있습니다.",
+      "imageUsed": true,
+      "model": "gemini-3.5-flash-lite",
+      "analyzedAt": "2026-11-27T06:43:15.677Z",
+      "reviewed": true
+    }
+  }
+}

@@ -153,11 +153,9 @@ function analyzeProductSearchRequest(
 type MappedCondition = ProductSearchMapping['hardRequirements'][number];
 type OptionMatch = Omit<MappedCondition, 'requirement'>;
 
+// Spacing and % are written freely in Korean, e.g. "65배열" for "65% 배열".
 const normalizeLabel = (label: string) =>
-  label
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]+/g, ' ');
+  label.toLowerCase().replace(/[\s_%-]+/g, '');
 
 function resolveConditions(
   requirements: string[],

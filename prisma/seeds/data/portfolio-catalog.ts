@@ -1,4 +1,5 @@
-import { filterCatalog } from './filter-catalog';
+import { filterCatalog, keyboardLayoutFilter } from './filter-catalog';
+import { getReviewedKeyboardLayout } from './reviewed-keyboard-layouts';
 
 import type { ProductLine } from '@prisma/client';
 
@@ -916,6 +917,7 @@ const getSupplementalFilterOptions = (
   categoryName: PortfolioProductCategoryName,
   productLine: ProductLine,
   index: number,
+  slug: string,
 ) => {
   const categoryFilters = filterCatalog.find(
     (category) => category.categoryName === categoryName,
@@ -928,6 +930,11 @@ const getSupplementalFilterOptions = (
   return categoryFilters.filters.flatMap((filter, filterIndex) => {
     if (filter.name === '제품 라인') {
       return [supplementalProductLineFilterSlugs[productLine]];
+    }
+
+    if (filter === keyboardLayoutFilter) {
+      const layout = getReviewedKeyboardLayout(slug);
+      return layout ? [layout] : [];
     }
 
     if (filter.options.length === 0) {
@@ -1007,6 +1014,7 @@ const supplementalPortfolioProducts: PortfolioProductSeed[] =
             category.categoryName,
             productLine,
             index,
+            slug,
           ),
           images: createEmptyImages(slug),
           details: createSupplementalDetails(category),
