@@ -3,7 +3,7 @@ type FilterCatalogOptionSeed = {
   name_en: string;
 };
 
-type FilterCatalogFilterSeed = {
+export type FilterCatalogFilterSeed = {
   name: string;
   options: FilterCatalogOptionSeed[];
 };
@@ -19,6 +19,17 @@ const productLineFilter: FilterCatalogFilterSeed = {
     { name_ko: '데일리 라인', name_en: 'everyday-line' },
     { name_ko: '비즈니스 라인', name_en: 'business-series' },
     { name_ko: '퍼포먼스 라인', name_en: 'performance-series' },
+  ],
+};
+
+// Each keyboard's option comes from the reviewed keyboard-layouts.json, not
+// from the round-robin assignment of the other seed filters.
+export const keyboardLayoutFilter: FilterCatalogFilterSeed = {
+  name: '배열',
+  options: [
+    { name_ko: '풀배열', name_en: 'full-size' },
+    { name_ko: '텐키리스', name_en: 'tenkeyless' },
+    { name_ko: '65% 배열', name_en: '65-percent' },
   ],
 };
 
@@ -71,6 +82,7 @@ const baseFilterCatalog: FilterCatalogCategorySeed[] = [
           { name_ko: '기계적 키', name_en: 'mechanical-keys' },
         ],
       },
+      keyboardLayoutFilter,
     ],
   },
   {
