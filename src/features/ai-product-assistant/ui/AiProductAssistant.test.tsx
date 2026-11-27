@@ -45,6 +45,7 @@ function recommendationResponse(
         ],
         preferences: [],
         colors: [],
+        unavailableColors: [],
         unmatchedHardRequirements: [],
         unmatchedPreferences: [],
       },
@@ -286,6 +287,7 @@ describe('AiProductAssistant', () => {
               hardRequirements: [],
               preferences: [],
               colors: [],
+              unavailableColors: [],
               unmatchedHardRequirements: [],
               unmatchedPreferences: [],
             },
@@ -323,6 +325,7 @@ describe('AiProductAssistant', () => {
             hardRequirements: [],
             preferences: [],
             colors: [],
+            unavailableColors: [],
             unmatchedHardRequirements: ['solar charging'],
             unmatchedPreferences: [],
           },
@@ -345,5 +348,86 @@ describe('AiProductAssistant', () => {
       'href',
       '/products/mice/large-mouse',
     );
+  });
+
+  const colorMapping = {
+    category: { id: 1, slug: 'mice' },
+    hardRequirements: [],
+    preferences: [],
+    unmatchedHardRequirements: [],
+    unmatchedPreferences: [],
+  };
+  const lilac = { colorId: 7, name_ko: '라일락', name_en: 'Lilac' };
+
+  it('비슷한 계열 색상으로 찾은 결과임을 안내한다', async () => {
+    server.use(
+      http.post(endpoint, () =>
+        recommendationResponse('Similar color choices', {
+          mapping: {
+            ...colorMapping,
+            colors: [
+              { requirement: 'purple color', match: 'similar', ...lilac },
+            ],
+            unavailableColors: [],
+          },
+        }),
+      ),
+    );
+    const { user, input } = renderAssistant();
+    await user.type(input, '보라색 마우스');
+    await user.click(screen.getByRole('button', { name: t.submit }));
+
+    expect(await screen.findByText(t.similarColors)).toBeVisible();
+    expect(screen.getByText('Similar color choices')).toBeVisible();
+    expect(
+      screen.queryByText(t.partlyUnavailableColors),
+    ).not.toBeInTheDocument();
+  });
+
+  it('같거나 비슷한 색상이 없으면 결과 없이 색상 안내를 표시한다', async () => {
+    server.use(
+      http.post(endpoint, () =>
+        recommendationResponse('Unexpected answer', {
+          mapping: {
+            ...colorMapping,
+            colors: [],
+            unavailableColors: ['gold color'],
+          },
+          candidates: [],
+          recommendation: null,
+        }),
+      ),
+    );
+    const { user, input } = renderAssistant();
+    await user.type(input, '금색 마우스');
+    await user.click(screen.getByRole('button', { name: t.submit }));
+
+    expect(await screen.findByText(t.unavailableColors)).toBeVisible();
+    expect(screen.queryByText(t.noCandidates)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(t.partlyUnavailableColors),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('gold color')).not.toBeInTheDocument();
+  });
+
+  it('일부 색상만 없으면 남은 색상의 추천과 함께 안내한다', async () => {
+    server.use(
+      http.post(endpoint, () =>
+        recommendationResponse('Lilac choices', {
+          mapping: {
+            ...colorMapping,
+            colors: [{ requirement: 'lilac color', match: 'exact', ...lilac }],
+            unavailableColors: ['gold color'],
+          },
+        }),
+      ),
+    );
+    const { user, input } = renderAssistant();
+    await user.type(input, '금색이나 라일락 마우스');
+    await user.click(screen.getByRole('button', { name: t.submit }));
+
+    expect(await screen.findByText(t.partlyUnavailableColors)).toBeVisible();
+    expect(screen.getByText('Lilac choices')).toBeVisible();
+    expect(screen.queryByText(t.similarColors)).not.toBeInTheDocument();
   });
 });
