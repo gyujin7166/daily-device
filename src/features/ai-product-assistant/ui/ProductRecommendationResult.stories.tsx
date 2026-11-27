@@ -2,6 +2,8 @@ import {
   noCandidatesResult,
   recommendedResult,
   resultWithNotices,
+  similarColorResult,
+  unavailableColorResult,
 } from './AiProductAssistant.storyFixtures';
 import ProductRecommendationResult from './ProductRecommendationResult';
 
@@ -40,4 +42,14 @@ export const WithNotices: Story = {
 export const NoCandidates: Story = {
   name: 'No Candidates',
   args: noCandidatesResult,
+};
+
+export const SimilarColors: Story = {
+  name: 'Similar Colors',
+  args: similarColorResult,
+};
+
+export const UnavailableColors: Story = {
+  name: 'Unavailable Colors',
+  args: unavailableColorResult,
 };

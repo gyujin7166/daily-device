@@ -22,11 +22,18 @@ const mapping: ProductSearchMapping = {
     { requirement: 'asymmetric shape', filterId: 4, filterOptionId: 15 },
   ],
   colors: [],
+  unavailableColors: [],
   unmatchedHardRequirements: ['solar charging'],
   unmatchedPreferences: [],
 };
 
 const noBudget = { min: null, max: null, currency: null };
+const lilac = { match: 'exact', name_ko: '라일락', name_en: 'Lilac' } as const;
+const pink = {
+  match: 'similar',
+  name_ko: '로즈핑크',
+  name_en: 'Rose Pink',
+} as const;
 
 function product(
   id: number,
@@ -106,9 +113,9 @@ describe('getProductSearchCandidates', () => {
       {
         ...mapping,
         colors: [
-          { requirement: 'lilac or pink', colorId: 7 },
-          { requirement: 'lilac or pink', colorId: 12 },
-          { requirement: 'lilac body', colorId: 7 },
+          { requirement: 'lilac or pink', colorId: 7, ...lilac },
+          { requirement: 'lilac or pink', colorId: 12, ...pink },
+          { requirement: 'lilac body', colorId: 7, ...lilac },
         ],
       },
       noBudget,
@@ -116,6 +123,33 @@ describe('getProductSearchCandidates', () => {
     );
 
     expect(getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7, 12] });
+  });
+
+  it('같거나 비슷한 색상이 하나도 없으면 상품을 조회하지 않는다', async () => {
+    const candidates = await getProductSearchCandidates(
+      { ...mapping, unavailableColors: ['gold color'] },
+      noBudget,
+      'ko',
+    );
+
+    expect(candidates).toEqual([]);
+    expect(getProductsPage).not.toHaveBeenCalled();
+  });
+
+  it('일부 색상만 없으면 남은 색상으로 상품을 조회한다', async () => {
+    getProductsPage.mockResolvedValue({ items: [product(1)] });
+
+    await getProductSearchCandidates(
+      {
+        ...mapping,
+        colors: [{ requirement: 'lilac color', colorId: 7, ...lilac }],
+        unavailableColors: ['gold color'],
+      },
+      noBudget,
+      'ko',
+    );
+
+    expect(getProductsPage.mock.calls[0][6]).toEqual({ colorIds: [7] });
   });
 
   it('KRW 예산의 경계를 할인 판매가로 확인한다', async () => {

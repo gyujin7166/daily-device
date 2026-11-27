@@ -6,8 +6,8 @@
  *   npm run ai:eval
  *
  * Gemini wording changes between runs, so each case checks only the structure
- * of the result: category, verified conditions, colors, unmatched conditions
- * and whether the budget was applied.
+ * of the result: category, verified conditions, colors, unavailable colors,
+ * unmatched conditions and whether the budget was applied.
  */
 import path from 'node:path';
 
@@ -32,6 +32,8 @@ type Expectation = {
   category?: string | null;
   minVerifiedFilters?: number;
   colors?: number;
+  similarColors?: number;
+  unavailableColors?: number;
   minMatchedPreferences?: number;
   hasUnmatched?: boolean;
   budgetApplied?: boolean;
@@ -51,16 +53,38 @@ const EVAL_CASES: EvalCase[] = [
       category: 'mice',
       minVerifiedFilters: 1,
       colors: 1,
+      similarColors: 0,
       hasUnmatched: false,
     },
   },
   {
     question: '로즈핑크나 라일락 색상의 키보드',
-    expect: { category: 'keyboards', colors: 2, hasUnmatched: false },
+    expect: {
+      category: 'keyboards',
+      colors: 2,
+      similarColors: 0,
+      hasUnmatched: false,
+    },
+  },
+  {
+    question: '네이비 색상의 키보드',
+    expect: {
+      category: 'keyboards',
+      colors: 1,
+      similarColors: 1,
+      unavailableColors: 0,
+      hasUnmatched: false,
+    },
   },
   {
     question: '금색 웹캠 있나요?',
-    expect: { category: 'webcams', colors: 0, hasUnmatched: true },
+    expect: {
+      category: 'webcams',
+      colors: 0,
+      unavailableColors: 1,
+      hasUnmatched: false,
+      hasRecommendation: false,
+    },
   },
   {
     question: '10만 원 이하의 무선 키보드',
@@ -140,6 +164,21 @@ function getFailures(
       `expected ${expected.colors} color(s), got ${mapping.colors.length}`,
     );
   }
+  if (expected.similarColors !== undefined) {
+    const similarColors = mapping.colors.filter(
+      ({ match }) => match === 'similar',
+    ).length;
+    check(
+      similarColors === expected.similarColors,
+      `expected ${expected.similarColors} similar color(s), got ${similarColors}`,
+    );
+  }
+  if (expected.unavailableColors !== undefined) {
+    check(
+      mapping.unavailableColors.length === expected.unavailableColors,
+      `expected ${expected.unavailableColors} unavailable color(s), got ${mapping.unavailableColors.length}`,
+    );
+  }
   if (expected.minMatchedPreferences !== undefined) {
     check(
       mapping.preferences.length >= expected.minMatchedPreferences,
@@ -188,7 +227,8 @@ function printResult(result: ProductAssistantResult) {
       ({ requirement }) => `${requirement} (filter)`,
     ),
     ...mapping.colors.map(
-      ({ requirement, colorId }) => `${requirement} (color #${colorId})`,
+      ({ requirement, colorId, match, name_en }) =>
+        `${requirement} (${match} color #${colorId} ${name_en})`,
     ),
   ];
   const recommended = (recommendation?.recommendations ?? []).map(
@@ -200,6 +240,7 @@ function printResult(result: ProductAssistantResult) {
   console.log(
     `  preferences  ${formatList(mapping.preferences.map(({ requirement }) => requirement))}`,
   );
+  console.log(`  unavailable  ${formatList(mapping.unavailableColors)}`);
   console.log(
     `  unmatched    ${formatList(mapping.unmatchedHardRequirements)}`,
   );

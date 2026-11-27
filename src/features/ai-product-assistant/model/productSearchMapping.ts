@@ -8,9 +8,15 @@ const mappedConditionSchema = z.strictObject({
   filterOptionId: z.int().positive(),
 });
 
+// exact: the catalog color is the requested color. similar: it is in the same color family.
+const colorMatchSchema = z.enum(['exact', 'similar']);
+
 const mappedColorSchema = z.strictObject({
   requirement: z.string().min(1),
   colorId: z.int().positive(),
+  match: colorMatchSchema,
+  name_ko: z.string().min(1),
+  name_en: z.string().min(1),
 });
 
 export const productSearchMappingSchema = z.strictObject({
@@ -20,6 +26,8 @@ export const productSearchMappingSchema = z.strictObject({
   hardRequirements: z.array(mappedConditionSchema),
   preferences: z.array(mappedConditionSchema),
   colors: z.array(mappedColorSchema),
+  // Required colors with no exact or similar catalog color.
+  unavailableColors: z.array(z.string().min(1)),
   unmatchedHardRequirements: z.array(z.string().min(1)),
   unmatchedPreferences: z.array(z.string().min(1)),
 });
@@ -35,6 +43,7 @@ const optionSelectionSchema = z.object({
 const colorSelectionSchema = z.object({
   requirement: z.string().min(1),
   colorId: z.int(),
+  match: colorMatchSchema,
 });
 
 export const productSearchAnalysisSchema = z.strictObject({
@@ -44,6 +53,7 @@ export const productSearchAnalysisSchema = z.strictObject({
     hardRequirements: z.array(optionSelectionSchema),
     preferences: z.array(optionSelectionSchema),
     colors: z.array(colorSelectionSchema),
+    unavailableColors: z.array(z.string().min(1)),
   }),
 });
 

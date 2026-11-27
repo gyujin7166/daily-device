@@ -17,6 +17,22 @@ export default function ProductRecommendationResult({
   const { min, max, currency } = intent.priceRange;
   const showUnappliedBudget =
     currency !== 'KRW' && (min !== null || max !== null);
+  const hasUnavailableColors = mapping.unavailableColors.length > 0;
+  const hasAvailableColors = mapping.colors.length > 0;
+  const hasSimilarColors = mapping.colors.some(
+    ({ match }) => match === 'similar',
+  );
+  const getEmptyMessage = () => {
+    if (!mapping.category) {
+      return 'clarifyProductType';
+    }
+
+    if (hasUnavailableColors && !hasAvailableColors) {
+      return 'unavailableColors';
+    }
+
+    return 'noCandidates';
+  };
   const candidatesById = new Map(
     candidates.map((candidate) => [candidate.id, candidate]),
   );
@@ -27,9 +43,18 @@ export default function ProductRecommendationResult({
         {t('recommendationTitle')}
       </h3>
       <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-7 text-ink dark:text-surface">
-        {recommendation?.answer ??
-          t(mapping.category ? 'noCandidates' : 'clarifyProductType')}
+        {recommendation?.answer ?? t(getEmptyMessage())}
       </p>
+      {hasSimilarColors ? (
+        <p className="mt-2 text-sm text-muted dark:text-dark-muted">
+          {t('similarColors')}
+        </p>
+      ) : null}
+      {hasUnavailableColors && hasAvailableColors ? (
+        <p className="mt-2 text-sm text-muted dark:text-dark-muted">
+          {t('partlyUnavailableColors')}
+        </p>
+      ) : null}
       {mapping.unmatchedHardRequirements.length > 0 ? (
         <p className="mt-2 text-sm text-muted dark:text-dark-muted">
           {t('unverifiedRequirements')}

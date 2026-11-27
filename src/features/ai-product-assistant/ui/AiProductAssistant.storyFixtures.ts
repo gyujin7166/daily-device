@@ -18,6 +18,7 @@ const mapping: ProductAssistantResult['mapping'] = {
     { requirement: 'quiet clicks', filterId: 4, filterOptionId: 15 },
   ],
   colors: [],
+  unavailableColors: [],
   unmatchedHardRequirements: [],
   unmatchedPreferences: [],
 };
@@ -84,6 +85,48 @@ export const resultWithNotices: ProductAssistantResult = {
 export const noCandidatesResult: ProductAssistantResult = {
   intent,
   mapping,
+  candidates: [],
+  recommendation: null,
+};
+
+export const similarColorResult: ProductAssistantResult = {
+  ...recommendedResult,
+  intent: {
+    ...intent,
+    hardRequirements: ['wireless', 'navy color'],
+    priority: ['navy color', 'wireless'],
+  },
+  mapping: {
+    ...mapping,
+    colors: [
+      {
+        requirement: 'navy color',
+        colorId: 7,
+        match: 'similar',
+        name_ko: '블루',
+        name_en: 'Blue',
+      },
+    ],
+  },
+  recommendation: {
+    answer:
+      '네이비와 가까운 블루 색상의 무선 마우스를 골랐어요. 조용한 클릭도 함께 확인했어요.',
+    recommendations: [
+      {
+        productId: 104,
+        reason: '블루 색상이고 저소음 클릭을 지원해요.',
+      },
+    ],
+  },
+};
+
+export const unavailableColorResult: ProductAssistantResult = {
+  intent: {
+    ...intent,
+    hardRequirements: ['wireless', 'gold color'],
+    priority: ['gold color', 'wireless'],
+  },
+  mapping: { ...mapping, unavailableColors: ['gold color'] },
   candidates: [],
   recommendation: null,
 };
